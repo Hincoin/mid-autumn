@@ -205,6 +205,14 @@
 				RelativePath=".\MemoryPool.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Mutex.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ObjectMemoryPool.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
