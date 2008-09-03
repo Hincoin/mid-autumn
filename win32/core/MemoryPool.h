@@ -5,7 +5,7 @@
 
 
 
-
+#include "Mutex.h"
 
 #include <boost/type_traits.hpp>
 namespace ma
@@ -13,19 +13,6 @@ namespace ma
 namespace core
 {
 	//
-
-	struct NullMutex{void lock(){} void unlock(){}};
-
-	template<typename Mutex>
-	class ScopeLock{
-		Mutex & mtx;
-
-		ScopeLock(const ScopeLock &);
-		void operator=(const ScopeLock &);
-	public:
-		explicit ScopeLock(Mutex &m):mtx(m){	mtx.lock();}
-		~ScopeLock(){ mtx.unlock();}
-	};
 
 	template<class AssocContainer,class Mutex, typename MemoryHandle = void*>
 	class MemoryPool
@@ -80,7 +67,7 @@ namespace core
 			SizeToMemPool::iterator it = pools_.find(n);
 			if (it !=pools_.end())
 			{
-				it->second->ordered_free(mem);
+				it->second->free(mem);
 			}
 		}
 		inline void releaseAllUnused()

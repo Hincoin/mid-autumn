@@ -22,10 +22,18 @@ namespace core
 		~DefaultMemPolicy(){}
 	};
 
-	template<class MemoryPolicy>
+	class NullType{
+	private:
+		NullType(){}
+		~NullType(){}
+		NullType(const NullType&);
+		NullType& operator=(const NullType&){}
+	};
+
+	template<typename Derived=NullType,class MemoryPolicy>
 	class CoreObject:public MemoryPolicy
 	{
-
+		
 	};
 }
 }
