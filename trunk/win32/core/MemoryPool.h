@@ -17,7 +17,7 @@ namespace core
 	template<class AssocContainer,class Mutex, typename MemoryHandle = void*>
 	class MemoryPool
 	{
-	private:
+	protected:
 		MemoryPool(const MemoryPool&);
 		MemoryPool& operator=(const MemoryPool&);
 	private:
@@ -95,7 +95,7 @@ namespace ma{
 			boost::details::pool::default_mutex > BoostAVPoolTS;//multi-thread safe
 
 		typedef MemoryPool<AssocVector<size_t,boost::pool<>* >,
-			NullMutex > BoostAVPool;//multi-thread safe
+			NullMutex > BoostAVPool;//
 	}
 }
 

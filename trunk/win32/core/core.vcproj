@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../inc/core"
+				AdditionalIncludeDirectories="./;../../inc/core"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -198,7 +198,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\inc\core\FSBAllocator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FSBSingletonPool.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\inc\core\MemoryMgr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MemoryPolicy.h"
 				>
 			</File>
 			<File
@@ -207,6 +219,10 @@
 			</File>
 			<File
 				RelativePath=".\Mutex.h"
+				>
+			</File>
+			<File
+				RelativePath=".\NullType.h"
 				>
 			</File>
 			<File
