@@ -2,6 +2,9 @@
 
 #include "MemoryMgr.h"
 #include "MemoryPool.h"
+#include "ObjectMemoryPool.h"
+
+#include "CoreObject.h"
 
 using namespace ma;
 using namespace core;
@@ -9,45 +12,35 @@ using namespace core;
 
 #include <iostream>
 
-class MemPolicy{
-public:
-	static void * operator new(size_t size){
-		return ::operator new(size);
-	}
-	static void operator delete(void *rawmemory, size_t size)
-	{
-		
-		return ::operator delete(rawmemory);
-	}
-	static void *operator new[]( size_t n)
-	{
-		std::cout<<"new[]:"<<n<<" " <<std::endl;
-		return ::operator new[](n); 
-	}
-	static void operator delete[]( void *p, size_t s)
-	{ 
-		std::cout<<"delete[]:"<<s<<std::endl;
-		::operator delete[](p); 
-	}
-
-public:
-	MemPolicy(){}
-	~MemPolicy(){}
-};
-class Derived:public MemPolicy
+template<typename Derived = EmptyType>
+class SonObject:public CoreObject<SonObject<Derived> >
 {
-public:
-	Derived(){};
-	~Derived(){ std::cout<<"destroy derived"<<std::endl;}
+	std::vector<SonObject> s_array;
+	char chunk_mem[1024];
 };
+
+template<typename Derived =EmptyType>
+class GrandSonObject:public SonObject<GrandSonObject<Derived> >
+{
+	typedef SonObject<GrandSonObject<Derived> > Parent;
+	long long chunk_mem[sizeof(Parent)];
+};
+
 int main()
 {
-	MemPolicy* p_mem = new MemPolicy;
-	MemPolicy* a_mem = new MemPolicy[100];
-	delete p_mem;
-	delete[] a_mem;
 
-	Derived* p_d = new Derived;
-	delete p_d;
-return 0;
+	typedef CoreObject<> small_object;
+	typedef SonObject<> big_object;
+	typedef GrandSonObject<> very_big_object;
+
+	FSBObjMemPool::template getMemory<small_object >();
+
+	big_object* the_son = new big_object;
+
+	very_big_object* the_grand = new very_big_object;
+
+	big_object* the_son_array = new big_object[100];
+
+	very_big_object* the_grand_array = new very_big_object[1000];
+	return 0;
 }

@@ -3,8 +3,13 @@
 
 
 #include <boost/type_traits.hpp>
+#include <boost/pool/pool.hpp>
+#include <boost/pool/singleton_pool.hpp>
 
 #include "Mutex.h"
+
+
+
 
 namespace ma
 {
@@ -12,81 +17,80 @@ namespace ma
 	{
 		//
 
+		template<typename T,class Mutex=boost::details::pool::default_mutex> 
+		struct BoostSingletonPool:public boost::singleton_pool<T,sizeof(T),boost::default_user_allocator_malloc_free,Mutex>
+		{};
 
-
-		template<class AssocContainer,class Mutex, typename MemoryHandle = void*>
+		//default to be boost pool
+		template<template<typename T,typename Mtx> class SingletonPool=BoostSingletonPool,typename Mutex = NullMutex, typename MemoryHandle = void*>
 		class ObjectMemoryPool
 		{
 		private:
 			ObjectMemoryPool(const ObjectMemoryPool&);
 			ObjectMemoryPool& operator=(const ObjectMemoryPool&);
 		private:
-			typedef AssocContainer SizeToMemPool;
-
-
-			BOOST_STATIC_ASSERT(boost::is_pointer<typename SizeToMemPool::mapped_type>::value);
-
-			typedef typename boost::remove_pointer<typename SizeToMemPool::mapped_type>::type PoolType;
-
-			struct SelfPool:Mutex,AssocContainer
-			{
-			};
-			SelfPool pools_;
+			typedef size_t size_type;			
 		protected:
-			typedef typename SizeToMemPool::key_type size_type;
+
 		protected:
 			ObjectMemoryPool(){}
 			~ObjectMemoryPool(){
 				//destroy all
-
-				ScopeLock<SelfPool> scp_lck(pools_);
-
-				for (SizeToMemPool::iterator it = pools_.begin();it!=pools_.end();++it)
-				{
-					delete it->second;
-				}
-				pools_.clear();
 			}
 		public:
 
 			template<typename T>
-			inline MemoryHandle getMemory(size_type n)
+			static  MemoryHandle getMemory()
 			{
-				ScopeLock<SelfPool> scp_lck(pools_);
-
-				SizeToMemPool::iterator it = pools_.find(n);
-				if (it == pools_.end())
-				{
-					it = pools_.insert(std::make_pair(n,new PoolType(n))).first;
-				}
-				return it->second->ordered_malloc();
+				return SingletonPool<T,Mutex>::malloc();
 			}
 
 			template<typename T>
-			inline void freeMemory(MemoryHandle mem,size_type n)
+			static  MemoryHandle getArrayMemory(size_type n)// get n * sizeof(T)
 			{
-				ScopeLock<SelfPool> scp_lck(pools_);
-
-				assert(pools_.find(n) != pools_.end());
-				SizeToMemPool::iterator it = pools_.find(n);
-				if (it !=pools_.end())
-				{
-					it->second->free(mem);
-				}
+				return SingletonPool<T,Mutex>::ordered_malloc(n);
 			}
 
 			template<typename T>
-			inline void releaseAllUnused()
+			static void freeMemory(MemoryHandle mem,size_type )
 			{
-				ScopeLock<SelfPool> scp_lck(pools_);
-				for (SizeToMemPool::iterator it = pools_.begin(); it != pools_.end(); ++it)
-				{
-					it->second->release_memory();
-				}
+				SingletonPool<T,Mutex>::free(mem);
+			}
+
+			template<typename T>
+			static void releaseUnused() //not very userful
+			{
+				SingletonPool<T,Mutex>::release_memory();
 			}
 
 		};	
 	}
 }
+
+#include "FSBSingletonPool.h"
+namespace ma{
+	namespace core{
+
+		template<typename T,class Mutex=boost::details::pool::default_mutex> 
+		struct DefaultFSBSingletonPoolTS:FSBSingletonPool<T,sizeof(T)>
+		{};
+
+		template<typename T,class Mutex=NullMutex> 
+		struct DefaultFSBSingletonPool:FSBSingletonPool<T,sizeof(T)>
+		{};
+
+		typedef ObjectMemoryPool<> BoostObjMemPool;
+		typedef ObjectMemoryPool<DefaultFSBSingletonPool,NullMutex> FSBObjMemPool;
+	}
+}
+
+#define REGISTER_RELEASE_FUN(ClassName)\
+	namespace ma{\
+namespace core{\
+	namespace{\
+	}\
+}\
+}
+
 
 #endif
