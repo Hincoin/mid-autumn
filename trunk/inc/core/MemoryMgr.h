@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "NullType.h"
+#include "HasMember.h"
 
 namespace ma{
 	namespace core{
@@ -37,10 +38,41 @@ namespace ma{
 	}
 }
 
-#define REGISTER_RELEASE_FUN(ClASSNAME)\
-	namespace ma{\
-	namespace core{\
-	namespace{\
+
+#define MA_RELEASE_FUNCTION(CLASS_NAME_STR,CLASS_TYPE)											\
+static bool MA_RELEASE_FUNCTION_##CLASS_NAME_STR()												\
+{																								\
+	typedef MostDerivedType<CLASS_TYPE >::type AllocType;										\
+	typedef ::ma::core::MemoryPolicyType::MemoryPoolType MemPool;								\
+	return MemPool::template SingletonPool<AllocType>::release_memory();						\
+}
+
+//this function is register a release all memory function for class CLASSNAME
+//Place it in cpp
+
+#define MA_REGISTER_RELEASE_FUN(ClASS_NAME_STR,CLASS_TYPE)												\
+	namespace ma{																		\
+	namespace core{																		\
+	namespace{																			\
+	HAS_MEMFUN(registerReleaseFunc)														\
+	template<int>																		\
+	struct MA_STATIC_OBJECT_TYPE_##ClASS_NAME_STR{};											\
+	typedef bool (*FunPtr)();															\
+																						\
+	template<>																			\
+	struct MA_STATIC_OBJECT_TYPE_##ClASS_NAME_STR											\
+		<																				\
+		true																				\
+		>																				\
+{																					\
+		typedef MemoryPolicyType::MemoryPoolType MemPool;								\
+		MA_RELEASE_FUNCTION(ClASS_NAME_STR,CLASS_TYPE)													\
+		MA_STATIC_OBJECT_TYPE_##ClASS_NAME_STR(){											\
+			MemPool::registerReleaseFunc(&MA_RELEASE_FUNCTION_##ClASS_NAME_STR);				\
+		}																				\
+	};																					\
+	static MA_STATIC_OBJECT_TYPE_##ClASS_NAME_STR<has_memfun_registerReleaseFunc<MemoryPolicyType::MemoryPoolType,FunPtr>::value> \
+		MA_STATIC_OBJECT_TYPE_##CLASSNAME_object;	\
 }\
 }\
 }
