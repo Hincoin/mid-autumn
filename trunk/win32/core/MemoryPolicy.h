@@ -77,7 +77,7 @@ namespace ma
 					return memory_pool::getInstance().template freeMemory<T> (rawmemory,s);
 				}
 				static void *operator new[]( size_t n )
-				{ return memory_pool::getInstance().template getArrayMemory<T>(n/sizeof(T)); }
+				{ return memory_pool::getInstance().template getArrayMemory<T>(n/sizeof(typename MostDerivedType<T>::type)); }
 				static void operator delete[]( void *p, size_t s)
 				{ return memory_pool::getInstance().template freeMemory<T>(p,s); }
 			protected:

@@ -15,6 +15,9 @@ using namespace core;
 template<typename Derived = EmptyType>
 class SonObject:public CoreObject<SonObject<Derived> >
 {
+public:
+	typedef Derived DerivedType;
+	
 	std::vector<SonObject> s_array;
 	char chunk_mem[1024];
 };
@@ -22,6 +25,9 @@ class SonObject:public CoreObject<SonObject<Derived> >
 template<typename Derived =EmptyType>
 class GrandSonObject:public SonObject<GrandSonObject<Derived> >
 {
+public:
+	typedef Derived DerivedType;
+
 	typedef SonObject<GrandSonObject<Derived> > Parent;
 	long long chunk_mem[sizeof(Parent)];
 };
@@ -42,5 +48,11 @@ int main()
 	big_object* the_son_array = new big_object[100];
 
 	very_big_object* the_grand_array = new very_big_object[1000];
+
+	delete the_son;
+	delete the_grand;
+	delete []the_son_array;
+	delete []the_grand_array;
+
 	return 0;
 }

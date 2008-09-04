@@ -6,13 +6,18 @@
 #include "NullType.h"
 #include "MemoryPolicy.h"
 
+
 namespace ma
 {
 namespace core
 {
+
+
 	template<typename Derived = EmptyType>
 	class CoreObject:public MemoryPolicyType::template MemoryPolicy<CoreObject<Derived> >
 	{
+	public:
+		typedef Derived DerivedType;
 	};
 
 
