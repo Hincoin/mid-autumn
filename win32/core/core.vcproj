@@ -206,6 +206,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\HasMember.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\inc\core\MemoryMgr.h"
 				>
 			</File>
@@ -215,6 +219,10 @@
 			</File>
 			<File
 				RelativePath=".\MemoryPool.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MostDerivedType.h"
 				>
 			</File>
 			<File

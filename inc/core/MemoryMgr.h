@@ -37,5 +37,12 @@ namespace ma{
 	}
 }
 
+#define REGISTER_RELEASE_FUN(ClASSNAME)\
+	namespace ma{\
+	namespace core{\
+	namespace{\
+}\
+}\
+}
 
 #endif
