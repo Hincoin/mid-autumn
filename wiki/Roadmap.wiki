@@ -9,7 +9,7 @@
 
 
 ==Task==
-  *Memory management manchnism design and implementation
-  *Test Memory management code(It's hard to test all because combination explosion of the code).
-  *What about manage memory using a thread ?
-  *to be continue ...
+  * Memory management manchnism design and implementation.(90%)
+  * Test Memory management code(It's hard to test all because the combination explosion of the code).
+  * What about manage memory using a thread ?
+  * to be continue ...
