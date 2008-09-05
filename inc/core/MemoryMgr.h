@@ -51,10 +51,10 @@ static bool MA_RELEASE_FUNCTION_##CLASS_NAME_STR()												\
 //Place it in cpp
 
 #define MA_REGISTER_RELEASE_FUN(ClASS_NAME_STR,CLASS_TYPE)												\
-	namespace ma{																		\
+namespace ma{																		\
 	namespace core{																		\
-	namespace{																			\
-	HAS_MEMFUN(registerReleaseFunc)														\
+	namespace namespace_##ClASS_NAME_STR{																			\
+	CREATE_MEMFUN_DETECTOR(registerReleaseFunc)										\
 	template<int>																		\
 	struct MA_STATIC_OBJECT_TYPE_##ClASS_NAME_STR{};											\
 	typedef bool (*FunPtr)();															\
@@ -71,8 +71,8 @@ static bool MA_RELEASE_FUNCTION_##CLASS_NAME_STR()												\
 			MemPool::registerReleaseFunc(&MA_RELEASE_FUNCTION_##ClASS_NAME_STR);				\
 		}																				\
 	};																					\
-	static MA_STATIC_OBJECT_TYPE_##ClASS_NAME_STR<has_memfun_registerReleaseFunc<MemoryPolicyType::MemoryPoolType,FunPtr>::value> \
-		MA_STATIC_OBJECT_TYPE_##CLASSNAME_object;	\
+	static MA_STATIC_OBJECT_TYPE_##ClASS_NAME_STR<HAS_MEMBER_FUNCTION(MemoryPolicyType::MemoryPoolType,void,registerReleaseFunc,(ReleaseFuncPtrType))> \
+		MA_STATIC_OBJECT_TYPE_##ClASS_NAME_STR_object;	\
 }\
 }\
 }
