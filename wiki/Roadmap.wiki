@@ -5,6 +5,14 @@
 
 *No specific goal until you've achieved it.*
 
+= Origin =
+
+*Simple: For the freedom of writing code.*
+
+The code writed for making living is restricted by many things. In the most of the time, you cannot make descions on your own. In some projects, when I proposed a better and flexible solution for some kind of problem, But the others could not agree that because they were too eagle to see the results and to show off. IMHO,
+
+= Contemplation from the past =
+
 
 = Features =
 0
