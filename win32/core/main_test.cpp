@@ -1,63 +1,52 @@
 // $Id:   $
 
-#include "MemoryMgr.h"
-#include "MemoryPool.h"
-#include "ObjectMemoryPool.h"
+#include "Timer.h"
+#include "Memory_Test.h"
+#include <limits>
 
-#include "CoreObject.h"
+#include <cstdlib>
 
-using namespace ma;
-using namespace core;
-
-
-#include <iostream>
-
-template<typename Derived = EmptyType>
-class SonObject:public CoreObject<SonObject<Derived> >
-{
-public:
-	typedef Derived DerivedType;
-	
-	std::vector<SonObject> s_array;
-	char chunk_mem[1024];
-};
-
-template<typename Derived =EmptyType>
-class GrandSonObject:public SonObject<GrandSonObject<Derived> >
-{
-public:
-	typedef Derived DerivedType;
-
-	typedef SonObject<GrandSonObject<Derived> > Parent;
-	long long chunk_mem[sizeof(Parent)];
-};
-
-MA_REGISTER_RELEASE_FUN(SonObject,SonObject<>)
-MA_REGISTER_RELEASE_FUN(GrandSonObject,GrandSonObject<>)
-
-
+#ifdef max
+#undef max
+#endif
 
 int main()
 {
+	unsigned short short_max = std::numeric_limits<unsigned short>::max();
+	std::vector<unsigned short> rand_size_seq;
+	srand(unsigned int (time(0)));
+	for (unsigned short i = 0; i < short_max ; ++i)
+	{
+		rand_size_seq.push_back((unsigned short (rand()) % 128)+1);
+	}
+	using namespace ma::perf;
+	Timer timer;
+	timer.start();
+	obj_mempool_test(rand_size_seq);
+	timer.end();
+	timer.show();
 
-	typedef CoreObject<> small_object;
-	typedef SonObject<> big_object;
-	typedef GrandSonObject<> very_big_object;
-
-	FSBObjMemPool::template getMemory<small_object >();
-
-	big_object* the_son = new big_object;
-
-	very_big_object* the_grand = new very_big_object;
-
-	big_object* the_son_array = new big_object[100];
-
-	very_big_object* the_grand_array = new very_big_object[1000];
-
-	delete the_son;
-	delete the_grand;
-	delete []the_son_array;
-	delete []the_grand_array;
-
+//	using namespace ma::perf;
+//	Timer timer;
+//	
+//	
+//	//FSBAllocator<SIZE_N<8553496> > a;
+//	const size_t s = 512;
+//	const size_t count = 1024 * 1024;
+//	FSBAllocator<char[s] > a;
+//
+//timer.start();
+//for(size_t i = 0;i < count;++i)
+//	a.allocate(1);
+//	timer.end();
+//	timer.show();
+//	timer.start();
+//	char* c = (char*)malloc(s * count * sizeof(char));
+//	free(c);
+//	timer.end();
+//	timer.show();
+//
+//	//FSBAllocator<char[128* sizeof(GrandSonObject<>)]> a;
+//	std::cout<<sizeof(GrandSonObject<> )<<std::endl;
 	return 0;
 }

@@ -30,6 +30,7 @@ THE SOFTWARE.
 #include <cassert>
 #include <vector>
 
+#include <boost/static_assert.hpp>
 template<unsigned ElemSize>
 class FSBAllocator_ElemAllocator
 {
@@ -41,6 +42,7 @@ class FSBAllocator_ElemAllocator
     static const Data_t UnitSizeInDSize = ElemSizeInDSize + 1;
     static const Data_t BlockSize = BlockElements*UnitSizeInDSize;
 
+	BOOST_STATIC_ASSERT((BlockSize < (0x7fffffff/sizeof(Data_t))));
     class MemBlock
     {
         Data_t* block;
@@ -360,6 +362,8 @@ class FSBAllocator
     typedef Ty& reference;
     typedef const Ty& const_reference;
     typedef Ty value_type;
+
+	static  const size_type size_limit = 1024 * 1024;
 
     pointer address(reference val) const { return &val; }
     const_pointer address(const_reference val) const { return &val; }

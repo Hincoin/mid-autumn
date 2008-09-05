@@ -117,7 +117,9 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="./;../../inc/core"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				GeneratePreprocessedFile="1"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -181,6 +183,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Memory_Test.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\core\MemoryMgr.cpp"
 				>
 			</File>
@@ -236,6 +242,10 @@
 			</File>
 			<File
 				RelativePath=".\ObjectMemoryPool.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Timer.h"
 				>
 			</File>
 		</Filter>

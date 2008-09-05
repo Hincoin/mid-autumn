@@ -66,7 +66,7 @@ namespace ma
 
 		template<>
 		struct MemoryPolicySelector<MANAGED_BY_TYPE> {
-			typedef MemoryMgr<BoostObjMemPool> MemoryPoolType;
+			typedef MemoryMgr<FSB_BOOST_ObjMemPool> MemoryPoolType;
 			
 			template<typename T>
 			class MemoryPolicy{	
