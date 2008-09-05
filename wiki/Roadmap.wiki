@@ -1,14 +1,15 @@
+#labels Featured
 *_Where are we from ? Where are we going ? What are we doing now ? _*
 
 = Introduction =
 
-*No specific goal when you've achieved it.*
+*No specific goal until you've achieved it.*
 
 
-= Details =
+= Features =
+0
 
-
-==Task==
+==UnComplete Features==
   * Memory management wrap manchnism design and implementation.(90%)
   * Test Memory management code(It's hard to test all because the combination explosion of the code).
   * What about manage memory using a thread ?
