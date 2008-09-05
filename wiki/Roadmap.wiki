@@ -9,7 +9,7 @@
 = Features =
 0
 
-==UnComplete Features==
+== Current Task ==
   * Memory management wrap manchnism design and implementation.(90%)
   * Test Memory management code(It's hard to test all because the combination explosion of the code).
   * What about manage memory using a thread ?
