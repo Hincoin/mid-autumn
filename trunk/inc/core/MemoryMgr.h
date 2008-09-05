@@ -6,7 +6,7 @@
 #include <memory>
 
 #include "NullType.h"
-#include "HasMember.h"
+
 
 namespace ma{
 	namespace core{
@@ -38,13 +38,14 @@ namespace ma{
 	}
 }
 
+#include "HasMember.h"
 
 #define MA_RELEASE_FUNCTION(CLASS_NAME_STR,CLASS_TYPE)											\
 static bool MA_RELEASE_FUNCTION_##CLASS_NAME_STR()												\
 {																								\
 	typedef MostDerivedType<CLASS_TYPE >::type AllocType;										\
 	typedef ::ma::core::MemoryPolicyType::MemoryPoolType MemPool;								\
-	return MemPool::template SingletonPool<AllocType>::release_memory();						\
+	return MemPool::template SingletonPool<CLASS_TYPE>::release_memory();						\
 }
 
 //this function is register a release all memory function for class CLASSNAME

@@ -11,8 +11,6 @@ namespace ma
 {
 namespace core
 {
-
-
 	template<typename Derived = EmptyType>
 	class CoreObject:public MemoryPolicyType::template MemoryPolicy<CoreObject<Derived> >
 	{

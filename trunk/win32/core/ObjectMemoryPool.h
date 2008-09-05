@@ -2,9 +2,7 @@
 #define OBJECTMEMPOOL_H
 
 
-#include <boost/type_traits.hpp>
-#include <boost/pool/pool.hpp>
-#include <boost/pool/singleton_pool.hpp>
+
 
 #include "Mutex.h"
 
@@ -27,22 +25,17 @@ namespace ma
 	{
 		//
 
-		
-
-		template<typename T,class Mutex=boost::details::pool::default_mutex> 
-		struct BoostSingletonPool:public boost::singleton_pool<T,sizeof(T),boost::default_user_allocator_malloc_free,Mutex>
-		{
-		};
-
 		typedef bool (*ReleaseFuncPtrType)();
 		
 		//default to be boost pool
-		template<template<typename T,typename Mtx> class SingletonPoolT=BoostSingletonPool,typename Mutex = NullMutex, typename MemoryHandle = void*>
+		template<template<typename T,typename Mtx> class SmallObjSingletonPoolT ,template<typename T,typename Mtx> class BigObjSingletonPoolT,typename Mutex = NullMutex, typename MemoryHandle = void*>
 		class ObjectMemoryPool
 		{
 		public:
+			static const size_t small_size=512;//less than 512 is small object
+
 			template<typename T,typename Mtx=Mutex>
-			struct SingletonPool:SingletonPoolT<T,Mtx>
+			struct SingletonPool: boost::mpl::if_c< (sizeof(T)>small_size), BigObjSingletonPoolT<T,Mtx>,SmallObjSingletonPoolT<T,Mtx> >::type
 			{};
 		private:
 			ObjectMemoryPool(const ObjectMemoryPool&);
@@ -114,25 +107,40 @@ namespace ma
 				release_funcs_.push_back(fptr);
 			}
 		};	
-		template<template<typename T,typename Mtx> class SingletonPoolT ,typename Mutex , typename MemoryHandle >
-		std::vector<ReleaseFuncPtrType> ObjectMemoryPool<SingletonPoolT,Mutex,MemoryHandle>::release_funcs_;
+		template<template<typename T,typename Mtx> class SmallObjSingletonPoolT ,template<typename T,typename Mtx> class BigObjSingletonPoolT,typename Mutex , typename MemoryHandle >
+		std::vector<ReleaseFuncPtrType> ObjectMemoryPool<SmallObjSingletonPoolT, BigObjSingletonPoolT,Mutex,MemoryHandle>::release_funcs_;
 	}
 }
 
+#include <boost/type_traits.hpp>
+#include <boost/pool/pool.hpp>
+#include <boost/pool/singleton_pool.hpp>
 #include "FSBSingletonPool.h"
 namespace ma{
 	namespace core{
 
-		template<typename T,class Mutex=boost::details::pool::default_mutex> 
-		struct DefaultFSBSingletonPoolTS:FSBSingletonPool<T,sizeof(T)>
+		template<typename T,class Mutex> 
+		struct DefaultFSBSingletonPool:FSBSingletonPool<T,sizeof(T),FSBAllocator<char[sizeof(T)]>,Mutex>
+		{};
+		template<typename T,class Mutex> 
+		struct DefaultFSB2SingletonPool:FSBSingletonPool
+			<T,sizeof(T),FSBAllocator2< char[sizeof(T)] >,Mutex >
 		{};
 
-		template<typename T,class Mutex=NullMutex> 
-		struct DefaultFSBSingletonPool:FSBSingletonPool<T,sizeof(T)>
-		{};
+		template<typename T,class Mutex> 
+		struct BoostSingletonPool:public boost::singleton_pool<T,sizeof(T),boost::default_user_allocator_malloc_free,Mutex>
+		{
+		};
 
-		typedef ObjectMemoryPool<> BoostObjMemPool;
-		typedef ObjectMemoryPool<DefaultFSBSingletonPool,NullMutex> FSBObjMemPool;
+		typedef ObjectMemoryPool<BoostSingletonPool,BoostSingletonPool,NullMutex> BoostObjMemPool;
+		typedef ObjectMemoryPool<DefaultFSBSingletonPool,BoostSingletonPool,NullMutex> FSB_BOOST_ObjMemPool;
+		typedef ObjectMemoryPool<DefaultFSB2SingletonPool,BoostSingletonPool,NullMutex> FSB2_BOOST_ObjMemPool;
+
+		//thread safe pools
+		typedef ObjectMemoryPool<BoostSingletonPool,BoostSingletonPool,boost::details::pool::default_mutex> BoostObjMemPoolTS;
+		typedef ObjectMemoryPool<DefaultFSBSingletonPool,BoostSingletonPool,boost::details::pool::default_mutex> FSB_BOOST_ObjMemPoolTS;
+		typedef ObjectMemoryPool<DefaultFSB2SingletonPool,BoostSingletonPool,boost::details::pool::default_mutex> FSB2_BOOST_ObjMemPoolTS;
+
 	}
 }
 

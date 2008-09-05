@@ -11,24 +11,28 @@ namespace ma
 {
 namespace core
 {
+	template<int N>
+	struct SIZE_N{ char a[N];};
+
+	//this pool is pretty good at RequestedSize is <= 512
 	template<typename Tag, unsigned RequestedSize,
-		typename UserAllocator = FSBAllocator<char[RequestedSize]>,
+		typename UserAllocator = FSBAllocator<char[RequestedSize] >,
 		typename Mutex = boost::details::pool::default_mutex>
 	struct FSBSingletonPool{
 
 		typedef typename UserAllocator::size_type size_type;
-
+		typedef typename UserAllocator::value_type value_type;
 	private:
 		struct SelfPool:Mutex,UserAllocator{
 		};
 		typedef boost::details::pool::singleton_default<SelfPool> Singleton;
 
 		template<typename T>struct Tag{};
-		static bool release_memory(Tag<FSBAllocator<char[RequestedSize]> >&)
+		static bool release_memory(Tag<FSBAllocator<value_type> >)
 		{
 			return false;
 		}
-		static bool release_memory(Tag<FSBAllocator2<char[RequestedSize]> >&)
+		static bool release_memory(Tag<FSBAllocator2<value_type> >)
 		{
 			SelfPool & p = Singleton::instance();
 			boost::details::pool::guard<Mutex> g(p);
@@ -49,13 +53,14 @@ namespace core
 		{
 			SelfPool & p = Singleton::instance();
 			boost::details::pool::guard<Mutex> g(p);
-			return p.allocate(n);
+			for(size_t i =0;i < n;++i)
+				return p.allocate(1);
 		}
 		static void free(void * const ptr)
 		{
 			SelfPool & p = Singleton::instance();
 			boost::details::pool::guard<Mutex> g(p);
-			p.deallocate(ptr);
+			p.deallocate(reinterpret_cast<value_type*>(ptr),1);
 		}
 		static bool release_memory()
 		{
@@ -63,6 +68,7 @@ namespace core
 		}
 		
 	};
+
 }
 }
 
