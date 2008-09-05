@@ -57,7 +57,7 @@ namespace core
 			{
 				it = pools_.insert(std::make_pair(n,new PoolType(n))).first;
 			}
-			return it->second->ordered_malloc();
+			return it->second->malloc();
 		}
 		inline void freeMemory(MemoryHandle mem,size_type n)
 		{
