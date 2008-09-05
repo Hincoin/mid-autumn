@@ -11,6 +11,8 @@
 
 The code writed for making living is restricted by many things. In the most of the time, you cannot make descions on your own. In some projects, when I proposed a better and flexible solution for some kind of problem, But the others could not agree that because they were too eagle to see the results and to show it. They treat engineer like research: Take whatever means to achieve the goal. But software only can take evlolution in a good framework. IMHO, software should build carefully. I do not think XP is a bad idea. But It will be a bad idea if someone in the team thinks others are stupid, and insists on his/her solution. Even worse, when these guys make desicions, the only thing you can do is keep silence and keep nodding.
 
+Programmers do not like politics. But There are people , There are politics.
+
 = Contemplation from the past =
 
 
