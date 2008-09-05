@@ -70,7 +70,7 @@ namespace core
 				it->second->free(mem);
 			}
 		}
-		inline void releaseAllUnused()
+		inline void releaseAllUnused() //give the pooled unused memory back to system
 		{
 			ScopeLock<SelfPool> scp_lck(pools_);
 			for (SizeToMemPool::iterator it = pools_.begin(); it != pools_.end(); ++it)

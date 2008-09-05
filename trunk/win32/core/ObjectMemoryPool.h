@@ -34,6 +34,8 @@ namespace ma
 		{
 		};
 
+		typedef bool (*ReleaseFuncPtrType)();
+		
 		//default to be boost pool
 		template<template<typename T,typename Mtx> class SingletonPoolT=BoostSingletonPool,typename Mutex = NullMutex, typename MemoryHandle = void*>
 		class ObjectMemoryPool
@@ -48,9 +50,9 @@ namespace ma
 		protected:
 			typedef size_t size_type;			
 		
-			typedef bool (*ReleaseFuncPtr)();
+			
 
-			typedef std::vector<ReleaseFuncPtr> FuncPtrs; 
+			typedef std::vector<ReleaseFuncPtrType> FuncPtrs; 
 			static  FuncPtrs release_funcs_;
 		protected:
 			ObjectMemoryPool(){}
@@ -101,17 +103,19 @@ namespace ma
 				SingletonPool<AllocType,Mutex>::release_memory();
 			}
 
-			static void releaseAllUnused()
+			static void releaseAllUnused() //give the pooled unused memory back to system
 			{
 				for(FuncPtrs::iterator it = release_funcs_.begin();it != release_funcs_.end();++it)
 					(*(*it))();
 			}
 
-			static void registerReleaseFunc(ReleaseFuncPtr fptr)
+			static void registerReleaseFunc(ReleaseFuncPtrType fptr)
 			{
 				release_funcs_.push_back(fptr);
 			}
 		};	
+		template<template<typename T,typename Mtx> class SingletonPoolT ,typename Mutex , typename MemoryHandle >
+		std::vector<ReleaseFuncPtrType> ObjectMemoryPool<SingletonPoolT,Mutex,MemoryHandle>::release_funcs_;
 	}
 }
 
