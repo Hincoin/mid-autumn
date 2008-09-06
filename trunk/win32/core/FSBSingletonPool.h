@@ -48,22 +48,11 @@ namespace core
 			boost::details::pool::guard<Mutex> g(p);
 			return p.allocate(1);
 		}
-
-		static void * ordered_malloc(const size_type n)
-		{
-			assert(n==1);
-			//SelfPool & p = Singleton::instance();
-			//boost::details::pool::guard<Mutex> g(p);
-			////for(size_t i =0;i < n;++i)
-			//return p.allocate(1);
-			//boost::singleton_pool<>
-			return 0;
-		}
-		static void free(void * const ptr,size_t s)
+		static void free(void * const ptr)
 		{
 			SelfPool & p = Singleton::instance();
 			boost::details::pool::guard<Mutex> g(p);
-			p.deallocate(reinterpret_cast<value_type*>(ptr),s);
+			p.deallocate(reinterpret_cast<value_type*>(ptr),1);
 		}
 		static bool release_memory()
 		{

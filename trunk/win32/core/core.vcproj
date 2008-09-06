@@ -119,7 +119,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="./;../../inc/core"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
-				GeneratePreprocessedFile="1"
+				GeneratePreprocessedFile="0"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="4"
@@ -182,6 +182,18 @@
 				RelativePath=".\main_test.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\MAMemoryPool.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						GeneratePreprocessedFile="0"
+					/>
+				</FileConfiguration>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -209,7 +221,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Memory_Test.h"
+				RelativePath=".\MAMemoryPool.h"
 				>
 			</File>
 			<File
@@ -241,6 +253,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ObjectMemSingletonPool.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Timer.h"
 				>
 			</File>
@@ -250,6 +266,18 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+		</Filter>
+		<Filter
+			Name="Tests"
+			>
+			<File
+				RelativePath=".\MAMemoryPool_test.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Memory_Test.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

@@ -1,8 +1,23 @@
 (clocks)
 OBJ_MEMPOOL:  type-indexed
 FSB BoostObjMemPool  117187 
-BOOSTOBJMemPOOL: 153188
+BoostObjMemPool:
+153188
+
 MEM_POOL: size-indexed
 
 
-NO_POOL: 8750 7641
+NO_POOL: iterations 1024
+small obj and array
+Timer clocks:859
+Timer clocks:2109
+large object and array
+Timer clocks:5078
+Timer clocks:187766
+
+very large object and array
+Timer clocks:18766
+Timer clocks:665703
+
+the total time
+Timer clocks:880281

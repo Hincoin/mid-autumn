@@ -33,9 +33,9 @@ public:
 	long long chunk_mem[sizeof(Parent)];
 };
 
-//MA_REGISTER_RELEASE_FUN(CoreObject,CoreObject<>)
-//MA_REGISTER_RELEASE_FUN(SonObject,SonObject<>)
-//MA_REGISTER_RELEASE_FUN(GrandSonObject,GrandSonObject<>)
+MA_REGISTER_RELEASE_FUN(CoreObject,CoreObject<>)
+MA_REGISTER_RELEASE_FUN(SonObject,SonObject<>)
+MA_REGISTER_RELEASE_FUN(GrandSonObject,GrandSonObject<>)
 //
 //
 
@@ -67,7 +67,7 @@ inline void test_size_array(const std::vector<unsigned int>& random_size_seq)
 		delete []objects[i];
 	}
 }
-inline void obj_mempool_test(const std::vector<unsigned int>& random_size_seq)
+inline void obj_mempool_test(const std::vector<unsigned int>& random_size_seq, int iterations)
 {
 	typedef CoreObject<> small_object;
 	typedef SonObject<> big_object;
@@ -80,32 +80,38 @@ inline void obj_mempool_test(const std::vector<unsigned int>& random_size_seq)
 	t_global.start();
 
 	t_local.start();
+	for(int i = 0;i < iterations;++i)
 	test_size<small_object>(random_size_seq);
 	t_local.end();
 	t_local.show();
 
 
 	t_local.start();
+	for(int i = 0;i < iterations;++i)
 	test_size_array<small_object>(random_size_seq);
 	t_local.end();
 	t_local.show();
 
 	t_local.start();
+	for(int i = 0;i < iterations;++i)
 	test_size<big_object>(random_size_seq);
 	t_local.end();
 	t_local.show();
 
 	t_local.start();
+	for(int i = 0;i < iterations;++i)
 	test_size_array<big_object>(random_size_seq);
 	t_local.end();
 	t_local.show();
 
 	t_local.start();
+	for(int i = 0;i < iterations;++i)
 	test_size<very_big_object>(random_size_seq);
 	t_local.end();
 	t_local.show();
 
 	t_local.start();
+	for(int i = 0;i < iterations;++i)
 	test_size_array<very_big_object>(random_size_seq);
 	t_local.end();
 	t_local.show();
