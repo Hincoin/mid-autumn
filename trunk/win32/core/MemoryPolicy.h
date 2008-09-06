@@ -27,7 +27,7 @@ namespace ma
 				{
 					return ::operator new(size);
 				}
-				static void operator delete(void *rawmemory, size_t size){
+				static void operator delete(void *rawmemory, size_t ){
 					return ::operator delete(rawmemory);
 				}
 				static void *operator new[]( size_t n )
@@ -66,7 +66,7 @@ namespace ma
 
 		template<>
 		struct MemoryPolicySelector<MANAGED_BY_TYPE> {
-			typedef MemoryMgr<FSB_BOOST_ObjMemPool> MemoryPoolType;
+			typedef MemoryMgr<BoostObjMemPool> MemoryPoolType;
 			
 			template<typename T>
 			class MemoryPolicy{	
@@ -88,7 +88,7 @@ namespace ma
 			};
 		};
 
-		typedef MemoryPolicySelector<MANAGED_BY_TYPE> MemoryPolicyType;
+		typedef MemoryPolicySelector<DEFAULT_NEW_DELETE> MemoryPolicyType;
 
 	}
 }
