@@ -14,10 +14,10 @@ namespace ma
 
 		enum Policies{DEFAULT_NEW_DELETE,MANAGED_BY_SIZE,MANAGED_BY_TYPE/*,MIXIN_SIZE_TYPE*/};
 
-		template<Policies p>struct MemoryPolicySelector;
+		template<Policies p,typename PoolType>struct MemoryPolicySelector;
 
-		template<>
-		struct MemoryPolicySelector<DEFAULT_NEW_DELETE> {
+		template<typename PoolType>
+		struct MemoryPolicySelector<DEFAULT_NEW_DELETE,PoolType> {
 			template<typename T>
 			class MemoryPolicy{
 			public:
@@ -40,9 +40,9 @@ namespace ma
 			};
 		};
 
-		template<>
-		struct MemoryPolicySelector<MANAGED_BY_SIZE> {
-			typedef MemoryMgr<BoostAVPool> MemoryPoolType;
+		template<typename PoolType>
+		struct MemoryPolicySelector<MANAGED_BY_SIZE,typename PoolType> {
+			typedef MemoryMgr<PoolType> MemoryPoolType;
 			
 			template<typename T>
 			class MemoryPolicy{	
@@ -64,9 +64,9 @@ namespace ma
 			};
 		};
 
-		template<>
-		struct MemoryPolicySelector<MANAGED_BY_TYPE> {
-			typedef MemoryMgr<BoostObjMemPool> MemoryPoolType;
+		template<typename PoolType>
+		struct MemoryPolicySelector<MANAGED_BY_TYPE,PoolType> {
+			typedef MemoryMgr<PoolType> MemoryPoolType;
 			
 			template<typename T>
 			class MemoryPolicy{	
@@ -78,17 +78,27 @@ namespace ma
 				static void operator delete(void *rawmemory, size_t s){
 					return MemoryPoolType::getInstance().template freeMemory<T> (rawmemory,s);
 				}
-				static void *operator new[]( size_t n )
-				{ return MemoryPoolType::getInstance().template getArrayMemory<T>(n/sizeof(typename MostDerivedType<T>::type)); }
-				static void operator delete[]( void *p, size_t s)
-				{ return MemoryPoolType::getInstance().template freeMemory<T>(p,s); }
+				static void *operator new[]( size_t n )//unpredictable array size
+				{
+					return malloc(n);
+				}
+				//{ return MemoryPoolType::getInstance().template getArrayMemory<T>(n/sizeof(typename MostDerivedType<T>::type)); }
+				static void operator delete[]( void *p, size_t 
+#ifdef _DEBUG
+					sz
+#endif
+					)
+				{
+					free(p);
+				}
+				//{ return MemoryPoolType::getInstance().template freeMemory<T>(p,s); }
 			protected:
 				MemoryPolicy(){}
 				~MemoryPolicy(){}
 			};
 		};
-
-		typedef MemoryPolicySelector<DEFAULT_NEW_DELETE> MemoryPolicyType;
+		//BoostObjMemPool FSB_BOOST_ObjMemPool
+		typedef MemoryPolicySelector<MANAGED_BY_TYPE,BoostObjMemPool> MemoryPolicyType;
 
 	}
 }

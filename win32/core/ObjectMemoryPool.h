@@ -32,7 +32,7 @@ namespace ma
 		class ObjectMemoryPool
 		{
 		public:
-			static const size_t small_size=512;//less than 512 is small object
+			static const size_t small_size = 512;//less than 1024 is small object
 
 			template<typename T,typename Mtx=Mutex>
 			struct SingletonPool: boost::mpl::if_c< (sizeof(T)>small_size), BigObjSingletonPoolT<T,Mtx>,SmallObjSingletonPoolT<T,Mtx> >::type
@@ -40,11 +40,10 @@ namespace ma
 		private:
 			ObjectMemoryPool(const ObjectMemoryPool&);
 			ObjectMemoryPool& operator=(const ObjectMemoryPool&);
+
 		protected:
 			typedef size_t size_type;			
 		
-			
-
 			typedef std::vector<ReleaseFuncPtrType> FuncPtrs; 
 			static  FuncPtrs release_funcs_;
 		protected:
@@ -62,17 +61,6 @@ namespace ma
 				size_t t = sizeof(AllocType);
 #endif
 				return SingletonPool<AllocType,Mutex>::malloc();
-			}
-
-			template<typename T>
-			static  MemoryHandle getArrayMemory(size_type n)// get n * sizeof(T)
-			{
-				typedef typename MostDerivedType<T>::type AllocType; 
-#ifdef _DEBUG
-				size_t t = sizeof(AllocType);
-#endif
-
-				return SingletonPool<AllocType,Mutex>::ordered_malloc(n);
 			}
 
 			template<typename T>
