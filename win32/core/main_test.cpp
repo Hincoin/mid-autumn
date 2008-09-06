@@ -12,19 +12,20 @@
 
 int main()
 {
-	unsigned short short_max = std::numeric_limits<unsigned short>::max();
-	std::vector<unsigned short> rand_size_seq;
-	srand(unsigned int (time(0)));
-	for (unsigned short i = 0; i < short_max ; ++i)
+	const static unsigned int MAX_MEM = 0x7fffffff;
+	unsigned int MAX_ARRAY_SIZE = 128;
+	unsigned int MAX_OBJECT_SIZE = 8*1024;
+	unsigned int short_max = MAX_MEM/(MAX_ARRAY_SIZE * MAX_OBJECT_SIZE);
+	std::vector<unsigned int> rand_size_seq;
+	srand(0);
+	for (unsigned int i = 0; i < short_max ; ++i)
 	{
-		rand_size_seq.push_back((unsigned short (rand()) % 128)+1);
+		rand_size_seq.push_back((unsigned int (rand()) % MAX_ARRAY_SIZE)+1);
 	}
-	using namespace ma::perf;
-	Timer timer;
-	timer.start();
+
+
 	obj_mempool_test(rand_size_seq);
-	timer.end();
-	timer.show();
+
 
 //	using namespace ma::perf;
 //	Timer timer;

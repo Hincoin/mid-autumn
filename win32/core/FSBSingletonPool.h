@@ -14,7 +14,7 @@ namespace core
 	template<int N>
 	struct SIZE_N{ char a[N];};
 
-	//this pool is pretty good at RequestedSize is <= 512
+	//this pool is pretty good at RequestedSize is <= 512 and not capable of continuous storage allocation
 	template<typename Tag, unsigned RequestedSize,
 		typename UserAllocator = FSBAllocator<char[RequestedSize] >,
 		typename Mutex = boost::details::pool::default_mutex>
@@ -51,16 +51,19 @@ namespace core
 
 		static void * ordered_malloc(const size_type n)
 		{
-			SelfPool & p = Singleton::instance();
-			boost::details::pool::guard<Mutex> g(p);
-			for(size_t i =0;i < n;++i)
-				return p.allocate(1);
+			assert(n==1);
+			//SelfPool & p = Singleton::instance();
+			//boost::details::pool::guard<Mutex> g(p);
+			////for(size_t i =0;i < n;++i)
+			//return p.allocate(1);
+			//boost::singleton_pool<>
+			return 0;
 		}
-		static void free(void * const ptr)
+		static void free(void * const ptr,size_t s)
 		{
 			SelfPool & p = Singleton::instance();
 			boost::details::pool::guard<Mutex> g(p);
-			p.deallocate(reinterpret_cast<value_type*>(ptr),1);
+			p.deallocate(reinterpret_cast<value_type*>(ptr),s);
 		}
 		static bool release_memory()
 		{

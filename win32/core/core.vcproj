@@ -122,7 +122,7 @@
 				GeneratePreprocessedFile="1"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
+				WarningLevel="4"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
 			/>
@@ -182,14 +182,6 @@
 				RelativePath=".\main_test.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\Memory_Test.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\core\MemoryMgr.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -214,6 +206,10 @@
 			</File>
 			<File
 				RelativePath=".\HasMember.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Memory_Test.h"
 				>
 			</File>
 			<File

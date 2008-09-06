@@ -6,7 +6,7 @@
 #include "ObjectMemoryPool.h"
 
 #include "CoreObject.h"
-
+#include "Timer.h"
 using namespace ma;
 using namespace core;
 
@@ -30,7 +30,7 @@ public:
 	typedef Derived DerivedType;
 
 	typedef SonObject<GrandSonObject<Derived> > Parent;
-	long long chunk_mem[1024*sizeof(Parent)];
+	long long chunk_mem[sizeof(Parent)];
 };
 
 //MA_REGISTER_RELEASE_FUN(CoreObject,CoreObject<>)
@@ -38,26 +38,81 @@ public:
 //MA_REGISTER_RELEASE_FUN(GrandSonObject,GrandSonObject<>)
 //
 //
-inline void obj_mempool_test(const std::vector<unsigned short>& random_size_seq)
+
+
+template<typename T>
+inline void test_size(const std::vector<unsigned int>& random_size_seq)
+{
+	std::vector<T*> objects;
+	for (size_t i = 0;i < random_size_seq.size(); ++i)
+	{
+		objects.push_back(new T);
+	}
+	for (size_t i = 0;i< random_size_seq.size(); ++i)
+	{
+		delete objects[i];
+	}
+}
+
+template<typename T>
+inline void test_size_array(const std::vector<unsigned int>& random_size_seq)
+{
+	std::vector<T*> objects;
+	for (size_t i = 0;i < random_size_seq.size(); ++i)
+	{
+		objects.push_back(new T[random_size_seq[i]]);
+	}
+	for (size_t i = 0;i< random_size_seq.size(); ++i)
+	{
+		delete []objects[i];
+	}
+}
+inline void obj_mempool_test(const std::vector<unsigned int>& random_size_seq)
 {
 	typedef CoreObject<> small_object;
 	typedef SonObject<> big_object;
 	typedef GrandSonObject<> very_big_object;
-	for (size_t i = 0;i < random_size_seq.size(); ++i)
-	{
-		big_object* the_son = new big_object;
 
-		very_big_object* the_grand = new very_big_object;
+	using namespace ma::perf;
+	Timer t_global;
+	Timer t_local;
 
-		big_object* the_son_array = new big_object[random_size_seq[i]];
+	t_global.start();
 
-		very_big_object* the_grand_array = new very_big_object[random_size_seq[i]];
+	t_local.start();
+	test_size<small_object>(random_size_seq);
+	t_local.end();
+	t_local.show();
 
-		delete the_son;
-		delete the_grand;
-		delete []the_son_array;
-		delete []the_grand_array;	
-	}
-	MemoryPolicyType::MemoryPoolType::getInstance().releaseAllUnused();
+
+	t_local.start();
+	test_size_array<small_object>(random_size_seq);
+	t_local.end();
+	t_local.show();
+
+	t_local.start();
+	test_size<big_object>(random_size_seq);
+	t_local.end();
+	t_local.show();
+
+	t_local.start();
+	test_size_array<big_object>(random_size_seq);
+	t_local.end();
+	t_local.show();
+
+	t_local.start();
+	test_size<very_big_object>(random_size_seq);
+	t_local.end();
+	t_local.show();
+
+	t_local.start();
+	test_size_array<very_big_object>(random_size_seq);
+	t_local.end();
+	t_local.show();
+
+	//MemoryPolicyType::MemoryPoolType::getInstance().releaseAllUnused();
+
+	t_global.end();
+	t_global.show();
 }
 #endif
