@@ -1,7 +1,7 @@
 #ifndef MAMEMORYPOOL_TEST_H
 #define MAMEMORYPOOL_TEST_H
 
-#include "MABigObjectPool.h"
+#include "MABigPool.h"
 #include "MAMemoryPool.h"
 #include "Timer.h"
 using namespace ma;
@@ -46,7 +46,7 @@ inline unsigned long long ma_mempool_test_detail(const std::vector<unsigned int>
 		//v.push_back(MAMemoryPool::malloc(random_seq[i] * sizeof(char[memory_factor])));
 		//v.push_back(new char[random_seq[i] * memory_factor]);
 		condition_break2(i == 271 || i == 1941);
-		char* p = (char*)MABigObjectPool<>::malloc(random_seq[i] * sizeof(char[memory_factor]));
+		char* p = (char*)MABigMemoryPool<>::malloc(random_seq[i] * sizeof(char[memory_factor]));
 		struct Block{
 			Block* prev;
 			std::size_t size;
@@ -54,8 +54,8 @@ inline unsigned long long ma_mempool_test_detail(const std::vector<unsigned int>
 		Block* b = reinterpret_cast<Block*>( p - sizeof(Block));
 		std::size_t s = b->size;
 		v.push_back(p);
-		//if(p)
-		//	memset(p,0,8);
+		if(p)
+			memset(p,0,random_seq[i] * sizeof(char[memory_factor]));
 		assert(b->size == s);
 		
 	}
@@ -80,7 +80,7 @@ inline unsigned long long ma_mempool_test_detail(const std::vector<unsigned int>
 			ret = ret > * ((unsigned long long*) v[i]) ? 0: ret;
 		//MAMemoryPool::free(v[i]);
 		//delete []v[i];
-		MABigObjectPool<>::free(v[i]);
+		MABigMemoryPool<>::free(v[i]);
 	}
 	for (size_t i = 0; i < random_seq.size(); ++i)
 	{
@@ -112,7 +112,7 @@ inline void ma_mempool_test(const std::vector<unsigned int>& random_seq,int iter
 		accum -= accum > ma_mempool_test_detail(small_rand)? accum : 0;
 
 	}
-	//MABigObjectPool<>::clean_unused();
+	//MABigMemoryPool<>::clean_unused();
 	t.end();
 	t.show();
 	std::cerr<<accum<<std::endl;

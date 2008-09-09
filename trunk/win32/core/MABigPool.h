@@ -1,11 +1,13 @@
-#ifndef MABIGOBJECTPOOL_H
-#define MABIGOBJECTPOOL_H
+#ifndef MABIGPOOL_H
+#define MABIGPOOL_H
 
 #include <set>
 #include <boost/pool/pool_alloc.hpp>
 #include <boost/preprocessor.hpp>
 
-//implemented by lzy for big object memory allocation (refenrence to game programming gems 7)
+//implemented by lzy for big object memory allocation (reference to game programming gems 7)
+//GC won't be in c++0x but pooled memory management is a transparent GC implementation as
+//suggested in TR
 namespace ma{
 	namespace core
 	{
@@ -34,14 +36,36 @@ namespace ma{
 		}
 
 		template<typename MemAllocator = ma_detail::default_mem_allocator_new_delete>
-		struct MABigObjectPool{
+		struct MABigMemoryPool{
 			//static std::size_t smallest_size = 256;
 
-			static void* malloc(std::size_t sz);
+			static void* malloc(std::size_t sz); //malloc sz bytes
 			static void free(void* p);//mark as freed
-			static bool clean_unused(); // this is very slow: true if really free some memory
-			static void defragment();//defragment 
 
+			//free mem_size bytes if possible:depend on mem_size and the free_blocks
+			// mem_size=-1 means free all
+			// this could be very slow: true if really free some memory or free mem_size bytes successfully
+			static bool clean_unused(std::size_t mem_size = std::size_t(-1));
+
+
+#ifdef _DEBUG
+			static bool checkValid(ma_detail::MemBlock* block)
+			{
+				assert(block);
+				if(block->prev)
+					assert(reinterpret_cast<char*>(block) == (char*)(block->prev+1)+block->prev->size);
+				return block->size;
+			}
+
+			static bool checkAllBlocks(){
+				bool ret = true;
+				for(BlockSetBySize::iterator it = free_blocks.begin();it != free_blocks.end(); ++it)
+				{
+					assert( (ret = ret && checkValid(*it)));
+				}
+				return ret;
+			}
+#endif
 		private:
 			typedef std::multiset<ma_detail::MemBlock*,ma_detail::block_less_sz,
 				boost::pool_allocator<ma_detail::MemBlock,
@@ -52,7 +76,7 @@ namespace ma{
 			static BlockSetBySize free_blocks;
 		};
 		template<typename MemAllocator>
-		typename MABigObjectPool<MemAllocator>::BlockSetBySize MABigObjectPool<MemAllocator>::free_blocks;
+		typename MABigMemoryPool<MemAllocator>::BlockSetBySize MABigMemoryPool<MemAllocator>::free_blocks;
 
 
 		namespace ma_detail
@@ -84,13 +108,9 @@ namespace ma{
 
 			static const std::size_t pool_sizes[]= {
 				MA_MEMORY_POOL_POOL_SIZES
-				/*	1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,
-				2*8192,4*8192,8*8192,16*8192,32*8192,64*8192,128*8192,256*8192,512*8192,1024*8192,2048*8192,4096*8192,8192*8192,
-				8192*8192*2,8192*8192*4,8192*8192*8,8192*8192*16,8192*8192*32,8192*8192*64*/
 			};//32 bit
 #undef MA_MEMORY_POOL_POOL_SIZES
 #undef MA_MEMORY_POOL_GENERATE_POWER2
-
 
 #ifndef MA_64BIT
 #undef MA_ARCH_BIT 
@@ -98,16 +118,13 @@ namespace ma{
 #undef MA_ARCH_BIT 
 #endif
 		}
+
 		template<typename MemAllocator>
-		inline void MABigObjectPool<MemAllocator>::defragment()
-		{
-			using namespace ma_detail;
-		}
-		template<typename MemAllocator>
-		inline void* MABigObjectPool<MemAllocator>::malloc(std::size_t sz)
+		inline void* MABigMemoryPool<MemAllocator>::malloc(std::size_t sz)
 		{
 			using namespace ma_detail;
 			
+			assert(checkAllBlocks());
 
 			//is it in the free block set
 			
@@ -115,21 +132,40 @@ namespace ma{
 			if (it != free_blocks.end())
 			{
 				MemBlock* m = (*it);
+				assert(checkValid(m));
+				assert(checkAllBlocks());
 
 				free_blocks.erase(it); //erase it before we change it
+
+				assert(checkAllBlocks());
+
 				if(m->size > sz+sizeof(MemBlock))
 				{
-					char* next = reinterpret_cast<char*>(m+1) + sz;
-					(reinterpret_cast<MemBlock*>(next))->prev = m;
-					(reinterpret_cast<MemBlock*>(next))->size = m->size- (sz + sizeof(MemBlock)); 
+					MemBlock* m_next = reinterpret_cast<MemBlock*>(reinterpret_cast<char*>(m+1) + m->size);
+
+					MemBlock* next = reinterpret_cast<MemBlock*>(reinterpret_cast<char*>(m+1) + sz);
+					next->prev = m;
+					next->size = m->size- (sz + sizeof(MemBlock)); 
+					m_next->prev = next;
+
 					m->size = sz;
-					assert(reinterpret_cast<MemBlock*>(next)->size && (reinterpret_cast<char*> (m+1) + m->size) == next);
-					free_blocks.insert(reinterpret_cast<MemBlock*>(next));
+					assert(next->size && (reinterpret_cast<char*> (m+1) + m->size) == reinterpret_cast<char*>( next));
+					assert(checkValid(m));
+					assert(checkValid((next)));
+					assert(checkAllBlocks());
+
+					free_blocks.insert((next));
+
+					assert(checkAllBlocks());
+
 				}
 
 				
 
 				assert(m->size);
+				assert(checkValid(m));
+				assert(checkAllBlocks());
+
 				return m+1;
 
 			}
@@ -144,6 +180,7 @@ namespace ma{
 			
 			if (!block)//malloc failed
 			{
+				//intentional assigned to block
 				if(!clean_unused() || !(block = reinterpret_cast<MemBlock*>(MemAllocator::malloc(malloc_size))))
 					return 0;
 			}
@@ -157,7 +194,7 @@ namespace ma{
 				next->size = malloc_size-sz-3*sizeof(MemBlock);
 				block->size = sz;
 
-				assert(next->size);
+				assert(next->size && checkValid(next));
 				free_blocks.insert(next);
 
 				//add tail
@@ -167,11 +204,15 @@ namespace ma{
 			}
 			else
 			{
+				//add tail
 				MemBlock* tail = (MemBlock*)((char*)(block + 1) + block->size);
 				tail->size = 0;
 				tail->prev = block;
 			}
 			assert(block->size);
+			assert(checkValid(block));
+			assert(checkAllBlocks());
+
 			return block+1;
 		}
 
@@ -179,13 +220,16 @@ namespace ma{
 		//otherwise YOU would be responsible for global warming , the wars and my bad mood, etc. 
 		//Even worse doing that may cause The Doom of The Universe !
 		template<typename MemAllocator>
-		inline void MABigObjectPool<MemAllocator>::free(void* p)
+		inline void MABigMemoryPool<MemAllocator>::free(void* p)
 		{
 			using namespace ma_detail;
 
+			assert(checkAllBlocks());
 			if(p)
 			{
 				MemBlock* cur = static_cast<MemBlock*>(p) - 1;
+
+				assert(checkValid(cur));
 				if(cur->prev)//merge
 				{
 					BlockSetBySize::iterator start = free_blocks.lower_bound(cur->prev);
@@ -195,13 +239,18 @@ namespace ma{
 						if (cur->prev == (*start))
 						{
 							assert(cur->prev->size == (*start)->size);
+							//modify cur->prev's size
 							free_blocks.erase(start);
-						
 							MemBlock* next = reinterpret_cast<MemBlock*>( reinterpret_cast<char*>(cur+1) + cur->size);
+
+							assert(reinterpret_cast<char*>(cur) == (char*)(cur->prev+1)+cur->prev->size);
+							assert((char*)(cur->prev+1)+cur->prev->size + (sizeof(MemBlock)+cur->size) == (char*)next);
+							
 							next->prev = cur->prev;
 						
 							cur->prev->size += (sizeof(MemBlock)+cur->size);
-							assert(cur->prev->size);
+							assert(cur->prev->size && checkValid(cur->prev));
+
 							free_blocks.insert(cur->prev);
 							assert((char*)(cur->prev+1)+cur->prev->size == (char*)next);
 							break;
@@ -221,7 +270,7 @@ namespace ma{
 						{
 							
 							assert(next->size && next->size == (*start)->size && next->prev == (*start)->prev);
-
+							//modify
 							free_blocks.erase(start);
 							MemBlock* next_next = reinterpret_cast<MemBlock*>( reinterpret_cast<char*>(next+1) + next->size);
 							next_next->prev = cur;
@@ -235,15 +284,18 @@ namespace ma{
 						}
 					}
 
+					assert(checkValid(cur));
 					free_blocks.insert(cur);
 				}
 			}
+			assert(checkAllBlocks());
 
 		}
 		template<typename MemAllocator>
-		inline bool MABigObjectPool<MemAllocator>::clean_unused()
+		inline bool MABigMemoryPool<MemAllocator>::clean_unused(std::size_t mem_size)
 		{
 			using namespace ma_detail;
+
 			//clean unused memory from the free blocks
 			std::size_t prev_sz =  free_blocks.size();
 			for (BlockSetBySize::iterator bsb_it = free_blocks.begin();
@@ -254,6 +306,17 @@ namespace ma{
 					&& reinterpret_cast<MemBlock*> (reinterpret_cast<char*>(*bsb_it)+(*bsb_it)->size)->size == 0)
 				{
 					std::cerr<<(*bsb_it)->size<<std::endl;
+					if (mem_size < (*bsb_it)->size)
+					{				
+						void* mem = *bsb_it;
+						free_blocks.erase(bsb_it++);
+						MemAllocator::free((char* )mem);
+
+						assert(checkAllBlocks());
+						return true;
+					}
+					mem_size -= (*bsb_it)->size;
+
 					void* mem = *bsb_it;
 					free_blocks.erase(bsb_it++);
 					MemAllocator::free((char* )mem);
@@ -262,7 +325,7 @@ namespace ma{
 					++bsb_it;
 			}
 			//assert(free_blocks.empty()? true : ret);
-			
+			assert(checkAllBlocks());
 			return free_blocks.size()<prev_sz;
 		}
 
