@@ -221,7 +221,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MABigObjectPool.h"
+				RelativePath=".\MABigPool.h"
 				>
 			</File>
 			<File
