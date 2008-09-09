@@ -25,7 +25,7 @@ namespace ma{
 
 			struct default_mem_allocator_new_delete{
 				static char* malloc(std::size_t size){return new (std::nothrow) char[size];};
-				static void free(void *p){	return delete [](reinterpret_cast<char*>(p));}
+				static void free(char * const p){	return delete [](p);}
 			};
 			struct default_mem_allocator_malloc_free{
 				static char* malloc(std::size_t size){return malloc(size);};
@@ -116,47 +116,62 @@ namespace ma{
 			{
 				MemBlock* m = (*it);
 
+				free_blocks.erase(it); //erase it before we change it
 				if(m->size > sz+sizeof(MemBlock))
 				{
 					char* next = reinterpret_cast<char*>(m+1) + sz;
 					(reinterpret_cast<MemBlock*>(next))->prev = m;
 					(reinterpret_cast<MemBlock*>(next))->size = m->size- (sz + sizeof(MemBlock)); 
 					m->size = sz;
+					assert(reinterpret_cast<MemBlock*>(next)->size && (reinterpret_cast<char*> (m+1) + m->size) == next);
 					free_blocks.insert(reinterpret_cast<MemBlock*>(next));
 				}
 
-					free_blocks.erase(it);
+				
 
+				assert(m->size);
 				return m+1;
 
 			}
 			//if not found
 
-			assert(std::lower_bound(pool_sizes,pool_sizes+ sizeof(pool_sizes)/sizeof(pool_sizes[0]),sz+sizeof(MemBlock)) 
+			assert(std::lower_bound(pool_sizes,pool_sizes+ sizeof(pool_sizes)/sizeof(pool_sizes[0]),sz+2*sizeof(MemBlock)) 
 				!= pool_sizes+ sizeof(pool_sizes)/sizeof(pool_sizes[0]));
 			std::size_t malloc_size = 
-				*std::lower_bound(pool_sizes,pool_sizes+sizeof(pool_sizes)/sizeof(pool_sizes[0]), sz+sizeof(MemBlock));
+				*std::lower_bound(pool_sizes,pool_sizes+sizeof(pool_sizes)/sizeof(pool_sizes[0]), sz+2*sizeof(MemBlock));
 
 			MemBlock* block = reinterpret_cast<MemBlock*>(MemAllocator::malloc(malloc_size));
 			
 			if (!block)//malloc failed
 			{
-				//defragment();
-				clean_unused();
-				if(!(block = reinterpret_cast<MemBlock*>(MemAllocator::malloc(malloc_size))))
+				if(!clean_unused() || !(block = reinterpret_cast<MemBlock*>(MemAllocator::malloc(malloc_size))))
 					return 0;
 			}
 			block->prev = 0;
-			block->size = malloc_size - sizeof(MemBlock);
+			block->size = malloc_size - 2 * sizeof(MemBlock);
 			//split this block if possible
-			if(malloc_size > (sz+sizeof(MemBlock) * 2))
+			if(malloc_size > (sz+sizeof(MemBlock) * 3))
 			{
 				MemBlock* next = (MemBlock*)((char*)(block + 1) + sz);
 				next->prev = block;
-				next->size = malloc_size-sz-2*sizeof(MemBlock);
+				next->size = malloc_size-sz-3*sizeof(MemBlock);
 				block->size = sz;
+
+				assert(next->size);
 				free_blocks.insert(next);
+
+				//add tail
+				MemBlock* tail = (MemBlock*)((char*)(next + 1) + next->size);
+				tail->size = 0;
+				tail->prev = next;
 			}
+			else
+			{
+				MemBlock* tail = (MemBlock*)((char*)(block + 1) + block->size);
+				tail->size = 0;
+				tail->prev = block;
+			}
+			assert(block->size);
 			return block+1;
 		}
 
@@ -170,7 +185,7 @@ namespace ma{
 
 			if(p)
 			{
-				MemBlock* cur = ((MemBlock*)(p)) - 1;
+				MemBlock* cur = static_cast<MemBlock*>(p) - 1;
 				if(cur->prev)//merge
 				{
 					BlockSetBySize::iterator start = free_blocks.lower_bound(cur->prev);
@@ -179,14 +194,47 @@ namespace ma{
 					{
 						if (cur->prev == (*start))
 						{
+							assert(cur->prev->size == (*start)->size);
 							free_blocks.erase(start);
+						
+							MemBlock* next = reinterpret_cast<MemBlock*>( reinterpret_cast<char*>(cur+1) + cur->size);
+							next->prev = cur->prev;
+						
 							cur->prev->size += (sizeof(MemBlock)+cur->size);
+							assert(cur->prev->size);
 							free_blocks.insert(cur->prev);
+							assert((char*)(cur->prev+1)+cur->prev->size == (char*)next);
 							break;
 						}
 					}
 				}
 				else{
+					assert(cur->size);
+					//merge with next
+					MemBlock* next = reinterpret_cast<MemBlock*>( reinterpret_cast<char*>(cur+1) + cur->size);
+					assert(next->prev == cur);
+					BlockSetBySize::iterator start = free_blocks.lower_bound(next);
+					BlockSetBySize::iterator end = free_blocks.upper_bound(next);
+					for (;start != end;++start)
+					{
+						if (cur == (*start)->prev)
+						{
+							
+							assert(next->size && next->size == (*start)->size && next->prev == (*start)->prev);
+
+							free_blocks.erase(start);
+							MemBlock* next_next = reinterpret_cast<MemBlock*>( reinterpret_cast<char*>(next+1) + next->size);
+							next_next->prev = cur;
+
+							
+							cur->size += (sizeof(MemBlock)+next->size);
+
+							assert((char*)(cur + 1) + cur->size == (char*)next_next);
+							
+							break;
+						}
+					}
+
 					free_blocks.insert(cur);
 				}
 			}
@@ -197,21 +245,25 @@ namespace ma{
 		{
 			using namespace ma_detail;
 			//clean unused memory from the free blocks
-			bool ret = false;
+			std::size_t prev_sz =  free_blocks.size();
 			for (BlockSetBySize::iterator bsb_it = free_blocks.begin();
 				bsb_it != free_blocks.end();
-				++bsb_it)
+				)
 			{
-				if((*bsb_it)->prev == 0)
+				if((*bsb_it)->prev == 0
+					&& reinterpret_cast<MemBlock*> (reinterpret_cast<char*>(*bsb_it)+(*bsb_it)->size)->size == 0)
 				{
-					MemAllocator::free(*bsb_it);
-					ret = true;
+					std::cerr<<(*bsb_it)->size<<std::endl;
+					void* mem = *bsb_it;
+					free_blocks.erase(bsb_it++);
+					MemAllocator::free((char* )mem);
 				}
+				else
+					++bsb_it;
 			}
-			assert(free_blocks.empty()? true : ret);
-			free_blocks.clear();
+			//assert(free_blocks.empty()? true : ret);
 			
-			return ret;
+			return free_blocks.size()<prev_sz;
 		}
 
 	}
