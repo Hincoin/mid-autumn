@@ -5,6 +5,10 @@
 #include <boost/pool/pool_alloc.hpp>
 #include <boost/preprocessor.hpp>
 
+
+#include <map>
+#include <boost/unordered_set.hpp>
+
 //implemented by lzy for big object memory allocation (reference to game programming gems 7)
 //GC won't be in c++0x but pooled memory management is a transparent GC implementation as
 //suggested in TR
@@ -33,9 +37,12 @@ namespace ma{
 				static char* malloc(std::size_t size){return malloc(size);};
 				static void free(void *p){	return free(p);}
 			};
+
+			struct BigMemPoolDefaultTag{};
+			struct BigMemPoolHashedTag{};
 		}
 
-		template<typename MemAllocator = ma_detail::default_mem_allocator_new_delete>
+		template<typename MemAllocator = ma_detail::default_mem_allocator_new_delete , typename PoolTag = ma_detail::BigMemPoolDefaultTag>
 		struct MABigMemoryPool{
 			//static std::size_t smallest_size = 256;
 
@@ -61,7 +68,7 @@ namespace ma{
 				bool ret = true;
 				for(BlockSetBySize::iterator it = free_blocks.begin();it != free_blocks.end(); ++it)
 				{
-					assert( (ret = ret && checkValid(*it)));
+					assert( (ret = checkValid(*it)));
 				}
 				return ret;
 			}
@@ -75,8 +82,8 @@ namespace ma{
 
 			static BlockSetBySize free_blocks;
 		};
-		template<typename MemAllocator>
-		typename MABigMemoryPool<MemAllocator>::BlockSetBySize MABigMemoryPool<MemAllocator>::free_blocks;
+		template<typename MemAllocator,typename PoolTag>
+		typename MABigMemoryPool<MemAllocator,PoolTag>::BlockSetBySize MABigMemoryPool<MemAllocator,PoolTag>::free_blocks;
 
 
 		namespace ma_detail
@@ -119,8 +126,8 @@ namespace ma{
 #endif
 		}
 
-		template<typename MemAllocator>
-		inline void* MABigMemoryPool<MemAllocator>::malloc(std::size_t sz)
+		template<typename MemAllocator,typename PoolTag>
+		inline void* MABigMemoryPool<MemAllocator,PoolTag>::malloc(std::size_t sz)
 		{
 			using namespace ma_detail;
 			
@@ -135,7 +142,7 @@ namespace ma{
 				assert(checkValid(m));
 				assert(checkAllBlocks());
 
-				free_blocks.erase(it); //erase it before we change it
+				
 
 				assert(checkAllBlocks());
 
@@ -154,12 +161,12 @@ namespace ma{
 					assert(checkValid((next)));
 					assert(checkAllBlocks());
 
-					free_blocks.insert((next));
+					free_blocks.insert(it,(next));
 
 					assert(checkAllBlocks());
-
 				}
 
+				free_blocks.erase(it); //erase it before we change it
 				
 
 				assert(m->size);
@@ -181,8 +188,10 @@ namespace ma{
 			if (!block)//malloc failed
 			{
 				//intentional assigned to block
-				if(!clean_unused() || !(block = reinterpret_cast<MemBlock*>(MemAllocator::malloc(malloc_size))))
+				if(!clean_unused())
 					return 0;
+				block = reinterpret_cast<MemBlock*>(MemAllocator::malloc(malloc_size));
+				if( !block) return 0;
 			}
 			block->prev = 0;
 			block->size = malloc_size - 2 * sizeof(MemBlock);
@@ -219,8 +228,8 @@ namespace ma{
 		//p must be allocated by this pool 
 		//otherwise YOU would be responsible for global warming , the wars and my bad mood, etc. 
 		//Even worse doing that may cause The Doom of The Universe !
-		template<typename MemAllocator>
-		inline void MABigMemoryPool<MemAllocator>::free(void* p)
+		template<typename MemAllocator,typename PoolTag>
+		inline void MABigMemoryPool<MemAllocator,PoolTag>::free(void* p)
 		{
 			using namespace ma_detail;
 
@@ -239,8 +248,7 @@ namespace ma{
 						if (cur->prev == (*start))
 						{
 							assert(cur->prev->size == (*start)->size);
-							//modify cur->prev's size
-							free_blocks.erase(start);
+
 							MemBlock* next = reinterpret_cast<MemBlock*>( reinterpret_cast<char*>(cur+1) + cur->size);
 
 							assert(reinterpret_cast<char*>(cur) == (char*)(cur->prev+1)+cur->prev->size);
@@ -251,7 +259,9 @@ namespace ma{
 							cur->prev->size += (sizeof(MemBlock)+cur->size);
 							assert(cur->prev->size && checkValid(cur->prev));
 
-							free_blocks.insert(cur->prev);
+							free_blocks.insert(start,cur->prev);
+							//modify cur->prev's size
+							free_blocks.erase(start);
 							assert((char*)(cur->prev+1)+cur->prev->size == (char*)next);
 							break;
 						}
@@ -275,7 +285,6 @@ namespace ma{
 							MemBlock* next_next = reinterpret_cast<MemBlock*>( reinterpret_cast<char*>(next+1) + next->size);
 							next_next->prev = cur;
 
-							
 							cur->size += (sizeof(MemBlock)+next->size);
 
 							assert((char*)(cur + 1) + cur->size == (char*)next_next);
@@ -291,8 +300,8 @@ namespace ma{
 			assert(checkAllBlocks());
 
 		}
-		template<typename MemAllocator>
-		inline bool MABigMemoryPool<MemAllocator>::clean_unused(std::size_t mem_size)
+		template<typename MemAllocator,typename PoolTag>
+		inline bool MABigMemoryPool<MemAllocator,PoolTag>::clean_unused(std::size_t mem_size)
 		{
 			using namespace ma_detail;
 
@@ -328,6 +337,64 @@ namespace ma{
 			assert(checkAllBlocks());
 			return free_blocks.size()<prev_sz;
 		}
+
+
+
+		//////////////////////////////////////////////////////////////////////////
+		//implementation of hashed tag: optimized for the situations like many free blocks with same size
+
+		namespace ma_detail
+		{
+			
+		}
+		template<typename MemAllocator>
+		struct MABigMemoryPool<MemAllocator,ma_detail::BigMemPoolHashedTag>
+		{
+			static void* malloc(std::size_t sz); //malloc sz bytes
+			static void free(void* p);//mark as freed
+
+			//free mem_size bytes if possible:depend on mem_size and the free_blocks
+			// mem_size=-1 means free all
+			// this could be very slow: true if really free some memory or free mem_size bytes successfully
+			static bool clean_unused(std::size_t mem_size = std::size_t(-1));
+
+
+#ifdef _DEBUG
+			static bool checkValid(ma_detail::MemBlock* block)
+			{
+				assert(block);
+				if(block->prev)
+					assert(reinterpret_cast<char*>(block) == (char*)(block->prev+1)+block->prev->size);
+				return block->size;
+			}
+
+			static bool checkAllBlocks(){
+				bool ret = true;
+				for(BlockSetBySize::iterator it = free_blocks.begin();it != free_blocks.end(); ++it)
+				{
+					assert( (ret = ret && checkValid(*it)));
+				}
+				return ret;
+			}
+#endif
+		private:
+			typedef boost::unordered_set<ma_detail::MemBlock*,boost::hash<ma_detail::MemBlock*>,
+				std::equal_to<ma_detail::MemBlock*>,
+				boost::pool_allocator<ma_detail::MemBlock*,
+				boost::default_user_allocator_new_delete,
+				boost::details::pool::null_mutex> > HashSet;
+
+			typedef std::map<std::size_t,HashSet,ma_detail::block_less_sz,
+				boost::pool_allocator<std::pair<std::size_t,HashSet>,
+				boost::default_user_allocator_new_delete,
+				boost::details::pool::null_mutex> 
+			> BlockHashedMap;
+
+			static BlockHashedMap free_blocks;
+		};
+		template<typename MemAllocator>
+		typename MABigMemoryPool<MemAllocator,ma_detail::BigMemPoolHashedTag>::BlockHashedMap 
+			MABigMemoryPool<MemAllocator,ma_detail::BigMemPoolHashedTag>::free_blocks;
 
 	}
 }
