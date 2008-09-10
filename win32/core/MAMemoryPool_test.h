@@ -47,16 +47,10 @@ inline unsigned long long ma_mempool_test_detail(const std::vector<unsigned int>
 		//v.push_back(new char[random_seq[i] * memory_factor]);
 		condition_break2(i == 271 || i == 1941);
 		char* p = (char*)MABigMemoryPool<>::malloc(random_seq[i] * sizeof(char[memory_factor]));
-		struct Block{
-			Block* prev;
-			std::size_t size;
-		};
-		Block* b = reinterpret_cast<Block*>( p - sizeof(Block));
-		std::size_t s = b->size;
 		v.push_back(p);
 		if(p)
 			memset(p,0,random_seq[i] * sizeof(char[memory_factor]));
-		assert(b->size == s);
+
 		
 	}
 	for (size_t i = 0; i < random_seq.size(); ++i)
