@@ -46,7 +46,7 @@ inline unsigned long long ma_mempool_test_detail(const std::vector<unsigned int>
 		//v.push_back(MAMemoryPool::malloc(random_seq[i] * sizeof(char[memory_factor])));
 		//v.push_back(new char[random_seq[i] * memory_factor]);
 		condition_break2(i == 271 || i == 1941);
-		char* p = (char*)MABigMemoryPool<>::malloc(random_seq[i] * sizeof(char[memory_factor]));
+		char* p = (char*)HashedMABigMemoryPool::malloc(random_seq[i] * sizeof(char[memory_factor]));
 		v.push_back(p);
 		if(p)
 			memset(p,0,random_seq[i] * sizeof(char[memory_factor]));
@@ -74,7 +74,7 @@ inline unsigned long long ma_mempool_test_detail(const std::vector<unsigned int>
 			ret = ret > * ((unsigned long long*) v[i]) ? 0: ret;
 		//MAMemoryPool::free(v[i]);
 		//delete []v[i];
-		MABigMemoryPool<>::free(v[i]);
+		HashedMABigMemoryPool::free(v[i]);
 	}
 	for (size_t i = 0; i < random_seq.size(); ++i)
 	{
@@ -106,7 +106,7 @@ inline void ma_mempool_test(const std::vector<unsigned int>& random_seq,int iter
 		accum -= accum > ma_mempool_test_detail(small_rand)? accum : 0;
 
 	}
-	//MABigMemoryPool<>::clean_unused();
+	HashedMABigMemoryPool::clean_unused();
 	t.end();
 	t.show();
 	std::cerr<<accum<<std::endl;
