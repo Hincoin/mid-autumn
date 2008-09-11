@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="./;../../inc/core"
+				AdditionalIncludeDirectories="./;../../inc/core;../../implib"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				GeneratePreprocessedFile="0"
 				MinimalRebuild="true"
@@ -117,7 +117,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="./;../../inc/core"
+				AdditionalIncludeDirectories="./;../../inc/core;../../implib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				GeneratePreprocessedFile="0"
 				RuntimeLibrary="2"
