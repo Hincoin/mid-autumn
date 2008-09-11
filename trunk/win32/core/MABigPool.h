@@ -617,7 +617,7 @@ namespace ma{
 				if((*bsb_it)->prev == 0
 					&& reinterpret_cast<MemBlock*> (reinterpret_cast<char*>(*bsb_it)+(*bsb_it)->size)->size == 0)
 				{
-					std::cerr<<(*bsb_it)->size<<std::endl;
+					//std::cerr<<(*bsb_it)->size<<std::endl;
 					if (mem_size < (*bsb_it)->size)
 					{				
 						void* mem = *bsb_it;
