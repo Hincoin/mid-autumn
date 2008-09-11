@@ -131,11 +131,11 @@ namespace ma{
 		inline void* MABigMemoryPool<MemAllocator,PoolTag>::malloc(std::size_t sz)
 		{
 			using namespace ma_detail;
-			
+
 			assert(checkAllBlocks());
 
 			//is it in the free block set
-			
+
 			BlockSetBySize::iterator it = free_blocks.lower_bound(& MemBlock(0,sz));
 			if (it != free_blocks.end())
 			{
@@ -143,7 +143,7 @@ namespace ma{
 				assert(checkValid(m));
 				assert(checkAllBlocks());
 
-				
+
 
 				assert(checkAllBlocks());
 
@@ -168,7 +168,7 @@ namespace ma{
 				}
 
 				free_blocks.erase(it); //erase it before we change it
-				
+
 
 				assert(m->size);
 				assert(checkValid(m));
@@ -185,7 +185,7 @@ namespace ma{
 				*std::lower_bound(pool_sizes,pool_sizes+sizeof(pool_sizes)/sizeof(pool_sizes[0]), sz+2*sizeof(MemBlock));
 
 			MemBlock* block = reinterpret_cast<MemBlock*>(MemAllocator::malloc(malloc_size));
-			
+
 			if (!block)//malloc failed
 			{
 				//intentional assigned to block
@@ -254,9 +254,9 @@ namespace ma{
 
 							assert(reinterpret_cast<char*>(cur) == (char*)(cur->prev+1)+cur->prev->size);
 							assert((char*)(cur->prev+1)+cur->prev->size + (sizeof(MemBlock)+cur->size) == (char*)next);
-							
+
 							next->prev = cur->prev;
-						
+
 							cur->prev->size += (sizeof(MemBlock)+cur->size);
 							assert(cur->prev->size && checkValid(cur->prev));
 
@@ -279,7 +279,7 @@ namespace ma{
 					{
 						if (cur == (*start)->prev)
 						{
-							
+
 							assert(next->size && next->size == (*start)->size && next->prev == (*start)->prev);
 							//modify
 							free_blocks.erase(start);
@@ -289,7 +289,7 @@ namespace ma{
 							cur->size += (sizeof(MemBlock)+next->size);
 
 							assert((char*)(cur + 1) + cur->size == (char*)next_next);
-							
+
 							break;
 						}
 					}
@@ -346,7 +346,7 @@ namespace ma{
 
 		namespace ma_detail
 		{
-			
+
 		}
 		template<typename MemAllocator>
 		struct MABigMemoryPool<MemAllocator,ma_detail::BigMemPoolHashedTag>
@@ -378,18 +378,18 @@ namespace ma{
 			}
 #endif
 		private:
-			
+
 
 			typedef std::multiset<ma_detail::MemBlock*,ma_detail::block_less_sz,
 				boost::pool_allocator<ma_detail::MemBlock,
 				boost::default_user_allocator_new_delete,
 				boost::details::pool::null_mutex> 
 			> BlockSetBySize;
-			typedef std::pair<typename BlockSetBySize::iterator ,bool> InsertedRetType;
+			typedef typename BlockSetBySize::iterator InsertedRetType;
 			typedef boost::unordered_map<ma_detail::MemBlock*,BlockSetBySize::iterator> 
 				Mem2Blocks;
 			static BlockSetBySize free_blocks;
-			
+
 
 			static Mem2Blocks free_blocks_poses;
 		};
@@ -437,14 +437,13 @@ namespace ma{
 					assert(checkAllBlocks());
 
 					InsertedRetType pos = free_blocks.insert(it,(next));
-					if(pos.second)
-						free_blocks_poses.insert(std::make_pair(next,pos.first));
+					free_blocks_poses.insert(std::make_pair(next,pos));
 
 
 
 					assert(checkAllBlocks());
 				}
-
+				free_blocks_poses.erase(*it);
 				free_blocks.erase(it); //erase it before we change it
 
 
@@ -484,8 +483,8 @@ namespace ma{
 
 				assert(next->size && checkValid(next));
 				InsertedRetType pos = free_blocks.insert(next);
-				if(pos.second)
-					free_blocks_poses.insert(std::make_pair(next,free_blocks_poses.first));
+
+				free_blocks_poses.insert(std::make_pair(next,pos));
 
 				//add tail
 				MemBlock* tail = (MemBlock*)((char*)(next + 1) + next->size);
@@ -520,12 +519,19 @@ namespace ma{
 				MemBlock* cur = static_cast<MemBlock*>(p) - 1;
 
 				assert(checkValid(cur));
-				if(cur->prev)//merge
+				if(cur->prev)//merge with previous
 				{
-					BlockSetBySize::iterator start = free_blocks.lower_bound(cur->prev);
-					BlockSetBySize::iterator end = free_blocks.upper_bound(cur->prev);
-					for (;start != end;++start)
+
+					//using hash map now
+					Mem2Blocks::iterator prev_node = free_blocks_poses.find(cur->prev);
+					if(prev_node != free_blocks_poses.end())
 					{
+						BlockSetBySize::iterator start = prev_node->second;
+
+						//BlockSetBySize::iterator start = free_blocks.lower_bound(cur->prev);
+						//BlockSetBySize::iterator end = free_blocks.upper_bound(cur->prev);
+						//for (;start != end;++start)
+						//{
 						if (cur->prev == (*start))
 						{
 							assert(cur->prev->size == (*start)->size);
@@ -541,31 +547,40 @@ namespace ma{
 							assert(cur->prev->size && checkValid(cur->prev));
 
 							InsertedRetType pos = free_blocks.insert(start,cur->prev);
-							if (pos.second)
-							{
-								free_blocks_poses.insert(std::make_pair(cur->prev,pos.first));
-							}
+							free_blocks_poses.insert(std::make_pair(cur->prev,pos));
+
 							//modify cur->prev's size
+							free_blocks_poses.erase(prev_node);
 							free_blocks.erase(start);
 							assert((char*)(cur->prev+1)+cur->prev->size == (char*)next);
-							break;
+							//break;
 						}
+						//}
 					}
+
 				}
 				else{
 					assert(cur->size);
 					//merge with next
 					MemBlock* next = reinterpret_cast<MemBlock*>( reinterpret_cast<char*>(cur+1) + cur->size);
 					assert(next->prev == cur);
-					BlockSetBySize::iterator start = free_blocks.lower_bound(next);
-					BlockSetBySize::iterator end = free_blocks.upper_bound(next);
-					for (;start != end;++start)
+
+					//using hash map now
+					Mem2Blocks::iterator prev_node = free_blocks_poses.find(next);
+					if(prev_node != free_blocks_poses.end())
 					{
+						BlockSetBySize::iterator start = prev_node->second;
+
+						//BlockSetBySize::iterator start = free_blocks.lower_bound(next);
+						//BlockSetBySize::iterator end = free_blocks.upper_bound(next);
+						//for (;start != end;++start)
+						//{
 						if (cur == (*start)->prev)
 						{
 
 							assert(next->size && next->size == (*start)->size && next->prev == (*start)->prev);
 							//modify
+							free_blocks_poses.erase(prev_node);
 							free_blocks.erase(start);
 							MemBlock* next_next = reinterpret_cast<MemBlock*>( reinterpret_cast<char*>(next+1) + next->size);
 							next_next->prev = cur;
@@ -574,16 +589,15 @@ namespace ma{
 
 							assert((char*)(cur + 1) + cur->size == (char*)next_next);
 
-							break;
+							//break;
 						}
+						//}
 					}
-
 					assert(checkValid(cur));
 					InsertedRetType pos = free_blocks.insert(cur);
-					if (pos.second)
-					{
-						free_blocks_poses.insert(std::make_pair(cur,pos.first));
-					}
+
+					free_blocks_poses.insert(std::make_pair(cur,pos));
+
 				}
 			}
 			assert(checkAllBlocks());
@@ -607,6 +621,7 @@ namespace ma{
 					if (mem_size < (*bsb_it)->size)
 					{				
 						void* mem = *bsb_it;
+						free_blocks_poses.erase(*bsb_it);
 						free_blocks.erase(bsb_it++);
 						MemAllocator::free((char* )mem);
 
@@ -616,6 +631,7 @@ namespace ma{
 					mem_size -= (*bsb_it)->size;
 
 					void* mem = *bsb_it;
+					free_blocks_poses.erase(*bsb_it);
 					free_blocks.erase(bsb_it++);
 					MemAllocator::free((char* )mem);
 				}
@@ -627,6 +643,7 @@ namespace ma{
 			return free_blocks.size()<prev_sz;
 		}
 
+		typedef MABigMemoryPool<ma_detail::default_mem_allocator_new_delete,ma_detail::BigMemPoolHashedTag> HashedMABigMemoryPool;
 
 	}
 }
