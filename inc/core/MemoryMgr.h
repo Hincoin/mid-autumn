@@ -45,7 +45,7 @@ static bool MA_RELEASE_FUNCTION_##CLASS_NAME_STR()												\
 {																								\
 	typedef MostDerivedType<CLASS_TYPE >::type AllocType;										\
 	typedef ::ma::core::MemoryPolicyType::MemoryPoolType MemPool;								\
-	return MemPool::template SingletonPool<CLASS_TYPE>::release_memory();						\
+	return MemPool::template releaseUnused<CLASS_TYPE>();						\
 }
 
 //this function is register a release all memory function for class CLASSNAME

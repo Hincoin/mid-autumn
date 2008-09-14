@@ -1,26 +1,64 @@
 (clocks)
-OBJ_MEMPOOL:  type-indexed
-FSB BoostObjMemPool  117187 
-BoostObjMemPool:
-153188
 
-MEM_POOL: size-indexed
+the default configuration compared with default new delete
+
+The pooled memory operations time:
+
+test small_object , size per object 1
+Timer clocks:93
+test small_object array , size per object 1
+Timer clocks:8969
+test big_object, size per object 1044
+Timer clocks:188
+test big_object array, size per object 1044
+Timer clocks:48643
+test very_big_object, size per object 9400
+Timer clocks:250
+test very_big_object array, size per object 9400
+Timer clocks:59941
+release unused objects:
+Timer clocks:109
+total time:
+Timer clocks:60066
+accum result:3072
+
+the pool MABOOSTObjPoolSizedSAOPT test: optimized for small array allocation
+
+test small_object , size per object 1
+Timer clocks:93
+test small_object array , size per object 1
+Timer clocks:4438
+test big_object, size per object 1044
+Timer clocks:141
+test big_object array, size per object 1044
+Timer clocks:43515
+test very_big_object, size per object 9400
+Timer clocks:203
+test very_big_object array, size per object 9400
+Timer clocks:53625
+release unused objects:
+Timer clocks:94
+total time:
+Timer clocks:53719
+accum result:3072
 
 
-NO_POOL: iterations 1024
-small obj and array
-Timer clocks:859
-Timer clocks:2109
-large object and array
-Timer clocks:5078
-Timer clocks:187766
+new_delete performance:
 
-very large object and array
-Timer clocks:18766
-Timer clocks:665703
-
-the total time
-Timer clocks:880281
-
-my pool very large 21375
-                 default 38343
+test small_object , size per object 1
+Timer clocks:1031
+test small_object array , size per object 1
+Timer clocks:2391
+test big_object, size per object 1044
+Timer clocks:6188
+test big_object array, size per object 1044
+Timer clocks:219560
+test very_big_object, size per object 9400
+Timer clocks:21376
+test very_big_object array, size per object 9400
+Timer clocks:780904
+release unused objects:
+Timer clocks:0
+total time:
+Timer clocks:780919
+accum result:3072

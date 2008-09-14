@@ -8,6 +8,8 @@
 #include "Mutex.h"
 
 #include <boost/type_traits.hpp>
+
+#include <cassert>
 namespace ma
 {
 namespace core
@@ -34,8 +36,15 @@ namespace core
 		SelfPool pools_;
 	protected:
 		typedef typename SizeToMemPool::key_type size_type;
+	public:
+		static const size_type cached_max_size = 1024;
 	protected:
-		MemoryPool(){}
+		MemoryPool(size_type sz = cached_max_size){
+			for (size_type i = 1;i < sz+1;++i)
+			{
+				pools_.insert(std::make_pair(i,new PoolType(i)));
+			}
+		}
 		~MemoryPool(){
 			//destroy all
 
@@ -48,6 +57,7 @@ namespace core
 			pools_.clear();
 		}
 	public:
+		
 		inline MemoryHandle getMemory(size_type n)
 		{
 			ScopeLock<SelfPool> scp_lck(pools_);
@@ -59,24 +69,34 @@ namespace core
 			}
 			return it->second->malloc();
 		}
-		inline void freeMemory(MemoryHandle mem,size_type n)
+		inline bool freeMemory(MemoryHandle mem,size_type n)
 		{
 			ScopeLock<SelfPool> scp_lck(pools_);
 
-			assert(pools_.find(n) != pools_.end());
+			//assert(pools_.find(n) != pools_.end());
 			SizeToMemPool::iterator it = pools_.find(n);
 			if (it !=pools_.end())
 			{
 				it->second->free(mem);
+				return true;
 			}
+			return false;
 		}
 		inline void releaseAllUnused() //give the pooled unused memory back to system
 		{
 			ScopeLock<SelfPool> scp_lck(pools_);
+			bool ret = false;
 			for (SizeToMemPool::iterator it = pools_.begin(); it != pools_.end(); ++it)
 			{
-				it->second->release_memory();
+				ret |= it->second->release_memory();
+
 			}
+#ifdef _DEBUG
+			if (!ret)
+			{
+				printf("no memory released !\n");
+			}
+#endif						
 		}
 
 	};	
