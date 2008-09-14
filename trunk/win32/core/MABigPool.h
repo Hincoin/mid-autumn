@@ -1,6 +1,12 @@
 #ifndef MABIGPOOL_H
 #define MABIGPOOL_H
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4238)
+#endif
+
+
 #include <set>
 #include <boost/pool/pool_alloc.hpp>
 #include <boost/preprocessor.hpp>
@@ -9,14 +15,15 @@
 #include <map>
 #include <boost/unordered_set.hpp>
 #include <boost/unordered_map.hpp>
-
+#include "FSBAllocator.h"
 //implemented by lzy for big object memory allocation (reference to game programming gems 7)
-//GC won't be in c++0x but pooled memory management is a transparent GC implementation as
-//suggested in TR
+//GC won't be in c++0x but pooled memory management is a transparent GC implementation
+//see n1833
 namespace ma{
 	namespace core
 	{
 		namespace ma_detail{
+
 			struct MemBlock{
 				MemBlock(MemBlock* previous,std::size_t sz):prev(previous),size(sz){}
 				MemBlock* prev; // point to previous
@@ -35,29 +42,29 @@ namespace ma{
 				static void free(char * const p){	return delete [](p);}
 			};
 			struct default_mem_allocator_malloc_free{
-				static char* malloc(std::size_t size){return malloc(size);};
-				static void free(void *p){	return free(p);}
+				static char* malloc(std::size_t size){return (char*)std::malloc(size);};
+				static void free(void *p){	return std::free(p);}
 			};
 
 			struct BigMemPoolDefaultTag{};
-			struct BigMemPoolHashedTag{};
+			struct BigMemPoolMappedTag{};
 		}
 
 		template<typename MemAllocator = ma_detail::default_mem_allocator_new_delete , typename PoolTag = ma_detail::BigMemPoolDefaultTag>
 		struct MABigMemoryPool{
 			//static std::size_t smallest_size = 256;
 
-			static void* malloc(std::size_t sz); //malloc sz bytes
-			static void free(void* p);//mark as freed
+			void* malloc(std::size_t sz); //malloc sz bytes
+			void free(void* p);//mark as freed
 
 			//free mem_size bytes if possible:depend on mem_size and the free_blocks
 			// mem_size=-1 means free all
 			// this could be very slow: true if really free some memory or free mem_size bytes successfully
-			static bool clean_unused(std::size_t mem_size = std::size_t(-1));
+			bool clean_unused(std::size_t mem_size = std::size_t(-1));
 
 
 #ifdef _DEBUG
-			static bool checkValid(ma_detail::MemBlock* block)
+			bool checkValid(ma_detail::MemBlock* block)
 			{
 				assert(block);
 				if(block->prev)
@@ -65,7 +72,7 @@ namespace ma{
 				return block->size;
 			}
 
-			static bool checkAllBlocks(){
+			bool checkAllBlocks(){
 				bool ret = true;
 				for(BlockSetBySize::iterator it = free_blocks.begin();it != free_blocks.end(); ++it)
 				{
@@ -76,16 +83,13 @@ namespace ma{
 #endif
 		private:
 			typedef std::multiset<ma_detail::MemBlock*,ma_detail::block_less_sz,
-				boost::pool_allocator<ma_detail::MemBlock,
+				boost::pool_allocator<ma_detail::MemBlock*,
 				boost::default_user_allocator_new_delete,
 				boost::details::pool::null_mutex> 
 			> BlockSetBySize;
 
-			static BlockSetBySize free_blocks;
+			BlockSetBySize free_blocks;
 		};
-		template<typename MemAllocator,typename PoolTag>
-		typename MABigMemoryPool<MemAllocator,PoolTag>::BlockSetBySize MABigMemoryPool<MemAllocator,PoolTag>::free_blocks;
-
 
 		namespace ma_detail
 		{
@@ -116,7 +120,7 @@ namespace ma{
 
 			static const std::size_t pool_sizes[]= {
 				MA_MEMORY_POOL_POOL_SIZES
-			};//32 bit
+			};
 #undef MA_MEMORY_POOL_POOL_SIZES
 #undef MA_MEMORY_POOL_GENERATE_POWER2
 
@@ -131,7 +135,6 @@ namespace ma{
 		inline void* MABigMemoryPool<MemAllocator,PoolTag>::malloc(std::size_t sz)
 		{
 			using namespace ma_detail;
-
 			assert(checkAllBlocks());
 
 			//is it in the free block set
@@ -142,8 +145,6 @@ namespace ma{
 				MemBlock* m = (*it);
 				assert(checkValid(m));
 				assert(checkAllBlocks());
-
-
 
 				assert(checkAllBlocks());
 
@@ -238,15 +239,18 @@ namespace ma{
 			if(p)
 			{
 				MemBlock* cur = static_cast<MemBlock*>(p) - 1;
-
+				bool merged_with_prev = false;
+				//BlockSetBySize::iterator inserted_place;
 				assert(checkValid(cur));
-				if(cur->prev)//merge
+				if(cur->prev)//merge with previouse or next
 				{
 					BlockSetBySize::iterator start = free_blocks.lower_bound(cur->prev);
 					BlockSetBySize::iterator end = free_blocks.upper_bound(cur->prev);
+
+					//try to merge with previous
 					for (;start != end;++start)
 					{
-						if (cur->prev == (*start))
+						if (cur->prev == (*start))//try to merge with previous
 						{
 							assert(cur->prev->size == (*start)->size);
 
@@ -260,15 +264,22 @@ namespace ma{
 							cur->prev->size += (sizeof(MemBlock)+cur->size);
 							assert(cur->prev->size && checkValid(cur->prev));
 
-							free_blocks.insert(start,cur->prev);
+							//inserted_place = free_blocks.insert(start,cur->prev);
 							//modify cur->prev's size
 							free_blocks.erase(start);
 							assert((char*)(cur->prev+1)+cur->prev->size == (char*)next);
+							merged_with_prev = true;
 							break;
 						}
 					}
+
+					////try to merge with next
 				}
-				else{
+				//else{
+				if (merged_with_prev)
+				{
+					cur = cur->prev;
+				}
 					assert(cur->size);
 					//merge with next
 					MemBlock* next = reinterpret_cast<MemBlock*>( reinterpret_cast<char*>(cur+1) + cur->size);
@@ -296,7 +307,7 @@ namespace ma{
 
 					assert(checkValid(cur));
 					free_blocks.insert(cur);
-				}
+				//}
 			}
 			assert(checkAllBlocks());
 
@@ -313,9 +324,9 @@ namespace ma{
 				)
 			{
 				if((*bsb_it)->prev == 0
-					&& reinterpret_cast<MemBlock*> (reinterpret_cast<char*>(*bsb_it)+(*bsb_it)->size)->size == 0)
+					&& reinterpret_cast<MemBlock*> (reinterpret_cast<char*>(*bsb_it + 1)+(*bsb_it)->size)->size == 0)
 				{
-					std::cerr<<(*bsb_it)->size<<std::endl;
+					//std::cerr<<(*bsb_it)->size<<std::endl;
 					if (mem_size < (*bsb_it)->size)
 					{				
 						void* mem = *bsb_it;
@@ -349,26 +360,27 @@ namespace ma{
 
 		}
 		template<typename MemAllocator>
-		struct MABigMemoryPool<MemAllocator,ma_detail::BigMemPoolHashedTag>
+		struct MABigMemoryPool<MemAllocator,ma_detail::BigMemPoolMappedTag>
 		{
-			static void* malloc(std::size_t sz); //malloc sz bytes
-			static void free(void* p);//mark as freed
+			MABigMemoryPool(){}
+			void* malloc(std::size_t sz); //malloc sz bytes
+			void free(void* p);//mark as freed
 
 			//free mem_size bytes if possible:depend on mem_size and the free_blocks
 			// mem_size=-1 means free all
 			// this could be very slow: true if really free some memory or free mem_size bytes successfully
-			static bool clean_unused(std::size_t mem_size = std::size_t(-1));
+			bool clean_unused(std::size_t mem_size = std::size_t(-1));
 
 #ifdef _DEBUG
-			static bool checkValid(ma_detail::MemBlock* block)
+			bool checkValid(ma_detail::MemBlock* block)
 			{
 				assert(block);
 				if(block->prev)
 					assert(reinterpret_cast<char*>(block) == (char*)(block->prev+1)+block->prev->size);
-				return block->size;
+				return block->size > 0;
 			}
 
-			static bool checkAllBlocks(){
+			bool checkAllBlocks(){
 				bool ret = true;
 				for(BlockSetBySize::iterator it = free_blocks.begin();it != free_blocks.end(); ++it)
 				{
@@ -378,31 +390,34 @@ namespace ma{
 			}
 #endif
 		private:
+		
+	
 
 
 			typedef std::multiset<ma_detail::MemBlock*,ma_detail::block_less_sz,
-				boost::pool_allocator<ma_detail::MemBlock,
+				boost::pool_allocator<ma_detail::MemBlock*,
 				boost::default_user_allocator_new_delete,
 				boost::details::pool::null_mutex> 
 			> BlockSetBySize;
 			typedef typename BlockSetBySize::iterator InsertedRetType;
-			typedef boost::unordered_map<ma_detail::MemBlock*,BlockSetBySize::iterator> 
+
+			//hash map is too slow when hash-table is small
+			//typedef boost::unordered_map<ma_detail::MemBlock*,BlockSetBySize::iterator/*,boost::hash<ma_detail::MemBlock*>,std::equal_to<ma_detail::MemBlock*>
+			//	,boost::pool_allocator<std::pair<const ma_detail::MemBlock*,BlockSetBySize::iterator>,
+			//	boost::default_user_allocator_new_delete,
+			//	boost::details::pool::null_mutex>*/ > 
+			//	Mem2Blocks;
+
+			typedef 
+				std::map<ma_detail::MemBlock*,InsertedRetType >
 				Mem2Blocks;
-			static BlockSetBySize free_blocks;
+			BlockSetBySize free_blocks;
 
-
-			static Mem2Blocks free_blocks_poses;
+			Mem2Blocks free_blocks_poses;
 		};
-		template<typename MemAllocator>
-		typename MABigMemoryPool<MemAllocator,ma_detail::BigMemPoolHashedTag>::BlockSetBySize 
-			MABigMemoryPool<MemAllocator,ma_detail::BigMemPoolHashedTag>::free_blocks;
-		template<typename MemAllocator>
-		typename MABigMemoryPool<MemAllocator,ma_detail::BigMemPoolHashedTag>::Mem2Blocks 
-			MABigMemoryPool<MemAllocator,ma_detail::BigMemPoolHashedTag>::free_blocks_poses;
-
 
 		template<typename MemAllocator>
-		inline void* MABigMemoryPool<MemAllocator,ma_detail::BigMemPoolHashedTag>::malloc(std::size_t sz)
+		inline void* MABigMemoryPool<MemAllocator,ma_detail::BigMemPoolMappedTag>::malloc(std::size_t sz)
 		{
 			using namespace ma_detail;
 
@@ -509,7 +524,7 @@ namespace ma{
 		//otherwise YOU would be responsible for global warming , the wars and my bad mood, etc. 
 		//Even worse doing that may cause The Doom of The Universe !
 		template<typename MemAllocator>
-		inline void MABigMemoryPool<MemAllocator,ma_detail::BigMemPoolHashedTag>::free(void* p)
+		inline void MABigMemoryPool<MemAllocator,ma_detail::BigMemPoolMappedTag>::free(void* p)
 		{
 			using namespace ma_detail;
 
@@ -517,7 +532,9 @@ namespace ma{
 			if(p)
 			{
 				MemBlock* cur = static_cast<MemBlock*>(p) - 1;
-
+				
+				bool merged_with_prev =false;
+				//Mem2Blocks::iterator inserted
 				assert(checkValid(cur));
 				if(cur->prev)//merge with previous
 				{
@@ -546,20 +563,26 @@ namespace ma{
 							cur->prev->size += (sizeof(MemBlock)+cur->size);
 							assert(cur->prev->size && checkValid(cur->prev));
 
-							InsertedRetType pos = free_blocks.insert(start,cur->prev);
-							free_blocks_poses.insert(std::make_pair(cur->prev,pos));
+							//InsertedRetType pos = free_blocks.insert(start,cur->prev);
+							//free_blocks_poses.insert(std::make_pair(cur->prev,pos));
 
 							//modify cur->prev's size
 							free_blocks_poses.erase(prev_node);
 							free_blocks.erase(start);
 							assert((char*)(cur->prev+1)+cur->prev->size == (char*)next);
+
+							merged_with_prev = true;
 							//break;
 						}
 						//}
 					}
 
 				}
-				else{
+				//else{
+				if (merged_with_prev)
+				{
+					cur = cur->prev;
+				}
 					assert(cur->size);
 					//merge with next
 					MemBlock* next = reinterpret_cast<MemBlock*>( reinterpret_cast<char*>(cur+1) + cur->size);
@@ -598,13 +621,13 @@ namespace ma{
 
 					free_blocks_poses.insert(std::make_pair(cur,pos));
 
-				}
+				//}
 			}
 			assert(checkAllBlocks());
 
 		}
 		template<typename MemAllocator>
-		inline bool MABigMemoryPool<MemAllocator,ma_detail::BigMemPoolHashedTag>::clean_unused(std::size_t mem_size)
+		inline bool MABigMemoryPool<MemAllocator,ma_detail::BigMemPoolMappedTag>::clean_unused(std::size_t mem_size)
 		{
 			using namespace ma_detail;
 
@@ -615,7 +638,7 @@ namespace ma{
 				)
 			{
 				if((*bsb_it)->prev == 0
-					&& reinterpret_cast<MemBlock*> (reinterpret_cast<char*>(*bsb_it)+(*bsb_it)->size)->size == 0)
+					&& reinterpret_cast<MemBlock*> (reinterpret_cast<char*>(*bsb_it+1)+(*bsb_it)->size)->size == 0)
 				{
 					//std::cerr<<(*bsb_it)->size<<std::endl;
 					if (mem_size < (*bsb_it)->size)
@@ -643,8 +666,13 @@ namespace ma{
 			return free_blocks.size()<prev_sz;
 		}
 
-		typedef MABigMemoryPool<ma_detail::default_mem_allocator_new_delete,ma_detail::BigMemPoolHashedTag> HashedMABigMemoryPool;
-
+		//typedef MABigMemoryPool<ma_detail::default_mem_allocator_new_delete,ma_detail::BigMemPoolMappedTag> MappedMABigMemoryPool;
+typedef MABigMemoryPool<ma_detail::default_mem_allocator_malloc_free,ma_detail::BigMemPoolMappedTag> MappedMABigMemoryPool;
 	}
 }
+
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 #endif

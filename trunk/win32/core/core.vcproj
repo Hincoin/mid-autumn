@@ -209,35 +209,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\inc\core\FSBAllocator.h"
-				>
-			</File>
-			<File
-				RelativePath=".\FSBSingletonPool.h"
-				>
-			</File>
-			<File
 				RelativePath=".\HasMember.h"
 				>
 			</File>
 			<File
-				RelativePath=".\MABigPool.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MAMemoryPool.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\inc\core\MemoryMgr.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MemoryPolicy.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MemoryPool.h"
+				RelativePath=".\MASingleton.h"
 				>
 			</File>
 			<File
@@ -253,17 +229,53 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ObjectMemoryPool.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ObjectMemSingletonPool.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Timer.h"
 				>
 			</File>
+			<Filter
+				Name="Memory"
+				>
+				<File
+					RelativePath="..\..\inc\core\FSBAllocator.h"
+					>
+				</File>
+				<File
+					RelativePath=".\FSBSingletonPool.h"
+					>
+				</File>
+				<File
+					RelativePath=".\MABigPool.h"
+					>
+				</File>
+				<File
+					RelativePath=".\MAMemoryPool.h"
+					>
+				</File>
+				<File
+					RelativePath=".\MAMemPoolSized.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\inc\core\MemoryMgr.h"
+					>
+				</File>
+				<File
+					RelativePath=".\MemoryPolicy.h"
+					>
+				</File>
+				<File
+					RelativePath=".\MemoryPool.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ObjectMemoryPool.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ObjectMemSingletonPool.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"

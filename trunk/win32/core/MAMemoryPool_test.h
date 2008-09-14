@@ -7,6 +7,9 @@
 using namespace ma;
 using namespace core;
 
+//MABigMemoryPool<> default_pool;
+MappedMABigMemoryPool default_pool;
+
 int condition_break2(bool cond)
 {
 	int take_break = 0;
@@ -40,13 +43,12 @@ inline unsigned long long ma_mempool_test_detail(const std::vector<unsigned int>
 {
 	unsigned long long ret = 0;//avoid compiler optimization
 	std::vector<void*> v;
-	static const int memory_factor = 1024 * 8;
+	static const int memory_factor = 512/*1024  * 8*/;
 	for(size_t i = 0;i < random_seq.size() ; ++i)
 	{
-		//v.push_back(MAMemoryPool::malloc(random_seq[i] * sizeof(char[memory_factor])));
-		//v.push_back(new char[random_seq[i] * memory_factor]);
 		condition_break2(i == 271 || i == 1941);
-		char* p = (char*)HashedMABigMemoryPool::malloc(random_seq[i] * sizeof(char[memory_factor]));
+		char* p = (char*)default_pool.malloc(random_seq[i] * sizeof(char[memory_factor]));
+		//char* p = new char[random_seq[i] * memory_factor];
 		v.push_back(p);
 		if(p)
 			memset(p,0,random_seq[i] * sizeof(char[memory_factor]));
@@ -72,9 +74,8 @@ inline unsigned long long ma_mempool_test_detail(const std::vector<unsigned int>
 		
 		if(v[i])
 			ret = ret > * ((unsigned long long*) v[i]) ? 0: ret;
-		//MAMemoryPool::free(v[i]);
 		//delete []v[i];
-		HashedMABigMemoryPool::free(v[i]);
+		default_pool.free(v[i]);
 	}
 	for (size_t i = 0; i < random_seq.size(); ++i)
 	{
@@ -106,9 +107,9 @@ inline void ma_mempool_test(const std::vector<unsigned int>& random_seq,int iter
 		accum -= accum > ma_mempool_test_detail(small_rand)? accum : 0;
 
 	}
-	HashedMABigMemoryPool::clean_unused();
 	t.end();
 	t.show();
+	default_pool.clean_unused();
 	std::cerr<<accum<<std::endl;
 }
 #endif

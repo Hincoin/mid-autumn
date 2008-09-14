@@ -25,23 +25,24 @@ int main()
 	{
 		rand_size_seq.push_back((unsigned int (rand()) % MAX_ARRAY_SIZE)+1);
 	}
+	const size_t Iterations = 1024;
 
 
-	//obj_mempool_test(rand_size_seq,1024);
+	obj_mempool_test(rand_size_seq,Iterations);
 
 	const int N = 8* 1024 * 1024 - 1;//536870912;
 	//typedef boost::singleton_pool<char[N],sizeof(char[N]),boost::default_user_allocator_new_delete,boost::details::pool::null_mutex> singleton_poolN;
 	//singleton_poolN::malloc();
 
 	//boost::pool<> big_pool(N); 
-	typedef boost::singleton_pool<char[8],sizeof(char[8])> sing_pool;
+	typedef boost::singleton_pool<char[N],sizeof(char[N])> sing_pool;
 
-	void* m = sing_pool::malloc();
-	sing_pool::free(m);
+	//void* m = sing_pool::malloc();
+	//sing_pool::free(m);
 	sing_pool::release_memory();
 	//char* m = new char[N];//(char*)malloc(N * sizeof(char));
 	//delete []m;//free(m);
-	ma_mempool_test(rand_size_seq,1024);
+	//ma_mempool_test(rand_size_seq,1024);
 
 //	using namespace ma::perf;
 //	Timer timer;

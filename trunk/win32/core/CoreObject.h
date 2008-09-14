@@ -16,6 +16,8 @@ namespace core
 	{
 	public:
 		typedef Derived DerivedType;
+
+		char c;
 	};
 
 

@@ -7,7 +7,7 @@
 #include "Mutex.h"
 
 
-#include "MostDerivedType.h"
+
 
 
 #ifdef _DEBUG
@@ -32,7 +32,7 @@ namespace ma
 		class ObjectMemoryPool
 		{
 		public:
-			static const size_t small_size = 512;//less than 1024 is small object
+			static const size_t small_size = 2048;//less than 1024 is small object
 
 			template<typename T,typename Mtx=Mutex>
 			struct SingletonPool: boost::mpl::if_c< (sizeof(T)>small_size), BigObjSingletonPoolT<T,Mtx>,SmallObjSingletonPoolT<T,Mtx> >::type
@@ -56,32 +56,30 @@ namespace ma
 			template<typename T>
 			static  MemoryHandle getMemory()
 			{
-				typedef typename MostDerivedType<T>::type AllocType; 
+				
 #ifdef _DEBUG
-				size_t t = sizeof(AllocType);
+				size_t t = sizeof(T);
 #endif
-				return SingletonPool<AllocType,Mutex>::malloc();
+				return SingletonPool<T,Mutex>::malloc();
 			}
 
 			template<typename T>
 			static void freeMemory(MemoryHandle mem,size_type )
 			{
-				typedef typename MostDerivedType<T>::type AllocType; 
 #ifdef _DEBUG
-				size_t t = sizeof(AllocType);
+				size_t t = sizeof(T);
 #endif
 
-				SingletonPool<AllocType,Mutex>::free(mem);
+				SingletonPool<T,Mutex>::free(mem);
 			}
 
 			template<typename T>
-			static void releaseUnused() //not very userful
+			static bool releaseUnused() //not very userful
 			{
-				typedef typename MostDerivedType<T>::type AllocType; 
 #ifdef _DEBUG
-				size_t t = sizeof(AllocType);
+				size_t t = sizeof(T);
 #endif
-				SingletonPool<AllocType,Mutex>::release_memory();
+				return SingletonPool<T,Mutex>::release_memory();
 			}
 
 			static void releaseAllUnused() //give the pooled unused memory back to system
