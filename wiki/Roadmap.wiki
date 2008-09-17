@@ -17,6 +17,7 @@ Programmers do not like politics. But There are people , There are politics.
 
 #scheduled to be writen
 Currently I'm busy with another close source project about sound rendering, this project will continued when some idea come out my head. Maybe FSM as David Abrahams described in his book, or maybe integrate others' GC, or maybe a node-based compute framework in process grained...
+Code in generative fashion,leave the real implementation blank or configurable in source code level seems very interesting and exciting.
 
 = Features =
 0
