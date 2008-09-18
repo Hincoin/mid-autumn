@@ -27,7 +27,7 @@ the pool MABOOSTObjPoolSizedSAOPT test: optimized for small array allocation
 test small_object , size per object 1
 Timer clocks:93
 test small_object array , size per object 1
-Timer clocks:4438
+Timer clocks:3844
 test big_object, size per object 1044
 Timer clocks:141
 test big_object array, size per object 1044

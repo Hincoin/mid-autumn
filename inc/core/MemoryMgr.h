@@ -7,7 +7,8 @@
 
 #include "NullType.h"
 
-
+//GC won't be available in c++0x , for information about a transparent GC implementation
+//see n1833
 namespace ma{
 	namespace core{
 
