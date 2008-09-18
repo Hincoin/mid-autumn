@@ -48,7 +48,7 @@ namespace ma
 		};
 
 		template<typename PoolType>
-		struct MemoryPolicySelector<MANAGED_BY_SIZE,typename PoolType> {
+		struct MemoryPolicySelector<MANAGED_BY_SIZE,PoolType> {
 			typedef MemoryMgr<PoolType> MemoryPoolType;
 			
 			template<typename T>
@@ -62,7 +62,7 @@ namespace ma
 					return MemoryPoolType::getInstance().freeMemory(rawmemory);
 				}
 				static void *operator new[]( size_t n )
-				{ return MemoryPoolType::getInstance().getMemory(size); }
+				{ return MemoryPoolType::getInstance().getMemory(n); }
 				static void operator delete[]( void *p, size_t )
 				{ return MemoryPoolType::getInstance().freeMemory(p); }
 			protected:
@@ -134,7 +134,7 @@ namespace ma
 					{
 						typedef typename MostDerivedType<ObjectType>::type AllocType;
 						return 
-							MemoryPoolType::getInstance().freeMemory<AllocType>(p);
+							MemoryPoolType::getInstance().template freeMemory<AllocType>(p);
 					}
 				};
 			public:

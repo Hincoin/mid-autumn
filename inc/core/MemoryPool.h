@@ -8,7 +8,7 @@
 #include "Mutex.h"
 
 #include <boost/type_traits.hpp>
-
+#include "AssocVector.h"
 #include <cassert>
 namespace ma
 {
@@ -33,6 +33,7 @@ namespace core
 		struct SelfPool:Mutex,AssocContainer
 		{
 		};
+	//	typedef SelfPool SizeToMemPool;
 		SelfPool pools_;
 	protected:
 		typedef typename SizeToMemPool::key_type size_type;
@@ -50,7 +51,7 @@ namespace core
 
 			ScopeLock<SelfPool> scp_lck(pools_);
 
-			for (SizeToMemPool::iterator it = pools_.begin();it!=pools_.end();++it)
+			for (typename SizeToMemPool::iterator it = pools_.begin();it!=pools_.end();++it)
 			{
 				delete it->second;
 			}
@@ -62,7 +63,7 @@ namespace core
 		{
 			ScopeLock<SelfPool> scp_lck(pools_);
 
-			SizeToMemPool::iterator it = pools_.find(n);
+			typename SizeToMemPool::iterator it = pools_.find(n);
 			if (it == pools_.end())
 			{
 				it = pools_.insert(std::make_pair(n,new PoolType(n))).first;
@@ -74,7 +75,7 @@ namespace core
 			ScopeLock<SelfPool> scp_lck(pools_);
 
 			//assert(pools_.find(n) != pools_.end());
-			SizeToMemPool::iterator it = pools_.find(n);
+			typename  SizeToMemPool::iterator it = pools_.find(n);
 			if (it !=pools_.end())
 			{
 				it->second->free(mem);
@@ -86,7 +87,7 @@ namespace core
 		{
 			ScopeLock<SelfPool> scp_lck(pools_);
 			bool ret = false;
-			for (SizeToMemPool::iterator it = pools_.begin(); it != pools_.end(); ++it)
+			for (typename SizeToMemPool::iterator it = pools_.begin(); it != pools_.end(); ++it)
 			{
 				ret |= it->second->release_memory();
 

@@ -161,13 +161,13 @@ namespace core
 		inline MemoryHandle getMemory()
 		{
 			ScopeLock<SelfPool> scp_lck(*this);
-			return FixedPool_::getMemory<T>();
+			return FixedPool_::template getMemory<T>();
 		}
 		template<typename T>
 		inline void freeMemory(MemoryHandle mem)
 		{
 			ScopeLock<SelfPool> scp_lck(*this);
-			FixedPool_::freeMemory<T>(mem,1);
+			FixedPool_::template freeMemory<T>(mem,1);
 		}
 		inline MemoryHandle getMemory(size_type n)
 		{
@@ -193,7 +193,7 @@ namespace core
 			ScopeLock<SelfPool> scp_lck(*this);
 #if defined(MA_NEW_DELETE_ARRAY_OPTIMIAZATION)
 			if(n < small_array_size)
-				return SmallVariablePool_::freeMemory(mem,n);
+				SmallVariablePool_::freeMemory(mem,n);
 #else
 			if(!SmallVariablePool_::freeMemory(mem,n))
 				VariablePool_::freeMemory(mem,n);
@@ -216,7 +216,7 @@ namespace core
 		template<typename T>
 		static bool releaseUnused() 
 		{
-			return FixedPool_::releaseUnused<T>();
+			return FixedPool_::template releaseUnused<T>();
 		}
 	};
 

@@ -62,24 +62,31 @@ namespace ma{
 			bool clean_unused(std::size_t mem_size = std::size_t(-1));
 
 
-#ifdef _DEBUG
+		  //#ifdef _DEBUG
 			bool checkValid(ma_detail::MemBlock* block)
 			{
+#ifdef _DEBUG
 				assert(block);
 				if(block->prev)
 					assert(reinterpret_cast<char*>(block) == (char*)(block->prev+1)+block->prev->size);
 				return block->size;
+#else 
+				return true;
+#endif
 			}
 
 			bool checkAllBlocks(){
 				bool ret = true;
-				for(BlockSetBySize::iterator it = free_blocks.begin();it != free_blocks.end(); ++it)
+#ifdef _DEBUG	
+			for(BlockSetBySize::iterator it = free_blocks.begin();it != free_blocks.end(); ++it)
 				{
 					assert( (ret = checkValid(*it)));
 				}
-				return ret;
-			}
 #endif
+				return ret;
+
+			}
+		  //#endif
 		private:
 			typedef std::multiset<ma_detail::MemBlock*,ma_detail::block_less_sz,
 				boost::pool_allocator<ma_detail::MemBlock*,
@@ -134,19 +141,21 @@ namespace ma{
 		inline void* MABigMemoryPool<MemAllocator,PoolTag>::malloc(std::size_t sz)
 		{
 			using namespace ma_detail;
+#ifdef _DEBUG
 			assert(checkAllBlocks());
-
+#endif
 			//is it in the free block set
 
 			BlockSetBySize::iterator it = free_blocks.lower_bound(& MemBlock(0,sz));
 			if (it != free_blocks.end())
 			{
 				MemBlock* m = (*it);
+#ifdef _DEBUG
 				assert(checkValid(m));
 				assert(checkAllBlocks());
 
 				assert(checkAllBlocks());
-
+#endif
 				if(m->size > sz+sizeof(MemBlock))
 				{
 					MemBlock* m_next = reinterpret_cast<MemBlock*>(reinterpret_cast<char*>(m+1) + m->size);
@@ -157,14 +166,17 @@ namespace ma{
 					m_next->prev = next;
 
 					m->size = sz;
+#ifdef _DEBUG
 					assert(next->size && (reinterpret_cast<char*> (m+1) + m->size) == reinterpret_cast<char*>( next));
 					assert(checkValid(m));
 					assert(checkValid((next)));
 					assert(checkAllBlocks());
+#endif
 
 					free_blocks.insert(it,(next));
-
+#ifdef _DEBUG
 					assert(checkAllBlocks());
+#endif
 				}
 
 				free_blocks.erase(it); //erase it before we change it
@@ -370,24 +382,29 @@ namespace ma{
 			// this could be very slow: true if really free some memory or free mem_size bytes successfully
 			bool clean_unused(std::size_t mem_size = std::size_t(-1));
 
-#ifdef _DEBUG
+			//#ifdef _DEBUG
 			bool checkValid(ma_detail::MemBlock* block)
 			{
+#ifdef _DEBUG
 				assert(block);
 				if(block->prev)
 					assert(reinterpret_cast<char*>(block) == (char*)(block->prev+1)+block->prev->size);
 				return block->size > 0;
+#endif
+				return true;
 			}
 
 			bool checkAllBlocks(){
 				bool ret = true;
+#ifdef _DEBUG
 				for(BlockSetBySize::iterator it = free_blocks.begin();it != free_blocks.end(); ++it)
 				{
 					assert( (ret = ret && checkValid(*it)));
 				}
+#endif
 				return ret;
 			}
-#endif
+			//#endif
 		private:
 		
 	
