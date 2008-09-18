@@ -122,6 +122,7 @@
 				GeneratePreprocessedFile="0"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
+				ProgramDataBaseFileName="$(IntDir)\vc80.pdb"
 				WarningLevel="4"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
@@ -179,20 +180,12 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\main_test.cpp"
+				RelativePath="..\..\src\main_test.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\MAMemoryPool.cpp"
+				RelativePath="..\..\src\core\MemoryMgr.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-					/>
-				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
@@ -201,35 +194,31 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\AssocVector.h"
+				RelativePath="..\..\inc\core\AssocVector.h"
 				>
 			</File>
 			<File
-				RelativePath=".\CoreObject.h"
+				RelativePath="..\..\inc\core\CoreObject.h"
 				>
 			</File>
 			<File
-				RelativePath=".\HasMember.h"
+				RelativePath="..\..\inc\core\HasMember.h"
 				>
 			</File>
 			<File
-				RelativePath=".\MASingleton.h"
+				RelativePath="..\..\inc\core\MostDerivedType.h"
 				>
 			</File>
 			<File
-				RelativePath=".\MostDerivedType.h"
+				RelativePath="..\..\inc\core\Mutex.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Mutex.h"
+				RelativePath="..\..\inc\core\NullType.h"
 				>
 			</File>
 			<File
-				RelativePath=".\NullType.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Timer.h"
+				RelativePath="..\..\inc\core\Timer.h"
 				>
 			</File>
 			<Filter
@@ -240,19 +229,23 @@
 					>
 				</File>
 				<File
-					RelativePath=".\FSBSingletonPool.h"
+					RelativePath="..\..\inc\core\FSBSingletonPool.h"
 					>
 				</File>
 				<File
-					RelativePath=".\MABigPool.h"
+					RelativePath="..\..\inc\core\MABigPool.h"
 					>
 				</File>
 				<File
-					RelativePath=".\MAMemoryPool.h"
+					RelativePath="..\..\inc\core\MAMemoryPool.h"
 					>
 				</File>
 				<File
-					RelativePath=".\MAMemPoolSized.h"
+					RelativePath="..\..\inc\core\MAMemPoolSized.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\inc\core\MASingleton.h"
 					>
 				</File>
 				<File
@@ -260,19 +253,19 @@
 					>
 				</File>
 				<File
-					RelativePath=".\MemoryPolicy.h"
+					RelativePath="..\..\inc\core\MemoryPolicy.h"
 					>
 				</File>
 				<File
-					RelativePath=".\MemoryPool.h"
+					RelativePath="..\..\inc\core\MemoryPool.h"
 					>
 				</File>
 				<File
-					RelativePath=".\ObjectMemoryPool.h"
+					RelativePath="..\..\inc\core\ObjectMemoryPool.h"
 					>
 				</File>
 				<File
-					RelativePath=".\ObjectMemSingletonPool.h"
+					RelativePath="..\..\inc\core\ObjectMemSingletonPool.h"
 					>
 				</File>
 			</Filter>
@@ -287,11 +280,11 @@
 			Name="Tests"
 			>
 			<File
-				RelativePath=".\MAMemoryPool_test.h"
+				RelativePath="..\..\inc\core\MAMemoryPool_test.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Memory_Test.h"
+				RelativePath="..\..\inc\core\Memory_Test.h"
 				>
 			</File>
 		</Filter>

@@ -17,8 +17,7 @@
 #include <boost/unordered_map.hpp>
 #include "FSBAllocator.h"
 //implemented by lzy for big object memory allocation (reference to game programming gems 7)
-//GC won't be in c++0x but pooled memory management is a transparent GC implementation
-//see n1833
+
 namespace ma{
 	namespace core
 	{

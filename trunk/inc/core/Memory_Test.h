@@ -33,9 +33,9 @@ public:
 	long long chunk_mem[sizeof(Parent)];
 };
 //
-//MA_REGISTER_RELEASE_FUN(CoreObject,CoreObject<>)
-//MA_REGISTER_RELEASE_FUN(SonObject,SonObject<>)
-//MA_REGISTER_RELEASE_FUN(GrandSonObject,GrandSonObject<>)
+MA_REGISTER_RELEASE_FUN(CoreObject,CoreObject<>)
+MA_REGISTER_RELEASE_FUN(SonObject,SonObject<>)
+MA_REGISTER_RELEASE_FUN(GrandSonObject,GrandSonObject<>)
 //
 //
 
@@ -86,6 +86,7 @@ inline void obj_mempool_test(const std::vector<unsigned int>& random_size_seq, i
 	Timer t_local;
 	
 	int accum = 0;
+	t_global.start();
 	
 	std::cerr<<"test small_object , size per object "<<sizeof(small_object)<<std::endl;
 

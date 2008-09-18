@@ -15,6 +15,7 @@
 #undef MA_NEW_DELETE_ARRAY_OPTIMIAZATION
 #endif
 
+#include <boost/unordered_map.hpp>
 namespace ma
 {
 namespace core
@@ -49,14 +50,14 @@ namespace core
 		}
 
 #else
-		typedef std::map<char*,size_t> Allocated;
+		//typedef std::map<char*,size_t> Allocated;
+		typedef boost::unordered_map<char*,size_t> Allocated;
 		Allocated allocated_;
 		inline void* getMemory(size_type n)
 		{
 			return (((allocated_.insert(std::make_pair((char*)( Pool::getMemory(n)),n))).first)->first);
-
 		}
-		inline bool freeMemory(void* mem, size_type s)
+		inline bool freeMemory(void* mem, size_type)
 		{
 			Allocated::iterator it = allocated_.find((char*)mem);
 			if(it!=allocated_.end())
