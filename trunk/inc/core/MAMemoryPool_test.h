@@ -4,6 +4,8 @@
 #include "MABigPool.h"
 #include "MAMemoryPool.h"
 #include "Timer.h"
+#include <cstdlib>
+#include <cstring>
 using namespace ma;
 using namespace core;
 

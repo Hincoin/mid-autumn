@@ -15,7 +15,7 @@ namespace core
 	struct SIZE_N{ char a[N];};
 
 	//this pool is pretty good at RequestedSize is <= 512 and not capable of continuous storage allocation
-	template<typename Tag, unsigned RequestedSize,
+	template<typename SingletonTag,unsigned int RequestedSize,
 		typename UserAllocator = FSBAllocator<char[RequestedSize] >,
 		typename Mutex = boost::details::pool::default_mutex>
 	struct FSBSingletonPool{
@@ -27,7 +27,7 @@ namespace core
 		};
 		typedef boost::details::pool::singleton_default<SelfPool> Singleton;
 
-		template<typename T>struct Tag{};
+	  template<typename T>struct Tag{typedef T type;};
 		static bool release_memory(Tag<FSBAllocator<value_type> >)
 		{
 			return false;

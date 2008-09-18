@@ -23,7 +23,7 @@ int main()
 	srand(0);
 	for (unsigned int i = 0; i < short_max ; ++i)
 	{
-		rand_size_seq.push_back((unsigned int (rand()) % MAX_ARRAY_SIZE)+1);
+	  rand_size_seq.push_back(((unsigned int) (rand()) % MAX_ARRAY_SIZE)+1);
 	}
 	const size_t Iterations = 1024;
 
