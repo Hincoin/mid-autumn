@@ -12,6 +12,7 @@ using namespace core;
 
 
 #include <iostream>
+//#include "poolmalloc.h"
 
 template<typename Derived = EmptyType>
 class SonObject:public CoreObject<SonObject<Derived> >
@@ -47,13 +48,14 @@ inline int test_size(const std::vector<unsigned int>& random_size_seq)
 	std::vector<T*> objects;
 	for (size_t i = 0;i < random_size_seq.size(); ++i)
 	{
-		objects.push_back(new T);
+		objects.push_back(new T  );
 		objects.back()->c = (char)random_size_seq[i];
 	}
 	for (size_t i = 0;i< random_size_seq.size(); ++i)
 	{
 		ret += objects[i]->c;
 		delete objects[i];
+		//pool_free(objects[i]);
 	}
 	return ret;
 }
@@ -65,7 +67,7 @@ inline int test_size_array(const std::vector<unsigned int>& random_size_seq)
 	std::vector<T*> objects;
 	for (size_t i = 0;i < random_size_seq.size(); ++i)
 	{
-		objects.push_back(new T[random_size_seq[i]]);
+		objects.push_back(new T[random_size_seq[i]] );
 		objects.back()[0].c = (char)random_size_seq[i];
 	}
 	for (size_t i = 0;i< random_size_seq.size(); ++i)
@@ -136,9 +138,8 @@ inline void obj_mempool_test(const std::vector<unsigned int>& random_size_seq, i
 	t_local.end();
 	t_local.show();
 
-	std::cerr<<"release unused objects:"<<std::endl;
+	std::cerr<<"release unused objects which shouldn't count:"<<std::endl;
 	t_local.start();
-	MemoryPolicyType::MemoryPoolType::getInstance().releaseAllUnused();
 	t_local.end();
 	t_local.show();
 

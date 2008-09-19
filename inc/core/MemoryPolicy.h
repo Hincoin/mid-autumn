@@ -11,9 +11,9 @@
 #include "MAMemPoolSized.h"
 
 
+//test another pool performance but I'm not authorized for the code
+//#include "poolmalloc.h"
 
-
-//#include <new>
 namespace ma
 {
 	namespace core{
@@ -33,14 +33,22 @@ namespace ma
 				static void * operator new(size_t size)
 				{
 					return ::operator new(size);
+					//return pool_malloc(size);
 				}
 				static void operator delete(void *rawmemory, size_t ){
 					return ::operator delete(rawmemory);
+					//return pool_free(rawmemory);
 				}
 				static void *operator new[]( size_t n )
-				{ return ::operator new[](n); }
+				{ 
+					return ::operator new[](n); 
+					//return pool_malloc(n);
+				}
 				static void operator delete[]( void *p, size_t )
-				{ return ::operator delete[](p); }
+				{ 
+					return ::operator delete[](p); 
+					//return pool_free(p);
+				}
 			protected:
 				MemoryPolicy(){}
 				~MemoryPolicy(){}
@@ -173,6 +181,7 @@ namespace ma
 		//typedef MemoryPolicySelector<DEFAULT_NEW_DELETE,DEFAULT_NEW_DELETE_POOL_TYPE> MemoryPolicyType;
 
 		typedef MemoryPolicySelector<MIXIN_SIZE_TYPE, MABOOSTObjPoolSizedSAOPT> MemoryPolicyType;
+		//typedef MemoryPolicySelector<DEFAULT_NEW_DELETE,DEFAULT_NEW_DELETE_POOL_TYPE> MemoryPolicyType;
 		
 
 	}

@@ -41,6 +41,9 @@ namespace ma{
 
 #include "HasMember.h"
 
+//dirty tricks for every pooled object if you want to be fast
+
+
 #define MA_RELEASE_FUNCTION(CLASS_NAME_STR,CLASS_TYPE)											\
 static bool MA_RELEASE_FUNCTION_##CLASS_NAME_STR()												\
 {																								\
