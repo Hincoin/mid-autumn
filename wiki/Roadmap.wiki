@@ -9,7 +9,7 @@
 
 *Simple: For the freedom of writing code.*
 
-The code writed for making living is restricted by many things. In the most of the time, you cannot make descions on your own. In some projects, someone takes whatever means to achieve the goal. But software only can take evlolution in a good framework. IMHO, software should be builded carefully if you have plenty of spare time. I do not think XP is a bad idea. But It will be a bad idea if someone thinks others are stupid, and insists on his/her solution. Even worse, when these guys dominants, the only thing you can do is keeping silence and keep nodding.
+The code writed for making living is restricted by many things. In the most of the time, you cannot make descions on your own. In some projects, someone takes whatever means to achieve the goal. But software only can take evlolution in a good framework. IMHO, software should be builded carefully if you have plenty of spare time. I do not think XP is a bad idea. ~~But It will be a bad idea if someone thinks others are stupid, and insists on his/her solution. Even worse, when these guys dominants, the only thing you can do is keeping silence and keep nodding.~~
 
 Programmers do not like politics. But There are people , There are politics.
 
