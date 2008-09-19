@@ -17,7 +17,8 @@
 #include <boost/unordered_map.hpp>
 #include "FSBAllocator.h"
 //implemented by lzy for big object memory allocation (reference to game programming gems 7)
-
+//for 64 bit 
+//#define MA_64BIT
 namespace ma{
 	namespace core
 	{
@@ -51,7 +52,6 @@ namespace ma{
 
 		template<typename MemAllocator = ma_detail::default_mem_allocator_new_delete , typename PoolTag = ma_detail::BigMemPoolDefaultTag>
 		struct MABigMemoryPool{
-			//static std::size_t smallest_size = 256;
 
 			void* malloc(std::size_t sz); //malloc sz bytes
 			void free(void* p);//mark as freed
@@ -390,8 +390,9 @@ namespace ma{
 				if(block->prev)
 					assert(reinterpret_cast<char*>(block) == (char*)(block->prev+1)+block->prev->size);
 				return block->size > 0;
-#endif
+#else
 				return true;
+#endif
 			}
 
 			bool checkAllBlocks(){
