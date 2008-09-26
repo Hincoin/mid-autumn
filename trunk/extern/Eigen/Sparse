@@ -1,0 +1,27 @@
+#ifndef EIGEN_SPARSE_MODULE_H
+#define EIGEN_SPARSE_MODULE_H
+
+#include "Core"
+#include <vector>
+#include <map>
+#include <cstdlib>
+#include <cstring>
+#include <algorithm>
+
+namespace Eigen {
+
+#include "src/Sparse/SparseUtil.h"
+#include "src/Sparse/SparseMatrixBase.h"
+#include "src/Sparse/SparseArray.h"
+#include "src/Sparse/SparseBlock.h"
+#include "src/Sparse/SparseMatrix.h"
+#include "src/Sparse/HashMatrix.h"
+#include "src/Sparse/LinkedVectorMatrix.h"
+#include "src/Sparse/CoreIterators.h"
+#include "src/Sparse/SparseSetter.h"
+#include "src/Sparse/SparseProduct.h"
+#include "src/Sparse/TriangularSolver.h"
+
+} // namespace Eigen
+
+#endif // EIGEN_SPARSE_MODULE_H

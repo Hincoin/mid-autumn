@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="./;../../inc/core;../../implib"
+				AdditionalIncludeDirectories="./;../../inc/core;../../extern"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				GeneratePreprocessedFile="0"
 				MinimalRebuild="true"
@@ -117,7 +117,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="./;../../inc/core;../../implib"
+				AdditionalIncludeDirectories="./;../../inc/core;../../extern"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				GeneratePreprocessedFile="0"
 				RuntimeLibrary="2"
@@ -182,6 +182,14 @@
 			<File
 				RelativePath="..\..\src\main_test.cpp"
 				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						GeneratePreprocessedFile="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\core\MemoryMgr.cpp"
@@ -219,6 +227,10 @@
 			</File>
 			<File
 				RelativePath="..\..\inc\core\Timer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Vector.h"
 				>
 			</File>
 			<Filter

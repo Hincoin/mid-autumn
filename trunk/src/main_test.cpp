@@ -1,5 +1,5 @@
 // $Id:   $
-
+#include "Vector.h"
 #include "Timer.h"
 #include "Memory_Test.h"
 #include <limits>
@@ -10,11 +10,13 @@
 #undef max
 #endif
 
-
 #include "MAMemoryPool_test.h"
+//#define MEMPOOL_TEST
+#define VECTOR_TEST
 
 int main()
 {
+#ifdef MEMPOOL_TEST
 	const static unsigned int MAX_MEM = 0x7fffffff;
 	unsigned int MAX_ARRAY_SIZE = 128;
 	unsigned int MAX_OBJECT_SIZE = 8*1024;
@@ -30,41 +32,20 @@ int main()
 
 	obj_mempool_test(rand_size_seq,Iterations);
 
-	const int N = 8* 1024 * 1024 - 1;//536870912;
-	//typedef boost::singleton_pool<char[N],sizeof(char[N]),boost::default_user_allocator_new_delete,boost::details::pool::null_mutex> singleton_poolN;
-	//singleton_poolN::malloc();
+#endif
+#ifdef VECTOR_TEST
+	vector2i i2;
+	vector2f f2(1,1);
+	//vector2f f22;
+	//f2 = vector2f(i2);
+	//vector3f f3;
+	vector4f f4(2,2,2,2),f4_(1,1,1,1);
+	vector4f r = (f4-f4_);
+	std::cout<<r;
 
-	//boost::pool<> big_pool(N); 
-	typedef boost::singleton_pool<char[N],sizeof(char[N])> sing_pool;
+	//BOOST_STATIC_ASSERT(sizeof(f2) == 2 * sizeof(float));
+#endif
 
-	//void* m = sing_pool::malloc();
-	//sing_pool::free(m);
-	sing_pool::release_memory();
-	//char* m = new char[N];//(char*)malloc(N * sizeof(char));
-	//delete []m;//free(m);
-	//ma_mempool_test(rand_size_seq,1024);
 
-//	using namespace ma::perf;
-//	Timer timer;
-//	
-//	
-//	//FSBAllocator<SIZE_N<8553496> > a;
-//	const size_t s = 512;
-//	const size_t count = 1024 * 1024;
-//	FSBAllocator<char[s] > a;
-//
-//timer.start();
-//for(size_t i = 0;i < count;++i)
-//	a.allocate(1);
-//	timer.end();
-//	timer.show();
-//	timer.start();
-//	char* c = (char*)malloc(s * count * sizeof(char));
-//	free(c);
-//	timer.end();
-//	timer.show();
-//
-//	//FSBAllocator<char[128* sizeof(GrandSonObject<>)]> a;
-//	std::cout<<sizeof(GrandSonObject<> )<<std::endl;
 	return 0;
 }

@@ -12,7 +12,7 @@ namespace ma
 namespace core
 {
 	template<typename Derived = EmptyType>
-	class CoreObject:public MemoryPolicyType::template MemoryPolicy<CoreObject<Derived> >
+	class PooledCoreObject:public MemoryPolicyType::template MemoryPolicy<PooledCoreObject<Derived> >
 	{
 	public:
 		typedef Derived DerivedType;

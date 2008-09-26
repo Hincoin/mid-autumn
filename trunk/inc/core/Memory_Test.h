@@ -15,7 +15,7 @@ using namespace core;
 //#include "poolmalloc.h"
 
 template<typename Derived = EmptyType>
-class SonObject:public CoreObject<SonObject<Derived> >
+class SonObject:public PooledCoreObject<SonObject<Derived> >
 {
 public:
 	typedef Derived DerivedType;
@@ -34,7 +34,7 @@ public:
 	long long chunk_mem[sizeof(Parent)];
 };
 //
-MA_REGISTER_RELEASE_FUN(CoreObject,CoreObject<>)
+MA_REGISTER_RELEASE_FUN(PooledCoreObject,PooledCoreObject<>)
 MA_REGISTER_RELEASE_FUN(SonObject,SonObject<>)
 MA_REGISTER_RELEASE_FUN(GrandSonObject,GrandSonObject<>)
 //
@@ -79,7 +79,7 @@ inline int test_size_array(const std::vector<unsigned int>& random_size_seq)
 }
 inline void obj_mempool_test(const std::vector<unsigned int>& random_size_seq, int iterations)
 {
-	typedef CoreObject<> small_object;
+	typedef PooledCoreObject<> small_object;
 	typedef SonObject<> big_object;
 	typedef GrandSonObject<> very_big_object;
 
