@@ -26,6 +26,13 @@ Code in generative fashion,leave the real implementation blank or configurable i
 
 = Features =
 0
+= Decsions =
+I'm very friendly to all libs in the world but only use the best ones I ever see.
+
+.Boost the lib which is the wheel of C++ making C++ move forward
+
+.Eigen. The lib is pretty fast on small matrix operation which is what I want. After 
+Recreating wheel for my Vector class, I'm happened to see such a bleeding-edge lib. So I stopped to recreating wheel and adopted it immediately.
 
 == Current Task ==
   * Memory management wrap manchnism design and implementation.(99%)
