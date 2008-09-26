@@ -460,6 +460,10 @@
 #endif
 
 #include <Eigen/Core>
+#include <Eigen/LU>
+#include <Eigen/QR>
+#include <Eigen/Geometry>
+#include <Eigen/Array>
 
 #ifdef _MSC_VER
 #pragma   warning(pop) 
@@ -476,6 +480,16 @@ namespace ma{
 		typedef Eigen::Vector2f vector2f;
 		typedef Eigen::Vector3f vector3f;
 		typedef Eigen::Vector4f vector4f;
+		
+		//matrices
+		typedef Eigen::Matrix2f matrix22f;
+		typedef Eigen::Matrix3f matrix33f;
+		typedef Eigen::Matrix4f matrix44f;
+
+		typedef Eigen::Matrix2i matrix22i;
+		typedef Eigen::Matrix3i matrix33i;
+		typedef Eigen::Matrix4i matrix44i;
+		
 	}
 }
 #endif

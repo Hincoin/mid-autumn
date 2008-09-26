@@ -41,7 +41,12 @@ int main()
 	//vector3f f3;
 	vector4f f4(2,2,2,2),f4_(1,1,1,1);
 	vector4f r = (f4-f4_);
-	std::cout<<r;
+	matrix22f m22=matrix22f::Random();
+	matrix22f m222 = m22.inverse();
+	//m22.setIdentity();
+	;
+	std::cout<< (m22 * m222)<<std::endl;
+	std::cout<<m222;
 
 	//BOOST_STATIC_ASSERT(sizeof(f2) == 2 * sizeof(float));
 #endif
