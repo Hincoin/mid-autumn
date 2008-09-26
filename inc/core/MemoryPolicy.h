@@ -14,6 +14,8 @@
 //test another pool performance but I'm not authorized for the code
 //#include "poolmalloc.h"
 
+//Select proper memory policy
+//The more time you saved, The more space you lost.
 namespace ma
 {
 	namespace core{
@@ -174,7 +176,9 @@ namespace ma
 					~MemoryPolicy(){}
 				};
 			};
-		//BoostObjMemPool FSB_BOOST_ObjMemPool
+
+
+		
 		//typedef MemoryPolicySelector<MANAGED_BY_TYPE,BoostObjMemPool> MemoryPolicyType;
 
 		//typedef MemoryPolicySelector<MIXIN_SIZE_TYPE, MABOOSTObjPoolSized/*MADefaultPoolSized*/> MemoryPolicyType;
