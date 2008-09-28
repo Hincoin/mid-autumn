@@ -10,6 +10,8 @@
 #undef max
 #endif
 
+
+#include "MADevice.h"
 #include "MAMemoryPool_test.h"
 //#define MEMPOOL_TEST
 #define VECTOR_TEST
@@ -45,8 +47,8 @@ int main()
 	matrix22f m222 = m22.inverse();
 	//m22.setIdentity();
 	;
-	std::cout<< (m22 * m222)<<std::endl;
-	std::cout<<m222;
+	std::cout<< (m22 )<<std::endl;
+	std::cout<<m22.cwise().abs();
 
 	//BOOST_STATIC_ASSERT(sizeof(f2) == 2 * sizeof(float));
 #endif

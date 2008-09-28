@@ -214,6 +214,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MADevice.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\inc\core\MostDerivedType.h"
 				>
 			</File>
