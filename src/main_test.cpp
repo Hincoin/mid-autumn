@@ -1,21 +1,25 @@
 // $Id:   $
+
+#define __SSE2__
 #include "Vector.h"
-#include "Timer.h"
-#include "Memory_Test.h"
-#include <limits>
 
-#include <cstdlib>
+//#include "Timer.h"
+//#include "Memory_Test.h"
+//#include <limits>
+//
+//#include <cstdlib>
+//
+//#ifdef max
+//#undef max
+//#endif
+//
+//
+//#include "MADevice.h"
+//#include "MAMemoryPool_test.h"
 
-#ifdef max
-#undef max
-#endif
-
-
-#include "MADevice.h"
-#include "MAMemoryPool_test.h"
 //#define MEMPOOL_TEST
 #define VECTOR_TEST
-
+using namespace ma::core;
 int main()
 {
 #ifdef MEMPOOL_TEST
