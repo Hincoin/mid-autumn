@@ -121,6 +121,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				GeneratePreprocessedFile="0"
 				RuntimeLibrary="2"
+				EnableEnhancedInstructionSet="2"
 				UsePrecompiledHeader="0"
 				ProgramDataBaseFileName="$(IntDir)\vc80.pdb"
 				WarningLevel="4"
@@ -218,6 +219,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MADeviceBase.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\inc\core\MostDerivedType.h"
 				>
 			</File>
@@ -246,6 +251,10 @@
 				</File>
 				<File
 					RelativePath="..\..\inc\core\FSBSingletonPool.h"
+					>
+				</File>
+				<File
+					RelativePath=".\MAAllocator.h"
 					>
 				</File>
 				<File

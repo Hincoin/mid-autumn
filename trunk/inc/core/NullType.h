@@ -9,6 +9,6 @@
 			EmptyType(){}
 			~EmptyType(){}
 			EmptyType(const EmptyType&);
-			EmptyType& operator=(const EmptyType&){}
+			EmptyType& operator=(const EmptyType&);
 		};
 #endif

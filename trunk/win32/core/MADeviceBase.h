@@ -1,6 +1,7 @@
-#ifndef MADEVICE_H
-#define MADEVICE_H
-#include <boost/type_traits.hpp>
+#ifndef MADEVICE_BASE_H
+#define MADEVICE_BASE_H
+
+#include <boost/static_assert.hpp>
 namespace ma{
 	//namespace io {
 	//	template<typename Derived>
@@ -129,7 +130,7 @@ namespace ma{
 		/** The returned string
 		will look like this: "1.2.3" or this: "1.2".
 		\return String which contains the version. */
-		static const char* getVersion(){return derived()::getVersion();}
+		static const char* getVersion(){return derived().getVersion();}
 
 		//! Sets a new event receiver to receive events.
 		/** \param receiver New receiver to be used. */
