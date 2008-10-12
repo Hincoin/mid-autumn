@@ -1,25 +1,26 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2008 by luozhiyuan (luozhiyuan@gmail.com)
+// Permission to use, copy, modify, distribute and sell this software for any 
+//     purpose is hereby granted without fee, provided that the above copyright 
+//     notice appear in all copies and that both that copyright notice and this 
+//     permission notice appear in supporting documentation.
+// The author makes no representations about the 
+//     suitability of this software for any purpose. It is provided "as is" 
+//     without express or implied warranty.
+////////////////////////////////////////////////////////////////////////////////
+
+
 #ifndef MADEVICE_BASE_H
 #define MADEVICE_BASE_H
 
 #include <boost/static_assert.hpp>
+#include <boost/type_traits.hpp>
+#include <boost/noncopyable.hpp>
 namespace ma{
-	//namespace io {
-	//	template<typename Derived>
-	//	class MAFileSystem;
-	//} 
-
-	//namespace gui {
-	//	template<typename Derived>
-	//	class MAGUIEnvironment;
-	//} 
-
-	//namespace scene {
-	//	template<typename Derived>
-	//	class MASceneManager;
-	//} 
+ 
 	//render device
 	template<typename Derived>
-	class MADeviceBase{
+	class MADeviceBase: boost::noncopyable{
 		BOOST_STATIC_ASSERT((boost::is_base_and_derived<MADeviceBase,Derived>::value));
 	public:
 		typedef typename Derived::VideoDriverPtr VideoDriverPtr;
@@ -32,6 +33,9 @@ namespace ma{
 		typedef typename Derived::TimerPtr TimerPtr;
 		typedef typename Derived::EventProcessorPtr EventProcessorPtr;
 		typedef typename Derived::EventType     EventType;
+	protected:
+		MADeviceBase(){}
+		~MADeviceBase(){}
 	private:
 		inline const Derived& derived() const { return *static_cast<const Derived*>(this); }
 		inline Derived& derived() { return *static_cast<Derived*>(this); }
