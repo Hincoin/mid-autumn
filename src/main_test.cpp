@@ -21,11 +21,20 @@
 //#define MEMPOOL_TEST
 //#define VECTOR_TEST
 #define MOVABLE_TEST
+//#define DEVICE_TEST
+
 
 #ifdef MOVABLE_TEST
 #include "move_test.h"
 #endif
 
+#ifdef DEVICE_TEST
+#ifdef WIN32
+#include "MADeviceWin32.h"
+#else
+//...
+#endif
+#endif // DEVICE_TEST
 
 int main()
 {
@@ -67,6 +76,8 @@ int main()
 #ifdef MOVABLE_TEST
 	test_move();
 #endif
-
+#ifdef DEVICE_TEST
+	//test device
+#endif	
 	return 0;
 }

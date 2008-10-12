@@ -354,15 +354,24 @@ class Matrix
       return *this;
     }
 
+private:
+	//patched swap by luozhiyuan
+	template<bool B>
+	struct bool_tag{enum {value = B};};
+	void swap_impl(Matrix& other,bool_tag<true>){
+		m_storage.swap(other.m_storage);
+	};
+	void swap_impl(Matrix& other,bool_tag<false>)
+	{
+		this->Base::swap(other);
+	}
+	public:
     /** Override MatrixBase::swap() since for dynamic-sized matrices of same type it is enough to swap the
       * data pointers.
       */
     void swap(Matrix& other)
     {
-      if (Base::SizeAtCompileTime==Dynamic)
-        m_storage.swap(other.m_storage);
-      else
-        this->Base::swap(other);
+		swap_impl(other,bool_tag<(Base::SizeAtCompileTime==Dynamic)>());  
     }
 
 /////////// Geometry module ///////////

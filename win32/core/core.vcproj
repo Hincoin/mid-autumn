@@ -197,10 +197,6 @@
 				RelativePath="..\..\src\core\MemoryMgr.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\move_test.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -221,6 +217,10 @@
 			</File>
 			<File
 				RelativePath="..\..\inc\core\HasMember.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MAConfig.h"
 				>
 			</File>
 			<File
@@ -343,6 +343,10 @@
 			</File>
 			<File
 				RelativePath="..\..\inc\core\Memory_Test.h"
+				>
+			</File>
+			<File
+				RelativePath=".\move_test.h"
 				>
 			</File>
 		</Filter>

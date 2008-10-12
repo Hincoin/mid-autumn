@@ -61,9 +61,8 @@ namespace ma{
 	template<typename T>
 	struct move_from{
 		T& source;
-		
+		explicit move_from(const T& x):source(const_cast<T&>(x)){}
 		explicit move_from(T& x):source(x){}
-		operator T&(){return source;}
 	};
 
 	template<typename T>
@@ -95,8 +94,11 @@ namespace ma{
 	>{};
 
 
+	//template<typename T>
+	//inline T move(T& x,typename move_sink<T>::type = 0){return T(move_from<T>(x));}
+
 	template<typename T>
-	inline T move(T& x,typename move_sink<T>::type = 0){return T(move_from<T>(x));}
+	inline move_from<T> move(T& x,typename move_sink<T>::type = 0){return move_from<T>(x);}
 
 	template<typename T>
 	inline T& move(T& x,typename copy_sink<T>::type = 0){return x;}
@@ -191,6 +193,20 @@ namespace ma{
 }
 
 
-
+namespace ma{
+	//move swap
+	template<typename T>
+	void move_swap(T& lhs,T& rhs,  typename ma::move_sink<T>::type = 0)
+	{
+		T tmp(ma::move(lhs));
+		lhs = ma::move(rhs);
+		rhs = ma::move(tmp);
+	}
+	template<typename T>
+	void move_swap(T& lhs,T& rhs,  typename ma::copy_sink<T>::type = 0)
+	{
+		std::swap(lhs,rhs);
+	}
+}
 
 #endif
