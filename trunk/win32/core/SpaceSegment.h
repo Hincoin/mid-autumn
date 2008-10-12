@@ -15,7 +15,7 @@
 #include "ParameterType.h"
 
 #include "Move.h"
-
+#include <boost/operators.hpp>
 
 namespace ma{
 	//this class define an "segment" in space (1d,2d,3d)
@@ -57,12 +57,18 @@ namespace ma{
 		SpaceSegment& operator=(SpaceSegment other){
 			swap(*this,other);return *this;
 		}
+		SpaceSegment& operator=(ma::move_from<SpaceSegment<T,equality> > other)
+		{
+			swap(smin,other.source.smin);
+			swap(smax,other.source.smax);
+			return *this;
+		}
 	};
 	template<typename T,class EqualCompare>
 	inline void swap(SpaceSegment<T,EqualCompare>& a,SpaceSegment<T,EqualCompare>& b)
 	{
-		a.smin.swap(b.smin);
-		a.smax.swap(b.smax);
+		swap(a.smax,b.smax);
+		swap(a.smin,b.smin);
 	}
 }
 
@@ -73,10 +79,10 @@ namespace ma{
 	//make vectors to be movable
 	//Matrix<Type, Size, 1>
 
-	template<typename T,int Size>
-	struct is_movable< Eigen::Matrix<T,Size , 1> >
-		:boost::mpl::true_
-	{};
+	//template<typename T,int Size>
+	//struct is_movable< Eigen::Matrix<T,Size , 1> >
+	//	:boost::mpl::true_
+	//{};
 
 	//1d
 	typedef SpaceSegment<int> rangei;
