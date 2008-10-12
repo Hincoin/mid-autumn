@@ -1,7 +1,8 @@
 // $Id:   $
 
-#define __SSE2__
+//#define __SSE2__
 #include "Vector.h"
+#include "MADeviceWin32.h"
 
 //#include "Timer.h"
 //#include "Memory_Test.h"
@@ -16,10 +17,16 @@
 //
 //#include "MADevice.h"
 //#include "MAMemoryPool_test.h"
-
+//using namespace ma::core;
 //#define MEMPOOL_TEST
-#define VECTOR_TEST
-using namespace ma::core;
+//#define VECTOR_TEST
+#define MOVABLE_TEST
+
+#ifdef MOVABLE_TEST
+#include "move_test.h"
+#endif
+
+
 int main()
 {
 #ifdef MEMPOOL_TEST
@@ -57,6 +64,9 @@ int main()
 	//BOOST_STATIC_ASSERT(sizeof(f2) == 2 * sizeof(float));
 #endif
 
+#ifdef MOVABLE_TEST
+	test_move();
+#endif
 
 	return 0;
 }

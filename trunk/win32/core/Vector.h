@@ -1,3 +1,15 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2008 by luozhiyuan (luozhiyuan@gmail.com)
+// Permission to use, copy, modify, distribute and sell this software for any 
+//     purpose is hereby granted without fee, provided that the above copyright 
+//     notice appear in all copies and that both that copyright notice and this 
+//     permission notice appear in supporting documentation.
+// The author makes no representations about the 
+//     suitability of this software for any purpose. It is provided "as is" 
+//     without express or implied warranty.
+////////////////////////////////////////////////////////////////////////////////
+
+
 #ifndef VECTOR_H
 #define VECTOR_H
 
@@ -470,7 +482,6 @@
 #endif 
 
 namespace ma{
-	namespace core{
 		//using eigen lib's vectors
 
 		typedef Eigen::Vector2i vector2i;
@@ -482,14 +493,12 @@ namespace ma{
 		typedef Eigen::Vector4f vector4f;
 		
 		//matrices
-		typedef Eigen::Matrix2f matrix22f;
-		typedef Eigen::Matrix3f matrix33f;
-		typedef Eigen::Matrix4f matrix44f;
-
 		typedef Eigen::Matrix2i matrix22i;
 		typedef Eigen::Matrix3i matrix33i;
 		typedef Eigen::Matrix4i matrix44i;
-		
-	}
+
+		typedef Eigen::Matrix2f matrix22f;
+		typedef Eigen::Matrix3f matrix33f;
+		typedef Eigen::Matrix4f matrix44f;
 }
 #endif
