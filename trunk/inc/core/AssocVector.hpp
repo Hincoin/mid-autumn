@@ -14,8 +14,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef ASSOCVECTOR_H
-#define ASSOCVECTOR_H
+#ifndef ASSOCVECTOR_HPP
+#define ASSOCVECTOR_HPP
 
 
 //from andrei's loki lib

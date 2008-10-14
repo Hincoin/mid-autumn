@@ -233,9 +233,9 @@ namespace core
 
 }
 }
-#include "MemoryPool.h"
-#include "MAMemoryPool.h"
-#include "ObjectMemoryPool.h"
+#include "MemoryPool.hpp"
+#include "MAMemoryPool.hpp"
+#include "ObjectMemoryPool.hpp"
 namespace ma
 {
 	namespace core

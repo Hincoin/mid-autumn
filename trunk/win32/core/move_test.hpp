@@ -1,4 +1,4 @@
-#include "Move.h"
+#include "Move.hpp"
 #include <iostream>
 #include <algorithm>
 #include <boost/operators.hpp>
@@ -135,7 +135,7 @@ void temporary_objects(typename ma::copy_sink<T>::type = 0)
 	w = x + y + z + x + y + z + x + y + z;
 	std::cout<<"end\n";
 }
-#include "SpaceSegment.h"
+#include "SpaceSegment.hpp"
 
 void space_seg_test()
 {

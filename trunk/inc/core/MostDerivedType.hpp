@@ -9,11 +9,11 @@
 //     without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef MOSTDERIVEDTYPE_H
-#define MOSTDERIVEDTYPE_H
+#ifndef MOSTDERIVEDTYPE_HPP
+#define MOSTDERIVEDTYPE_HPP
 
 #include <boost/mpl/if.hpp>
-#include "NullType.h"
+#include "NullType.hpp"
 
 template<typename Derived>
 struct MostDerivedType{

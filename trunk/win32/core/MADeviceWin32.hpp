@@ -1,11 +1,11 @@
 #ifndef MADEVICEWIN32_H
 #define MADEVICEWIN32_H
-#include "MAConfig.h"
+#include "MAConfig.hpp"
 
 #ifdef MA_WINDOWS_
 
-#include "MADevice.h"
-#include "SpaceSegment.h"
+#include "MADevice.hpp"
+#include "SpaceSegment.hpp"
 #include <string>
 #include <boost/bimap.hpp>
 
@@ -119,6 +119,6 @@ namespace ma
 #endif
 
 #ifdef MA_WINDOWS_
-#include "MADeviceWin32Impl.h"
+#include "MADeviceWin32Impl.hpp"
 #endif
 

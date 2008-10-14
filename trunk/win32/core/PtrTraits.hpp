@@ -1,5 +1,5 @@
-#ifndef MA_PTRTRAITS_H
-#define MA_PTRTRAITS_H
+#ifndef MA_PTRTRAITS_HPP
+#define MA_PTRTRAITS_HPP
 
 #include <memory>
 #include <functional>

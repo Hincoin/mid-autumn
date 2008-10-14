@@ -1,7 +1,7 @@
-#ifndef MADEVICE_H
-#define MADEVICE_H
+#ifndef MADEVICE_HPP
+#define MADEVICE_HPP
 
-#include "MADeviceBase.h"
+#include "MADeviceBase.hpp"
 
 namespace ma{
 	template<typename Derived>
@@ -81,4 +81,4 @@ namespace ma{
 }
 #endif
 
-#include "MADeviceImpl.h"
+#include "MADeviceImpl.hpp"

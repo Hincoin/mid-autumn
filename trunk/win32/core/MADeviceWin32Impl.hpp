@@ -1,7 +1,7 @@
-#ifndef MADEVICEWIN32IMPL_H
-#define MADEVICEWIN32IMPL_H
+#ifndef MADEVICEWIN32IMPL_HPP
+#define MADEVICEWIN32IMPL_HPP
 
-#include "MADevice.h"
+#include "MADevice.hpp"
 
 #include <winuser.h>
 

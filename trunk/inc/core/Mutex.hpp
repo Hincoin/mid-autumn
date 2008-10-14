@@ -9,8 +9,8 @@
 //     without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef MUTEX_H
-#define MUTEX_H
+#ifndef MUTEX_HPP
+#define MUTEX_HPP
 
 namespace ma
 {

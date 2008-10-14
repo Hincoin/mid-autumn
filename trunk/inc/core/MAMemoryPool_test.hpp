@@ -1,9 +1,9 @@
-#ifndef MAMEMORYPOOL_TEST_H
-#define MAMEMORYPOOL_TEST_H
+#ifndef MAMEMORYPOOL_TEST_HPP
+#define MAMEMORYPOOL_TEST_HPP
 
-#include "MABigPool.h"
-#include "MAMemoryPool.h"
-#include "Timer.h"
+#include "MABigPool.hpp"
+#include "MAMemoryPool.hpp"
+#include "Timer.hpp"
 #include <cstdlib>
 #include <cstring>
 using namespace ma;

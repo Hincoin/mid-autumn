@@ -6,8 +6,8 @@
 // provided that this copyright notice appears on all copies of the software.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef HASMEMBER_H
-#define HASMEMBER_H
+#ifndef HASMEMBER_HPP
+#define HASMEMBER_HPP
 
 
 

@@ -1,5 +1,5 @@
-#ifndef MA_MOVE_H
-#define MA_MOVE_H
+#ifndef MA_MOVE_HPP
+#define MA_MOVE_HPP
 
 
 //implement move semantic for c++ 
