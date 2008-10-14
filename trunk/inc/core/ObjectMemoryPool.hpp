@@ -10,13 +10,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef OBJECTMEMPOOL_H
-#define OBJECTMEMPOOL_H
+#ifndef OBJECTMEMPOOL_HPP
+#define OBJECTMEMPOOL_HPP
 
 
 
 
-#include "Mutex.h"
+#include "Mutex.hpp"
 
 
 

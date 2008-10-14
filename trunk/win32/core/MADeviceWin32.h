@@ -7,6 +7,7 @@
 #include "MADevice.h"
 #include "SpaceSegment.h"
 #include <string>
+#include <boost/bimap.hpp>
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -19,6 +20,7 @@ namespace ma
 	{
 	public:
 		typedef Configure Configure;
+
 
 		typedef typename Configure::Printer Printer;
 		typedef typename Configure::VideoDriver VideoDriver;
@@ -46,8 +48,15 @@ namespace ma
 		typedef typename Configure::ImagePtr ImagePtr;
 		typedef typename Configure::DriverType DriverType;
 	public:
-		MADeviceWin32(){}
-		~MADeviceWin32(){}
+		MADeviceWin32(DriverType driverType,
+			const rangei& windowSize,
+			unsigned int bits, bool fullscreen,
+			bool stencilbuffer, bool vsync,
+			bool antiAlias,
+			bool highPrecisionFPU,
+			EventProcessorPtr receiver,
+			HWND externalWindow);
+		~MADeviceWin32();
 
 		bool execute();
 		void yield();
@@ -94,7 +103,12 @@ namespace ma
 		bool IsNonNTWindows;
 		bool Resized;
 		bool ExternalWindow;
-		static boost::bimap<HWND,MADeviceWin32<Configure>*> environment_map_;
+
+		typedef boost::bimap<HWND,MADeviceWin32<Configure>*> EnvironmentMap;
+		static  EnvironmentMap environment_map_;
+		
+	private:
+		LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	};
 	template<typename Configure>
 	boost::bimap<HWND,MADeviceWin32<Configure>*> 

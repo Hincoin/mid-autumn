@@ -9,17 +9,17 @@
 //     without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef MEMORYPOLICY_H
-#define MEMORYPOLICY_H
+#ifndef MEMORYPOLICY_HPP
+#define MEMORYPOLICY_HPP
 
 
-#include "MemoryMgr.h"
+#include "MemoryMgr.hpp"
 
-#include "MemoryPool.h"
-#include "ObjectMemoryPool.h"
-#include "MAMemoryPool.h"
-#include "MostDerivedType.h"
-#include "MAMemPoolSized.h"
+#include "MemoryPool.hpp"
+#include "ObjectMemoryPool.hpp"
+#include "MAMemoryPool.hpp"
+#include "MostDerivedType.hpp"
+#include "MAMemPoolSized.hpp"
 
 
 //test another pool performance but I'm not authorized for the code

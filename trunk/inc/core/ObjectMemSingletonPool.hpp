@@ -9,8 +9,8 @@
 //     without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef OBJECTMEMSINGLETONPOOL_H
-#define OBJECTMEMSINGLETONPOOL_H
+#ifndef OBJECTMEMSINGLETONPOOL_HPP
+#define OBJECTMEMSINGLETONPOOL_HPP
 
 namespace ma
 {

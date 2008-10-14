@@ -9,8 +9,8 @@
 //     without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef MASINGLETON_H
-#define MASINGLETON_H
+#ifndef MASINGLETON_HPP
+#define MASINGLETON_HPP
 
 //it's commonly used pattern so make a simple reusable one
 

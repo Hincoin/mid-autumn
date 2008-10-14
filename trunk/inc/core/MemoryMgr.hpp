@@ -9,12 +9,12 @@
 //     without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef MEMORYMGR_H
-#define MEMORYMGR_H
+#ifndef MEMORYMGR_HPP
+#define MEMORYMGR_HPP
 
 #include <memory>
 
-#include "NullType.h"
+#include "NullType.hpp"
 
 //GC won't be available in c++0x , for information about a transparent GC implementation
 //see n1833
@@ -48,7 +48,7 @@ namespace ma{
 	}
 }
 
-#include "HasMember.h"
+#include "HasMember.hpp"
 
 //dirty tricks for every pooled object if you want to be fast
 

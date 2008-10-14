@@ -23,8 +23,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 =============================================================================*/
 
-#ifndef INCLUDE_FSBALLOCATOR_HH
-#define INCLUDE_FSBALLOCATOR_HH
+#ifndef INCLUDE_FSBALLOCATOR_HPP
+#define INCLUDE_FSBALLOCATOR_HPP
 
 #include <new>
 #include <cassert>

@@ -1,11 +1,11 @@
-#ifndef FSBSINGLETONPOOL_H
-#define FSBSINGLETONPOOL_H
+#ifndef FSBSINGLETONPOOL_HPP
+#define FSBSINGLETONPOOL_HPP
 
-#include "FSBAllocator.h"
+#include "FSBAllocator.hpp"
 
 #include <boost/pool/singleton_pool.hpp>
 
-#include "Mutex.h"
+#include "Mutex.hpp"
 
 namespace ma
 {
