@@ -63,6 +63,7 @@ namespace ma{
 		T& source;
 		explicit move_from(const T& x):source(const_cast<T&>(x)){}
 		explicit move_from(T& x):source(x){}
+		//operator const T&(){return source;}
 	};
 
 	template<typename T>
