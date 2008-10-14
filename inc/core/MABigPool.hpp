@@ -9,8 +9,8 @@
 //     without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef MABIGPOOL_H
-#define MABIGPOOL_H
+#ifndef MABIGPOOL_HPP
+#define MABIGPOOL_HPP
 
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -26,7 +26,7 @@
 #include <map>
 #include <boost/unordered_set.hpp>
 #include <boost/unordered_map.hpp>
-#include "FSBAllocator.h"
+#include "FSBAllocator.hpp"
 //implemented by lzy for big object memory allocation (reference to game programming gems 7)
 //for 64 bit 
 //#define MA_64BIT

@@ -9,12 +9,12 @@
 //     without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef MADEFAULTMEMPOOL_H
-#define MADEFAULTMEMPOOL_H
+#ifndef MADEFAULTMEMPOOL_HPP
+#define MADEFAULTMEMPOOL_HPP
 
 
-#include "MemoryPool.h"
-#include "Mutex.h"
+#include "MemoryPool.hpp"
+#include "Mutex.hpp"
 
 #ifdef __GNUC__
 #define MA_NEW_DELETE_ARRAY_OPTIMIAZATION

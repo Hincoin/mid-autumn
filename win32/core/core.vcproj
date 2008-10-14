@@ -204,7 +204,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\inc\core\AssocVector.h"
+				RelativePath="..\..\inc\core\AssocVector.hpp"
 				>
 			</File>
 			<File
@@ -212,11 +212,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\EventProcessor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FileSystem.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Final.h"
 				>
 			</File>
 			<File
+				RelativePath=".\GUIManager.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\inc\core\HasMember.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Logger.h"
 				>
 			</File>
 			<File
@@ -232,6 +248,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MADeviceConfigure.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MADeviceImpl.h"
 				>
 			</File>
@@ -244,7 +264,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\inc\core\MostDerivedType.h"
+				RelativePath="..\..\inc\core\MostDerivedType.hpp"
 				>
 			</File>
 			<File
@@ -252,11 +272,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\inc\core\Mutex.h"
+				RelativePath="..\..\inc\core\Mutex.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\inc\core\NullType.h"
+				RelativePath="..\..\inc\core\NullType.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\OSOperator.h"
 				>
 			</File>
 			<File
@@ -265,6 +289,10 @@
 			</File>
 			<File
 				RelativePath=".\PtrTraits.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneManager.h"
 				>
 			</File>
 			<File
@@ -279,51 +307,55 @@
 				RelativePath=".\Vector.h"
 				>
 			</File>
+			<File
+				RelativePath=".\VideoModes.h"
+				>
+			</File>
 			<Filter
 				Name="Memory"
 				>
 				<File
-					RelativePath="..\..\inc\core\FSBAllocator.h"
+					RelativePath="..\..\inc\core\FSBAllocator.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\inc\core\FSBSingletonPool.h"
+					RelativePath="..\..\inc\core\FSBSingletonPool.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\inc\core\MABigPool.h"
+					RelativePath="..\..\inc\core\MABigPool.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\inc\core\MAMemoryPool.h"
+					RelativePath="..\..\inc\core\MAMemoryPool.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\inc\core\MAMemPoolSized.h"
+					RelativePath="..\..\inc\core\MAMemPoolSized.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\inc\core\MASingleton.h"
+					RelativePath="..\..\inc\core\MASingleton.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\inc\core\MemoryMgr.h"
+					RelativePath="..\..\inc\core\MemoryMgr.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\inc\core\MemoryPolicy.h"
+					RelativePath="..\..\inc\core\MemoryPolicy.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\inc\core\MemoryPool.h"
+					RelativePath="..\..\inc\core\MemoryPool.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\inc\core\ObjectMemoryPool.h"
+					RelativePath="..\..\inc\core\ObjectMemoryPool.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\inc\core\ObjectMemSingletonPool.h"
+					RelativePath="..\..\inc\core\ObjectMemSingletonPool.hpp"
 					>
 				</File>
 			</Filter>

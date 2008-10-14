@@ -9,11 +9,11 @@
 //     without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef MAMEMORYPOOL_H
-#define MAMEMORYPOOL_H
+#ifndef MAMEMORYPOOL_HPP
+#define MAMEMORYPOOL_HPP
 
 #include <boost/pool/singleton_pool.hpp>
-#include "Mutex.h"
+#include "Mutex.hpp"
 //for big object allocation, tested under 32bit arch
 namespace ma
 {
@@ -75,7 +75,7 @@ namespace core
 }
 }
 
-#include "MABigPool.h"
+#include "MABigPool.hpp"
 
 namespace ma{
 	namespace core{
