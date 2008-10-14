@@ -212,19 +212,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\EventProcessor.hpp"
-				>
-			</File>
-			<File
-				RelativePath=".\FileSystem.hpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Final.hpp"
-				>
-			</File>
-			<File
-				RelativePath=".\GUIManager.hpp"
 				>
 			</File>
 			<File
@@ -232,35 +220,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Logger.hpp"
-				>
-			</File>
-			<File
 				RelativePath=".\MAConfig.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\MADevice.hpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MADeviceBase.hpp"
-				>
-			</File>
-			<File
 				RelativePath=".\MADeviceConfigure.hpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MADeviceImpl.hpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MADeviceWin32.hpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MADeviceWin32Impl.hpp"
 				>
 			</File>
 			<File
@@ -280,10 +244,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\OSOperator.hpp"
-				>
-			</File>
-			<File
 				RelativePath=".\ParameterType.hpp"
 				>
 			</File>
@@ -292,23 +252,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SceneManager.hpp"
-				>
-			</File>
-			<File
 				RelativePath=".\SpaceSegment.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\inc\core\Timer.hpp"
+				RelativePath=".\TypeConversion.hpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Vector.hpp"
-				>
-			</File>
-			<File
-				RelativePath=".\VideoModes.hpp"
 				>
 			</File>
 			<Filter
@@ -359,6 +311,66 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="Impl"
+				>
+				<File
+					RelativePath=".\MADeviceWin32.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MADeviceWin32Impl.hpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Interface"
+				>
+				<File
+					RelativePath=".\EventProcessor.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\FileSystem.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\GUIManager.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Logger.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MADevice.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MADeviceBase.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MADeviceImpl.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\OSOperator.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\SceneManager.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\inc\core\Timer.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\VideoModes.hpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -379,6 +391,10 @@
 			</File>
 			<File
 				RelativePath=".\move_test.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\type_conversion_test.hpp"
 				>
 			</File>
 		</Filter>
