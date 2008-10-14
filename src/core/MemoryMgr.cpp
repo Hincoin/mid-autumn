@@ -1,5 +1,5 @@
 // $Id:   $
-#include "MemoryMgr.h"
+#include "MemoryMgr.hpp"
 
 
 namespace ma

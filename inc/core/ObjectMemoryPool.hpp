@@ -113,7 +113,7 @@ namespace ma
 #include <boost/type_traits.hpp>
 #include <boost/pool/pool.hpp>
 #include <boost/pool/singleton_pool.hpp>
-#include "FSBSingletonPool.h"
+#include "FSBSingletonPool.hpp"
 namespace ma{
 	namespace core{
 

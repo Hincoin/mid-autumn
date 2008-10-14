@@ -1,7 +1,7 @@
-#ifndef MADEVICEIMPL_H
-#define MADEVICEIMPL_H
+#ifndef MADEVICEIMPL_HPP
+#define MADEVICEIMPL_HPP
 
-#include "MADevice.h"
+#include "MADevice.hpp"
 
 namespace ma
 {

@@ -9,8 +9,8 @@
 //     without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef NULLTYPE_H
-#define NULLTYPE_H
+#ifndef NULLTYPE_HPP
+#define NULLTYPE_HPP
 
 
 		class NullType;

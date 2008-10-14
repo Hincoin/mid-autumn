@@ -1,5 +1,5 @@
-#ifndef MACONFIG_H
-#define MACONFIG_H
+#ifndef MACONFIG_HPP
+#define MACONFIG_HPP
 
 
 static const char* ma_version = "0.000000001";

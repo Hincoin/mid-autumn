@@ -1,5 +1,5 @@
-#ifndef MADEVICECONFIGURE_H
-#define MADEVICECONFIGURE_H
+#ifndef MADEVICECONFIGURE_HPP
+#define MADEVICECONFIGURE_HPP
 
 #include ""
 struct TestDeviceConfigure{

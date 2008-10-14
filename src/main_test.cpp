@@ -1,36 +1,39 @@
 // $Id:   $
 
 //#define __SSE2__
-#include "Vector.h"
-#include "MADeviceWin32.h"
+#include "Vector.hpp"
+#include "MADeviceWin32.hpp"
 
-//#include "Timer.h"
-//#include "Memory_Test.h"
-//#include <limits>
-//
-//#include <cstdlib>
-//
-//#ifdef max
-//#undef max
-//#endif
+
 //
 //
-//#include "MADevice.h"
-//#include "MAMemoryPool_test.h"
+//#include "MADevice.hpp"
+//#include "MAMemoryPool_test.hpp"
 //using namespace ma::core;
 //#define MEMPOOL_TEST
 //#define VECTOR_TEST
-#define MOVABLE_TEST
-//#define DEVICE_TEST
+//#define MOVABLE_TEST
+#define DEVICE_TEST
 
+#ifdef MEMPOOL_TEST
+#include "Timer.hpp"
+#include "Memory_Test.hpp"
+#include <limits>
+
+#include <cstdlib>
+
+#ifdef max
+#undef max
+#endif
+#endif
 
 #ifdef MOVABLE_TEST
-#include "move_test.h"
+#include "move_test.hpp"
 #endif
 
 #ifdef DEVICE_TEST
 #ifdef WIN32
-#include "MADeviceWin32.h"
+#include "MADeviceWin32.hpp"
 #else
 //...
 #endif
@@ -56,6 +59,7 @@ int main()
 
 #endif
 #ifdef VECTOR_TEST
+	using namespace ma;
 	vector2i i2;
 	vector2f f2(1,1);
 	//vector2f f22;

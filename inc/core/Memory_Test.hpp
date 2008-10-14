@@ -1,12 +1,12 @@
-#ifndef MEMORY_TEST_H
-#define MEMORY_TEST_H
+#ifndef MEMORY_TEST_HPP
+#define MEMORY_TEST_HPP
 
-#include "MemoryMgr.h"
-#include "MemoryPool.h"
-#include "ObjectMemoryPool.h"
+#include "MemoryMgr.hpp"
+#include "MemoryPool.hpp"
+#include "ObjectMemoryPool.hpp"
 
-#include "CoreObject.h"
-#include "Timer.h"
+#include "CoreObject.hpp"
+#include "Timer.hpp"
 using namespace ma;
 using namespace core;
 

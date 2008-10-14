@@ -8,13 +8,27 @@
 //     suitability of this software for any purpose. It is provided "as is" 
 //     without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
+#ifndef COREOBJECT_HPP
+#define COREOBJECT_HPP
 
-#ifndef PARAMETERTYPE_H
-#define PARAMETERTYPE_H
+#include "NullType.hpp"
+#include "MemoryPolicy.hpp"
 
-#include <boost/call_traits.hpp>
-		template<typename T>
-		struct ParameterType:boost::call_traits<T>{
-		};
 
+namespace ma
+{
+namespace core
+{
+	template<typename Derived = EmptyType>
+	class PooledCoreObject:public MemoryPolicyType::template MemoryPolicy<PooledCoreObject<Derived> >
+	{
+	public:
+		typedef Derived DerivedType;
+
+		char c;
+	};
+
+
+}
+}
 #endif

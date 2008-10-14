@@ -208,59 +208,59 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\inc\core\CoreObject.h"
+				RelativePath="..\..\inc\core\CoreObject.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\EventProcessor.h"
+				RelativePath=".\EventProcessor.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\FileSystem.h"
+				RelativePath=".\FileSystem.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Final.h"
+				RelativePath=".\Final.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\GUIManager.h"
+				RelativePath=".\GUIManager.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\inc\core\HasMember.h"
+				RelativePath="..\..\inc\core\HasMember.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Logger.h"
+				RelativePath=".\Logger.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\MAConfig.h"
+				RelativePath=".\MAConfig.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\MADevice.h"
+				RelativePath=".\MADevice.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\MADeviceBase.h"
+				RelativePath=".\MADeviceBase.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\MADeviceConfigure.h"
+				RelativePath=".\MADeviceConfigure.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\MADeviceImpl.h"
+				RelativePath=".\MADeviceImpl.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\MADeviceWin32.h"
+				RelativePath=".\MADeviceWin32.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\MADeviceWin32Impl.h"
+				RelativePath=".\MADeviceWin32Impl.hpp"
 				>
 			</File>
 			<File
@@ -268,7 +268,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Move.h"
+				RelativePath=".\Move.hpp"
 				>
 			</File>
 			<File
@@ -280,35 +280,35 @@
 				>
 			</File>
 			<File
-				RelativePath=".\OSOperator.h"
+				RelativePath=".\OSOperator.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ParameterType.h"
+				RelativePath=".\ParameterType.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\PtrTraits.h"
+				RelativePath=".\PtrTraits.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\SceneManager.h"
+				RelativePath=".\SceneManager.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\SpaceSegment.h"
+				RelativePath=".\SpaceSegment.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\inc\core\Timer.h"
+				RelativePath="..\..\inc\core\Timer.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Vector.h"
+				RelativePath=".\Vector.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\VideoModes.h"
+				RelativePath=".\VideoModes.hpp"
 				>
 			</File>
 			<Filter
@@ -370,15 +370,15 @@
 			Name="Tests"
 			>
 			<File
-				RelativePath="..\..\inc\core\MAMemoryPool_test.h"
+				RelativePath="..\..\inc\core\MAMemoryPool_test.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\inc\core\Memory_Test.h"
+				RelativePath="..\..\inc\core\Memory_Test.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\move_test.h"
+				RelativePath=".\move_test.hpp"
 				>
 			</File>
 		</Filter>

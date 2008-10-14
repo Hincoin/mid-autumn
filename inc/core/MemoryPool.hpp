@@ -116,7 +116,7 @@ namespace core
 
 //#include <boost/pool/detail/mutex.hpp>
 #include <boost/pool/pool.hpp>
-#include "AssocVector.h"
+#include "AssocVector.hpp"
 
 
 namespace ma{

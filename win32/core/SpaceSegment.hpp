@@ -9,12 +9,12 @@
 //     without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef SPACESEGMENT_H
-#define SPACESEGMENT_H
+#ifndef SPACESEGMENT_HPP
+#define SPACESEGMENT_HPP
 
-#include "ParameterType.h"
+#include "ParameterType.hpp"
 
-#include "Move.h"
+#include "Move.hpp"
 #include <boost/operators.hpp>
 
 namespace ma{
@@ -73,7 +73,7 @@ namespace ma{
 }
 
 
-#include "Vector.h"
+#include "Vector.hpp"
 namespace ma{
 
 	//make vectors to be movable
