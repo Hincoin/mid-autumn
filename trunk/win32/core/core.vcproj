@@ -228,6 +228,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MAny.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\inc\core\MostDerivedType.hpp"
 				>
 			</File>

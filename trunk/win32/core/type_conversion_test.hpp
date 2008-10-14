@@ -43,6 +43,11 @@ struct type_promote<unsigned int>{
 };
 
 void promote_test(){
-	typedef make_promotion<short>::type int_promote;
-	std::cout<<typeid(int_promote).name();
+	typedef promote_to_variant<char>::type int_promote;
+	typedef boost::variant<char,short,int,double> char_promote;
+	std::cout<<typeid(char_promote).name()<<std::endl<<sizeof(char_promote)<<std::endl;
+
+	typedef promote_types<char>::type char_promotions;
+	typedef biggest_type<char_promotions>::type biggest_promotion;
+	std::cout<<typeid(biggest_promotion).name()<<" "<<std::endl<<sizeof(biggest_promotion);
 };
