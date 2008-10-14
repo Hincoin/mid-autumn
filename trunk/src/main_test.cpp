@@ -13,7 +13,8 @@
 //#define MEMPOOL_TEST
 //#define VECTOR_TEST
 //#define MOVABLE_TEST
-#define DEVICE_TEST
+//#define DEVICE_TEST
+#define CONVERSTION_TEST
 
 #ifdef MEMPOOL_TEST
 #include "Timer.hpp"
@@ -25,6 +26,7 @@
 #ifdef max
 #undef max
 #endif
+
 #endif
 
 #ifdef MOVABLE_TEST
@@ -38,6 +40,12 @@
 //...
 #endif
 #endif // DEVICE_TEST
+
+#ifdef CONVERSTION_TEST
+
+#include "type_conversion_test.hpp"
+
+#endif
 
 int main()
 {
@@ -83,5 +91,9 @@ int main()
 #ifdef DEVICE_TEST
 	//test device
 #endif	
+
+#ifdef CONVERSTION_TEST
+	promote_test();
+#endif
 	return 0;
 }
