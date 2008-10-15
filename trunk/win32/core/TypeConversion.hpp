@@ -53,18 +53,29 @@ private:
 		struct do_promote<U,false>
 		{
 			//dead loop check to see if U is already in the mpl::vector
-			
+
 			typedef typename boost::mpl::insert<
 				typename do_promote<
 				typename type_promote<U>::type ,is_top_promote<U>::value
 				>::type,U
 			>::type type;
+		
 		};
+
 	};
 	typedef typename details::do_promote<T,details::is_top_promote<T>::value>::type types;
 public:
 	typedef types type;
 };
+
+template<typename Sequence>
+struct do_promotions{
+	//for every element in sequence
+	typedef boost::mpl::_1 _1;
+	typedef boost::mpl::transform<Sequence,promote_types<_1> >::type type;
+};
+
+
 template<typename T>
 struct promote_to_variant{
 public:
