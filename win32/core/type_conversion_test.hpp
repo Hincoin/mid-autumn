@@ -42,6 +42,34 @@ struct type_promote<unsigned int>{
 	typedef double type;
 };
 
+//////////////////////////////////////////////////////////////////////////
+template<>
+struct multiple_type_promote<char>
+{
+	typedef boost::mpl::vector<char,short,int,unsigned int,long> type;
+};
+template<>
+struct multiple_type_promote<short>
+{
+	typedef boost::mpl::vector<short,int,unsigned int,long,float> type;
+};
+template<>
+struct multiple_type_promote<int>
+{
+	typedef boost::mpl::vector<int,unsigned short,unsigned int,long,float,double> type;
+};
+template<>
+struct multiple_type_promote<unsigned char>
+{
+	typedef boost::mpl::vector<unsigned char,short,int,unsigned short,unsigned int,long,float,double> type;
+};
+
+template<>
+struct multiple_type_promote<unsigned int>
+{
+	typedef boost::mpl::vector<unsigned int,long,double> type; 
+};
+
 template<typename T>
 void print_type()
 {
@@ -64,4 +92,6 @@ void promote_test(){
 	print_type<recursive_type>();
 
 	typedef multiple_promote<char>::type multi_char_promote;
+	print_type<multi_char_promote>();
+
 };
