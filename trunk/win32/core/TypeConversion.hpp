@@ -4,6 +4,7 @@
 
 #include <boost/type_traits/is_same.hpp>
 #include <boost/mpl/push_back.hpp>
+#include <boost/mpl/pop_front.hpp>
 #include <boost/mpl/vector.hpp>
 #include <boost/variant.hpp>
 
@@ -20,7 +21,7 @@
 #include <boost/mpl/insert.hpp>
 
 #include <boost/mpl/transform.hpp>
-
+#include <boost/mpl/remove_if.hpp>
 #include <boost/mpl/next.hpp>
 
 //meta-function for type promotion
@@ -96,27 +97,14 @@ public:
 
 template<typename Sequence>
 struct do_promotions{
-	template<typename Start_Iter,typename End_iter,typename Set>
-	struct seq2set;
-	template<typename End_iter,typename Set>
-	struct seq2set<End_iter,End_iter,Set>{
-		typedef Set type;
-	};
-	template<typename Start_iter,typename End_iter,typename Set>
-	struct seq2set{
-		typedef typename boost::mpl::next<Start_iter>::type next_iter;
-		typedef typename boost::mpl::insert<Set,typename boost::mpl::deref<Start_iter>::type>::type tmp_result;
-		typedef typename seq2set<next_iter,End_iter,tmp_result>::type type;
-	};
-
+private:
 	//for every element in sequence
 	typedef boost::mpl::_1 _1;
 	typedef typename boost::mpl::copy<Sequence,boost::mpl::back_inserter<boost::mpl::vector<> > >::type vector_types;
 	typedef typename boost::mpl::transform<vector_types,promote_types<_1> >::type vector_results;//sequence of sequence
-	typedef typename seq2set<typename boost::mpl::begin<vector_results>::type,
-		typename boost::mpl::end<vector_results>::type,
-		boost::mpl::set<> >::type type;
-	//typedef vector_results type;
+public:
+	typedef typename boost::mpl::fold<vector_results,boost::mpl::set<>,boost::mpl::insert<boost::mpl::placeholders::_1,boost::mpl::placeholders::_2> >::type type;
+
 };
 
 //it's ugly now can be simply beautified
@@ -198,22 +186,69 @@ public:
 	typedef typename apply_flatten<cur_promoted_types,boost::is_same<cur_seq_flattened,next_seq_flattened>::value>::type type;
 };
 
-template<typename BeginIter,typename EndIter,typename ResultSet,typename TypeStack>
-struct dps_promote;
+template<typename Seq0,typename Seq1>
+struct same_type_seq{
+	template<typename Seq_Iter,typename Seq_End,typename Seq_1>
+	struct impl;
 
+	template<typename Seq_End,typename Seq_1>
+	struct impl<Seq_End,Seq_End,Seq_1>{
+		enum{value = true};
+	};
 
-
-template<typename EndIter,typename ResultSet,typename TypeStack>
-struct dps_promote<EndIter,EndIter,ResultSet,TypeStack>{
-	typedef boost::mpl::set<> type;
+	template<typename Seq_Iter,typename Seq_End,typename Seq_1>
+	struct impl{
+		typedef typename boost::mpl::find<Seq_1,typename boost::mpl::deref<Seq_Iter>::type>::type find_iter;
+		enum{value = 
+			! boost::is_same<find_iter,typename boost::mpl::end<Seq_1>::type>::value
+			&& impl<typename boost::mpl::next<Seq_Iter>::type,Seq_End,Seq_1>::value};
+	};
+	enum{value = boost::mpl::size<Seq0>::value == boost::mpl::size<Seq1>::value && 
+		impl<typename boost::mpl::begin<Seq0>::type,typename boost::mpl::end<Seq0>::type,Seq1>::value  &&
+		impl<typename boost::mpl::begin<Seq1>::type,typename boost::mpl::end<Seq1>::type,Seq0>::value
+	};
 };
-template<typename StartIter,typename EndIter,typename ResultSet,typename TypeStack>
-struct dps_promote
+
+template<typename T>
+struct multiple_type_promote{
+	typedef boost::mpl::vector<T> type;
+};
+
+
+template<typename OldStack,typename TypeStack,typename ResultSet>
+struct dfs_promote;
+
+template<typename TypeStack,typename ResultSet>
+struct dfs_promote<TypeStack,TypeStack,ResultSet>{
+	typedef ResultSet type;
+};
+template<typename OldStack,typename TypeStack,typename ResultSet>
+struct dfs_promote
 {
-	//typedef typename multiple_promote<typename boost::mpl::deref<StartIter>::type>::type first_type_promote_set;
-	//typedef 
-	//typedef dps_promote<
-	//typedef 
+private:
+	typedef boost::mpl::_ _;
+	
+	typedef typename boost::mpl::front<TypeStack>::type current_top;
+	typedef typename multiple_type_promote<current_top>::type promote_types;
+
+	BOOST_STATIC_ASSERT((!boost::mpl::empty<TypeStack>::value));
+	typedef typename boost::mpl::pop_front<TypeStack>::type popped_stack;
+	//make new_stack
+	typedef typename boost::mpl::copy<promote_types,
+		boost::mpl::back_inserter<popped_stack> >::type new_dup_seq;
+
+	typedef typename boost::mpl::remove_if<new_dup_seq,boost::is_same<_,current_top> >::type new_seq;
+	//make type unique in the stack
+	typedef typename boost::mpl::fold<new_seq,boost::mpl::set<>,boost::mpl::insert<boost::mpl::placeholders::_1,boost::mpl::placeholders::_2> >::type new_set_for_stack;
+	typedef typename boost::mpl::copy<new_set_for_stack,boost::mpl::back_inserter<boost::mpl::vector<> > >::type new_stack;
+
+	typedef typename boost::mpl::insert<ResultSet,current_top>::type new_result;
+
+	typedef typename boost::mpl::if_c<same_type_seq<TypeStack,new_stack>::value,new_stack,TypeStack>::type old_stack;
+	typedef typename boost::mpl::if_<typename boost::mpl::empty<new_stack>::type,old_stack,new_stack>::type passed_new_stack;
+public:
+
+	typedef typename dfs_promote<old_stack,passed_new_stack,new_result>::type type;
 };
 
 template<typename T>
@@ -222,12 +257,12 @@ struct multiple_promote;
 
 template<typename T>
 struct multiple_promote{
-	typedef typename boost::mpl::vector<T> test_set ;
-	typedef typename dps_promote<
-		typename boost::mpl::begin<test_set>::type,
-		typename boost::mpl::end<test_set>::type,
-		boost::mpl::set<> ,
-		test_set >::type type;
+	typedef typename multiple_type_promote<T>::type test_set ;
+	typedef typename dfs_promote<
+		boost::mpl::vector<T>,	
+		test_set,
+		boost::mpl::set<> >::type set_type;
+	typedef typename boost::mpl::copy<set_type,boost::mpl::back_inserter<boost::mpl::vector<> > >::type type;
 };
 
 
