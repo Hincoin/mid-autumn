@@ -100,11 +100,30 @@ namespace details{
 		}
 		static interface_type* move_clone(const interface_type& x,void* storage)
 		{
-			
+			return ::new(storage)many_static(move(self(x).object));
+		}
+		static void assign(interface_type& x,const interface_type& y)
+		{
+			self(x).object = self(y).object;
+		}
+		static void swap(interface_type& x,interface_type& y)
+		{
+			using std::swap;
+			swap(self(x).object,self(y).object);
 		}
 
-
+		const T& get()const{return object;}
+		T& get(){return object;}
 	};
+	template<typename T>
+	const many_vtable many_static<T>::class_vtable={
+		&many_static::destruct,
+		&many_static::type_info,
+		&many_static::clone,
+		&many_static::move_clone,
+		&many_static::assign,
+		&many_static::swap
+	}; 
 }
 
 }
