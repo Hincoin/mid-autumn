@@ -124,6 +124,102 @@ namespace details{
 		&many_static::assign,
 		&many_static::swap
 	}; 
+
+	template<typename T>
+	struct many_dynamic:many_interface,boost::noncopyable{
+		typedef many_interface interface_type;
+		
+		typedef ma_fixed_allocator<T> allocator_type;
+		struct stored_object:boost::noncopyable{
+			allocator_type object_allocator;
+			T data;
+		};
+		static stored_object* new_copy(const T& x)
+		{
+			allocator_type a;
+			stored_object* result = a.allocate(1);
+			::new (static_cast<void*>(&result->object_allocator)) allocator_type(a);
+			try
+			{
+				::new (static_cast<void*>(&result->data)) T(x);
+			}
+			catch (...)
+			{
+				result->object_allocator.~allocator_type();
+				a.deallocate(result,1);
+			}
+			return result;
+		}
+		static stored_object* new_move(T& x)
+		{
+			allocator_type a;
+			stored_object* result = a.allocate(1);
+			::new (&result->object_allocator) allocator_type(a);
+			try
+			{
+				move_construct(&result->data,x);
+			}
+			catch (...)
+			{
+				result->object_allocator.~allocator_type();
+				a.deallocate(result,1);
+			}
+			return result;
+		}
+		stored_object* object_ptr;
+		static const many_vtable vtable;
+
+		template<typename U>
+		explicit many_dynamic(const U& x,typename copy_sink<U,T>::type = 0)
+			:interface_type(vtable),object_ptr(new_copy(x)){}
+		template<typename U>
+		explicit many_dynamic(U x,typename move_sink<U,T>::type=0)
+			:interface_type(vtable),object_ptr(new_move(x)){}
+
+		many_dynamic(move_from<many_dynamic> x)
+			: interface_type(vtable),object_ptr(x.source.object_ptr){x.source.object_ptr = 0;}
+		~many_dynamic(){
+			if (object_ptr)
+			{
+				allocator_type a = object_ptr->object_allocator;
+				object_ptr->object_allocator.~allocator_type();
+				object_ptr->data.~T();
+				a.deallocate(object_ptr,1);
+			}
+		}
+		static const many_dynamic& self(const interface_type& x){return static_cast<const many_dynamic&>(x);}
+		static many_dynamic& self(interface_type& x){return static_cast<many_dynamic&>(x);}
+		static std::type_info& type_info(const interface_type&){return typeid(T);}
+		static void destruct(const interface_type& x){return self(x).~many_dynamic();}
+		static interface_type* clone(const interface_type& x,void* storage)
+		{
+			return ::new(storage) many_dynamic(self(x).get());
+		}
+		static interface_type* move_clone(interface_type& x,void* storage)
+		{
+			return ::new(storage) many_dynamic(move_from<many_dynamic>(self(x)));
+		}
+		static void assign(interface_type& x,const interface_type& y)
+		{
+			self(x).get() = self(y).get();
+		}
+		static swap(interface_type& x,interface_type& y)
+		{
+			return std::swap(self(x).object_ptr,self(y).object_ptr);
+		}
+		const T& get()const {return object_ptr->data;}
+		T& get(){return object_ptr->data;}
+	};
+	template<typename T>
+	const many_vtable many_dynamic<T>::vtable=
+	{
+		&many_dynamic::destruct,
+		&many_dynamic::type_info,
+		&many_dynamic::clone,
+		&many_dynamic::move_clone,
+		&many_dynamic::assign,
+		&many_dynamic::swap
+	};
 }
 
 }

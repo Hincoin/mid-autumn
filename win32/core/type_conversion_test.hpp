@@ -71,11 +71,22 @@ struct multiple_type_promote<unsigned int>
 };
 
 template<typename T>
-void print_type()
+struct cast_type_array;
+
+template<>
+struct cast_type_array<char>
 {
-std::cout<<typeid(T).name()<<std::endl<<sizeof(T)<<std::endl;
+	static double a[8];
+};
+
+const double cast_type_array<char>::a[]={1,2,3,4,5,6,7,8};
+
+template<typename T>
+inline void print_type()
+{
+	std::cout<<typeid(T).name()<<std::endl<<sizeof(T)<<std::endl;
 }
-void promote_test(){
+inline void promote_test(){
 	typedef promote_to_variant<char>::type int_promote;
 	typedef boost::variant<char,short,int,double> char_promote;
 	print_type<char_promote>();
@@ -94,4 +105,5 @@ void promote_test(){
 	typedef multiple_promote<char>::type multi_char_promote;
 	print_type<multi_char_promote>();
 
+	std::cout<<cast_type_array<char>::a[0]<<std::endl;
 };

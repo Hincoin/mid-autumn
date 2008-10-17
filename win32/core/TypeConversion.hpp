@@ -23,6 +23,9 @@
 #include <boost/mpl/transform.hpp>
 #include <boost/mpl/remove_if.hpp>
 #include <boost/mpl/next.hpp>
+#include <boost/mpl/find.hpp>
+#include <boost/mpl/fold.hpp>
+#include <boost/mpl/size.hpp>
 
 //meta-function for type promotion
 
