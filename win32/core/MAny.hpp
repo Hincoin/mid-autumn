@@ -29,6 +29,7 @@
 //add move semantic
 #include "Move.hpp"
 #include "ParameterType.hpp"
+#include "TypeConversion.hpp"
 
 namespace ma{
 namespace details{
@@ -36,6 +37,8 @@ namespace details{
 
 	struct many_vtable{
 		typedef many_interface interface_type;
+		//conversion plays
+		const void* (*static_cast_func)(const interface_type&,const TypeInfo&);
 		void (*destruct)(const interface_type&);
 		const std::type_info&         (*type_info)(const interface_type&);
 		interface_type*     (*clone)(const interface_type&, void*);
@@ -53,6 +56,8 @@ namespace details{
 		pad_many_vtable table;
 
 		many_interface(const many_vtable& x){table.vtable = &x;}
+
+		const void* static_cast_func(const TypeInfo& t_info){return table.vtable->static_cast_func(*this,t_info);}
 		void destruct()const{return table.vtable->destruct(*this);}
 		const std::type_info& type_info()const{return table.vtable->type_info(*this);}
 		interface_type* clone(void* x)const{return table.vtable->clone(*this,x);}
@@ -111,12 +116,17 @@ namespace details{
 			using std::swap;
 			swap(self(x).object,self(y).object);
 		}
-
+		static const void* static_cast_func(const interface_type& x,const TypeInfo& t_info){
+			return cast_types<T>::cast_to(t_info,&(self(x).get()));
+		}
 		const T& get()const{return object;}
 		T& get(){return object;}
+
+		
 	};
 	template<typename T>
 	const many_vtable many_static<T>::class_vtable={
+		&many_static::static_cast_func,
 		&many_static::destruct,
 		&many_static::type_info,
 		&many_static::clone,
@@ -207,12 +217,17 @@ namespace details{
 		{
 			return std::swap(self(x).object_ptr,self(y).object_ptr);
 		}
+		static const void* static_cast_func(const interface_type& x,const TypeInfo& t_info)
+		{	
+			return cast_types<T>::cast_to(t_info,&(self(x).get()));
+		}
 		const T& get()const {return object_ptr->data;}
 		T& get(){return object_ptr->data;}
 	};
 	template<typename T>
 	const many_vtable many_dynamic<T>::vtable=
 	{
+		&many_dynamic::static_cast_func,
 		&many_dynamic::destruct,
 		&many_dynamic::type_info,
 		&many_dynamic::clone,
@@ -222,5 +237,23 @@ namespace details{
 	};
 }
 
+class MAny{
+	typedef details::many_interface interface_type;
+	typedef double storage_type[2];
+
+	//sweet traits and my main work
+	template<typename T>
+	struct many_traits{
+		typedef typename cast_types<T>::stored_type stored_type;
+		typedef stored_type& reference_type;
+		typedef const reference_type const_reference_type;
+		typedef details::many_static<stored_type> many_static_type;
+		typedef details::many_dynamic<stored_type> many_dynamic_type;
+		
+		typedef boost::mpl::bool_<(sizeof(many_static_type) <= sizeof(storage_type))
+			&& (boost::has_nothrow_copy<stored_type>::value	|| is_movable<stored_type>::value)>	use_stack_storage;
+
+	};
+};
 }
 #endif

@@ -73,18 +73,35 @@ struct multiple_type_promote<unsigned int>
 template<typename T>
 struct cast_type_array;
 
-template<>
-struct cast_type_array<char>
-{
-	static double a[8];
+struct Base1{
+	int a ;
+	virtual ~Base1(){}
+};
+struct Base2{
+	int b;
+	virtual ~Base2(){}
+};
+struct D:virtual Base1,virtual Base2{
+	double c;
 };
 
-const double cast_type_array<char>::a[]={1,2,3,4,5,6,7,8};
+template<>
+struct multiple_promote<D>{
+	typedef boost::mpl::vector<D,Base1,Base2> type;
+};
+
 
 template<typename T>
 inline void print_type()
 {
 	std::cout<<typeid(T).name()<<std::endl<<sizeof(T)<<std::endl;
+}
+
+inline int* null_func()
+{
+int a[100];
+a[0] = 100;
+return a;
 }
 inline void promote_test(){
 	typedef promote_to_variant<char>::type int_promote;
@@ -105,5 +122,28 @@ inline void promote_test(){
 	typedef multiple_promote<char>::type multi_char_promote;
 	print_type<multi_char_promote>();
 
-	std::cout<<cast_type_array<char>::a[0]<<std::endl;
+	std::cout<<cast_types<char>::casted_types_info.size()<<std::endl;
+
+	double d = 10.1;
+	//char d = 10;
+
+	const char* cc = &cast_types<char>::cast_to<char>(&d);
+	
+	int *a=null_func();
+	
+	double pptr_c = *(const double*)(cast_types<char>::cast_to(typeid(double),&d));
+
+	a=null_func();
+
+	D ddddd;
+	ddddd.a = 1;
+	ddddd.b = 7;
+	ddddd.c = 2.9;
+
+	
+	const Base1& b_dd = *(const Base1*)cast_types<D>::cast_to(typeid(Base1),&ddddd);
+	a = null_func();
+	const Base2& b_dd2 = *(const Base2*)cast_types<D>::cast_to(typeid(Base2),&ddddd);
+	a = null_func();
+	//std::cout<<(int)c<<std::endl;
 };
