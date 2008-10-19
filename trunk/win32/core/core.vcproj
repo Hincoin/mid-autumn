@@ -248,6 +248,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\OrderedTypeInfo.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ParameterType.hpp"
 				>
 			</File>

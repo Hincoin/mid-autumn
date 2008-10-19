@@ -260,11 +260,13 @@ struct multiple_promote;
 
 template<typename T>
 struct multiple_promote{
+private:
 	typedef typename multiple_type_promote<T>::type test_set ;
 	typedef typename dfs_promote<
 		boost::mpl::vector<T>,	
 		test_set,
 		boost::mpl::set<> >::type set_type;
+public:
 	typedef typename boost::mpl::copy<set_type,boost::mpl::back_inserter<boost::mpl::vector<> > >::type type;
 };
 
@@ -287,7 +289,94 @@ public:
 	typedef typename boost::mpl::deref<typename result_iter::base>::type type;
 };
 
+#include <boost/mpl/at.hpp>
+#include <boost/mpl/int.hpp>
+#include "OrderedTypeInfo.hpp"
+#include "AssocVector.hpp"
+
+#include <vector>
+#include <algorithm>
+
+#ifdef _DEBUG
+#include <iostream>
+#endif
+template<typename T>
+struct cast_types{
+	typedef typename multiple_promote<T>::type type;
+	typedef typename biggest_type<type>::type stored_type;
+private:
+	typedef const void* (*SafeCastFunc)(const stored_type* const);
+
+	template<typename TO_U>
+	static const void* static_cast_func(const stored_type* const x){
+		////std::cout<<*x<<std::endl;
+
+		//const void* c_p = &static_cast<const TO_U&>(*x);
+		//const TO_U& cc = *static_cast<const TO_U*>(c_p);
+		////std::cout<<(int)cc<<std::endl;
+
+		//TO_U* c_pp = const_cast<TO_U*>(&cc);
+		return (void*)&static_cast<const TO_U&>(*x);
+		
+		
+		//std::cout<<(int)*(TO_U*)(*r_ptr)<<std::endl;
+
+	}
+
+	typedef AssocVector<TypeInfo,SafeCastFunc> TypeCastFuncMap;
+	template<typename Seq,size_t N>
+	struct init_type_info_impl;
+
+	template<typename Seq>
+	struct init_type_info_impl<Seq,0>{
+		void operator()(TypeCastFuncMap& result)
+		{
+			typedef typename boost::mpl::at<Seq,boost::mpl::int_<0> >::type to_type;
+			result.insert(std::make_pair(TypeInfo(typeid(to_type)),&static_cast_func<to_type>));
+		}
+	};
+
+	template<typename Seq,size_t N>
+	struct init_type_info_impl{
+		void operator()(TypeCastFuncMap& result)
+		{
+			init_type_info_impl<Seq,N-1> n_1_type;
+			n_1_type(result);
+			typedef typename boost::mpl::at<Seq,boost::mpl::int_<N> >::type to_type;
+			result.insert(std::make_pair(TypeInfo(typeid(to_type)),&static_cast_func<to_type>));
+		}
+	};
+	static TypeCastFuncMap init_type_info()
+	{
+		TypeCastFuncMap ret;
+		init_type_info_impl<type,boost::mpl::size<type>::value -1 > impl;
+		impl(ret);
+		return ret;
+	}
 
 
+public:
+	//static const std::vector<TypeInfo> casted_types_info;//a sorted array
+	static const TypeCastFuncMap casted_types_info;
+	static const void* cast_to(const TypeInfo& t_info,const void* const x){
+		TypeCastFuncMap::const_iterator it(casted_types_info.find(t_info));
+		return it == casted_types_info.end()? 0: (*(it->second))(reinterpret_cast<const stored_type* const>(x));
+	}
+	template<typename TO_U>
+	static const TO_U& cast_to(const void* const x)
+	{
+		SafeCastFunc fun_ptr = &static_cast_func<TO_U>;
+		const void * r = (*fun_ptr)((stored_type*)x);
+		return *(const TO_U*)(r);
+	}
+};
+template<typename T>
+const typename cast_types<T>::TypeCastFuncMap cast_types<T>::casted_types_info = cast_types<T>::init_type_info();
+
+inline
+bool search_type(const TypeInfo& t_info,const std::vector<TypeInfo>& ts_info)//sorted
+{
+	return std::binary_search(ts_info.begin(),ts_info.end(),t_info);
+}
 
 #endif
