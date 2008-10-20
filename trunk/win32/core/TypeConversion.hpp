@@ -303,7 +303,9 @@ public:
 template<typename T>
 struct cast_types{
 	typedef typename multiple_promote<T>::type type;
-	typedef typename biggest_type<type>::type stored_type;
+	typedef typename boost::mpl::if_c<(sizeof(typename biggest_type<type>::type) <= sizeof(T)),
+		T,
+		typename biggest_type<type>::type>::type stored_type;
 
 	BOOST_STATIC_ASSERT(( boost::mpl::size<type>::value >0 ));
 private:
