@@ -23,13 +23,14 @@
 
 //improved boost::any by luozhiyuan
 //for more details see: An Efficient Variant Type -- by Christopher Diggins
-//but this implementation has more abilities 
+//and this implementation has more abilities than adobe's any_regular_t in their open source library
 
 
 //add move semantic
 #include "Move.hpp"
 #include "ParameterType.hpp"
 #include "TypeConversion.hpp"
+#include "FixedAllocator.hpp"
 
 namespace ma{
 namespace details{
@@ -91,9 +92,9 @@ namespace details{
 		{
 			return static_cast<many_static&>(x);
 		}
-		static const std::type_info& (const interface_type&)
+		static const std::type_info& type_info(const interface_type&)
 		{
-			return std::typeid(interface_type);
+			return typeid(interface_type);
 		}
 		static void destruct(const interface_type& x)
 		{
@@ -103,7 +104,7 @@ namespace details{
 		{
 			return ::new(storage) many_static(self(x).object);
 		}
-		static interface_type* move_clone(const interface_type& x,void* storage)
+		static interface_type* move_clone(interface_type& x,void* storage)
 		{
 			return ::new(storage)many_static(move(self(x).object));
 		}
@@ -139,7 +140,7 @@ namespace details{
 	struct many_dynamic:many_interface,boost::noncopyable{
 		typedef many_interface interface_type;
 		
-		typedef ma_fixed_allocator<T> allocator_type;
+		typedef ma::ma_fixed_allocator<T> allocator_type;
 		struct stored_object:boost::noncopyable{
 			allocator_type object_allocator;
 			T data;
@@ -213,7 +214,7 @@ namespace details{
 		{
 			self(x).get() = self(y).get();
 		}
-		static swap(interface_type& x,interface_type& y)
+		static void swap(interface_type& x,interface_type& y)
 		{
 			return std::swap(self(x).object_ptr,self(y).object_ptr);
 		}
@@ -246,14 +247,194 @@ class MAny{
 	struct many_traits{
 		typedef typename cast_types<T>::stored_type stored_type;
 		typedef stored_type& reference_type;
-		typedef const reference_type const_reference_type;
+		typedef const stored_type& const_reference_type;
 		typedef details::many_static<stored_type> many_static_type;
 		typedef details::many_dynamic<stored_type> many_dynamic_type;
 		
-		typedef boost::mpl::bool_<(sizeof(many_static_type) <= sizeof(storage_type))
-			&& (boost::has_nothrow_copy<stored_type>::value	|| is_movable<stored_type>::value)>	use_stack_storage;
+		typedef boost::mpl::bool_<((sizeof(many_static_type) <= sizeof(storage_type)) && (boost::has_nothrow_copy<stored_type>::value || is_movable<stored_type>::value))>	use_stack_storage;
+		typedef typename boost::mpl::if_<use_stack_storage,
+			many_static_type,
+			many_dynamic_type>::type many_storage_type;
+
+		typedef typename boost::mpl::if_c<
+			boost::is_same<stored_type,T>::value || boost::is_class<T>::value,
+			reference_type,T>::type result_type;
+
+		typedef typename boost::mpl::if_c<
+			boost::is_same<stored_type,T>::value || boost::is_class<T>::value,
+			const_reference_type,T>::type const_result_type;
+	};
+	template<typename T> struct helper;
+	template<typename T> friend struct helper;
+	struct empty_type{
+		friend inline bool operator == (const empty_type&, const empty_type&) { return true; }
+		friend inline bool operator < (const empty_type&, const empty_type&) { return false; }
+		friend inline void swap(empty_type&, empty_type&) { }
+	};
+private:
+	storage_type data;
+
+
+	void* storage(){return &data;}
+	const void* storage()const{return &data;}
+
+	interface_type& object(){return *static_cast<interface_type*>(storage());}
+	const interface_type& object()const{return *static_cast<const interface_type*>(storage());}
+
+	MAny(move_from<interface_type> x){x.source.move_clone(storage());}
+public:
+	MAny(){ ::new (storage()) many_traits<empty_type>::many_storage_type();}
+	MAny(const MAny& other){other.object().clone(storage());}
+
+	MAny(move_from<MAny> other){other.source.object().move_clone(storage());}
+	MAny& operator=(MAny other){
+		object().destruct();
+		other.object().move_clone(storage());
+		return *this;
+	}
+	~MAny(){object().destruct();}
+
+	friend inline void swap(MAny& lhs,MAny& rhs){
+		interface_type& a(lhs.object());
+		interface_type& b(rhs.object());
+		if (a.type_info() == a.type_info())
+		{
+			a.swap(b);return;
+		}
+		MAny tmp((move_from<interface_type>(a)));
+		a.destruct();
+
+		b.move_clone(lhs.storage());
+		b.destruct();
+
+		tmp.object().move_clone(rhs.storage());
+	}
+
+	template<typename T>
+	explicit MAny(const T& x,typename copy_sink<T>::type = 0){
+		::new (storage()) typename many_traits<T>::many_storage_type(x);
+	}
+	template<typename T>
+	explicit MAny(T x,typename move_sink<T>::type = 0)
+	{
+		::new (storage()) typename many_traits<T>::many_storage_type(move(x));
+	}
+
+	template<typename T>
+	bool cast(T& x)const
+	{
+		return helper<T>::cast(*this,x);
+	}
+	template<typename T>
+	typename many_traits<T>::const_result_type cast()const
+	{
+		return helper<T>::cast(*this);
+	}
+	template<typename T>
+	typename many_traits<T>::result_type cast(){return helper<T>::cast(*this);}
+
+	template<typename T>
+	MAny& assign(T x,typename move_sink<T>::type =0){
+		object().destruct();
+		::new(storage()) typename many_traits<T>::many_storage_type(move(x));
+		return *this;
+	}
+	template<typename T>
+	MAny& assign(const T& other,typename copy_sink<T>::type = 0){
+		return helper<T>::assign(*this,other);
+	}
+	MAny& assign(MAny other){
+		object().destruct();
+		other.object().move_clone(storage());
+		return *this;
+	}
+
+	const std::type_info& type_info()const{return object().type_info();}
+
+	template<typename T>
+	struct transform{
+		typedef typename many_traits<T>::stored_type result_type;
+
+		typename many_traits<T>::result_type operator()(MAny& x)const{return x.cast<T>():}
+
+		typename many_traits<T>::const_result_type operator()(const MAny& x)const{return x.cast<T>();}
 
 	};
+};
+
+template<typename T>
+struct MAny::helper{
+	static inline bool cast(const MAny& x,T& y){
+		typedef typename many_traits<T>::stored_type stored_type;
+
+		if(x.type_info() == typeid(stored_type))
+		{
+			return static_cast<result_type>(
+				reinterpret_cast<typename many_traits<T>::many_storage_type&>(x.object()).get());
+		}
+		void* casted =const_cast<void*>( x.object().static_cast_func(typeid(stored_type)));
+		if (!casted)
+		{
+			return false;
+		}
+		y = static_cast<T&>(*(stored_type*)(casted));
+
+		return true;
+	}
+	static inline typename  many_traits<T>::result_type cast(MAny& x)
+	{
+		typedef typename many_traits<T>::stored_type stored_type;
+		typedef typename many_traits<T>::result_type result_type;
+
+		if(x.type_info() == typeid(stored_type))
+		{
+			return static_cast<result_type>(
+				reinterpret_cast<typename many_traits<T>::many_storage_type&>(x.object()).get());
+		}
+		void* casted =const_cast<void*>( x.object().static_cast_func(typeid(stored_type)));
+		if (!casted)
+		{
+			std::string cast_info(x.type_info().name());
+			cast_info += " cannot cast to ";
+			cast_info += typeid(stored_type).name();
+			throw std::bad_cast(cast_info.c_str());
+		}
+		return static_cast<result_type>(*(stored_type*)(casted));
+	}
+	static inline typename  many_traits<T>::const_result_type cast(const MAny& x)
+	{
+		typedef  typename many_traits<T>::stored_type stored_type;
+		typedef typename many_traits<T>::const_result_type const_result_type;
+
+		if (x.type_info() == typeid(stored_type))
+		{
+			return static_cast<const_result_type>(
+				reinterpret_cast<const typename many_traits<T>::many_storage_type&>(x.object()).get());
+		}
+		const void* casted =  x.object().static_cast_func(typeid(stored_type));
+		if (!casted)
+		{
+			std::string cast_info(x.type_info().name());
+			cast_info += " cannot cast to ";
+			cast_info += typeid(stored_type).name();
+			throw std::bad_cast(cast_info.c_str());
+		}
+		return static_cast<const_result_type>(*(const stored_type*)(casted));
+	}
+
+	static inline MAny& assign(MAny& lhs,const T& x)
+	{
+		typedef typename cast_types<T>::stored_type stored_type;
+		if (lhs.type_info() == typeid(stored_type))
+		{
+			lhs.cast<stored_type&>() = static_cast<stored_type>(x);
+		}
+		else
+		{
+			swap(lhs,MAny(x));
+		}
+		return lhs;
+	}
 };
 }
 #endif
