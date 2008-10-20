@@ -139,8 +139,9 @@ namespace details{
 	template<typename T>
 	struct many_dynamic:many_interface,boost::noncopyable{
 		typedef many_interface interface_type;
-		
-		typedef ma::ma_fixed_allocator<T> allocator_type;
+		struct stored_object;
+
+		typedef ma::ma_fixed_allocator<stored_object> allocator_type;
 		struct stored_object:boost::noncopyable{
 			allocator_type object_allocator;
 			T data;
@@ -200,7 +201,7 @@ namespace details{
 		}
 		static const many_dynamic& self(const interface_type& x){return static_cast<const many_dynamic&>(x);}
 		static many_dynamic& self(interface_type& x){return static_cast<many_dynamic&>(x);}
-		static std::type_info& type_info(const interface_type&){return typeid(T);}
+		static const std::type_info& type_info(const interface_type&){return typeid(T);}
 		static void destruct(const interface_type& x){return self(x).~many_dynamic();}
 		static interface_type* clone(const interface_type& x,void* storage)
 		{
@@ -326,12 +327,16 @@ public:
 		return helper<T>::cast(*this,x);
 	}
 	template<typename T>
-	typename many_traits<T>::const_result_type cast()const
+	typename many_traits<typename boost::remove_reference<T>::type>::const_result_type cast()const
 	{
-		return helper<T>::cast(*this);
+		typedef typename boost::remove_reference<T>::type passed_type;
+		return helper<passed_type>::cast(*this);
 	}
 	template<typename T>
-	typename many_traits<T>::result_type cast(){return helper<T>::cast(*this);}
+	typename many_traits<typename boost::remove_reference<T>::type>::result_type cast(){		
+		typedef typename boost::remove_reference<T>::type passed_type;
+		return helper<passed_type>::cast(*this);
+	}
 
 	template<typename T>
 	MAny& assign(T x,typename move_sink<T>::type =0){
