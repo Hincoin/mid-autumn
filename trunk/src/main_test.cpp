@@ -14,7 +14,8 @@
 //#define VECTOR_TEST
 //#define MOVABLE_TEST
 //#define DEVICE_TEST
-#define CONVERSTION_TEST
+//#define CONVERSTION_TEST
+#define M_ANY_TEST
 
 #ifdef MEMPOOL_TEST
 #include "Timer.hpp"
@@ -45,6 +46,10 @@
 
 #include "type_conversion_test.hpp"
 
+#endif
+
+#ifdef M_ANY_TEST
+#include "ma_any_test.hpp"
 #endif
 
 int main()
@@ -94,6 +99,9 @@ int main()
 
 #ifdef CONVERSTION_TEST
 	promote_test();
+#endif
+#ifdef M_ANY_TEST
+	many_test();
 #endif
 	return 0;
 }

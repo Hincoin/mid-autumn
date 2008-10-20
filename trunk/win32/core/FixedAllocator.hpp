@@ -11,11 +11,11 @@ namespace ma{
 	public:
 		typedef size_t size_type;
 		typedef ptrdiff_t difference_type;
-		typedef Ty *pointer;
-		typedef const Ty *const_pointer;
-		typedef Ty& reference;
-		typedef const Ty& const_reference;
-		typedef Ty value_type;
+		typedef T *pointer;
+		typedef const T *const_pointer;
+		typedef T& reference;
+		typedef const T& const_reference;
+		typedef T value_type;
 
 		typedef AllocatorImpl implementation;
 
@@ -46,7 +46,7 @@ namespace ma{
 			return implementation::deallocate(ptr,sz);
 		}
 
-		void construct(pointer ptr, const Ty& val)
+		void construct(pointer ptr, const T& val)
 		{
 			implementation::construct(ptr,val);
 		}

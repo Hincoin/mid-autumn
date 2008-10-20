@@ -265,7 +265,7 @@ private:
 	typedef typename dfs_promote<
 		boost::mpl::vector<T>,	
 		test_set,
-		boost::mpl::set<> >::type set_type;
+		boost::mpl::set<T> >::type set_type;
 public:
 	typedef typename boost::mpl::copy<set_type,boost::mpl::back_inserter<boost::mpl::vector<> > >::type type;
 };
@@ -304,6 +304,8 @@ template<typename T>
 struct cast_types{
 	typedef typename multiple_promote<T>::type type;
 	typedef typename biggest_type<type>::type stored_type;
+
+	BOOST_STATIC_ASSERT(( boost::mpl::size<type>::value >0 ));
 private:
 	typedef const void* (*SafeCastFunc)(const stored_type* const);
 
@@ -373,10 +375,66 @@ public:
 template<typename T>
 const typename cast_types<T>::TypeCastFuncMap cast_types<T>::casted_types_info = cast_types<T>::init_type_info();
 
-inline
-bool search_type(const TypeInfo& t_info,const std::vector<TypeInfo>& ts_info)//sorted
-{
-	return std::binary_search(ts_info.begin(),ts_info.end(),t_info);
-}
 
+
+template<>
+struct multiple_type_promote<char>
+{
+	typedef boost::mpl::vector<char,short,unsigned short,int,unsigned int,long,unsigned long,float,double> type;
+};
+template<>
+struct multiple_type_promote<short>
+{
+	typedef boost::mpl::vector<short,int,unsigned int,long,unsigned long ,float,double> type;
+};
+template<>
+struct multiple_type_promote<int>
+{
+	typedef boost::mpl::vector<int,long,unsigned long ,double> type;
+};
+template<>
+struct multiple_type_promote<unsigned char>
+{
+	typedef boost::mpl::vector<unsigned char,short,int,unsigned short,unsigned int,long,float,double> type;
+};
+template<>
+struct multiple_type_promote<unsigned short>
+{
+	typedef boost::mpl::vector<unsigned short,int,unsigned short,unsigned int,long,float,double> type;
+};
+template<>
+struct multiple_type_promote<unsigned int>
+{
+	typedef boost::mpl::vector<unsigned int,long,double> type; 
+};
+
+template<>
+struct multiple_type_promote<long>
+{
+	typedef boost::mpl::vector<double> type;
+};
+template<>
+struct multiple_type_promote<unsigned long>
+{
+	typedef boost::mpl::vector<double> type;
+};
+
+template<>
+struct multiple_type_promote<float>
+{
+	typedef boost::mpl::vector<double> type;
+};
+
+#include <string>
+template<>
+struct multiple_type_promote<const char*>
+{
+	typedef boost::mpl::vector<std::string> type;
+};
+
+template<>
+struct multiple_type_promote<char*>
+{
+	typedef boost::mpl::vector<std::string> type;
+};
 #endif

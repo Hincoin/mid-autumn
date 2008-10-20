@@ -394,6 +394,10 @@
 			Name="Tests"
 			>
 			<File
+				RelativePath=".\ma_any_test.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\inc\core\MAMemoryPool_test.hpp"
 				>
 			</File>
