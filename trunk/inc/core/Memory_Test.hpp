@@ -96,7 +96,7 @@ inline void obj_mempool_test(const std::vector<unsigned int>& random_size_seq, i
 	for(int i = 0;i < iterations;++i)
 		accum += accum > test_size<small_object>(random_size_seq)? 1:accum;
 	t_local.end();
-	t_local.show();
+	t_local.stop();
 	
 
 
@@ -105,7 +105,7 @@ inline void obj_mempool_test(const std::vector<unsigned int>& random_size_seq, i
 	for(int i = 0;i < iterations;++i)
 		accum+= accum > test_size_array<small_object>(random_size_seq)?0:1;
 	t_local.end();
-	t_local.show();
+	t_local.stop();
 
 	
 
@@ -114,14 +114,14 @@ inline void obj_mempool_test(const std::vector<unsigned int>& random_size_seq, i
 	for(int i = 0;i < iterations;++i)
 		accum+= accum > test_size<big_object>(random_size_seq)?1:0;
 	t_local.end();
-	t_local.show();
+	t_local.stop();
 
 	std::cerr<<"test big_object array, size per object "<<sizeof(big_object)<<std::endl;
 	t_local.start();
 	for(int i = 0;i < iterations;++i)
 		accum+= accum> test_size_array<big_object>(random_size_seq)?0:1;
 	t_local.end();
-	t_local.show();
+	t_local.stop();
 
 
 	std::cerr<<"test very_big_object, size per object "<<sizeof(very_big_object)<<std::endl;
@@ -129,23 +129,23 @@ inline void obj_mempool_test(const std::vector<unsigned int>& random_size_seq, i
 	for(int i = 0;i < iterations;++i)
 		accum += accum> test_size<very_big_object>(random_size_seq)? 1:0;
 	t_local.end();
-	t_local.show();
+	t_local.stop();
 
 	std::cerr<<"test very_big_object array, size per object "<<sizeof(very_big_object)<<std::endl;
 	t_local.start();
 	for(int i = 0;i < iterations;++i)
 		accum += accum > test_size_array<very_big_object>(random_size_seq)?0:1;
 	t_local.end();
-	t_local.show();
+	t_local.stop();
 
 	std::cerr<<"release unused objects which shouldn't count:"<<std::endl;
 	t_local.start();
 	t_local.end();
-	t_local.show();
+	t_local.stop();
 
 	t_global.end();
 	std::cerr<<"total time: \n";
-	t_global.show();
+	t_global.stop();
 
 	std::cerr<<"accum result:"<<accum<<std::endl;
 }

@@ -3,6 +3,9 @@
 
 namespace ma{
 	template<typename Derived>
-	class SceneManager{};
+	class SceneManager{
+	protected:
+		~SceneManager(){}
+	};
 }
 #endif

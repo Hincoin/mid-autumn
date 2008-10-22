@@ -339,6 +339,10 @@
 				Name="Interface"
 				>
 				<File
+					RelativePath=".\CRTPInterfaceMacro.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\EventProcessor.hpp"
 					>
 				</File>

@@ -110,7 +110,7 @@ inline void ma_mempool_test(const std::vector<unsigned int>& random_seq,int iter
 
 	}
 	t.end();
-	t.show();
+	t.stop();
 	default_pool.clean_unused();
 	std::cerr<<accum<<std::endl;
 }
