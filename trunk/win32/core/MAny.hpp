@@ -117,11 +117,23 @@ namespace details{
 			using std::swap;
 			swap(self(x).object,self(y).object);
 		}
-		static const void* static_cast_func(const interface_type& x,const TypeInfo& t_info){
-			return cast_types<T>::cast_to(t_info,&(self(x).get()));
-		}
+
 		const T& get()const{return object;}
 		T& get(){return object;}
+		static const void* static_cast_func(const interface_type& x,const TypeInfo& t_info)
+		{	
+			//return cast_types<T>::cast_to(t_info,&(self(x).get()));
+			return static_cast_func_impl(x,t_info, boost::mpl::bool_<boost::is_pointer<T>::value >());
+		}
+	private:
+		static const void* static_cast_func_impl(const interface_type& x,const TypeInfo& t_info,boost::mpl::bool_<true>)
+		{
+			return cast_types<typename boost::remove_pointer<T>::type>::cast_to(t_info,(self(x).get()));
+		}
+		static const void* static_cast_func_impl(const interface_type& x,const TypeInfo& t_info,boost::mpl::bool_<false>)
+		{
+			return cast_types<T>::cast_to(t_info,&(self(x).get()));
+		}
 
 		
 	};
@@ -219,12 +231,24 @@ namespace details{
 		{
 			return std::swap(self(x).object_ptr,self(y).object_ptr);
 		}
-		static const void* static_cast_func(const interface_type& x,const TypeInfo& t_info)
-		{	
-			return cast_types<T>::cast_to(t_info,&(self(x).get()));
-		}
+
 		const T& get()const {return object_ptr->data;}
 		T& get(){return object_ptr->data;}
+		static const void* static_cast_func(const interface_type& x,const TypeInfo& t_info)
+		{	
+			//return cast_types<T>::cast_to(t_info,&(self(x).get()));
+			return static_cast_func_impl(x,t_info, boost::mpl::bool_<boost::is_pointer<T>::value >());
+		}
+	private:
+		static const void* static_cast_func_impl(const interface_type& x,const TypeInfo& t_info,boost::mpl::bool_<true>)
+		{
+			return cast_types<typename boost::remove_pointer<T>::type>::cast_to(t_info,(self(x).get()));
+		}
+		static const void* static_cast_func_impl(const interface_type& x,const TypeInfo& t_info,boost::mpl::bool_<false>)
+		{
+			return cast_types<T>::cast_to(t_info,&(self(x).get()));
+		}
+
 	};
 	template<typename T>
 	const many_vtable many_dynamic<T>::vtable=
@@ -265,6 +289,17 @@ class MAny{
 			boost::is_same<stored_type,T>::value || boost::is_class<T>::value,
 			const_reference_type,T>::type const_result_type;
 	};
+	template<typename T>
+	struct many_traits<T*>{
+		typedef typename cast_types<T>::stored_type* stored_type;
+		typedef details::many_static<stored_type> many_static_type;
+		typedef many_static_type many_storage_type;
+
+		typedef stored_type result_type;
+		typedef const typename cast_types<T>::stored_type* const_result_type;
+		
+	};
+
 	template<typename T> struct helper;
 	template<typename T> friend struct helper;
 	struct empty_type{
@@ -430,6 +465,85 @@ struct MAny::helper{
 	static inline MAny& assign(MAny& lhs,const T& x)
 	{
 		typedef typename cast_types<T>::stored_type stored_type;
+		if (lhs.type_info() == typeid(stored_type))
+		{
+			lhs.cast<stored_type&>() = static_cast<stored_type>(x);
+		}
+		else
+		{
+			swap(lhs,MAny(x));
+		}
+		return lhs;
+	}
+};
+
+template<typename T>
+struct MAny::helper<T*>{
+	static inline bool cast(const MAny& x,T* & y){
+		typedef typename many_traits<T>::stored_type data_type;
+		typedef typename many_traits<T>::stored_type* stored_type;
+
+		if(x.type_info() == typeid(stored_type))
+		{
+			return static_cast<result_type>(
+				reinterpret_cast<typename many_traits<T*>::many_storage_type&>(x.object()).get());
+		}
+		void* casted =const_cast<void*>( x.object().static_cast_func(typeid(data_type)));
+		if (!casted)
+		{
+			return false;
+		}
+		y = static_cast<T*>((data_type*)(casted));
+
+		return true;
+	}
+	static inline typename  many_traits<T*>::result_type cast(MAny& x)
+	{
+		typedef typename many_traits<T*>::stored_type stored_type;
+		typedef typename many_traits<T*>::result_type result_type;
+		typedef typename many_traits<T>::stored_type data_type;
+
+		if(x.type_info() == typeid(stored_type))
+		{
+			return static_cast<result_type>(
+				reinterpret_cast<typename many_traits<T*>::many_storage_type&>(x.object()).get());
+		}
+		void* casted =const_cast<void*>( x.object().static_cast_func(typeid(data_type)));
+		if (!casted)
+		{
+			std::string cast_info(x.type_info().name());
+			cast_info += " cannot cast to ";
+			cast_info += typeid(stored_type).name();
+			throw std::bad_cast(cast_info.c_str());
+		}
+		return static_cast<result_type>((stored_type)(casted));
+	}
+	static inline typename  many_traits<T*>::const_result_type cast(const MAny& x)
+	{
+		typedef typename many_traits<T*>::stored_type stored_type;
+		typedef typename many_traits<T*>::const_result_type const_result_type;
+		typedef typename many_traits<T>::stored_type data_type;
+
+
+		if (x.type_info() == typeid(stored_type))
+		{
+			return static_cast<const_result_type>(
+				reinterpret_cast<const typename many_traits<T*>::many_storage_type&>(x.object()).get());
+		}
+		const void* casted =  x.object().static_cast_func(typeid(data_type));
+		if (!casted)
+		{
+			std::string cast_info(x.type_info().name());
+			cast_info += " cannot cast to ";
+			cast_info += typeid(stored_type).name();
+			throw std::bad_cast(cast_info.c_str());
+		}
+		return static_cast<const_result_type>((const stored_type)(casted));
+	}
+
+	static inline MAny& assign(MAny& lhs,const T* x)
+	{
+		typedef typename cast_types<T*>::stored_type stored_type;
 		if (lhs.type_info() == typeid(stored_type))
 		{
 			lhs.cast<stored_type&>() = static_cast<stored_type>(x);

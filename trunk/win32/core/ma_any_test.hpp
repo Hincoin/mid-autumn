@@ -61,6 +61,14 @@ inline void many_test(){
 
 	a1 = a2;
 	d_result = a1.cast<D>();
+
+	MAny a_ptr(new D);
+
+	Base1* b1_ptr = a_ptr.cast<Base1*>();
+	Base2* b2_ptr = a_ptr.cast<Base2*>();
+	b1_ptr->a  = 10;
+	b2_ptr->b = 11;
+	D* d_ptr = a_ptr.cast<D*>();
 }
 
 #endif

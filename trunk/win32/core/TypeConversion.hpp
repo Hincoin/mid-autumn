@@ -313,18 +313,7 @@ private:
 
 	template<typename TO_U>
 	static const void* static_cast_func(const stored_type* const x){
-		////std::cout<<*x<<std::endl;
-
-		//const void* c_p = &static_cast<const TO_U&>(*x);
-		//const TO_U& cc = *static_cast<const TO_U*>(c_p);
-		////std::cout<<(int)cc<<std::endl;
-
-		//TO_U* c_pp = const_cast<TO_U*>(&cc);
 		return (void*)&static_cast<const TO_U&>(*x);
-		
-		
-		//std::cout<<(int)*(TO_U*)(*r_ptr)<<std::endl;
-
 	}
 
 	typedef AssocVector<TypeInfo,SafeCastFunc> TypeCastFuncMap;
@@ -360,7 +349,6 @@ private:
 
 
 public:
-	//static const std::vector<TypeInfo> casted_types_info;//a sorted array
 	static const TypeCastFuncMap casted_types_info;
 	static const void* cast_to(const TypeInfo& t_info,const void* const x){
 		TypeCastFuncMap::const_iterator it(casted_types_info.find(t_info));
