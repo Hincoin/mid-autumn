@@ -16,6 +16,8 @@
 //#define DEVICE_TEST
 //#define CONVERSTION_TEST
 #define M_ANY_TEST
+#define MA_CRTP_MACRO_TEST
+
 
 #ifdef MEMPOOL_TEST
 #include "Timer.hpp"
@@ -52,6 +54,9 @@
 #include "ma_any_test.hpp"
 #endif
 
+#ifdef MA_CRTP_MACRO_TEST
+#include "crtp_interface_macro_test.hpp"
+#endif
 int main()
 {
 #ifdef MEMPOOL_TEST
@@ -102,6 +107,11 @@ int main()
 #endif
 #ifdef M_ANY_TEST
 	many_test();
+#endif
+
+#ifdef MA_CRTP_MACRO_TEST
+	using namespace ma;
+	crtp_macro_test();
 #endif
 	return 0;
 }
