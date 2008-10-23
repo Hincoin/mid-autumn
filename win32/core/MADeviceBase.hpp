@@ -19,20 +19,20 @@
 namespace ma{
  
 	//render device
-	template<typename Derived>
+	template<typename Derived,typename Configure>
 	class MADeviceBase: boost::noncopyable{
 		BOOST_STATIC_ASSERT((boost::is_base_and_derived<MADeviceBase,Derived>::value));
 	public:
-		typedef typename Derived::VideoDriverPtr VideoDriverPtr;
-		typedef typename Derived::FileSystemPtr FileSystemPtr;
-		typedef typename Derived::GUIManagerPtr GUIManagerPtr;
-		typedef typename Derived::SceneManagerPtr SceneManagerPtr;
-		typedef typename Derived::LoggerPtr LoggerPtr;
-		typedef typename Derived::VideoModePtr VideoModePtr;
-		typedef typename Derived::OSOperatorPtr OSOperatorPtr;
-		typedef typename Derived::TimerPtr TimerPtr;
-		typedef typename Derived::EventProcessorPtr EventProcessorPtr;
-		typedef typename Derived::EventType     EventType;
+		typedef typename Configure::VideoDriverPtr VideoDriverPtr;
+		typedef typename Configure::FileSystemPtr FileSystemPtr;
+		typedef typename Configure::GUIManagerPtr GUIManagerPtr;
+		typedef typename Configure::SceneManagerPtr SceneManagerPtr;
+		typedef typename Configure::LoggerPtr LoggerPtr;
+		typedef typename Configure::VideoModePtr VideoModePtr;
+		typedef typename Configure::OSOperatorPtr OSOperatorPtr;
+		typedef typename Configure::TimerPtr TimerPtr;
+		typedef typename Configure::EventProcessorPtr EventProcessorPtr;
+		typedef typename Configure::EventType     EventType;
 	protected:
 		MADeviceBase(){}
 		~MADeviceBase(){}

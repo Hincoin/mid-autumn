@@ -501,6 +501,8 @@ namespace ma{
 		typedef Eigen::Matrix3f matrix33f;
 		typedef Eigen::Matrix4f matrix44f;
 
+		typedef vector2i scalar2i;
+
 		template<typename _Scalar, int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols>
 		inline void swap(Eigen::Matrix<_Scalar,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& lhs,Eigen::Matrix<_Scalar,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& rhs)
 		{

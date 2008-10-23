@@ -4,37 +4,35 @@
 #include "MADeviceBase.hpp"
 
 namespace ma{
-	template<typename Derived>
-	class MADevice:public MADeviceBase<MADevice<Derived> >
+	template<typename Derived,typename Configure>
+	class MADevice:public MADeviceBase<MADevice<Derived,Configure>, Configure >
 	{
 	private:
 		Derived& derived(){return static_cast<Derived&>(*this);}
 		const Derived& derived()const{return static_cast<Derived&>(*this);}
 	public:
-		typedef typename Derived::Configure Configure;
+		typedef typename Configure::Printer Printer;
+		typedef typename Configure::VideoDriver VideoDriver;
+		typedef typename Configure::FileSystem FileSystem;
+		typedef typename Configure::GUIManager GUIManager;
+		typedef typename Configure::SceneManager SceneManager;
+		typedef typename Configure::Logger Logger;
+		typedef typename Configure::VideoMode VideoMode;
+		typedef typename Configure::OSOperator OSOperator;
+		typedef typename Configure::Timer Timer;
+		typedef typename Configure::EventProcessor EventProcessor;
 
-		typedef typename Derived::Printer Printer;
-		typedef typename Derived::VideoDriver VideoDriver;
-		typedef typename Derived::FileSystem FileSystem;
-		typedef typename Derived::GUIManager GUIManager;
-		typedef typename Derived::SceneManager SceneManager;
-		typedef typename Derived::Logger Logger;
-		typedef typename Derived::VideoMode VideoMode;
-		typedef typename Derived::OSOperator OSOperator;
-		typedef typename Derived::Timer Timer;
-		typedef typename Derived::EventProcessor EventProcessor;
+		typedef typename Configure::EventType     EventType;
 
-		typedef typename Derived::EventType     EventType;
-
-		typedef typename Derived::VideoDriverPtr VideoDriverPtr;
-		typedef typename Derived::FileSystemPtr FileSystemPtr;
-		typedef typename Derived::GUIManagerPtr GUIManagerPtr;
-		typedef typename Derived::SceneManagerPtr SceneManagerPtr;
-		typedef typename Derived::LoggerPtr LoggerPtr;
-		typedef typename Derived::VideoModePtr VideoModePtr;
-		typedef typename Derived::OSOperatorPtr OSOperatorPtr;
-		typedef typename Derived::TimerPtr TimerPtr;
-		typedef typename Derived::EventProcessorPtr EventProcessorPtr;
+		typedef typename Configure::VideoDriverPtr VideoDriverPtr;
+		typedef typename Configure::FileSystemPtr FileSystemPtr;
+		typedef typename Configure::GUIManagerPtr GUIManagerPtr;
+		typedef typename Configure::SceneManagerPtr SceneManagerPtr;
+		typedef typename Configure::LoggerPtr LoggerPtr;
+		typedef typename Configure::VideoModePtr VideoModePtr;
+		typedef typename Configure::OSOperatorPtr OSOperatorPtr;
+		typedef typename Configure::TimerPtr TimerPtr;
+		typedef typename Configure::EventProcessorPtr EventProcessorPtr;
 
 	protected:
 		explicit MADevice(EventProcessorPtr evt_processor);

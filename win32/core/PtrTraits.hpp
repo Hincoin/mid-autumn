@@ -69,7 +69,6 @@ namespace ma
 
 
 	template<typename T>
-
 	struct ptr_traits<T (*)[]>
 	{
 		typedef T value_type;

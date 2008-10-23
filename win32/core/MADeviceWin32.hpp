@@ -16,12 +16,10 @@
 namespace ma
 {
 	template<typename Configure>
-	class MADeviceWin32:public MADevice<MADeviceWin32<Configure> >,  Configure::ImagePresenter
+	class MADeviceWin32:public MADevice<MADeviceWin32<Configure>, Configure >,  Configure::ImagePresenter
 	{
 	public:
 		typedef Configure Configure;
-
-
 		typedef typename Configure::Printer Printer;
 		typedef typename Configure::VideoDriver VideoDriver;
 		typedef typename Configure::FileSystem FileSystem;

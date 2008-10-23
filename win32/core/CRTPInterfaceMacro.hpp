@@ -15,7 +15,7 @@ public:
 
 
 #define ADD_CRTP_INTERFACE_TYPEDEF(_TYPE_)\
-	typedef typename typedef_traits_##_TYPE_<Derived>::type  _TYPE_;
+	typedef typename ma_traits::typedef_traits_##_TYPE_<Derived>::type  _TYPE_;
 
 #define ADD_CRTP_INTERFACE_FUNC(_RET_TYPE,_FUNC_NAME, _PARAM_TYPE_LIST, _PARAM_NAME_LIST, _CONST_NESS)\
 	_RET_TYPE _FUNC_NAME##_PARAM_TYPE_LIST _CONST_NESS {return MA_CAT(derived(). , _FUNC_NAME##_PARAM_NAME_LIST) ;}
@@ -26,13 +26,15 @@ public:
 
 
 #define MA_DECLARE_TYPEDEF_TRAITS_TYPE(_TYPE_) \
-	template<typename U> struct typedef_traits_##_TYPE_;
+	namespace ma_traits{\
+	template<typename U> struct typedef_traits_##_TYPE_;}
 
 #define MA_SPECIALIZE_TYPEDEF_TRAITS_TYPE(_TYPE_, _CLASS_NAME , _CONFIG_CLASS_NAME)\
+	namespace ma_traits{\
 	template<> \
 	struct typedef_traits_##_TYPE_ < _CLASS_NAME >\
 	{\
 	typedef _CONFIG_CLASS_NAME::_TYPE_ type;\
-	};
+	};}
 
 #endif
