@@ -2,13 +2,21 @@
 #define MA_FILESYSTEM_HPP
 
 #include <string>
+#include "CRTPInterfaceMacro.hpp"
 
 namespace ma{
+	MA_DECLARE_TYPEDEF_TRAITS_TYPE(ReadFilePtr)
+	MA_DECLARE_TYPEDEF_TRAITS_TYPE(WriteFilePtr)
+	MA_DECLARE_TYPEDEF_TRAITS_TYPE(FileListPtr)
+
 	template<typename Derived>
 	class FileSystem{
-		typedef typename Derived::ReadFilePtr ReadFilePtr;
-		typedef typename Derived::WriteFilePtr WriteFilePtr;
-		typedef typename Derived::FileListPtr FileListPtr;
+		//typedef typename Derived::ReadFilePtr ReadFilePtr;
+		//typedef typename Derived::WriteFilePtr WriteFilePtr;
+		//typedef typename Derived::FileListPtr FileListPtr;
+		ADD_CRTP_INTERFACE_TYPEDEF(ReadFilePtr);
+		ADD_CRTP_INTERFACE_TYPEDEF(WriteFilePtr);
+		ADD_CRTP_INTERFACE_TYPEDEF(FileListPtr);
 	private:
 		FileSystem& derived(){return static_cast<Derived&>(*this);}
 		const FileSystem& derived()const{return static_cast<Derived&>(*this);}

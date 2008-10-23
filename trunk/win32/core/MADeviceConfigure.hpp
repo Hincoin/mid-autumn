@@ -1,8 +1,8 @@
 #ifndef MADEVICECONFIGURE_HPP
 #define MADEVICECONFIGURE_HPP
 
-#include ""
-struct TestDeviceConfigure{
+//#include ""
+struct TestDeviceConfigureWin32{
 	typedef MAPrinter Printer;
 	typedef MAVideoDriver VideoDriver;
 	typedef MAFileSystem FileSystem;

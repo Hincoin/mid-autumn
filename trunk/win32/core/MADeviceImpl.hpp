@@ -6,8 +6,8 @@
 namespace ma
 {
 //ctor and dtor
-template<typename Derived>
-MADevice<Derived>::MADevice(EventProcessorPtr evt_processor):
+template<typename Derived,typename Configure>
+MADevice<Derived,Configure>::MADevice(EventProcessorPtr evt_processor):
 VideoDriver_(0),GUIEnvironment_(0),SceneManager_(0),UserReceiver_(evt_processor),
 OSOperator_(0),FileSystem_(new FileSystem),InputReceivingSceneManager_(0),
 Timer_(new Timer)
@@ -25,8 +25,8 @@ Timer_(new Timer)
 }
 
 
-template<typename Derived>
-MADevice<Derived>::~MADevice()
+template<typename Derived,typename Configure>
+MADevice<Derived,Configure>::~MADevice()
 {
 
 
@@ -70,8 +70,8 @@ MADevice<Derived>::~MADevice()
 ////
 //}
 
-template<typename Derived>
-void MADevice<Derived>::postEventFromUser(const EventType& event) 
+template<typename Derived,typename Configure>
+void MADevice<Derived, Configure>::postEventFromUser(const EventType& event) 
 {
 	bool absorbed = false;
 
@@ -89,22 +89,22 @@ void MADevice<Derived>::postEventFromUser(const EventType& event)
 		absorbed = inputReceiver->postEventFromUser(event);
 }
 
-template<typename Derived>
-void MADevice<Derived>::setEventReceiver(EventProcessorPtr receiver)
+template<typename Derived,typename Configure>
+void MADevice<Derived, Configure>::setEventReceiver(EventProcessorPtr receiver)
 {
 	UserReceiver_ = receiver;
 	Logger->setReceiver(receiver);
 	if (GUIEnvironment_)
 		GUIEnvironment_->setUserEventReceiver(receiver);
 }
-template<typename Derived>
-void MADevice<Derived>::setInputReceivingSceneManager(SceneManagerPtr sceneManager)
+template<typename Derived,typename Configure>
+void MADevice<Derived, Configure>::setInputReceivingSceneManager(SceneManagerPtr sceneManager)
 {
 	InputReceivingSceneManager_ = sceneManager;
 }
 
-template<typename Derived>
-void MADevice<Derived>::createGUIAndScene()
+template<typename Derived,typename Configure>
+void MADevice<Derived, Configure>::createGUIAndScene()
 {
 
 	// create gui environment
