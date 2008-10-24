@@ -278,6 +278,14 @@
 					RelativePath=".\MADeviceWin32Impl.hpp"
 					>
 				</File>
+				<File
+					RelativePath=".\MAFileSystemWin32.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MAOSOperatorWin32.hpp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="Interface"
