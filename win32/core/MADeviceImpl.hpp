@@ -1,5 +1,5 @@
-#ifndef MADEVICEIMPL_HPP
-#define MADEVICEIMPL_HPP
+#ifndef INCLUDE_MADEVICEIMPL_HPP
+#define INCLUDE_MADEVICEIMPL_HPP
 
 #include "MADevice.hpp"
 

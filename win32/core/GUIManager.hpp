@@ -1,5 +1,5 @@
-#ifndef MA_GUIMANAGER_HPP
-#define MA_GUIMANAGER_HPP
+#ifndef INCLUDE_GUIMANAGER_HPP
+#define INCLUDE_GUIMANAGER_HPP
 
 namespace ma{
 	template<typename Derived>

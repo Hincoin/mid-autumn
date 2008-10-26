@@ -9,8 +9,8 @@
 //     without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef TIMER_HPP
-#define TIMER_HPP
+#ifndef INCLUDE_TIMER_HPP
+#define INCLUDE_TIMER_HPP
 
 #include <ctime>
 #include <iostream>

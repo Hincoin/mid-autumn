@@ -279,31 +279,31 @@
 					>
 				</File>
 				<File
-					RelativePath=".\MAEventProcessorImpl.hpp"
+					RelativePath=".\MAEventProcessor.hpp"
 					>
 				</File>
 				<File
-					RelativePath=".\MAFileSystemWin32Impl.hpp"
+					RelativePath=".\MAFileSystemWin32.hpp"
 					>
 				</File>
 				<File
-					RelativePath=".\MALoggerImpl.hpp"
+					RelativePath=".\MALogger.hpp"
 					>
 				</File>
 				<File
-					RelativePath=".\MAOSOperatorWin32Impl.hpp"
+					RelativePath=".\MAOSOperatorWin32.hpp"
 					>
 				</File>
 				<File
-					RelativePath=".\MASceneManagerImpl.hpp"
+					RelativePath=".\MASceneManager.hpp"
 					>
 				</File>
 				<File
-					RelativePath=".\MATimerWin32Impl.hpp"
+					RelativePath=".\MATimerWin32.hpp"
 					>
 				</File>
 				<File
-					RelativePath=".\MAVideoModesWin32Impl.hpp"
+					RelativePath=".\MAVideoModesWin32.hpp"
 					>
 				</File>
 			</Filter>

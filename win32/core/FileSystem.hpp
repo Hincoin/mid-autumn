@@ -1,5 +1,5 @@
-#ifndef MA_FILESYSTEM_HPP
-#define MA_FILESYSTEM_HPP
+#ifndef INCLUDE_FILESYSTEM_HPP
+#define INCLUDE_FILESYSTEM_HPP
 
 #include <string>
 #include "CRTPInterfaceMacro.hpp"

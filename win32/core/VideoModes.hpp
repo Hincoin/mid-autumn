@@ -1,5 +1,5 @@
-#ifndef MA_VIDEOMODES_HPP
-#define MA_VIDEOMODES_HPP
+#ifndef INCLUDE_VIDEOMODES_HPP
+#define INCLUDE_VIDEOMODES_HPP
 
 
 #include "Vector.hpp"

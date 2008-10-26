@@ -10,8 +10,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef MADEVICE_BASE_HPP
-#define MADEVICE_BASE_HPP
+#ifndef INCLUDE_MADEVICE_BASE_HPP
+#define INCLUDE_MADEVICE_BASE_HPP
 
 #include <boost/static_assert.hpp>
 #include <boost/type_traits.hpp>
