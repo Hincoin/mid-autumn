@@ -9,14 +9,7 @@
 #include "CreateDevice.hpp"
 #include "PtrTraits.hpp"
 
-//implementations
-#include "MAEventProcessor.hpp"
-#include "MAFileSystemWin32.hpp"
-#include "MALogger.hpp"
-#include "MAOSOperatorWin32.hpp"
-#include "MASceneManager.hpp"
-#include "MATimerWin32.hpp"
-#include "MAVideoModesWin32.hpp"
+
 
 struct win32_device_test_configure{
 	//MADeviceWin32(DriverType driverType,

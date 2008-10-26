@@ -1,17 +1,25 @@
 #ifndef MADEVICECONFIGURE_HPP
 #define MADEVICECONFIGURE_HPP
 
-//#include ""
+//implementations
+#include "MAEventProcessor.hpp"
+#include "MAFileSystemWin32.hpp"
+#include "MALogger.hpp"
+#include "MAOSOperatorWin32.hpp"
+#include "MASceneManager.hpp"
+#include "MATimerWin32.hpp"
+#include "MAVideoModesWin32.hpp"
+
 struct TestDeviceConfigureWin32{
 	typedef MAPrinter Printer;
 	typedef MAVideoDriver VideoDriver;
-	typedef MAFileSystem FileSystem;
+	typedef MAFileSystemWin32 FileSystem;
 	typedef MAGUIManager GUIManager;
 	typedef MASceneManager SceneManager;
 	typedef MALogger Logger;
-	typedef MAVideoMode VideoMode;
-	typedef MAOSOperator OSOperator;
-	typedef MATimer Timer;
+	typedef MAVideoModesWin32 VideoMode;
+	typedef MAOSOperatorWin32 OSOperator;
+	typedef MATimerWin32 Timer;
 	typedef MAEventProcessor EventProcessor;
 
 	typedef MAEventType     EventType;

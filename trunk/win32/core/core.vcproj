@@ -283,7 +283,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\MAEventType.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\MAFileSystemWin32.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MAGUIManager.hpp"
 					>
 				</File>
 				<File
@@ -295,11 +303,19 @@
 					>
 				</File>
 				<File
+					RelativePath=".\MAPrinter.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\MASceneManager.hpp"
 					>
 				</File>
 				<File
 					RelativePath=".\MATimerWin32.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MAVideoDriverSoftWare.hpp"
 					>
 				</File>
 				<File
@@ -352,6 +368,10 @@
 				</File>
 				<File
 					RelativePath="..\..\inc\core\Timer.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\VideoDriver.hpp"
 					>
 				</File>
 				<File
