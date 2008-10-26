@@ -1,5 +1,5 @@
-#ifndef MA_SCENEMANAGER_HPP
-#define MA_SCENEMANAGER_HPP
+#ifndef INCLUDE_SCENEMANAGER_HPP
+#define INCLUDE_SCENEMANAGER_HPP
 
 namespace ma{
 	template<typename Derived>

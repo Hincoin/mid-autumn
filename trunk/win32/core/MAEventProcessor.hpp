@@ -1,5 +1,5 @@
-#ifndef MA_EVENT_PROCESSOR_IMPL_HPP
-#define MA_EVENT_PROCESSOR_IMPL_HPP
+#ifndef MA_EVENT_PROCESSOR_HPP
+#define MA_EVENT_PROCESSOR_HPP
 
 #include "EventProcessor.hpp"
 namespace ma{

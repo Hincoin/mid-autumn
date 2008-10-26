@@ -1,5 +1,5 @@
-#ifndef MA_TIMER_WIN32IMPL_HPP
-#define MA_TIMER_WIN32IMPL_HPP
+#ifndef MA_TIMER_WIN32_HPP
+#define MA_TIMER_WIN32_HPP
 
 #include "Timer.hpp"
 namespace ma{

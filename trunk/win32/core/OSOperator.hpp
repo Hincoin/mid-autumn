@@ -1,5 +1,5 @@
-#ifndef MA_OSOPERATOR_HPP
-#define MA_OSOPERATOR_HPP
+#ifndef INCLUDE_OSOPERATOR_HPP
+#define INCLUDE_OSOPERATOR_HPP
 
 namespace ma{
 	template<typename Derived>

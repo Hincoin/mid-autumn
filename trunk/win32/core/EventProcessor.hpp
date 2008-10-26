@@ -1,5 +1,5 @@
-#ifndef MA_EVENT_PROCESSOR_HPP
-#define MA_EVENT_PROCESSOR_HPP
+#ifndef INCLUDE_EVENT_PROCESSOR_HPP
+#define INCLUDE_EVENT_PROCESSOR_HPP
 
 #include "CRTPInterfaceMacro.hpp"
 

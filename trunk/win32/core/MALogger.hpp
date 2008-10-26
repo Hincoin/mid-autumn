@@ -1,5 +1,5 @@
-#ifndef MA_LOGGER_IMPL_HPP
-#define MA_LOGGER_IMPL_HPP
+#ifndef MA_LOGGER_HPP
+#define MA_LOGGER_HPP
 
 
 #include "Logger.hpp"

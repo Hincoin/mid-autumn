@@ -1,5 +1,5 @@
-#ifndef MA_CREATE_DEVICE_HPP
-#define MA_CREATE_DEVICE_HPP
+#ifndef INCLUDE_CREATE_DEVICE_HPP
+#define INCLUDE_CREATE_DEVICE_HPP
 
 #include "SpaceSegment.hpp"
 #include "Vector.hpp"

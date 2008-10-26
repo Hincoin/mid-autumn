@@ -1,5 +1,5 @@
-#ifndef MA_LOGGER_HPP
-#define MA_LOGGER_HPP
+#ifndef INCLUDE_LOGGER_HPP
+#define INCLUDE_LOGGER_HPP
 
 namespace ma{
 	enum ELOG_LEVEL
