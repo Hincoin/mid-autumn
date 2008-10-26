@@ -2,8 +2,7 @@
 #define MA_VIDEOMODES_HPP
 
 
-#include "SpaceSegment.hpp"
-
+#include "Vector.hpp"
 namespace ma{
 	template<typename Derived>
 	class VideoModes{
@@ -19,7 +18,7 @@ namespace ma{
 		{return derived().getDesktopDepth();}
 
 		//Get current desktop screen resolution. 
-		rangei getDesktopResolution () const 
+		scalar2i getDesktopResolution () const 
 		{
 			return derived().getDesktopResolution();
 		}
