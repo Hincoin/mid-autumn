@@ -283,15 +283,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\MAEventType.hpp"
-					>
-				</File>
-				<File
 					RelativePath=".\MAFileSystemWin32.hpp"
-					>
-				</File>
-				<File
-					RelativePath=".\MAGUIManager.hpp"
 					>
 				</File>
 				<File
@@ -332,10 +324,6 @@
 				</File>
 				<File
 					RelativePath=".\EventProcessor.hpp"
-					>
-				</File>
-				<File
-					RelativePath=".\EventType.hpp"
 					>
 				</File>
 				<File

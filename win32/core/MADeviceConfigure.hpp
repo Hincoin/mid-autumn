@@ -18,8 +18,7 @@
 #include "CreateDevice.hpp"
 
 
-struct TestDeviceConfigureWin32{
-
+namespace ma{
 	enum DriverType{};
 
 	struct test_empty{};
@@ -35,21 +34,32 @@ struct TestDeviceConfigureWin32{
 	struct event_processor_config{
 		typedef ma::MAEventType EventType;
 	};
+	MA_SPECIALIZE_TYPEDEF_TRAITS_TYPE(ReadFile,ma::MAFileSystemWin32<ma::empty_config_file_system>,empty_config_file_system)
+		MA_SPECIALIZE_TYPEDEF_TRAITS_TYPE(WriteFile,ma::MAFileSystemWin32<ma::empty_config_file_system>,empty_config_file_system)
+		MA_SPECIALIZE_TYPEDEF_TRAITS_TYPE(FileList,ma::MAFileSystemWin32<ma::empty_config_file_system>,empty_config_file_system)
+		MA_SPECIALIZE_TYPEDEF_TRAITS_TYPE(ReadFilePtr,ma::MAFileSystemWin32<empty_config_file_system>,empty_config_file_system)
+		MA_SPECIALIZE_TYPEDEF_TRAITS_TYPE(WriteFilePtr,ma::MAFileSystemWin32<empty_config_file_system>,empty_config_file_system)
+		MA_SPECIALIZE_TYPEDEF_TRAITS_TYPE(FileListPtr,ma::MAFileSystemWin32<empty_config_file_system>,empty_config_file_system)
+
+}
+struct TestDeviceConfigureWin32{
+
+
 
 	//make it compile
-	typedef test_empty ImagePresenter;
-	typedef test_empty* ImagePtr;
+	typedef ma::test_empty ImagePresenter;
+	typedef ma::test_empty* ImagePtr;
 
 	typedef ma::Printer<ma::default_printer_config<ma::MALogger> > Printer;
 	typedef ma::MAVideoDriverSoftWare<ma::default_printer_config<ma::MALogger> > VideoDriver;
-	typedef ma::MAFileSystemWin32<empty_config_file_system> FileSystem;
+	typedef ma::MAFileSystemWin32<ma::empty_config_file_system> FileSystem;
 	typedef ma::MAGUIManager GUIManager;
 	typedef ma::MASceneManager SceneManager;
 	typedef ma::MALogger Logger;
 	typedef ma::MAVideoModesWin32 VideoMode;
 	typedef ma::MAOSOperatorWin32 OSOperator;
 	typedef ma::MATimerWin32 Timer;
-	typedef ma::MAEventProcessor<event_processor_config> EventProcessor;
+	typedef ma::MAEventProcessor<ma::event_processor_config> EventProcessor;
 
 	typedef ma::MAEventType     EventType;
 

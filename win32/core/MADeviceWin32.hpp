@@ -111,6 +111,22 @@ namespace ma
 	template<typename Configure>
 	boost::bimap<HWND,MADeviceWin32<Configure>*> 
 		MADeviceWin32<Configure>::environment_map_;
+
+
+	template<int N>
+	inline wchar_t* char2wchar(const char a[N],wchar_t b[N/2 + 1])
+	{
+		size_t i = 0;
+		for (;i < N - 1 ; i+=2)
+		{
+			b[i>>1] = wchar_t(a[i]) << 8 | a[i +1];
+		}
+		if(i == N-1)
+			b[(N>>1)] = a[i];
+		else
+			b[(N>>1)] = 0;
+		return b;
+	}
 }
 #endif
 
