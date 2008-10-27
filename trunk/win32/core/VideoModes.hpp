@@ -29,7 +29,7 @@ namespace ma{
 		int  getVideoModeDepth (int modeNumber) const {return derived().getVideoModeDepth(modeNumber);}; 
 
 		//Get the screen size of a video mode in pixels. 
-		rangei  getVideoModeResolution (int modeNumber) const 
+		scalar2i  getVideoModeResolution (int modeNumber) const 
 		{
 			return derived().getVideoModeResolution(modeNumber);
 		}

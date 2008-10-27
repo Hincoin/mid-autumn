@@ -21,7 +21,7 @@ namespace ma{
 	//render device
 	template<typename Derived,typename Configure>
 	class MADeviceBase: boost::noncopyable{
-		BOOST_STATIC_ASSERT((boost::is_base_and_derived<MADeviceBase,Derived>::value));
+		//BOOST_STATIC_ASSERT((boost::is_base_and_derived<MADeviceBase<Derived,Configure>,Derived>::value));
 	public:
 		typedef typename Configure::VideoDriverPtr VideoDriverPtr;
 		typedef typename Configure::FileSystemPtr FileSystemPtr;

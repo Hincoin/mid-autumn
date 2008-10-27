@@ -335,6 +335,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\EventType.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\FileSystem.hpp"
 					>
 				</File>

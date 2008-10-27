@@ -6,7 +6,7 @@ namespace ma{
 	template<typename Configure>
 	class Printer
 	{
-		typedef Configure::LoggerPtr;
+		typedef typename Configure::LoggerPtr LoggerPtr;
 	public:
 		// prints out a string to the console out stdout or debug log or whatever
 		static void print(const char* message){}
@@ -14,6 +14,12 @@ namespace ma{
 		static void log(const char* message, const char* hint, ELOG_LEVEL ll ){}
 		static void log(const wchar_t* message, ELOG_LEVEL ll ){}
 		static LoggerPtr Logger;
+	};
+
+	template<typename Log>
+	struct default_printer_config{
+		typedef Log Logger;
+		typedef Log* LoggerPtr;
 	};
 }
 #endif

@@ -9,7 +9,7 @@ namespace ma{
 
 	//remaind to be implemented
 	template<typename Configure>
-	class MAFileSystemWin32:FileSystem<MAFileSystemWin32>
+	class MAFileSystemWin32:public FileSystem<MAFileSystemWin32<Configure> >
 	{
 		typedef typename Configure::ReadFilePtr ReadFilePtr;
 		typedef typename Configure::WriteFilePtr WriteFilePtr;
@@ -84,7 +84,8 @@ namespace ma{
 		const char*  getWorkingDirectory () {return "";}
 	};
 
-	//sample
+	//sample config
+	
 }
 
 #endif

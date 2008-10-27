@@ -2,6 +2,8 @@
 #define INCLUDE_VIDEO_DRIVER_HPP
 
 #include "CRTPInterfaceMacro.hpp"
+#include "SpaceSegment.hpp"
+
 namespace ma{
 	MA_DECLARE_TYPEDEF_TRAITS_TYPE(Color)
 

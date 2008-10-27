@@ -108,7 +108,7 @@ namespace ma
 		typedef typename std::auto_ptr<T>::element_type value_type;
 		typedef std::auto_ptr<T> pointer_type;
 		typedef std::auto_ptr<const T>	const_pointer_type;
-		template<class U> struct rebind{typedef ma::ptr_traits<U>other;}
+		template<class U> struct rebind{typedef ma::ptr_traits<U> other;};
 		enum {is_array = false};
 	};
 }

@@ -62,7 +62,7 @@ namespace ma{
 		void setEventReceiver(EventProcessorPtr receiver);
 		void setInputReceivingSceneManager(SceneManagerPtr sceneManager);
 
-	private:
+	protected:
 
 		VideoDriverPtr VideoDriver_;
 		GUIManagerPtr GUIEnvironment_;

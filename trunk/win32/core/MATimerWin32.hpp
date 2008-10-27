@@ -22,7 +22,7 @@ namespace ma{
 		unsigned int getTime() const {return 0;}
 
 		//! sets current virtual time
-		void setTime(unsigned int time) {return 0;}
+		void setTime(unsigned int time) {return ;}
 
 		//! Stops the virtual timer.
 		/** The timer is reference counted, which means everything which calls
