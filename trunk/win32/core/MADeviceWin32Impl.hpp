@@ -238,7 +238,9 @@ namespace ma{
 		if (/*driverType != video::EDT_NULL && */externalWindow==0)
 		{
 #ifdef UNICODE
-			const wchar_t* className = "CIrrDeviceWin32";
+			const char c_name[]  = "CIrrDeviceWin32";
+			wchar_t ClassName[sizeof(c_name)/2 + 1]={0}; 
+			char2wchar<sizeof(c_name)>(c_name,ClassName);
 #else
 			const char* ClassName = "CIrrDeviceWin32";
 #endif
@@ -260,7 +262,7 @@ namespace ma{
 			wcex.hIconSm		= 0;
 
 			// if there is an icon, load it
-			wcex.hIcon = (HICON)LoadImage(hInstance, "irrlicht.ico", IMAGE_ICON, 0,0, LR_LOADFROMFILE); 
+			wcex.hIcon = (HICON)LoadImage(hInstance, 0, IMAGE_ICON, 0,0, LR_LOADFROMFILE); 
 
 			RegisterClassEx(&wcex);
 
@@ -293,7 +295,7 @@ namespace ma{
 
 			// create window
 
-			HWnd = CreateWindow( ClassName, "", style, windowLeft, windowTop,
+			HWnd = CreateWindow( ClassName, 0, style, windowLeft, windowTop,
 				realWidth, realHeight,	NULL, NULL, hInstance, NULL);
 
 			ShowWindow(HWnd , SW_SHOW);
@@ -350,7 +352,7 @@ namespace ma{
 	template<typename Configure>
 	bool MADeviceWin32<Configure>::execute()
 	{
-		Timer::tick();
+		//Timer::tick();
 		MSG msg;
 		bool quit = false;
 		while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
