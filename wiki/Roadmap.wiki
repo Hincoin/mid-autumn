@@ -37,5 +37,6 @@ Recreating wheel for my Vector class, I'm happened to see such a bleeding-edge l
 == Current Task ==
   * Memory management wrap manchnism design and implementation.(99%)
   * Test Memory management code(It's hard to test all because the combination explosion of the code).
+  * copy the Irrlicht engine's code to make a customized engine
   * What about manage memory using a thread ?
   * to be continue ...
