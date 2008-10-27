@@ -13,8 +13,10 @@ namespace ma{
 		static void log(const char* message, ELOG_LEVEL ll ){}
 		static void log(const char* message, const char* hint, ELOG_LEVEL ll ){}
 		static void log(const wchar_t* message, ELOG_LEVEL ll ){}
-		static LoggerPtr Logger;
+		static LoggerPtr logger;
 	};
+	template<typename Configure>
+	typename Printer<Configure>::LoggerPtr Printer<Configure>::logger(0);
 
 	template<typename Log>
 	struct default_printer_config{

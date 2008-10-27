@@ -102,7 +102,7 @@ namespace ma
 		bool Resized;
 		bool ExternalWindow;
 
-		typedef boost::bimap<HWND,MADeviceWin32<Configure>*> EnvironmentMap;
+		typedef boost::bimap<HWND,MADeviceWin32<Configure>* > EnvironmentMap;
 		static  EnvironmentMap environment_map_;
 		
 	private:

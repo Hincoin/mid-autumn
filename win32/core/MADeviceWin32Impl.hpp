@@ -339,10 +339,10 @@ namespace ma{
 	template<typename Configure>
 	MADeviceWin32<Configure>::~MADeviceWin32()
 	{
-		EnvironmentMap::iterator envmap_it = environment_map_.find(HWnd);
-		if (envmap_it != environment_map_.end())
+		EnvironmentMap::left_iterator envmap_it = environment_map_.left.find(HWnd);
+		if (envmap_it != environment_map_.left.end())
 		{
-			environment_map_.erase(envmap_it);
+			environment_map_.left.erase(envmap_it);
 		}
 		if (ChangedToFullScreen)
 		{
@@ -390,6 +390,17 @@ namespace ma{
 
 		if (is_pauseTimer && !wasStopped)
 			Timer->start();
+	}
+
+	template<typename Configure>
+	void MADeviceWin32<Configure>::createDriver(DriverType driverType, const scalar2i& windowSize, unsigned int bits, bool fullscreen, bool stencilbuffer, bool vsync, bool antiAlias, bool highPrecisionFPU)
+	{
+
+	}
+	template<typename Configure>
+	void MADeviceWin32<Configure>::resizeIfNecessary()
+	{
+		
 	}
 }
 
