@@ -8,5 +8,7 @@ namespace ma{
 	class MAVideoDriverSoftWare:public VideoDriver<MAVideoDriverSoftWare<Configure> >{
 		//
 	};
+
+	struct default_video_driver_software_config{};
 }
 #endif

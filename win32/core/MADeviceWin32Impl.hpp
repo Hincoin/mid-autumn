@@ -212,17 +212,18 @@ namespace ma{
 		}
 	template<typename Configure>
 	MADeviceWin32<Configure>::MADeviceWin32
-		(DriverType driverType, const rangei& windowSize, 
+		(DriverType driverType, scalar2i& windowSize, 
 		unsigned int bits, bool fullscreen, bool stencilbuffer, 
 		bool vsync, bool antiAlias, bool highPrecisionFPU,
-		EventProcessorPtr receiver, HWND externalWindow):
-	MADevice<MADeviceWin32<Configure> >(receiver),
+		EventProcessorPtr receiver, HWND externalWindow)
+		:
+	MADevice<MADeviceWin32<Configure>,Configure >(receiver),
 		HWnd(0),ChangedToFullScreen(false),
 		FullScreen(fullscreen),IsNonNTWindows(false),Resized(false),
 		ExternalWindow(false)
 	{
 		std::string winversion(getWindowsVersion());
-		OSOperator_ = new OSOperator(winversion);
+		OSOperator_ = new OSOperator(/*winversion*/);
 		//Printer::log(winversion.c_str(), ELL_INFORMATION);
 
 		// create window
@@ -236,7 +237,12 @@ namespace ma{
 		// create the window, only if we do not use the null device
 		if (/*driverType != video::EDT_NULL && */externalWindow==0)
 		{
+#ifdef UNICODE
+			const wchar_t* className = "CIrrDeviceWin32";
+#else
 			const char* ClassName = "CIrrDeviceWin32";
+#endif
+			
 
 			// Register Class
 			WNDCLASSEX wcex;
@@ -263,8 +269,8 @@ namespace ma{
 			RECT clientSize;
 			clientSize.top = 0;
 			clientSize.left = 0;
-			clientSize.right = windowSize.Width;
-			clientSize.bottom = windowSize.Height;
+			clientSize.right = windowSize[0];
+			clientSize.bottom = windowSize[1];
 
 			DWORD style = WS_POPUP;
 
@@ -303,8 +309,8 @@ namespace ma{
 			HWnd = externalWindow;
 			RECT r;
 			GetWindowRect(HWnd, &r);
-			windowSize.Width = r.right - r.left;
-			windowSize.Height = r.bottom - r.top;
+			windowSize[0] = r.right - r.left;
+			windowSize[1] = r.bottom - r.top;
 			fullscreen = false;
 			ExternalWindow = true;
 		}
@@ -322,7 +328,7 @@ namespace ma{
 			createGUIAndScene();
 
 		// register environment
-		environment_map_.insert(std::make_pair(HWnd,this));
+		environment_map_.insert(EnvironmentMap::value_type(HWnd,this));
 
 		// set this as active window
 		SetActiveWindow(HWnd);

@@ -5,7 +5,7 @@
 #ifdef MA_WINDOWS_
 
 #include "MADevice.hpp"
-#include "SpaceSegment.hpp"
+#include "Vector.hpp"
 #include <string>
 #include <boost/bimap.hpp>
 
@@ -47,7 +47,7 @@ namespace ma
 		typedef typename Configure::DriverType DriverType;
 	public:
 		MADeviceWin32(DriverType driverType,
-			const rangei& windowSize,
+			scalar2i& windowSize,
 			unsigned int bits, bool fullscreen,
 			bool stencilbuffer, bool vsync,
 			bool antiAlias,
@@ -84,13 +84,13 @@ namespace ma
 	private:
 		//! create the driver
 		void createDriver(DriverType driverType,
-			const rangei& windowSize, unsigned int bits, bool fullscreen,
+			const scalar2i& windowSize, unsigned int bits, bool fullscreen,
 			bool stencilbuffer, bool vsync, bool antiAlias, bool highPrecisionFPU);
 
 		//! switches to fullscreen
 		bool switchToFullScreen(int width, int height, int bits);
 
-		void getWindowsVersion(const std::string& version);
+		std::string getWindowsVersion(/*const std::string& version*/){return "";}
 
 		void resizeIfNecessary();
 
@@ -106,7 +106,7 @@ namespace ma
 		static  EnvironmentMap environment_map_;
 		
 	private:
-		LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+		static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	};
 	template<typename Configure>
 	boost::bimap<HWND,MADeviceWin32<Configure>*> 

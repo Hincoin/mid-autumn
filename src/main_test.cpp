@@ -15,8 +15,8 @@
 //#define MOVABLE_TEST
 #define DEVICE_TEST
 //#define CONVERSTION_TEST
-#define M_ANY_TEST
-#define MA_CRTP_MACRO_TEST
+//#define M_ANY_TEST
+//#define MA_CRTP_MACRO_TEST
 
 
 #ifdef MEMPOOL_TEST
