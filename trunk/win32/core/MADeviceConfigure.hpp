@@ -17,9 +17,9 @@
 
 #include "CreateDevice.hpp"
 
-
+#include "PtrTraits.hpp"
 namespace ma{
-	enum DriverType{};
+	
 
 	struct test_empty{};
 	struct empty_config_file_system{
@@ -41,11 +41,13 @@ namespace ma{
 		MA_SPECIALIZE_TYPEDEF_TRAITS_TYPE(WriteFilePtr,ma::MAFileSystemWin32<empty_config_file_system>,empty_config_file_system)
 		MA_SPECIALIZE_TYPEDEF_TRAITS_TYPE(FileListPtr,ma::MAFileSystemWin32<empty_config_file_system>,empty_config_file_system)
 
+		MA_SPECIALIZE_TYPEDEF_TRAITS_TYPE(EventType,ma::MAEventProcessor<ma::event_processor_config>,event_processor_config)
 }
 struct TestDeviceConfigureWin32{
 
 
 
+	enum DriverType{};
 	//make it compile
 	typedef ma::test_empty ImagePresenter;
 	typedef ma::test_empty* ImagePtr;
@@ -72,6 +74,27 @@ struct TestDeviceConfigureWin32{
 	typedef OSOperator* OSOperatorPtr;
 	typedef Timer* TimerPtr;
 	typedef EventProcessor* EventProcessorPtr;
+
+	template<typename PtrType>
+	static inline void delete_ptr(PtrType p)
+	{
+		ma::delete_ptr<PtrType>()(p);
+	}
+	template<typename PtrType>
+	static inline void empty_ptr(PtrType ptr)
+	{
+		ma::empty_ptr<PtrType>()(ptr);
+	}
+
+	static inline GUIManagerPtr createGUIEnvironment(FileSystemPtr fs_ptr,VideoDriverPtr video_driver_ptr,OSOperatorPtr os_ptr)
+	{
+		return GUIManagerPtr(new GUIManager());
+	}
+	static inline SceneManagerPtr createSceneManager(VideoDriverPtr video_driver_ptr,FileSystemPtr fs_ptr,GUIManagerPtr gui_ptr)
+	{
+		return SceneManagerPtr(new SceneManager());
+	}
+
 };
 
 #endif

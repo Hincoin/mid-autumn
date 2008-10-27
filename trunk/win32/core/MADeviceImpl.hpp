@@ -12,15 +12,15 @@ VideoDriver_(0),GUIEnvironment_(0),SceneManager_(0),UserReceiver_(evt_processor)
 OSOperator_(0),FileSystem_(new FileSystem),InputReceivingSceneManager_(0),
 Timer_(new Timer)
 {
-	if (Printer::Logger)
+	if (Printer::logger)
 	{
-		Logger_ = Printer::Logger;
-		Logger_->setReceiver(UserReceiver_);
+		Logger_ = Printer::logger;
+		//Logger_->setReceiver(UserReceiver_);
 	}
 	else
 	{
-		Logger_ = new Logger(UserReceiver_);
-		Printer::Logger = Logger_;
+		Logger_ = new Logger;//(UserReceiver_);
+		Printer::logger = Logger_;
 	}
 }
 
@@ -93,9 +93,9 @@ template<typename Derived,typename Configure>
 void MADevice<Derived, Configure>::setEventReceiver(EventProcessorPtr receiver)
 {
 	UserReceiver_ = receiver;
-	Logger->setReceiver(receiver);
-	if (GUIEnvironment_)
-		GUIEnvironment_->setUserEventReceiver(receiver);
+	//Logger_->setReceiver(receiver);
+	//if (GUIEnvironment_)
+		//GUIEnvironment_->setUserEventReceiver(receiver);
 }
 template<typename Derived,typename Configure>
 void MADevice<Derived, Configure>::setInputReceivingSceneManager(SceneManagerPtr sceneManager)

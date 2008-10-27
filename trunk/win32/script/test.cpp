@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include <boost/bimap.hpp>
+
 struct Base1{
 	int a ;
 	virtual ~Base1(){}
@@ -45,5 +47,8 @@ const void* test(void* p)
 {
 	int a[100];
 	const void* c_p = &static_cast<const char&>(*((double*)p));
+
+	typedef boost::bimap<int,char> ic_map;
+	ic_map a1212 ;
 	return c_p;
 }
