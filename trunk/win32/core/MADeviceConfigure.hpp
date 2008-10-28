@@ -34,14 +34,6 @@ namespace ma{
 	struct event_processor_config{
 		typedef ma::MAEventType EventType;
 	};
-	MA_SPECIALIZE_TYPEDEF_TRAITS_TYPE(ReadFile,ma::MAFileSystemWin32<ma::empty_config_file_system>,empty_config_file_system)
-		MA_SPECIALIZE_TYPEDEF_TRAITS_TYPE(WriteFile,ma::MAFileSystemWin32<ma::empty_config_file_system>,empty_config_file_system)
-		MA_SPECIALIZE_TYPEDEF_TRAITS_TYPE(FileList,ma::MAFileSystemWin32<ma::empty_config_file_system>,empty_config_file_system)
-		MA_SPECIALIZE_TYPEDEF_TRAITS_TYPE(ReadFilePtr,ma::MAFileSystemWin32<empty_config_file_system>,empty_config_file_system)
-		MA_SPECIALIZE_TYPEDEF_TRAITS_TYPE(WriteFilePtr,ma::MAFileSystemWin32<empty_config_file_system>,empty_config_file_system)
-		MA_SPECIALIZE_TYPEDEF_TRAITS_TYPE(FileListPtr,ma::MAFileSystemWin32<empty_config_file_system>,empty_config_file_system)
-
-		MA_SPECIALIZE_TYPEDEF_TRAITS_TYPE(EventType,ma::MAEventProcessor<ma::event_processor_config>,event_processor_config)
 }
 struct TestDeviceConfigureWin32{
 

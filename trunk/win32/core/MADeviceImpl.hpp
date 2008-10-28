@@ -9,7 +9,7 @@ namespace ma
 template<typename Derived,typename Configure>
 MADevice<Derived,Configure>::MADevice(EventProcessorPtr evt_processor):
 VideoDriver_(0),GUIEnvironment_(0),SceneManager_(0),UserReceiver_(evt_processor),
-OSOperator_(0),FileSystem_(new FileSystem),InputReceivingSceneManager_(0),
+OSOperator_(0),VideoModeList_(0),FileSystem_(new FileSystem),InputReceivingSceneManager_(0),
 Timer_(new Timer)
 {
 	if (Printer::logger)
