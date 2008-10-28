@@ -6,6 +6,7 @@
 #include <winuser.h>
 
 
+
 namespace ma{
 		
 		template<typename Configure>
@@ -393,9 +394,12 @@ namespace ma{
 	}
 
 	template<typename Configure>
-	void MADeviceWin32<Configure>::createDriver(DriverType driverType, const scalar2i& windowSize, unsigned int bits, bool fullscreen, bool stencilbuffer, bool vsync, bool antiAlias, bool highPrecisionFPU)
+	void MADeviceWin32<Configure>::createDriver(DriverType driverType, const scalar2i& windowSize,
+		unsigned int bits, bool fullscreen, bool stencilbuffer, bool vsync, bool antiAlias, bool highPrecisionFPU)
 	{
-
+		//if (fullscreen)	switchToFullScreen(windowSize[0], windowSize[1], bits);
+		//typename Configure::DriverCreator driver_creator;
+		//VideoDriver_ = driver_creator(windowSize, fullscreen, FileSystem_, this);
 	}
 	template<typename Configure>
 	void MADeviceWin32<Configure>::resizeIfNecessary()

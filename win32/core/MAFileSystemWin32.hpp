@@ -5,11 +5,9 @@
 #include "FileSystem.hpp"
 
 namespace ma{
-
-
-	//remaind to be implemented
+	//remained to be implemented
 	template<typename Configure>
-	class MAFileSystemWin32:public FileSystem<MAFileSystemWin32<Configure> >
+	class MAFileSystemWin32:public FileSystem<MAFileSystemWin32<Configure>, Configure >
 	{
 		typedef typename Configure::ReadFilePtr ReadFilePtr;
 		typedef typename Configure::WriteFilePtr WriteFilePtr;

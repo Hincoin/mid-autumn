@@ -6,11 +6,12 @@
 
 namespace ma{
 	
-	MA_DECLARE_TYPEDEF_TRAITS_TYPE(EventType);
 
-	template<typename Derived>
+
+	template<typename Derived,typename ClassConfig>
 	class EventProcessor{
-		ADD_CRTP_INTERFACE_TYPEDEF(EventType)
+		//ADD_CRTP_INTERFACE_TYPEDEF(EventType)
+		typedef typename ClassConfig::EventType EventType;
 	public:
 		//! Called if an event happened.
 		/** \return True if the event was processed. */

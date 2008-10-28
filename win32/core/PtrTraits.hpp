@@ -93,7 +93,7 @@ namespace ma
 		typedef T* pointer_type;
 		typedef const pointer_type const_pointer_type;
 		typedef T& reference_type;
-		typedef const reference_type const_reference_type;
+		typedef const T& const_reference_type;
 
 		template<class U> struct rebind{ typedef ma::ptr_traits<U> other;};
 		enum {is_array = false};
