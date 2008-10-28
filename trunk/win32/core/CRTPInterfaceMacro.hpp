@@ -7,7 +7,7 @@
 #include "NullType.hpp"
 
 #define BEGIN_CRTP_INTERFACE(_CLASS_NAME)\
-	template<typename Derived, typename ClassConfig = EmptyType >\
+	template<typename Derived, typename ClassConfig = NullType >\
 class _CLASS_NAME{\
 	Derived& derived(){return static_cast< Derived& >(*this);}\
 	const Derived& derived()const{return static_cast<const Derived& >(*this);}\

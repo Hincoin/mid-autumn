@@ -1,6 +1,8 @@
 #ifndef INCLUDE_LOGGER_HPP
 #define INCLUDE_LOGGER_HPP
 
+
+#include "NullType.hpp"
 namespace ma{
 	enum ELOG_LEVEL
 	{
@@ -10,7 +12,7 @@ namespace ma{
 		LOG_NONE
 	};
 
-	template<typename Derived>
+	template<typename Derived,typename ClassConfig = NullType>
 	class Logger{
 		Logger& derived(){return static_cast<Derived&>(*this);}
 		const Logger& derived()const {return static_cast<const Derived&>(*this);}

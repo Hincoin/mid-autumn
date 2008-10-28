@@ -76,7 +76,7 @@ void MADevice<Derived, Configure>::postEventFromUser(const EventType& event)
 	bool absorbed = false;
 
 	if (UserReceiver_)
-		absorbed = UserReceiver_->OnEvent(event);
+		absorbed = UserReceiver_->onEvent(event);
 
 	if (!absorbed && GUIEnvironment_)
 		absorbed = GUIEnvironment_->postEventFromUser(event);

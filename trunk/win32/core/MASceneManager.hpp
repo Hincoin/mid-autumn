@@ -2,9 +2,12 @@
 #define MA_SCENE_MANAGER_HPP
 #include "SceneManager.hpp"
 namespace ma{
-	class MASceneManager:public SceneManager<MASceneManager>
+	template<typename Config>
+	class MASceneManager:public SceneManager<MASceneManager<Config>,Config>
 	{
-
+		typedef typename Config::EventType EventType;
+	public:
+		bool postEventFromUser(const EventType& evt){return false;}
 	};
 }
 #endif

@@ -15,11 +15,12 @@
 #include <ctime>
 #include <iostream>
 
+#include "NullType.hpp"
 namespace ma
 {
 
 	//! Interface for getting and manipulating the virtual time
-	template<typename Derived>
+	template<typename Derived,typename ClassConfig = NullType>
 	class Timer
 	{
 		Derived& derived(){return static_cast<Derived&>(*this);}
