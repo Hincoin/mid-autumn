@@ -3,8 +3,10 @@
 
 
 #include "Vector.hpp"
+#include "NullType.hpp"
+
 namespace ma{
-	template<typename Derived>
+	template<typename Derived,typename ClassConfig = NullType>
 	class VideoModes{
 	private:
 		VideoModes& derived(){static_cast<VideoModes&>(*this);}

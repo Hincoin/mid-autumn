@@ -287,7 +287,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\MAEventType.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\MAFileSystemWin32.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MAGUIManager.hpp"
 					>
 				</File>
 				<File
@@ -318,6 +326,10 @@
 					RelativePath=".\MAVideoModesWin32.hpp"
 					>
 				</File>
+				<File
+					RelativePath=".\MAVideoModesWin32Impl.hpp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="Interface"
@@ -328,6 +340,10 @@
 				</File>
 				<File
 					RelativePath=".\EventProcessor.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\EventType.hpp"
 					>
 				</File>
 				<File

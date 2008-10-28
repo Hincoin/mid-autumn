@@ -3,8 +3,11 @@
 
 #include "GUIManager.hpp"
 namespace ma{
-	class MAGUIManager:public GUIManager<MAGUIManager>{
-
+	template<typename Config>
+	class MAGUIManager:public GUIManager<MAGUIManager<Config>,Config>{
+		typedef typename Config::EventType EventType;
+	public:
+		bool postEventFromUser(const EventType& evt){ return false;}
 	};
 }
 #endif

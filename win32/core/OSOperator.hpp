@@ -1,8 +1,9 @@
 #ifndef INCLUDE_OSOPERATOR_HPP
 #define INCLUDE_OSOPERATOR_HPP
 
+#include "NullType.hpp"
 namespace ma{
-	template<typename Derived>
+	template<typename Derived,typename ClassConfig = NullType>
 	class OSOperator{
 		OSOperator& derived(){return static_cast<Derived&>(*this);}
 		const OSOperator& derived()const {return static_cast<const Derived&>(*this);}

@@ -9,6 +9,14 @@
 
 namespace ma{
 		
+
+	template<typename Configure>
+	MADeviceWin32<Configure>* MADeviceWin32<Configure>::getDeviceFromHWnd(HWND hwnd)
+	{
+		typedef EnvironmentMap::left_iterator EnvMapLeftIterator;
+		EnvMapLeftIterator env_it = environment_map_.left.find(hwnd);
+		return env_it == environment_map_.left.end() ? 0 : env_it->second ;
+	}
 		template<typename Configure>
 		LRESULT CALLBACK MADeviceWin32<Configure>::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
@@ -21,7 +29,7 @@ namespace ma{
 			MADeviceWin32<Configure>* dev = 0;
 			EventType event;
 
-			typedef EnvironmentMap::iterator EnvMapIterator;
+			typedef EnvironmentMap::left_iterator EnvMapLeftIterator;
 			//SEnvMapper* envm = 0;
 
 			BYTE allKeys[256];
@@ -44,42 +52,50 @@ namespace ma{
 				return 0;
 
 			case WM_SETCURSOR:
-				////envm = getEnvMapperFromHWnd(hWnd);
-				//EnvMapIterator env_it = environment_map_.find(hWnd);
-				//if (env_it != environment_map_.end()
-				//	&& !env_it->second->getWin32CursorControl()->isVisible())
-				//{
-				//	SetCursor(NULL);
-				//	return 0;
-				//}
+				{
+					////envm = getEnvMapperFromHWnd(hWnd);
+					EnvMapLeftIterator env_it = environment_map_.left.find(hWnd);
+					if (env_it != environment_map_.left.end()
+						/*&& !env_it->second->getWin32CursorControl()->isVisible()*/)
+					{
+						SetCursor(NULL);
+						return 0;
+					}
+				}
+
 				break;
 
 			case WM_MOUSEWHEEL:
 				//event.EventType = irr::EET_MOUSE_INPUT_EVENT;
 				//event.MouseInput.Wheel = ((irr::f32)((short)HIWORD(wParam))) / (irr::f32)WHEEL_DELTA;
 				//event.MouseInput.Event = irr::EMIE_MOUSE_WHEEL;
+				event.event_type = EET_MOUSE_INPUT_EVENT;
+				event.mouse_event.Wheel = float((short)HIWORD(wParam))/ (float)WHEEL_DELTA;
+				event.mouse_event.Wheel = EMIE_MOUSE_WHEEL;
 
-				//POINT p; // fixed by jox
-				//p.x = 0; p.y = 0;
-				//ClientToScreen(hWnd, &p);
-				//event.MouseInput.X = LOWORD(lParam) - p.x;
-				//event.MouseInput.Y = HIWORD(lParam) - p.y;
+				POINT p; // fixed by jox
+				p.x = 0; p.y = 0;
+				ClientToScreen(hWnd, &p);
+				event.mouse_event.x = LOWORD(lParam) - p.x;
+				event.mouse_event.y = HIWORD(lParam) - p.y;
 
-				//dev = getDeviceFromHWnd(hWnd);
-				//if (dev)
-				//	dev->postEventFromUser(event);
+				dev = getDeviceFromHWnd(hWnd);
+				if (dev)
+					dev->postEventFromUser(event);
 				break;
 
 			case WM_LBUTTONDOWN:
 				ClickCount++;
 				SetCapture(hWnd);
-				//event.EventType = irr::EET_MOUSE_INPUT_EVENT;
-				//event.MouseInput.Event = irr::EMIE_LMOUSE_PRESSED_DOWN;
-				//event.MouseInput.X = (short)LOWORD(lParam);
-				//event.MouseInput.Y = (short)HIWORD(lParam);
-				//dev = getDeviceFromHWnd(hWnd);
-				//if (dev)
-				//	dev->postEventFromUser(event);
+
+				event.event_type = EET_MOUSE_INPUT_EVENT;
+				event.mouse_event.Event = EMIE_LMOUSE_DOWN;
+				event.mouse_event.x = (short)LOWORD(lParam);
+				event.mouse_event.y = (short)HIWORD(lParam);
+				dev = getDeviceFromHWnd(hWnd);
+				if (dev)
+					dev->postEventFromUser(event);
+
 				return 0;
 
 			case WM_LBUTTONUP:
@@ -89,25 +105,29 @@ namespace ma{
 					ClickCount=0;
 					ReleaseCapture();
 				}
-				//event.EventType = irr::EET_MOUSE_INPUT_EVENT;
-				//event.MouseInput.Event = irr::EMIE_LMOUSE_LEFT_UP;
-				//event.MouseInput.X = (short)LOWORD(lParam);
-				//event.MouseInput.Y = (short)HIWORD(lParam);
-				//dev = getDeviceFromHWnd(hWnd);
-				//if (dev)
-				//	dev->postEventFromUser(event);
+
+				event.event_type =  EET_MOUSE_INPUT_EVENT;
+				event.mouse_event.Event = EMIE_LMOUSE_UP;
+				event.mouse_event.x = (short)LOWORD(lParam);
+				event.mouse_event.y= (short)HIWORD(lParam);
+				
+				dev = getDeviceFromHWnd(hWnd);
+				if (dev)
+					dev->postEventFromUser(event);
+				
 				return 0;
 
 			case WM_RBUTTONDOWN:
 				ClickCount++;
 				SetCapture(hWnd);
-				//event.EventType = irr::EET_MOUSE_INPUT_EVENT;
-				//event.MouseInput.Event = irr::EMIE_RMOUSE_PRESSED_DOWN;
-				//event.MouseInput.X = (short)LOWORD(lParam);
-				//event.MouseInput.Y = (short)HIWORD(lParam);
-				//dev = getDeviceFromHWnd(hWnd);
-				//if (dev)
-				//	dev->postEventFromUser(event);
+				event.event_type = EET_MOUSE_INPUT_EVENT;
+				event.mouse_event.Event = EMIE_RMOUSE_DOWN;
+				event.mouse_event.x = (short)LOWORD(lParam);
+				event.mouse_event.y = (short)HIWORD(lParam);
+
+				dev = getDeviceFromHWnd(hWnd);
+				if (dev)
+					dev->postEventFromUser(event);
 				return 0;
 
 			case WM_RBUTTONUP:
@@ -117,25 +137,27 @@ namespace ma{
 					ClickCount=0;
 					ReleaseCapture();
 				}
-				//event.EventType = irr::EET_MOUSE_INPUT_EVENT;
-				//event.MouseInput.Event = irr::EMIE_RMOUSE_LEFT_UP;
-				//event.MouseInput.X = (short)LOWORD(lParam);
-				//event.MouseInput.Y = (short)HIWORD(lParam);
-				//dev = getDeviceFromHWnd(hWnd);
-				//if (dev)
-				//	dev->postEventFromUser(event);
+				event.event_type =  EET_MOUSE_INPUT_EVENT;
+				event.mouse_event.Event =  EMIE_RMOUSE_UP;
+				event.mouse_event.x = (short)LOWORD(lParam);
+				event.mouse_event.y = (short)HIWORD(lParam);
+
+				dev = getDeviceFromHWnd(hWnd);
+				if (dev)
+					dev->postEventFromUser(event);
 				return 0;
 
 			case WM_MBUTTONDOWN:
 				ClickCount++;
 				SetCapture(hWnd);
-				//event.EventType = irr::EET_MOUSE_INPUT_EVENT;
-				//event.MouseInput.Event = irr::EMIE_MMOUSE_PRESSED_DOWN;
-				//event.MouseInput.X = (short)LOWORD(lParam);
-				//event.MouseInput.Y = (short)HIWORD(lParam);
-				//dev = getDeviceFromHWnd(hWnd);
-				//if (dev)
-				//	dev->postEventFromUser(event);
+				event.event_type =  EET_MOUSE_INPUT_EVENT;
+				event.mouse_event.Event =  EMIE_MMOUSE_DOWN;
+				event.mouse_event.x = (short)LOWORD(lParam);
+				event.mouse_event.y = (short)HIWORD(lParam);
+
+				dev = getDeviceFromHWnd(hWnd);
+				if (dev)
+					dev->postEventFromUser(event);
 				return 0;
 
 			case WM_MBUTTONUP:
@@ -145,55 +167,55 @@ namespace ma{
 					ClickCount=0;
 					ReleaseCapture();
 				}
-				//event.EventType = irr::EET_MOUSE_INPUT_EVENT;
-				//event.MouseInput.Event = irr::EMIE_MMOUSE_LEFT_UP;
-				//event.MouseInput.X = (short)LOWORD(lParam);
-				//event.MouseInput.Y = (short)HIWORD(lParam);
-				//dev = getDeviceFromHWnd(hWnd);
-				//if (dev)
-				//	dev->postEventFromUser(event);
+				event.event_type =  EET_MOUSE_INPUT_EVENT;
+				event.mouse_event.Event =  EMIE_MMOUSE_UP;
+				event.mouse_event.x = (short)LOWORD(lParam);
+				event.mouse_event.y = (short)HIWORD(lParam);
+				dev = getDeviceFromHWnd(hWnd);
+				if (dev)
+					dev->postEventFromUser(event);
 				return 0;
 
 			case WM_MOUSEMOVE:
-				//event.EventType = irr::EET_MOUSE_INPUT_EVENT;
-				//event.MouseInput.Event = irr::EMIE_MOUSE_MOVED;
-				//event.MouseInput.X = (short)LOWORD(lParam);
-				//event.MouseInput.Y = (short)HIWORD(lParam);
-				//dev = getDeviceFromHWnd(hWnd);
+				event.event_type=  EET_MOUSE_INPUT_EVENT;
+				event.mouse_event.Event =  EMIE_MOUSE_MOVED;
+				event.mouse_event.x = (short)LOWORD(lParam);
+				event.mouse_event.y = (short)HIWORD(lParam);
+				dev = getDeviceFromHWnd(hWnd);
 
-				//if (dev)
-				//	dev->postEventFromUser(event);
+				if (dev)
+					dev->postEventFromUser(event);
 
 				return 0;
 
 			case WM_KEYDOWN:
 			case WM_KEYUP:
 				{
-					//event.EventType = irr::EET_KEY_INPUT_EVENT;
-					//event.KeyInput.Key = (irr::EKEY_CODE)wParam;
-					//event.KeyInput.PressedDown = (message==WM_KEYDOWN);
-					//dev = getDeviceFromHWnd(hWnd);
+					event.event_type = EET_KEY_INPUT_EVENT;
+					event.key_event.Key = (EKEY_CODE)wParam;
+					event.key_event.PressedDown = (message==WM_KEYDOWN);
+				    dev = getDeviceFromHWnd(hWnd);
 
-					//WORD KeyAsc=0;
-					//GetKeyboardState(allKeys);
-					//ToAscii((UINT)wParam,(UINT)lParam,allKeys,&KeyAsc,0);
+					WORD KeyAsc=0;
+					GetKeyboardState(allKeys);
+					ToAscii((UINT)wParam,(UINT)lParam,allKeys,&KeyAsc,0);
 
-					//event.KeyInput.Shift = ((allKeys[VK_SHIFT] & 0x80)!=0);
-					//event.KeyInput.Control = ((allKeys[VK_CONTROL] & 0x80)!=0);
-					//event.KeyInput.Char = (KeyAsc & 0x00ff); //KeyAsc >= 0 ? KeyAsc : 0;
+					event.key_event.Shift = ((allKeys[VK_SHIFT] & 0x80)!=0);
+					event.key_event.Control = ((allKeys[VK_CONTROL] & 0x80)!=0);
+					event.key_event.Char = (KeyAsc & 0x00ff); //KeyAsc >= 0 ? KeyAsc : 0;
 
-					//if (dev)
-					//	dev->postEventFromUser(event);
+					if (dev)
+						dev->postEventFromUser(event);
 
 					return 0;
 				}
 
 			case WM_SIZE:
 				{
-					//// resize
-					//dev = getDeviceFromHWnd(hWnd);
-					//if (dev)
-					//	dev->OnResized();
+					// resize
+					dev = getDeviceFromHWnd(hWnd);
+					if (dev)
+						dev->OnResized();
 				}
 				return 0;
 
@@ -403,6 +425,11 @@ namespace ma{
 	}
 	template<typename Configure>
 	void MADeviceWin32<Configure>::resizeIfNecessary()
+	{
+		
+	}
+	template<typename Configure>
+	void MADeviceWin32<Configure>::OnResized()
 	{
 		
 	}

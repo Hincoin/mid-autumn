@@ -47,8 +47,8 @@ struct TestDeviceConfigureWin32{
 	typedef ma::Printer<ma::default_printer_config<ma::MALogger> > Printer;
 	typedef ma::MAVideoDriverSoftWare<ma::default_printer_config<ma::MALogger> > VideoDriver;
 	typedef ma::MAFileSystemWin32<ma::empty_config_file_system> FileSystem;
-	typedef ma::MAGUIManager GUIManager;
-	typedef ma::MASceneManager SceneManager;
+	typedef ma::MAGUIManager<ma::event_processor_config> GUIManager;
+	typedef ma::MASceneManager<ma::event_processor_config> SceneManager;
 	typedef ma::MALogger Logger;
 	typedef ma::MAVideoModesWin32 VideoMode;
 	typedef ma::MAOSOperatorWin32 OSOperator;

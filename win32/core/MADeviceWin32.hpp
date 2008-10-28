@@ -107,6 +107,8 @@ namespace ma
 		
 	private:
 		static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+		static MADeviceWin32<Configure>* getDeviceFromHWnd(HWND hwnd);
 	};
 	template<typename Configure>
 	boost::bimap<HWND,MADeviceWin32<Configure>*> 
