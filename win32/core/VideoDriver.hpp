@@ -10,6 +10,7 @@ namespace ma{
 		ADD_CRTP_INTERFACE_TYPEDEF(Color)
 		ADD_CRTP_INTERFACE_FUNC(bool,beginScene,(bool backBuffer,bool zBuffer,Color clr),(backBuffer,zBuffer,clr),)
 		ADD_CRTP_INTERFACE_FUNC(bool,endScene,(int windowid,recti* sourceRect),(windowid, sourceRect),)	
+		ADD_CRTP_INTERFACE_FUNC(template<typename PresenterPtr> void,present,(PresenterPtr presenter),(presenter),const)
 	END_CRTP_INTERFACE()
 
 
