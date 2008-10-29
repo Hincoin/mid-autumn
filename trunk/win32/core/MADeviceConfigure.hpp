@@ -34,18 +34,35 @@ namespace ma{
 	struct event_processor_config{
 		typedef ma::MAEventType EventType;
 	};
+
+
+
+	struct default_video_driver_software_config{
+		typedef vector4i Color;//4 ints
+		typedef ma::MAFileSystemWin32<ma::empty_config_file_system> FileSystem;
+		typedef FileSystem* FileSystemPtr;
+	};
+	//default driver creator traits
+	template<>
+	struct CreateDriver<MAVideoDriverSoftWare<default_video_driver_software_config> >{
+		template<typename Config> friend  class MADeviceWin32;
+
+		typedef MAVideoDriverSoftWare<default_video_driver_software_config>::FileSystemPtr FileSystemPtr;
+	private:
+		MAVideoDriverSoftWare<default_video_driver_software_config>*
+			operator()(const scalar2i& windowSize,bool fullscreen, FileSystemPtr fs)const{
+				return new MAVideoDriverSoftWare<default_video_driver_software_config>(windowSize, fullscreen, fs);
+		}
+	};
 }
 struct TestDeviceConfigureWin32{
-
-
-
 	enum DriverType{};
 	//make it compile
 	typedef ma::test_empty ImagePresenter;
 	typedef ma::test_empty* ImagePtr;
 
 	typedef ma::Printer<ma::default_printer_config<ma::MALogger> > Printer;
-	typedef ma::MAVideoDriverSoftWare<ma::default_printer_config<ma::MALogger> > VideoDriver;
+	typedef ma::MAVideoDriverSoftWare<ma::default_video_driver_software_config > VideoDriver;
 	typedef ma::MAFileSystemWin32<ma::empty_config_file_system> FileSystem;
 	typedef ma::MAGUIManager<ma::event_processor_config> GUIManager;
 	typedef ma::MASceneManager<ma::event_processor_config> SceneManager;
@@ -57,7 +74,7 @@ struct TestDeviceConfigureWin32{
 
 	typedef ma::MAEventType     EventType;
 
-	typedef Printer* VideoDriverPtr;
+	typedef VideoDriver* VideoDriverPtr;
 	typedef FileSystem* FileSystemPtr;
 	typedef GUIManager* GUIManagerPtr;
 	typedef SceneManager* SceneManagerPtr;
@@ -66,6 +83,8 @@ struct TestDeviceConfigureWin32{
 	typedef OSOperator* OSOperatorPtr;
 	typedef Timer* TimerPtr;
 	typedef EventProcessor* EventProcessorPtr;
+
+	typedef ma::CreateDriver<ma::MAVideoDriverSoftWare<ma::default_video_driver_software_config> > DriverCreator;
 
 	template<typename PtrType>
 	static inline void delete_ptr(PtrType p)

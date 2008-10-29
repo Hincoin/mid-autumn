@@ -419,9 +419,9 @@ namespace ma{
 	void MADeviceWin32<Configure>::createDriver(DriverType driverType, const scalar2i& windowSize,
 		unsigned int bits, bool fullscreen, bool stencilbuffer, bool vsync, bool antiAlias, bool highPrecisionFPU)
 	{
-		//if (fullscreen)	switchToFullScreen(windowSize[0], windowSize[1], bits);
-		//typename Configure::DriverCreator driver_creator;
-		//VideoDriver_ = driver_creator(windowSize, fullscreen, FileSystem_, this);
+		if (fullscreen)	switchToFullScreen(windowSize[0], windowSize[1], bits);
+		typename Configure::DriverCreator driver_creator;
+		VideoDriver_ = driver_creator(windowSize, fullscreen, FileSystem_);
 	}
 	template<typename Configure>
 	void MADeviceWin32<Configure>::resizeIfNecessary()
@@ -432,6 +432,12 @@ namespace ma{
 	void MADeviceWin32<Configure>::OnResized()
 	{
 		
+	}
+	template<typename Configure>
+	bool MADeviceWin32<Configure>::switchToFullScreen(int width, int height, int bits)
+	{
+		//...
+		return false;
 	}
 }
 
