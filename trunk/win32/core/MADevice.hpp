@@ -22,7 +22,7 @@ namespace ma{
 		typedef typename Configure::Timer Timer;
 		typedef typename Configure::EventProcessor EventProcessor;
 
-		typedef typename Configure::EventType     EventType;
+		//typedef typename Configure::EventType     EventType;
 
 		typedef typename Configure::VideoDriverPtr VideoDriverPtr;
 		typedef typename Configure::FileSystemPtr FileSystemPtr;
@@ -58,7 +58,9 @@ namespace ma{
 		OSOperatorPtr getOSOperator(){return OSOperator_;}
 		EventProcessorPtr getEventReceiver(){return UserReceiver_;}
 
+		template<typename EventType>
 		void postEventFromUser(const EventType& event);
+
 		void setEventReceiver(EventProcessorPtr receiver);
 		void setInputReceivingSceneManager(SceneManagerPtr sceneManager);
 

@@ -14,10 +14,14 @@
 #include "MAVideoDriverSoftWare.hpp"
 #include "MAGUIManager.hpp"
 #include "MAEventType.hpp"
+#include "MAImage.hpp"
+
 
 #include "CreateDevice.hpp"
 
 #include "PtrTraits.hpp"
+
+#include "AddPointer.hpp"
 namespace ma{
 	
 
@@ -36,11 +40,19 @@ namespace ma{
 	};
 
 
+	struct default_image_config{
+		typedef vector4i Color;//4 ints
+	};
 
 	struct default_video_driver_software_config{
-		typedef vector4i Color;//4 ints
+		typedef default_image_config::Color Color;
 		typedef ma::MAFileSystemWin32<ma::empty_config_file_system> FileSystem;
 		typedef FileSystem* FileSystemPtr;
+		typedef ma::MAImage<default_image_config> Image;
+		typedef add_ptr<Image>::type ImagePtr;
+
+		typedef test_empty Texture;
+		typedef add_ptr<Texture>::type TexturePtr;
 	};
 	//default driver creator traits
 	template<>

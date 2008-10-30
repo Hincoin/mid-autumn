@@ -32,7 +32,7 @@ namespace ma{
 		typedef typename Configure::OSOperatorPtr OSOperatorPtr;
 		typedef typename Configure::TimerPtr TimerPtr;
 		typedef typename Configure::EventProcessorPtr EventProcessorPtr;
-		typedef typename Configure::EventType     EventType;
+
 	protected:
 		MADeviceBase(){}
 		~MADeviceBase(){}
@@ -153,9 +153,10 @@ namespace ma{
 		input, you can use this to post key or mouse input events to
 		the engine. Internally, this method only delegates the events
 		further to the scene manager and the GUI environment. */
+		template<typename EventType>
 		void postEventFromUser(const EventType& event) 
 		{
-			return derived().postEventFromUser(event);
+			return derived().template postEventFromUser<EventType>(event);
 		};
 
 		//! Sets the input receiving scene manager.

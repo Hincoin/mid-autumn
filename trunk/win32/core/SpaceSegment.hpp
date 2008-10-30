@@ -38,6 +38,8 @@ namespace ma{
 	private:
 		typedef typename  ParameterType<T>::param_type parameter_type;
 	public:
+		typedef typename T stored_type;
+
 		T smin,smax;
 
 		//regular model
@@ -89,13 +91,39 @@ namespace ma{
 	typedef SpaceSegment<float> rangef;
 
 	//2d
-	typedef SpaceSegment<vector2i> recti;
+	typedef SpaceSegment<vector2i> recti;//0 left 1 top 
 	typedef SpaceSegment<vector2f> rectf;
+	
+	namespace rect_op{
+		template<typename T> 
+		inline 
+		static typename T::stored_type::Scalar& left(T& x){return x.smin[0];}
+
+		template<typename T> 
+		inline 
+		static typename T::stored_type::Scalar& top(T& x){return x.smin[1];}
+
+		template<typename T>
+		inline 
+		static typename T::stored_type::Scalar& right(T& x){return x.smax[0];}
+
+		template<typename T>
+		inline 
+		static typename T::stored_type::Scalar& bottom(T& x){return x.smax[1];}
+
+		template<typename T>
+		inline 
+		static typename T::stored_type::Scalar width(const T& x){return x.smax[0]-x.smin[0];}
+
+		template<typename T>
+		inline 
+		static typename T::stored_type::Scalar height(const T& x){return x.smax[1] - x.smin[1];}
+	}
 
 	//3d
 	typedef SpaceSegment<vector3i> boxi;
 	typedef SpaceSegment<vector3f> boxf;
-
+	
 }
 
 #endif

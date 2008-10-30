@@ -27,6 +27,8 @@ namespace ma{
 #define WHEEL_DELTA 120
 #endif
 			MADeviceWin32<Configure>* dev = 0;
+
+			typedef Configure::EventType EventType;
 			EventType event;
 
 			typedef EnvironmentMap::left_iterator EnvMapLeftIterator;
@@ -438,6 +440,56 @@ namespace ma{
 	{
 		//...
 		return false;
+	}
+	template<typename Configure>
+	template<typename ImagePtr>
+	void MADeviceWin32<Configure>::present(ImagePtr image, int windowId /* = 0 */, recti* src/* =0  */)
+	{
+		HWND hwnd = HWnd;
+		if ( windowId )
+			hwnd = reinterpret_cast<HWND>(windowId);
+
+		HDC dc = GetDC(hwnd);
+
+		if ( dc )
+		{
+			RECT rect;
+			GetClientRect(hwnd, &rect);
+			const void* memory = (const void *)image->lock();
+
+			BITMAPV4HEADER bi;
+			ZeroMemory (&bi, sizeof(bi));
+			bi.bV4Size          = sizeof(BITMAPINFOHEADER);
+			bi.bV4BitCount      = image->getBitsPerPixel();
+			bi.bV4Planes        = 1;
+			bi.bV4Width         = scalar2_op::width(image->getDimension());
+			bi.bV4Height        = -scalar2_op::height(image->getDimension());
+			bi.bV4V4Compression = BI_BITFIELDS;
+			bi.bV4AlphaMask     = image->getAlphaMask ();
+			bi.bV4RedMask       = image->getRedMask ();
+			bi.bV4GreenMask     = image->getGreenMask();
+			bi.bV4BlueMask      = image->getBlueMask();
+
+			if ( src )
+			{
+				using namespace rect_op;
+				StretchDIBits(dc, 0,0, rect.right, rect.bottom,
+					//src->UpperLeftCorner.X, src->UpperLeftCorner.Y,
+					top(*src),left(*src),
+					width(*src), height(*src),
+					memory, (const BITMAPINFO*)(&bi), DIB_RGB_COLORS, SRCCOPY);
+			}
+			else
+			{
+				StretchDIBits(dc, 0,0, rect.right, rect.bottom,
+					0, 0, scalar2_op::width(image->getDimension()), scalar2_op::height(image->getDimension()),
+					memory, (const BITMAPINFO*)(&bi), DIB_RGB_COLORS, SRCCOPY);
+			}
+
+			image->unlock();
+
+			ReleaseDC(hwnd, dc);
+		}
 	}
 }
 

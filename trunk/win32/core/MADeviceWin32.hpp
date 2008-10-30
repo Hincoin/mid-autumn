@@ -8,6 +8,7 @@
 #include "Vector.hpp"
 #include <string>
 #include <boost/bimap.hpp>
+#include "SpaceSegment.hpp"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -31,8 +32,6 @@ namespace ma
 		typedef typename Configure::Timer Timer;
 		typedef typename Configure::EventProcessor EventProcessor;
 
-		typedef typename Configure::EventType     EventType;
-
 		typedef typename Configure::VideoDriverPtr VideoDriverPtr;
 		typedef typename Configure::FileSystemPtr FileSystemPtr;
 		typedef typename Configure::GUIManagerPtr GUIManagerPtr;
@@ -43,7 +42,6 @@ namespace ma
 		typedef typename Configure::TimerPtr TimerPtr;
 		typedef typename Configure::EventProcessorPtr EventProcessorPtr;
 
-		typedef typename Configure::ImagePtr ImagePtr;
 		typedef typename Configure::DriverType DriverType;
 	public:
 		MADeviceWin32(DriverType driverType,
@@ -67,7 +65,8 @@ namespace ma
 		bool isWindowActive() const;
 
 		//! presents a surface in the client area
-		//void present(ImagePtr surface, int windowId = 0, core::rect<int>* src=0 );
+		template<typename ImagePtr>
+		void present(ImagePtr surface, int windowId, recti* src );
 
 		//! notifies the device that it should close itself
 		void closeDevice();
