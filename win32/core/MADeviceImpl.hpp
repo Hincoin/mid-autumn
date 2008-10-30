@@ -70,7 +70,10 @@ MADevice<Derived,Configure>::~MADevice()
 ////
 //}
 
+
 template<typename Derived,typename Configure>
+
+template<typename EventType>
 void MADevice<Derived, Configure>::postEventFromUser(const EventType& event) 
 {
 	bool absorbed = false;

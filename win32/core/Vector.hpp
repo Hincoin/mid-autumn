@@ -502,7 +502,74 @@ namespace ma{
 		typedef Eigen::Matrix4f matrix44f;
 
 		typedef vector2i scalar2i;
+		
+		namespace scalar2_op{
+			inline int& width( scalar2i& x){return x[0];}
+			inline int& height( scalar2i& x){return x[1];}
+			inline int width(const scalar2i& x){return x[0];}
+			inline int height(const scalar2i& x){return x[1];}
+		}
+		namespace vector_op{
+			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
+			inline T& x(
+				Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
+			{
+				BOOST_STATIC_ASSERT(_Rows == 1 && _Cols >= 1);
+				return v[0];
+			}
+			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
+			inline T& y(
+				Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
+			{
+				BOOST_STATIC_ASSERT(_Rows == 1 && _Cols >= 2);
+				return v[1];
+			}
+			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
+			inline T& z(
+				Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
+			{
+				BOOST_STATIC_ASSERT(_Rows == 1 && _Cols >= 3);
+				return v[2];
+			}
+			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
+			inline T& w(
+				Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
+			{
+				BOOST_STATIC_ASSERT(_Rows == 1 && _Cols >= 4);
+				return v[3];
+			}
 
+			//const
+			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
+			inline const T& x(
+				const Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
+			{
+				BOOST_STATIC_ASSERT(_Rows == 1 && _Cols >= 1);
+				return v[0];
+			}
+			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
+			inline const T& y(
+				const Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
+			{
+				BOOST_STATIC_ASSERT(_Rows == 1 && _Cols >= 2);
+				return v[1];
+			}
+			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
+			inline const T& z(
+				const Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
+			{
+				BOOST_STATIC_ASSERT(_Rows == 1 && _Cols >= 3);
+				return v[2];
+			}
+			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
+			inline const T& w(
+				const Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
+			{
+				BOOST_STATIC_ASSERT(_Rows == 1 && _Cols >= 4);
+				return v[3];
+			}
+
+		}
 		template<typename _Scalar, int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols>
 		inline void swap(Eigen::Matrix<_Scalar,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& lhs,Eigen::Matrix<_Scalar,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& rhs)
 		{

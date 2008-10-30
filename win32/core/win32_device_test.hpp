@@ -64,8 +64,7 @@ inline void device_test_func(){
 	{
 		driver_ptr->beginScene(true,true,win32_device_test_configure::DeviceConfig::VideoDriver::Color());
 	
-		driver_ptr->endScene(0,&recti());
-		driver_ptr->present(device_);
+		driver_ptr->endScene(device_,0,&recti());
 	}
 
 	device_destroyer(device_);

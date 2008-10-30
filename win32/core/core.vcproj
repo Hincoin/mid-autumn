@@ -299,6 +299,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\MAImage.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\MALogger.hpp"
 					>
 				</File>
@@ -355,6 +359,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Image.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Logger.hpp"
 					>
 				</File>
@@ -394,6 +402,10 @@
 			<Filter
 				Name="utility"
 				>
+				<File
+					RelativePath=".\AddPointer.hpp"
+					>
+				</File>
 				<File
 					RelativePath="..\..\inc\core\AssocVector.hpp"
 					>
