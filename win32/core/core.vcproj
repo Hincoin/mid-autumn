@@ -215,6 +215,10 @@
 				RelativePath=".\MADeviceConfigure.hpp"
 				>
 			</File>
+			<File
+				RelativePath=".\TypeDefs.hpp"
+				>
+			</File>
 			<Filter
 				Name="Memory"
 				>
@@ -275,6 +279,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\MAColor.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\MADeviceWin32.hpp"
 					>
 				</File>
@@ -300,6 +308,10 @@
 				</File>
 				<File
 					RelativePath=".\MAImage.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MAImageImpl.hpp"
 					>
 				</File>
 				<File
@@ -420,6 +432,10 @@
 				</File>
 				<File
 					RelativePath="..\..\inc\core\HasMember.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MAMath.hpp"
 					>
 				</File>
 				<File
