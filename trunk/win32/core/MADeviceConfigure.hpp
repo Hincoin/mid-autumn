@@ -22,6 +22,8 @@
 #include "PtrTraits.hpp"
 
 #include "AddPointer.hpp"
+
+#include "MAColor.hpp"
 namespace ma{
 	
 
@@ -41,7 +43,7 @@ namespace ma{
 
 
 	struct default_image_config{
-		typedef vector4i Color;//4 ints
+		typedef Colori Color;//4 ints
 	};
 
 	struct default_video_driver_software_config{

@@ -11,6 +11,10 @@ static const char* ma_version = "0.000000001";
 #define MA_USE_WINDOWS_DEVICE_
 #endif
 
+
+#define MA_FAST_MATH
+
+
 #endif
 
 
