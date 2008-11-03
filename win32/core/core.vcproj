@@ -319,6 +319,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\MANullDriver.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\MAOSOperatorWin32.hpp"
 					>
 				</File>
@@ -484,6 +488,26 @@
 				</File>
 				<File
 					RelativePath=".\Vector.hpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Geometry"
+				>
+				<File
+					RelativePath=".\MAGeometry.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MAIntersect.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MATriangle.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MAVertex.hpp"
 					>
 				</File>
 			</Filter>

@@ -196,6 +196,22 @@ namespace ma{
 		return (int32) round(x);
 #endif
 	}
+
+	inline void clearFPUException ()
+	{
+#ifdef MA_FAST_MATH
+#ifdef feclearexcept
+		feclearexcept(FE_ALL_EXCEPT);
+#elif defined(_MSC_VER)
+		__asm fnclex;
+#elif defined(__GNUC__) && defined(__x86__)
+		__asm__ __volatile__ ("fclex \n\t");
+#else
+#  warn clearFPUException not supported.
+#endif
+#endif
+	}
+
 }
 
 #endif
