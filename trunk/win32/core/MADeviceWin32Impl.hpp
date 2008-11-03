@@ -302,7 +302,8 @@ namespace ma{
 			DWORD style = WS_POPUP;
 
 			if (!fullscreen)
-				style = WS_SYSMENU | WS_BORDER | WS_CAPTION | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+				style = WS_SYSMENU | WS_BORDER | WS_CAPTION | WS_CLIPCHILDREN | WS_CLIPSIBLINGS
+				| WS_MAXIMIZEBOX | WS_MINIMIZEBOX |  WS_OVERLAPPEDWINDOW;
 
 			AdjustWindowRect(&clientSize, style, FALSE);
 

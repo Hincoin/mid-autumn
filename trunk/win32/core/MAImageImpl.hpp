@@ -2,6 +2,9 @@
 #define MA_IMAGE_IMPL_HPP
 
 #include "MAImage.hpp"
+
+#include <cassert>
+
 namespace ma{
 	//! Returns width and height of image data.
 	template<typename Configure>
@@ -17,7 +20,7 @@ namespace ma{
 
 	//! Returns image data size in bytes
 	template<typename Configure>
-	unsigned int MAImage<Configure>::getImageDataSizeInBytes() const {	return Pitch * Size.Height;}
+	unsigned int MAImage<Configure>::getImageDataSizeInBytes() const {	return Pitch * scalar2_op::height(Size);}
 
 	//! Returns image data size in pixels
 	template<typename Configure>
@@ -53,7 +56,7 @@ namespace ma{
 	//! Sets a pixel
 	template<typename Configure>
 	void MAImage<Configure>::setPixel(unsigned int x, unsigned int y, const Color &color ){
-		if (x >= (unsigned int)Size.Width || y >= (unsigned int)Size.Height)
+		if (x >= (unsigned int)scalar2_op::width(Size) || y >= (unsigned int)scalar2_op::height(Size))
 			return;
 
 		switch(Format)
@@ -132,10 +135,10 @@ namespace ma{
 		BytesPerPixel = BitsPerPixel / 8;
 
 		// Pitch should be aligned...
-		Pitch = BytesPerPixel * Size.Width;
+		Pitch = BytesPerPixel * scalar2_op::width(Size);
 
 		if (!Data)
-			Data = new s8[Size.Height * Pitch];
+			Data = new int8[scalar2_op::height(Size) * Pitch];
 	}
 
 	template<typename Configure>
@@ -168,6 +171,33 @@ namespace ma{
 			BlueMask  = 0x000000FF;
 			break;
 		}
+	}
+
+	template<typename Configure>
+	void MAImage<Configure>::fill(const Color &color)
+	{
+		uint32 c;
+
+		switch ( Format )
+		{
+		case ECF_A1R5G5B5:
+			c = color_op::A8R8G8B8toA1R5G5B5 ( color.color );
+			c |= c << 16;
+			break;
+		case ECF_R5G6B5:
+			c = color_op::A8R8G8B8toR5G6B5 ( color.color );
+			c |= c << 16;
+			break;
+		case ECF_A8R8G8B8:
+			c = color.color;
+			break;
+		default:
+			//			os::Printer::log("CImage::Format not supported", ELL_ERROR);
+			assert(false);
+			return;
+		}
+
+		memset32 ( Data, c, getImageDataSizeInBytes () );
 	}
 }
 #endif
