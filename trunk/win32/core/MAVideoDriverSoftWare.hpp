@@ -19,6 +19,8 @@ namespace ma{
 		MAVideoDriverSoftWare(const scalar2i& windowSize,bool fullscreen, FileSystemPtr fs);
 		~MAVideoDriverSoftWare();
 		bool beginScene(bool backBuffer,bool zBuffer,Color clr){
+			clearFPUException();
+
 			if (backBuffer)
 				BackBuffer->fill( clr );
 
@@ -41,8 +43,10 @@ namespace ma{
 		scalar2i RenderTargetSize;
 		scalar2i ScreenSize;
 		recti ViewPort;
+		matrix44f TransformationMatrices[ETS_COUNT];
 
 		FileSystemPtr FileSystem_;
+		
 	};
 }
 
