@@ -16,8 +16,17 @@ namespace ma{
 		typedef typename Configure::FileSystem FileSystem;
 		typedef typename Configure::FileSystemPtr FileSystemPtr;
 	public:
-		MAVideoDriverSoftWare(const scalar2i& windowSize,bool fullscreen, FileSystemPtr fs){}
-		bool beginScene(bool backBuffer,bool zBuffer,Color clr){return false;}
+		MAVideoDriverSoftWare(const scalar2i& windowSize,bool fullscreen, FileSystemPtr fs);
+		~MAVideoDriverSoftWare();
+		bool beginScene(bool backBuffer,bool zBuffer,Color clr){
+			if (backBuffer)
+				BackBuffer->fill( clr );
+
+			//if (DepthBuffer && zBuffer)
+			//	DepthBuffer->clear();
+
+			return true;
+		}
 		template<typename PresenterPtr>
 		bool endScene(PresenterPtr presenter,int windowid,recti* sourceRect)
 		{
@@ -30,10 +39,13 @@ namespace ma{
 		TexturePtr RenderTargetTexture;
 		ImagePtr RenderTargetSurface;
 		scalar2i RenderTargetSize;
+		scalar2i ScreenSize;
+		recti ViewPort;
+
+		FileSystemPtr FileSystem_;
 	};
-
-
-
-
 }
+
+#include "MAVideoDriverSoftWareImpl.hpp"
+
 #endif

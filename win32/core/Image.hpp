@@ -104,6 +104,9 @@ namespace ma{
 		 {
 			return derived().copyToScaling(target);
 		 }
+		 //! fills the surface with black or white
+		 void fill(const Color &color){derived().fill(color);}
+
 
 	};
 }

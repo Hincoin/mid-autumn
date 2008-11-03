@@ -119,6 +119,7 @@ namespace ma{
 
 			return 0;
 		}
+		 void fill(const Color &color);
 	private:
 		void initData();
 		void setBitMasks();

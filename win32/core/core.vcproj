@@ -339,6 +339,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\MAVideoDriverSoftWareImpl.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\MAVideoModesWin32.hpp"
 					>
 				</File>
