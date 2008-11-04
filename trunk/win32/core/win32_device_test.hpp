@@ -44,11 +44,16 @@ namespace ma{
 	};
 }
 
+#include "MAVertex.hpp"
 
+typedef ma::MAVertex<ma::vector2i> vertex2i;
 inline void device_test_func(){
 	//assert(ma::equal(1,1));
 	//assert(ma::equal(1.f,1));
 	//assert(ma::equal(2.000,2));
+
+	vertex2i a;
+	a.x();
 
 	using namespace ma;
 

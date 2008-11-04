@@ -6,7 +6,10 @@
 
 namespace ma{
 	//a very simple  vertex type only have position information
-	template<typename Vector_t,typename Normal_t = EmptyType,typename Color_t  = EmptyType,typename TexCoords_t  = EmptyType>
+	template<typename Vector_t,
+		typename Normal_t = MultiEmptyType<0>,
+		typename Color_t  = MultiEmptyType<1>,
+		typename TexCoords_t  = MultiEmptyType<2> >
 	struct MAVertex:Vector_t,Normal_t,Color_t,TexCoords_t{
 	
 		typedef typename scalar_type<Vector_t>::type position_scalar_type;
@@ -16,19 +19,19 @@ namespace ma{
 		typedef Color_t color_type;
 		typedef TexCoords_t texture_coord_type;
 
-		position_type& position(){static_cast<position_type&>(*this);}	
-		const position_type& position()const{static_cast<const position_type&>(*this);}
+		position_type& position(){return static_cast<position_type&>(*this);}	
+		const position_type& position()const{return static_cast<const position_type&>(*this);}
 		
-		position_type& x(){return vector_op::x(position());}
-		position_type& y(){return vector_op::y(position());}
-		position_type& z(){return vector_op::z(position());}
+		position_scalar_type& x(){return vector_op::x(position());}
+		position_scalar_type& y(){return vector_op::y(position());}
+		position_scalar_type& z(){return vector_op::z(position());}
 
-		const position_type& x()const{return vector_op::x(position());}
-		const position_type& y()const{return vector_op::y(position());}
-		const position_type& z()const{return vector_op::z(position());}
+		const position_scalar_type& x()const{return vector_op::x(position());}
+		const position_scalar_type& y()const{return vector_op::y(position());}
+		const position_scalar_type& z()const{return vector_op::z(position());}
 
-		texture_coord_type& texture_coord(){static_cast<texture_coord_type&>(*this);}
-		const texture_coord_type& texture_coord()const {static_cast<const texture_coord_type&>(*this);}
+		texture_coord_type& texture_coord(){return static_cast<texture_coord_type&>(*this);}
+		const texture_coord_type& texture_coord()const {return static_cast<const texture_coord_type&>(*this);}
 
 		
 		texture_coord_scalar_type& u(){return vector_op::u(texture_coord());}
@@ -40,10 +43,10 @@ namespace ma{
 		const texture_coord_scalar_type& w()const{return vector_op::w(texture_coord());}
 
 		color_type& color(){static_cast<color_type&>(*this);}
-		const color_type& color()const {static_cast<const color_type&>(*this);}
+		const color_type& color()const {return static_cast<const color_type&>(*this);}
 
 		normal_type& normal(){static_cast<normal_type&>(*this);}
-		const normal_type& normal()const{static_cast<const normal_type&>(*this);}
+		const normal_type& normal()const{return static_cast<const normal_type&>(*this);}
 	};
 }
 

@@ -12,6 +12,7 @@
 #ifndef NULLTYPE_HPP
 #define NULLTYPE_HPP
 
+#include <cassert>
 
 		class NullType;
 
@@ -21,5 +22,15 @@
 			~EmptyType(){}
 			EmptyType(const EmptyType&){}
 			EmptyType& operator=(const EmptyType&){}
+		};
+		template<int N>
+		struct MultiEmptyType:EmptyType{
+			enum{index = N};
+
+			//template <typename T>
+			//operator T()const{
+			//	assert(false);
+			//	return *((T*)0);
+			//}
 		};
 #endif
