@@ -4,8 +4,61 @@
 #include "MAConfig.hpp"
 #include <utility>
 #include <cmath>
+#include <limits>
+
+#include <boost/mpl/bool.hpp>
+#include <boost/mpl/if.hpp>
 namespace ma{
 
+	template<typename T1, typename T2>
+	struct select_accurate_type_traits // select bigger type by default
+	{
+		typedef typename boost::mpl::if_c< (sizeof(T1)>sizeof(T2)), 
+			typename boost::mpl::if_c<std::numeric_limits<T1>::is_exact && !std::numeric_limits<T2>::is_exact,T2,T1>::type,
+			typename boost::mpl::if_c<std::numeric_limits<T2>::is_exact && !std::numeric_limits<T1>::is_exact,T1,T2>::type >::type type;
+	};
+
+	// (Partial) specializations
+
+	// Any combination with double will define a double
+	template<typename T> struct select_accurate_type_traits<double, T> { typedef double type; };
+	template<typename T> struct select_accurate_type_traits<T, double> { typedef double type; };
+	// Avoid ambiguity for the double/double case
+	template<> struct select_accurate_type_traits<double, double> { typedef double type; };
+
+	// List other cases
+	template<> struct select_accurate_type_traits<int, float> { typedef float type; };
+	template<> struct select_accurate_type_traits<float, int> {	typedef float type; };
+
+	template<> struct select_accurate_type_traits<unsigned int, float> { typedef float type; };
+	template<> struct select_accurate_type_traits<float, unsigned int> {	typedef float type; };
+
+	//extended ...
+
+
+	namespace details{
+
+		template<typename T1,typename T2>
+		inline bool equal_impl(const T1& x, const T2& y, boost::mpl::bool_<true>* )
+		{
+			return x == y;
+		}
+		template<typename T1,typename T2>
+		inline bool equal_impl(const T1& x, const T2& y, boost::mpl::bool_<false>* )
+		{
+			typedef typename select_accurate_type_traits<T1,T2>::type T;
+#ifdef __GNUC__
+			return fabs(x - y) < std::numeric_limits<T>::epsilon();
+#else
+			return abs(x - y) < std::numeric_limits<T>::epsilon();
+#endif
+		}
+	}
+	template<typename T1,typename T2>
+	inline bool equal(const T1& x, const T2& y)
+	{
+		return details::equal_impl(x,y,(boost::mpl::bool_< (std::numeric_limits<T1>::is_exact && std::numeric_limits<T2>::is_exact) >*) (0));
+	}
 	//! returns linear interpolation of a and b with ratio t
 	//! \return: a if t==0, b if t==1, and the linear interpolation else
 	template<class T>
