@@ -483,6 +483,7 @@
 #endif 
 
 #include "NullType.hpp"
+#include <boost/static_assert.hpp>
 
 namespace ma{
 
@@ -491,6 +492,9 @@ namespace ma{
 	template<typename T> struct scalar_type;
 
 	template<>struct scalar_type<EmptyType>{typedef NullType type;};
+	template<int N> struct scalar_type<MultiEmptyType<N> >{
+		typedef MultiEmptyType<N> type;
+	};
 
 	template<typename T,int Size>
 	struct scalar_type<Eigen::Matrix<T,Size,1> >{
@@ -539,28 +543,28 @@ namespace ma{
 			inline T& x(
 				Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
 			{
-				BOOST_STATIC_ASSERT(_Rows == 1 && _Cols >= 1);
+				BOOST_STATIC_ASSERT(_Cols == 1 &&  _Rows>= 1);
 				return v[0];
 			}
 			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
 			inline T& y(
 				Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
 			{
-				BOOST_STATIC_ASSERT(_Rows == 1 && _Cols >= 2);
+				BOOST_STATIC_ASSERT(_Cols == 1 &&  _Rows>= 2);
 				return v[1];
 			}
 			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
 			inline T& z(
 				Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
 			{
-				BOOST_STATIC_ASSERT(_Rows == 1 && _Cols >= 3);
+				BOOST_STATIC_ASSERT(_Cols== 1 && _Rows  >= 3);
 				return v[2];
 			}
 			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
 			inline T& w(
 				Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
 			{
-				BOOST_STATIC_ASSERT(_Rows == 1 && _Cols >= 4);
+				BOOST_STATIC_ASSERT(_Cols == 1 &&  _Rows>= 4);
 				return v[3];
 			}
 
@@ -569,21 +573,21 @@ namespace ma{
 			inline const T& x(
 				const Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
 			{
-				BOOST_STATIC_ASSERT(_Rows == 1 && _Cols >= 1);
+				BOOST_STATIC_ASSERT(_Cols == 1 && _Rows >= 1);
 				return v[0];
 			}
 			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
 			inline const T& y(
 				const Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
 			{
-				BOOST_STATIC_ASSERT(_Rows == 1 && _Cols >= 2);
+				BOOST_STATIC_ASSERT(_Cols == 1 && _Rows >= 2);
 				return v[1];
 			}
 			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
 			inline const T& z(
 				const Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
 			{
-				BOOST_STATIC_ASSERT(_Rows == 1 && _Cols >= 3);
+				BOOST_STATIC_ASSERT(_Cols == 1 && _Rows >= 3);
 				return v[2];
 			}
 
@@ -594,7 +598,7 @@ namespace ma{
 			inline const T& w(
 				const Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& x)
 			{
-				BOOST_STATIC_ASSERT(_Rows == 1 && _Cols >= 4);
+				BOOST_STATIC_ASSERT(_Cols == 1 && _Rows >= 4);
 				return x[3];
 			}
 
