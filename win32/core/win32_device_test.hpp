@@ -44,8 +44,8 @@ namespace ma{
 	};
 }
 
-inline void device_test_func(){
 
+inline void device_test_func(){
 	//assert(ma::equal(1,1));
 	//assert(ma::equal(1.f,1));
 	//assert(ma::equal(2.000,2));
