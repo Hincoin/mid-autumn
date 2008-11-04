@@ -482,20 +482,17 @@
 #pragma   warning(pop) 
 #endif 
 
-namespace ma{
-	//meta-function to get the scalar type of a vector
-	template<typename T>
-	struct scalar_type;
 
-	template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
-	struct scalar_type<Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols> >
-	{
+
+namespace ma{
+
+	
+	//meta-function to get the scalar type of a vector
+	template<typename T> struct scalar_type;
+
+	template<typename T,int Size>
+	struct scalar_type<Eigen::Matrix<T,Size,1> >{
 		typedef T type;
-	};
-	template<typename _Scalar,int _Rows,int _Cols> 
-	struct scalar_type<Eigen::Matrix<_Scalar,_Rows,_Cols> >
-	{
-		typedef typename Eigen::Matrix<_Scalar,_Rows,_Cols>::Scalar type;
 	};
 		//using eigen lib's vectors
 
@@ -526,12 +523,15 @@ namespace ma{
 			inline typename scalar_type<Scalar2_t>::type& height(Scalar2_t& x){return x[1];}
 
 			template <typename Scalar2_t>
-			inline typename scalar_type<Scalar2_t>::type width(const Scalar2_t& x){return x[0];}
+			inline const typename scalar_type<Scalar2_t>::type& width(const Scalar2_t& x){return x[0];}
 
 			template <typename Scalar2_t>
-			inline typename scalar_type<Scalar2_t>::type height(const Scalar2_t& x){return x[1];}
+			inline const typename scalar_type<Scalar2_t>::type& height(const Scalar2_t& x){return x[1];}
 		}
 		namespace vector_op{
+
+			using namespace Eigen;
+
 
 			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
 			inline T& x(
@@ -591,7 +591,9 @@ namespace ma{
 				BOOST_STATIC_ASSERT(_Rows == 1 && _Cols >= 4);
 				return v[3];
 			}
-
+		}
+		namespace matrix_op{
+			using namespace Eigen;
 		}
 		template<typename _Scalar, int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols>
 		inline void swap(Eigen::Matrix<_Scalar,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& lhs,Eigen::Matrix<_Scalar,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& rhs)

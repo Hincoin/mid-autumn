@@ -37,7 +37,6 @@ namespace ma{
 
 
 	namespace details{
-
 		template<typename T1,typename T2>
 		inline bool equal_impl(const T1& x, const T2& y, boost::mpl::bool_<true>* )
 		{
