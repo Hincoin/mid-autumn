@@ -9,7 +9,7 @@
 #include "CreateDevice.hpp"
 #include "PtrTraits.hpp"
 
-
+#include "MAMath.hpp"
 
 struct win32_device_test_configure{
 	//MADeviceWin32(DriverType driverType,
@@ -45,6 +45,11 @@ namespace ma{
 }
 
 inline void device_test_func(){
+
+	//assert(ma::equal(1,1));
+	//assert(ma::equal(1.f,1));
+	//assert(ma::equal(2.000,2));
+
 	using namespace ma;
 
 	CreateDevice<win32_device_test_configure> device_creator;
@@ -69,6 +74,7 @@ inline void device_test_func(){
 
 	device_destroyer(device_);
 	
+
 }
 
 
