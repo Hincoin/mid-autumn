@@ -482,13 +482,15 @@
 #pragma   warning(pop) 
 #endif 
 
-
+#include "NullType.hpp"
 
 namespace ma{
 
 	
 	//meta-function to get the scalar type of a vector
 	template<typename T> struct scalar_type;
+
+	template<>struct scalar_type<EmptyType>{typedef NullType type;};
 
 	template<typename T,int Size>
 	struct scalar_type<Eigen::Matrix<T,Size,1> >{
@@ -523,10 +525,10 @@ namespace ma{
 			inline typename scalar_type<Scalar2_t>::type& height(Scalar2_t& x){return x[1];}
 
 			template <typename Scalar2_t>
-			inline const typename scalar_type<Scalar2_t>::type& width(const Scalar2_t& x){return x[0];}
+			inline const typename scalar_type<Scalar2_t>::type width(const Scalar2_t& x){return x[0];}
 
 			template <typename Scalar2_t>
-			inline const typename scalar_type<Scalar2_t>::type& height(const Scalar2_t& x){return x[1];}
+			inline const typename scalar_type<Scalar2_t>::type height(const Scalar2_t& x){return x[1];}
 		}
 		namespace vector_op{
 
@@ -584,13 +586,27 @@ namespace ma{
 				BOOST_STATIC_ASSERT(_Rows == 1 && _Cols >= 3);
 				return v[2];
 			}
+
+
+
+
 			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
 			inline const T& w(
-				const Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
+				const Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& x)
 			{
 				BOOST_STATIC_ASSERT(_Rows == 1 && _Cols >= 4);
-				return v[3];
+				return x[3];
 			}
+
+			template<typename Vector_t>
+			inline typename scalar_type<Vector_t>::type& u(Vector_t& v){return v[0];}
+			template<typename Vector_t>
+			inline const typename scalar_type<Vector_t>::type& u(const Vector_t& v){return v[0];}
+
+			template<typename Vector_t>
+			inline typename scalar_type<Vector_t>::type& v(Vector_t& x){return x[1];}
+			template<typename Vector_t>
+			inline const typename scalar_type<Vector_t>::type& v(const Vector_t& x){return x[1];}
 		}
 		namespace matrix_op{
 			using namespace Eigen;
