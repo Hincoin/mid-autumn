@@ -56,7 +56,7 @@ namespace ma{
 	template<typename T1,typename T2>
 	inline bool equal(const T1& x, const T2& y)
 	{
-		return details::equal_impl(x,y,(boost::mpl::bool_< (std::numeric_limits<T1>::is_exact && std::numeric_limits<T2>::is_exact) >*) (0));
+		return details::equal_impl(x,y,(boost::mpl::bool_< boost::is_class<T1>::value || boost::is_class<T2>::value || (std::numeric_limits<T1>::is_exact && std::numeric_limits<T2>::is_exact) >*) (0));
 	}
 	//! returns linear interpolation of a and b with ratio t
 	//! \return: a if t==0, b if t==1, and the linear interpolation else

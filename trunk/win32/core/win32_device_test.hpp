@@ -48,9 +48,13 @@ namespace ma{
 
 typedef ma::MAVertex<ma::vector2i> vertex2i;
 inline void device_test_func(){
-	//assert(ma::equal(1,1));
-	//assert(ma::equal(1.f,1));
-	//assert(ma::equal(2.000,2));
+	struct tmp_t{
+		bool operator == (const tmp_t&) const{return false;}
+	};
+	assert(ma::equal(1,1));
+	assert(ma::equal(1.f,1));
+	assert(ma::equal(2.000,2));
+	assert(ma::equal(tmp_t(),tmp_t()));
 
 	vertex2i a;
 	a.x();
