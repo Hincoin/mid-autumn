@@ -66,5 +66,5 @@ public Dead<N-1,1>
 
 int main()
 {
-	Dead<29,0> a;
+	Dead<1,0> a;
 }

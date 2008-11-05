@@ -8,6 +8,17 @@
 
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/if.hpp>
+
+#include "TypeDefs.hpp"
+
+#ifdef max
+#undef max
+#endif // max
+
+#ifdef min
+#undef min
+#endif // min
+
 namespace ma{
 
 	template<typename T1, typename T2>

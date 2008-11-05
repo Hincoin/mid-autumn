@@ -490,15 +490,28 @@ namespace ma{
 	
 	//meta-function to get the scalar type of a vector
 	template<typename T> struct scalar_type;
+	template<typename T> struct dimensions;
 
 	template<>struct scalar_type<EmptyType>{typedef NullType type;};
 	template<int N> struct scalar_type<MultiEmptyType<N> >{
 		typedef MultiEmptyType<N> type;
 	};
 
-	template<typename T,int Size>
-	struct scalar_type<Eigen::Matrix<T,Size,1> >{
+	template<> struct dimensions<EmptyType>{enum{value = 0};};
+
+	template<int N> struct dimensions<MultiEmptyType<N> >{
+		enum{value = 0};
+	};
+
+
+	template<typename T,int Size,int Cols>
+	struct scalar_type<Eigen::Matrix<T,Size,Cols> >{
 		typedef T type;
+	};
+	template<typename T,int Size ,int Cols>
+	struct dimensions< Eigen::Matrix<T,Size,Cols>  >
+	{
+		enum{value = Size};
 	};
 		//using eigen lib's vectors
 
@@ -619,6 +632,24 @@ namespace ma{
 		inline void swap(Eigen::Matrix<_Scalar,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& lhs,Eigen::Matrix<_Scalar,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& rhs)
 		{
 			lhs.swap(rhs);
+		}
+
+		namespace ma_traits{
+			template<typename Vector_Type>
+			struct vector_traits{
+				typedef typename ma::scalar_type<Vector_Type>::type scalar_type;
+				static const int dimension = ma::dimensions<Vector_Type>::value;
+			};
+			template<typename Matrix_Type>
+			struct matrix_traits;
+
+			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
+			struct matrix_traits<Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols> >{
+				typedef T scalar_type;
+				static const int row = _Rows;
+				static const int column = _Cols;
+			};
+
 		}
 }
 #endif
