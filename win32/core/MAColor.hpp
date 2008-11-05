@@ -4,6 +4,15 @@
 #include "TypeDefs.hpp"
 
 #include "MAMath.hpp"
+
+#ifdef max
+#undef max
+#endif // max
+
+#ifdef min
+#undef min
+#endif // min
+
 namespace ma{
 	namespace color_op{
 		//! Creates a 16 bit A1R5G5B5 color
@@ -284,6 +293,7 @@ namespace ma{
 		\return Addition of the two colors, clamped to 0..255 values */
 		Colori operator+(const Colori& other) const
 		{
+
 			return Colori(std::min(getAlpha() + other.getAlpha(), 255u),
 				std::min(getRed() + other.getRed(), 255u),
 				std::min(getGreen() + other.getGreen(), 255u),

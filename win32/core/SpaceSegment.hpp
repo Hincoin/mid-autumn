@@ -17,6 +17,8 @@
 #include "Move.hpp"
 #include <boost/operators.hpp>
 
+#include "MAMath.hpp"
+
 namespace ma{
 	//this class define an "segment" in space (1d,2d,3d)
 	template<typename T,class EqualCompare> struct SpaceSegment;
@@ -29,7 +31,7 @@ namespace ma{
 		{
 			bool operator()(const T& lhs,const T& rhs)const
 			{
-				return lhs == rhs;
+				return equal(lhs,rhs);
 			}
 		};
 	}
@@ -47,9 +49,8 @@ namespace ma{
 		SpaceSegment(parameter_type min_value,parameter_type max_value):smin(min_value),smax(max_value){}
 		SpaceSegment(const SpaceSegment& other):smin(other.smin),smax(other.smax)
 		{}
-		friend bool operator ==(const SpaceSegment<T,equality>& lhs,const SpaceSegment<T,equality>& rhs){
-			equality equal_fun;
-			return equal_fun(lhs.smin,rhs.smin) && equal_fun(lhs.smax,rhs.smax);//lhs.smin == rhs.smin && lhs.smax == rhs.smax;
+		bool operator ==(const SpaceSegment<T,equality>& rhs)const{
+			return equality()(smin,rhs.smin) && equal_fun(smax,rhs.smax);//lhs.smin == rhs.smin && lhs.smax == rhs.smax;
 		}
 
 		//model concept movable

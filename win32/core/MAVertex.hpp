@@ -13,7 +13,11 @@ namespace ma{
 	struct MAVertex:Vector_t,Normal_t,Color_t,TexCoords_t{
 	
 		typedef typename scalar_type<Vector_t>::type position_scalar_type;
+		static const int position_dimension = dimensions<Vector_t>::value;
+
 		typedef typename scalar_type<TexCoords_t>::type texture_coord_scalar_type;
+		static const int texture_coord_dimension = dimensions<texture_coord_scalar_type>::value;
+
 		typedef Vector_t position_type;
 		typedef Normal_t normal_type;
 		typedef Color_t color_type;
@@ -48,6 +52,18 @@ namespace ma{
 		normal_type& normal(){static_cast<normal_type&>(*this);}
 		const normal_type& normal()const{return static_cast<const normal_type&>(*this);}
 	};
+
+	template<typename Vector_t,
+		typename Normal_t,
+		typename Color_t ,
+		typename TexCoords_t  >
+	struct dimensions<MAVertex<Vector_t,Normal_t,Color_t,TexCoords_t> >{
+		enum{value = dimensions<Vector_t>::value };
+	};
+	namespace ma_traits{
+		template<typename Vertex_Type>
+		struct vertex_traits;
+	}
 }
 
 #endif
