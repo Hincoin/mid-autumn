@@ -503,6 +503,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\MAMesh.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\MAPoly.hpp"
 					>
 				</File>
