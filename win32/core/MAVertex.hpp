@@ -63,6 +63,13 @@ namespace ma{
 	namespace ma_traits{
 		template<typename Vertex_Type>
 		struct vertex_traits;
+
+		template<typename Vector_t,
+			typename Normal_t,
+			typename Color_t,
+			typename TexCoords_t >
+		struct vertex_traits<MAVertex< Vector_t,Normal_t, Color_t, TexCoords_t > >
+		{};
 	}
 }
 
