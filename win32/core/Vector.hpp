@@ -518,6 +518,9 @@ namespace ma{
 		typedef Eigen::Vector2i vector2i;
 		typedef Eigen::Vector3i vector3i;
 		typedef Eigen::Vector4i vector4i;
+		typedef Eigen::Matrix<std::size_t,2,1> vector2si;
+		typedef Eigen::Matrix<std::size_t,3,1> vector3si;
+		typedef Eigen::Matrix<std::size_t,4,1> vector4si;
 		
 		typedef Eigen::Vector2f vector2f;
 		typedef Eigen::Vector3f vector3f;

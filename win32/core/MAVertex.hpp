@@ -10,7 +10,16 @@ namespace ma{
 		typename Normal_t = MultiEmptyType<0>,
 		typename Color_t  = MultiEmptyType<1>,
 		typename TexCoords_t  = MultiEmptyType<2> >
-	struct MAVertex:Vector_t,Normal_t,Color_t,TexCoords_t{
+	struct MAVertex:
+		MultiParentType<Vector_t,0>,
+		MultiParentType<Normal_t,1>,
+		MultiParentType<Color_t,2>,
+		MultiParentType<TexCoords_t,3>{
+
+		typedef	MultiParentType<Vector_t,0> position_base;
+		typedef		MultiParentType<Normal_t,1> normal_base;
+		typedef		MultiParentType<Color_t,2> color_base;
+		typedef		MultiParentType<TexCoords_t,3> texture_coord_base;
 	
 		typedef typename scalar_type<Vector_t>::type position_scalar_type;
 		static const int position_dimension = dimensions<Vector_t>::value;
@@ -22,9 +31,12 @@ namespace ma{
 		typedef Normal_t normal_type;
 		typedef Color_t color_type;
 		typedef TexCoords_t texture_coord_type;
+	public:
+		MAVertex(const position_type& p):position_base(p){}
+		MAVertex(position_scalar_type p0,position_scalar_type p1,position_scalar_type p2):position_base(position_base::base_type(p0,p1,p2)){}
 
-		position_type& position(){return static_cast<position_type&>(*this);}	
-		const position_type& position()const{return static_cast<const position_type&>(*this);}
+		position_type& position(){return static_cast<position_type&>((*this).position_base::toParent());}	
+		const position_type& position()const{return static_cast<const position_type&>((*this).position_base::toParent());}
 		
 		position_scalar_type& x(){return vector_op::x(position());}
 		position_scalar_type& y(){return vector_op::y(position());}
@@ -34,8 +46,8 @@ namespace ma{
 		const position_scalar_type& y()const{return vector_op::y(position());}
 		const position_scalar_type& z()const{return vector_op::z(position());}
 
-		texture_coord_type& texture_coord(){return static_cast<texture_coord_type&>(*this);}
-		const texture_coord_type& texture_coord()const {return static_cast<const texture_coord_type&>(*this);}
+		texture_coord_type& texture_coord(){return static_cast<texture_coord_type&>((*this).texture_coord_base::toParent());}
+		const texture_coord_type& texture_coord()const {return static_cast<const texture_coord_type&>((*this).texture_coord_base::toParent());}
 
 		
 		texture_coord_scalar_type& u(){return vector_op::u(texture_coord());}
@@ -46,11 +58,11 @@ namespace ma{
 		const texture_coord_scalar_type& v()const{return vector_op::v(texture_coord());}
 		const texture_coord_scalar_type& w()const{return vector_op::w(texture_coord());}
 
-		color_type& color(){static_cast<color_type&>(*this);}
-		const color_type& color()const {return static_cast<const color_type&>(*this);}
+		color_type& color(){static_cast<color_type&>((*this).color_base::toParent());}
+		const color_type& color()const {return static_cast<const color_type&>((*this).color_base::toParent());}
 
-		normal_type& normal(){static_cast<normal_type&>(*this);}
-		const normal_type& normal()const{return static_cast<const normal_type&>(*this);}
+		normal_type& normal(){static_cast<normal_type&>((*this).normal_base::toParent());}
+		const normal_type& normal()const{return static_cast<const normal_type&>((*this).normal_base::toParent());}
 	};
 
 	template<typename Vector_t,

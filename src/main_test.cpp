@@ -2,9 +2,6 @@
 
 //#define __SSE2__
 #include "Vector.hpp"
-#include "MADeviceWin32.hpp"
-
-
 //
 //
 //#include "MADevice.hpp"
@@ -13,11 +10,13 @@
 //#define MEMPOOL_TEST
 //#define VECTOR_TEST
 //#define MOVABLE_TEST
-#define DEVICE_TEST
+
+//#define DEVICE_TEST
+
 //#define CONVERSTION_TEST
 //#define M_ANY_TEST
 //#define MA_CRTP_MACRO_TEST
-
+#define MA_MESH_TEST
 
 #ifdef MEMPOOL_TEST
 #include "Timer.hpp"
@@ -38,6 +37,7 @@
 
 #ifdef DEVICE_TEST
 #ifdef WIN32
+#include "MADeviceWin32.hpp"
 #include "win32_device_test.hpp"
 #else
 //...
@@ -57,6 +57,11 @@
 #ifdef MA_CRTP_MACRO_TEST
 #include "crtp_interface_macro_test.hpp"
 #endif
+
+#ifdef MA_MESH_TEST
+#include "Mesh_Test.hpp"
+#endif
+
 int main()
 {
 #ifdef MEMPOOL_TEST
@@ -117,5 +122,9 @@ int main()
 #ifdef DEVICE_TEST
 	device_test_func();
 #endif // DEVICE_TEST
+
+#ifdef MA_MESH_TEST
+	mesh_test();
+#endif
 	return 0;
 }

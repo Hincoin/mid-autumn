@@ -542,6 +542,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Mesh_Test.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\move_test.hpp"
 				>
 			</File>
