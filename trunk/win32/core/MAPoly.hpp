@@ -140,15 +140,15 @@ private:
 	vertex_type verts[N];
 };
 
-template<typename Vertex_t,unsigned int N  ,MA_POLYGON_DIR dir>
-struct dimensions<MAPolygonFixedSize<Vertex_t,N,dir> >{enum{value = N};};
+template<typename Vertex_t,typename Normal_T,unsigned int N  ,MA_POLYGON_DIR dir>
+struct dimensions<MAPolygonFixedSize<Vertex_t,Normal_T,N,dir> >{enum{value = N};};
 
 namespace ma_traits{
 	template<typename Polygon_Type>
 	struct polygon_traits;
 
-	template<typename Vertex_t,unsigned int N ,MA_POLYGON_DIR dir>
-	struct polygon_traits<MAPolygonFixedSize<Vertex_t,N,dir> >{
+	template<typename Vertex_t,typename Normal_T,unsigned int N ,MA_POLYGON_DIR dir>
+	struct polygon_traits<MAPolygonFixedSize<Vertex_t,Normal_T,N,dir> >{
 
 		typedef Vertex_t vertex_type;
 		static const int polygon_dimension = dimensions<vertex_type>::value;

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <list>
+#include <cassert>
 
 #include "Vector.hpp"
 
@@ -11,6 +12,7 @@
 
 #include <boost/array.hpp>
 #include <boost/mpl/if.hpp>
+#include <boost/noncopyable.hpp>
 
 #include "Move.hpp"
 //#include <boost/enable_i>
@@ -55,22 +57,93 @@ namespace ma{
 
 	//editable mesh can borrow some concept from blender's bmesh or cgal's algorithm
 
+	//this mesh type can be animated, rendered but the vertex number cannot changed
+
+	//a mesh interface
+	template<typename Derived>
+	class MeshI{
+		Derived& derived(){return static_cast<Derived&>(*this);}
+		const Derived& derived()const{return static_cast<const Derived&>(*this);}
+	public:
+		//make a clone of self
+		Derived* clone()const{derived().clone();} 
+	};
+	//render part refer to scene::IMeshBuffer
+	//animation part refer to CSkinnedMesh
 	template<typename VertexType,typename FacesByIndex,typename MaterialType>
-	struct MARenderMeshFixed{
+	struct MARenderMeshFixed:MeshI<MARenderMeshFixed<VertexType,FacesByIndex,MaterialType> >{
 		//tri-mesh or quad-mesh for storage efficiency
 		typedef VertexType vertex_type;
 		typedef MaterialType material_type;
 		enum{vertex_per_face = FacesByIndex::vertex_count};
-		typedef std::size_t index_type;
-	private:	
-		std::vector<VertexType> verts;
-		std::vector<FacesByIndex> faces; // N vertices construct a face
-		MaterialType material;
+		typedef typename FacesByIndex::index_type index_type;
+
+		struct SubMesh:MeshI<SubMesh>,boost::noncopyable{
+		private:
+			std::vector<ma::vector3i> faces_indices_;// faces_indices in parent mesh
+			index_type material_index_;
+			//the topology is shared from parent mesh which can be accessed by faces_indices_
+
+			template<typename VertexType,typename FacesByIndex,typename MaterialType>
+			friend struct MARenderMeshFixed;
+
+			SubMesh(){}
+			//cannot be copied and only can be constructed from parent mesh
+			SubMesh(
+				const std::vector<ma::vector3i>& faces_indices,
+				index_type mat_idx
+				):faces_indices_(faces_indices),material_index_(mat_idx){
+			}
+		public:
+			SubMesh* clone()const{assert(false);}
+			//access methods ...
+		};
+	private:
+		std::vector<VertexType> verts_;
+
+		// vertex_per_face vertices construct a face and it contains some structure as face normal
+		std::vector<FacesByIndex> faces_; 
+		std::vector<MaterialType> materials_;
+
+		std::vector<SubMesh> sub_meshes_;
+
 		//the topology: adjacent list of faces
-		std::vector<boost::array<index_type,vertex_per_face> > topology;
+		typedef boost::array<index_type,vertex_per_face + 1> EdgeArray; //vertex_per_face == 3 can make this array aligned
+		typedef std::vector<EdgeArray> TopologyMap;//map face index to its edges
+		TopologyMap topology_; //fairly simple topology
 
 		void buildTopology(const std::vector<VertexType>& v,const std::vector<FacesByIndex>& f){
-			//
+			topology_.resize(f.size());//allocate space
+			std::memset(&topology_[0],-1,sizeof(EdgeArray)*topology_.size());
+			index_type l_idx,r_idx;
+			for (std::size_t i = 0;i < f.size(); ++i)
+			{
+				if (topology_[i][vertex_per_face] != vertex_per_face + index_type(-1) )
+				{
+					for (std::size_t j = 0;j < i; ++j)
+					{
+						if(f[i].isAdjacent(f[j],l_idx,r_idx))
+						{
+							topology_[i][l_idx] = j;
+							topology_[j][r_idx] = i;
+							++topology_[i][vertex_per_face];
+							++topology_[j][vertex_per_face];
+						}
+					}
+					//skip i == j
+					for (std::size_t j = i+1;j < f.size(); ++j)
+					{
+						if(f[i].isAdjacent(f[j],l_idx,r_idx))
+						{
+							topology_[i][l_idx] = j;
+							topology_[j][r_idx] = i;
+							++topology_[i][vertex_per_face];
+							++topology_[j][vertex_per_face];
+						}
+					}
+				}
+
+			}
 		}//building
 	public:
 
@@ -79,23 +152,32 @@ namespace ma{
 		MARenderMeshFixed(
 			const std::vector<VertexType>& verts,
 			const std::vector<FacesByIndex>& faces,
-			const material_type& mat
-			):verts(verts),faces(faces),material(mat)
-		{}
+			const std::vector<MaterialType>& mat
+			):verts_(verts),faces_(faces),materials_(mat)
+		{buildTopology(verts_,faces_);}
 
 		//move from
-		MARenderMeshFixed& operator = (ma::move_from<MARenderMeshFixed> other){}
+		MARenderMeshFixed& operator = (ma::move_from<MARenderMeshFixed> other){
+			//...
+		}
 		//
-		void swap(MARenderMeshFixed& other){}
+		void swap(MARenderMeshFixed& other){
+			//...
+		}
 
 		//functions
-		void setVertexArray(const std::vector<VertexType>& v){verts=v;}
-		void setVertexArray(ma::move_from<std::vector<VertexType> > v){verts.swap(v);}
-		void setFaceIndexArray(const std::vector<FacesByIndex>& f){faces = f;}
-		void setFaceIndexArray(ma::move_from<std::vector<FacesByIndex> > f){faces.swap(f);}
+		void setVertexArray(const std::vector<VertexType>& v){verts_=v; }
+		void setVertexArray(ma::move_from<std::vector<VertexType> > v){verts_.swap(v);}
+		void setFaceIndexArray(const std::vector<FacesByIndex>& f){faces_ = f;}
+		void setFaceIndexArray(ma::move_from<std::vector<FacesByIndex> > f){faces_.swap(f);}
 		
-		void setMaterial(const material_type& mat){material = mat}
+		void setMaterial(const std::vector<MaterialType>& mat){materials_ = mat}
+		
+		void rebuildTopology(){buildTopology(verts_,faces_);}
 
+		MARenderMeshFixed* clone()const{
+			//...
+		}
 	private:
 	};
 
@@ -109,19 +191,95 @@ namespace ma{
 
 	template<typename Face_Property = FaceProperty<vector3f> > //default to be a normal
 	class TriFaceByIndex{
-		vector3i indices_;
+		vector3si indices_;
 		Face_Property property_;//face property such as normal
+
+		struct compare_other{
+			typedef scalar_type<vector3si>::type index_type;
+			static bool check(const vector3i& indices_,const TriFaceByIndex& other,index_type current_i,index_type current_j,
+				index_type& l,index_type& r){
+				static const int mod[]={0,1,2,0,1};
+					if (indices_[mod[current_i+1]] == other.indices_[mod[current_j+1]])
+					{
+						l = current_i;
+						r = current_j;
+						return true;
+					}
+					else if (indices_[mod[current_i+1]] == other.indices_[mod[current_j+ 2]])
+					{
+						l = current_i;
+						r = mod[current_j+2];
+						return true;
+					}
+					else if (indices_[mod[current_i+2]] == other.indices_[mod[current_j+2]])
+					{
+						l = mod[current_i+2];
+						r = mod[current_j+2];
+						return true;
+					}
+					else if (indices_[mod[current_i+2]] == other.indices_[mod[current_j+1]])
+					{
+						l = mod[current_i+2];
+						r = mod[current_j+1];
+						return true;
+					}
+					return false;
+			}
+		};
 	public:
+		typedef scalar_type<vector3si>::type index_type;
 		typedef Face_Property face_property;
 		enum{vertex_count = 3};
 	public:
+		TriFaceByIndex(index_type v0,index_type v1,index_type v2):indices_(v0,v1,v2){}
 		Face_Property& property(){return property_;}
 		const Face_Property& property()const {return property_;}
 
 		vector3i& index(){return indices_;}
 		const vector3i& index()const{return indices_;}
+
+		bool isAdjacent(const TriFaceByIndex& other,index_type& l_idx,index_type& r_idx)const
+		{
+			assert(!isSameVertices(other));
+			//holy shit comes ------loop unrolled
+
+			
+			
+			for (int i = 0;i < 3; i++)
+			{
+				if (indices_[i] == other.indices_[0] && compare_other::check(indices_,other,i,0,l_idx,r_idx))
+				{
+					return true;
+				}
+				else if (indices_[i] == other.indices_[1] && compare_other::check(indices_,other,i,1,l_idx,r_idx))
+				{
+					return true;
+				}
+				else if (indices_[i] == other.indices_[2] && compare_other::check(indices_,other,i,2,l_idx,r_idx))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		bool isSameVertices(const TriFaceByIndex& other)const{
+			return 
+				(indices_[0] == other.indices_[0] && 
+				((indices_[1] == other.indices_[1] && indices_[2] == other.indices_[2])||(indices_[1] == other.indices_[2] && indices_[2] == other.indices_[1]) ))
+				
+				|| (indices_[0] == other.indices_[1] && 
+				((indices_[1] == other.indices_[2] && indices_[2] == other.indices_[0])|| (indices_[1] == other.indices_[0] && indices_[2] == other.indices_[2])) )
+				
+				|| (indices_[0] == other.indices_[2] &&
+				((indices_[1] == other.indices_[0] && indices_[2] == other.indices_[1])|| (indices_[1] == other.indices_[1] && indices_[2] == other.indices_[0]) ));
+		}
 	};
 
+	//typedef MARenderMeshFixed<MAVertex>
+	namespace mesh_op{
+		//refer to CMeshManipulator
+	}
 }
 
 #endif

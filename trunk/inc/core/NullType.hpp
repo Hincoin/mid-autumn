@@ -21,7 +21,7 @@
 			EmptyType(){}
 			~EmptyType(){}
 			EmptyType(const EmptyType&){}
-			EmptyType& operator=(const EmptyType&){}
+			EmptyType& operator=(const EmptyType&){return *this;}
 		};
 		template<int N>
 		struct MultiEmptyType:EmptyType{
@@ -32,5 +32,17 @@
 			//	assert(false);
 			//	return *((T*)0);
 			//}
+		};
+
+		template<typename T,int N>
+		struct MultiParentType:T{
+		protected:
+			typedef T base_type;
+
+			MultiParentType(){}
+			MultiParentType(const base_type& base):base_type(base){}
+			enum{index = N};
+			T& toParent(){return static_cast<T&>(*this);}
+			const T& toParent()const{return static_cast<const T&>(*this);}
 		};
 #endif
