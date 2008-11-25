@@ -1,7 +1,9 @@
 // $Id:   $
 
 //#define __SSE2__
-#include "Vector.hpp"
+//#include "Vector.hpp"
+
+
 //
 //
 //#include "MADevice.hpp"
@@ -10,13 +12,14 @@
 //#define MEMPOOL_TEST
 //#define VECTOR_TEST
 //#define MOVABLE_TEST
+//#define  DUFFS_DEVICE_TEST
 
-//#define DEVICE_TEST
+#define DEVICE_TEST
 
 //#define CONVERSTION_TEST
 //#define M_ANY_TEST
 //#define MA_CRTP_MACRO_TEST
-#define MA_MESH_TEST
+//#define MA_MESH_TEST
 
 #ifdef MEMPOOL_TEST
 #include "Timer.hpp"
@@ -62,8 +65,14 @@
 #include "Mesh_Test.hpp"
 #endif
 
+#ifdef DUFFS_DEVICE_TEST
+#include "duffs_device_test.hpp"
+#endif
+
+namespace ma_test{}
 int main()
 {
+    using namespace ma_test;
 #ifdef MEMPOOL_TEST
 	const static unsigned int MAX_MEM = 0x7fffffff;
 	unsigned int MAX_ARRAY_SIZE = 128;
@@ -105,7 +114,7 @@ int main()
 #endif
 #ifdef DEVICE_TEST
 	//test device
-#endif	
+#endif
 
 #ifdef CONVERSTION_TEST
 	promote_test();
@@ -125,6 +134,10 @@ int main()
 
 #ifdef MA_MESH_TEST
 	mesh_test();
+#endif
+
+#ifdef DUFFS_DEVICE_TEST
+duffs_device_test();
 #endif
 	return 0;
 }

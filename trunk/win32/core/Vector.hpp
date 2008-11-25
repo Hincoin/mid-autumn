@@ -1,11 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2008 by luozhiyuan (luozhiyuan@gmail.com)
-// Permission to use, copy, modify, distribute and sell this software for any 
-//     purpose is hereby granted without fee, provided that the above copyright 
-//     notice appear in all copies and that both that copyright notice and this 
+// Permission to use, copy, modify, distribute and sell this software for any
+//     purpose is hereby granted without fee, provided that the above copyright
+//     notice appear in all copies and that both that copyright notice and this
 //     permission notice appear in supporting documentation.
-// The author makes no representations about the 
-//     suitability of this software for any purpose. It is provided "as is" 
+// The author makes no representations about the
+//     suitability of this software for any purpose. It is provided "as is"
 //     without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -63,7 +63,7 @@
 //			{
 //				typedef null_type type;
 //			};
-//			static const bool is_add_param = boost::is_arithmetic<T>::value || 
+//			static const bool is_add_param = boost::is_arithmetic<T>::value ||
 //				boost::is_pointer<T>::value;
 //			typedef typename boost::mpl::if_c<is_add_param, typename AddParameterType<T>::type,T>::type type;
 //		};
@@ -300,7 +300,7 @@
 //			operator *(typename Vector<T,Storage>::parameter_type s,const Vector<T,Storage>& v)
 //		{
 //			typedef Vector<T,Storage> vector_type;
-//			typedef typename 
+//			typedef typename
 //				boost::mpl::if_c<
 //				(vector_type::size > 1 && vector_type::size < 5),
 //				boost::mpl::int_<vector_type::size>,
@@ -320,7 +320,7 @@
 //			operator+(const Vector<T,Storage>& lhs,const Vector<T,Storage>& rhs)
 //		{
 //			typedef Vector<T,Storage> vector_type;
-//			typedef typename 
+//			typedef typename
 //				boost::mpl::if_c<
 //				(vector_type::size > 1 && vector_type::size < 5),
 //				boost::mpl::int_<vector_type::size>,
@@ -334,7 +334,7 @@
 //			operator-(const Vector<T,Storage>& lhs,const Vector<T,Storage>& rhs)
 //		{
 //			typedef Vector<T,Storage> vector_type;
-//			typedef typename 
+//			typedef typename
 //				boost::mpl::if_c<
 //				(vector_type::size > 1 && vector_type::size < 5),
 //				boost::mpl::int_<vector_type::size>,
@@ -348,7 +348,7 @@
 //			operator/(const Vector<T,Storage>& lhs,typename Vector<T,Storage>::parameter_type s)
 //		{
 //			typedef Vector<T,Storage> vector_type;
-//			typedef typename 
+//			typedef typename
 //				boost::mpl::if_c<
 //				(vector_type::size > 1 && vector_type::size < 5),
 //				boost::mpl::int_<vector_type::size>,
@@ -376,7 +376,7 @@
 //		Vector<T,Storage>& Vector<T,Storage>::operator/=(typename Vector<T,Storage>::parameter_type s)
 //		{
 //			return meta_details::div_binary_equal<size-1,T,Storage>::execute(*this,s);
-//		}	
+//		}
 //	}
 //}
 //
@@ -424,7 +424,7 @@
 //				struct {T x,y;};
 //				T val[2];
 //			};
-//			
+//
 //
 //		protected:
 //			VectorStorageN(){std::memset(this,0,size);}
@@ -468,7 +468,7 @@
 //}
 
 #ifdef _MSC_VER
-#pragma   warning(push) 
+#pragma   warning(push)
 #pragma warning( disable : 4181 4244 4127 4211)
 #endif
 
@@ -479,15 +479,15 @@
 #include <Eigen/Array>
 
 #ifdef _MSC_VER
-#pragma   warning(pop) 
-#endif 
+#pragma   warning(pop)
+#endif
 
 #include "NullType.hpp"
 #include <boost/static_assert.hpp>
 
 namespace ma{
 
-	
+
 	//meta-function to get the scalar type of a vector
 	template<typename T> struct scalar_type;
 	template<typename T> struct dimensions;
@@ -521,11 +521,11 @@ namespace ma{
 		typedef Eigen::Matrix<std::size_t,2,1> vector2si;
 		typedef Eigen::Matrix<std::size_t,3,1> vector3si;
 		typedef Eigen::Matrix<std::size_t,4,1> vector4si;
-		
+
 		typedef Eigen::Vector2f vector2f;
 		typedef Eigen::Vector3f vector3f;
 		typedef Eigen::Vector4f vector4f;
-		
+
 		//matrices
 		typedef Eigen::Matrix2i matrix22i;
 		typedef Eigen::Matrix3i matrix33i;
@@ -535,8 +535,10 @@ namespace ma{
 		typedef Eigen::Matrix3f matrix33f;
 		typedef Eigen::Matrix4f matrix44f;
 
+		typedef Eigen::Transform3f transform3f;
+
 		typedef vector2i scalar2i;
-		
+
 		namespace scalar2_op{
 			template <typename Scalar2_t>
 			inline typename scalar_type<Scalar2_t>::type& width(Scalar2_t& x){return x[0];}
@@ -555,28 +557,28 @@ namespace ma{
 			using namespace Eigen;
 
 
-			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
+			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols>
 			inline T& x(
 				Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
 			{
 				BOOST_STATIC_ASSERT(_Cols == 1 &&  _Rows>= 1);
 				return v[0];
 			}
-			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
+			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols>
 			inline T& y(
 				Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
 			{
 				BOOST_STATIC_ASSERT(_Cols == 1 &&  _Rows>= 2);
 				return v[1];
 			}
-			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
+			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols>
 			inline T& z(
 				Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
 			{
 				BOOST_STATIC_ASSERT(_Cols== 1 && _Rows  >= 3);
 				return v[2];
 			}
-			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
+			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols>
 			inline T& w(
 				Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
 			{
@@ -585,21 +587,21 @@ namespace ma{
 			}
 
 			//const
-			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
+			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols>
 			inline const T& x(
 				const Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
 			{
 				BOOST_STATIC_ASSERT(_Cols == 1 && _Rows >= 1);
 				return v[0];
 			}
-			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
+			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols>
 			inline const T& y(
 				const Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
 			{
 				BOOST_STATIC_ASSERT(_Cols == 1 && _Rows >= 2);
 				return v[1];
 			}
-			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
+			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols>
 			inline const T& z(
 				const Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& v)
 			{
@@ -610,7 +612,7 @@ namespace ma{
 
 
 
-			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
+			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols>
 			inline const T& w(
 				const Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols>& x)
 			{
@@ -646,7 +648,7 @@ namespace ma{
 			template<typename Matrix_Type>
 			struct matrix_traits;
 
-			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols> 
+			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols>
 			struct matrix_traits<Eigen::Matrix<T,_Rows,_Cols,_StorageOrder,_MaxRows,_MaxCols> >{
 				typedef T scalar_type;
 				static const int row = _Rows;

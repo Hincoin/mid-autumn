@@ -399,6 +399,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\MeshBuffer.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\OSOperator.hpp"
 					>
 				</File>
@@ -435,6 +439,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\DuffsDevice.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Final.hpp"
 					>
 				</File>
@@ -448,6 +456,14 @@
 				</File>
 				<File
 					RelativePath=".\MAny.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MAOS.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MAOS.hpp"
 					>
 				</File>
 				<File
@@ -495,7 +511,23 @@
 				Name="Geometry"
 				>
 				<File
+					RelativePath=".\MAAffineRasterizer.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MAFragmentProcessor.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\MAGeometry.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MAGeometryRenderer.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MAGeometryRendererImpl.hpp"
 					>
 				</File>
 				<File
@@ -511,9 +543,21 @@
 					>
 				</File>
 				<File
+					RelativePath=".\MARasterizer.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\MAVertex.hpp"
 					>
 				</File>
+				<File
+					RelativePath=".\MAVertexProcessor.hpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="traits"
+				>
 			</Filter>
 		</Filter>
 		<Filter
@@ -547,6 +591,10 @@
 			</File>
 			<File
 				RelativePath=".\move_test.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Shader_test.hpp"
 				>
 			</File>
 			<File

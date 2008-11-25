@@ -11,6 +11,8 @@
 
 #include "MAMath.hpp"
 
+//shader
+#include "Shader_test.hpp"
 struct win32_device_test_configure{
 	//MADeviceWin32(DriverType driverType,
 	//	const rangei& windowSize,
@@ -54,7 +56,7 @@ inline void device_test_func(){
 	assert(ma::equal(1,1));
 	assert(ma::equal(1.f,1));
 	assert(ma::equal(2.000,2));
-	assert(ma::equal(tmp_t(),tmp_t()));
+	//assert(ma::equal(tmp_t(),tmp_t()));
 
 	vertex2i a;
 	a.x();
@@ -77,7 +79,7 @@ inline void device_test_func(){
 	while (device_->execute())
 	{
 		driver_ptr->beginScene(true,true,win32_device_test_configure::DeviceConfig::VideoDriver::Color(0));
-	
+		ma_test::test_fun(driver_ptr);
 		driver_ptr->endScene(device_,0,0);
 	}
 
