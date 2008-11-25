@@ -6,12 +6,19 @@
 namespace ma{
 	template<typename Configure>
 	class MAVideoDriverSoftWare:public VideoDriver<MAVideoDriverSoftWare<Configure>,Configure >{
+		public:
 		typedef typename Configure::Image Image;
 		typedef typename Configure::Texture Texture;
 
 		typedef typename Configure::ImagePtr ImagePtr;
 		typedef typename Configure::Texture TexturePtr;
-	public:
+
+		typedef typename Configure::GeometryRenderer GeometryRenderer;
+		typedef typename Configure::GeometryRendererPtr GeometryRendererPtr;
+
+		typedef typename Configure::Rasterizer Rasterizer;
+		typedef typename Configure::RasterizerPtr RasterizerPtr;
+
 		typedef typename Configure::Color Color;
 		typedef typename Configure::FileSystem FileSystem;
 		typedef typename Configure::FileSystemPtr FileSystemPtr;
@@ -35,6 +42,18 @@ namespace ma{
 			presenter->present(BackBuffer,windowid,sourceRect);
 			return false;
 		}
+		template<typename Vertex_PTR> void drawIndexedTriangleList(const Vertex_PTR verts,unsigned int vert_cnt,const unsigned int* idx_list,unsigned int tri_cnt);
+		template<typename Point_T> void draw3DLine(const Point_T& start,const Point_T& end,Color clr);
+		template<typename Triangle_T> void draw3DTriangle(const Triangle_T& tri,Color clr);
+
+		template<typename VertexShader,typename FragShader>
+		void drawIndexTriangleBuffer(
+			std::size_t vert_count,
+			std::size_t tri_count,
+			std::size_t vert_stride,
+			const void* vertex_buffer,const unsigned* tri_index_buffer);
+
+		ImagePtr getBackBuffer(){return BackBuffer;}
 	private:
 		ImagePtr BackBuffer;
 
@@ -46,6 +65,8 @@ namespace ma{
 		matrix44f TransformationMatrices[ETS_COUNT];
 
 		FileSystemPtr FileSystem_;
+
+		GeometryRendererPtr geometry_renderer_;
 		
 	};
 }

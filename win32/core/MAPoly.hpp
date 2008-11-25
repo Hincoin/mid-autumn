@@ -23,7 +23,7 @@ struct MAPolygonFixedSize:Normal_t{
 	static const int normal_dimension = dimensions<normal_type>::value;
 	static const int vertex_count = N;
 	static const int direction = dir;
-	
+
 private:
 	void compute_normal_impl(const vertex_type& v0,const vertex_type& v1,const vertex_type& v2,normal_type& n,
 		boost::mpl::bool_<true>* ,boost::mpl::bool_<true>*)const
@@ -39,17 +39,17 @@ private:
 	void compute_normal_impl(const vertex_type& v0,const vertex_type& v1,const vertex_type& v2,normal_type& n,
 		boost::mpl::bool_<t_f>*  ,boost::mpl::bool_<false>* ) const
 	{}
-	
+
 	void compute_normal(const vertex_type& v0,const vertex_type& v1,const vertex_type& v2,normal_type& n)const
 	{
 		compute_normal_impl(v0,v1,v2,static_cast<normal_type&>(*this),
-			(boost::mpl::bool_<direction == MA_ANTI_CLOCK_WISE>*) 0, 
+			(boost::mpl::bool_<direction == MA_ANTI_CLOCK_WISE>*) 0,
 			(boost::mpl::bool_<normal_dimension == 3>*) 0);
 	}
 	void recompute_normal(const vertex_type& v0,const vertex_type& v1,const vertex_type& v2,normal_type& n)const
 	{
 		compute_normal_impl(v0,v1,v2,n,
-			(boost::mpl::bool_<direction == MA_ANTI_CLOCK_WISE>*) 0, 
+			(boost::mpl::bool_<direction == MA_ANTI_CLOCK_WISE>*) 0,
 			(boost::mpl::bool_<N == 3>*)(0));
 	}
 
@@ -84,7 +84,7 @@ public:
 		{
 			verts[i] = other.verts[i];
 		}
-		compute_normal(v0,v1,v2,*this);
+		compute_normal( verts[0] ,verts[1] ,verts[1],*this);
 	}
 
 	//swappable
@@ -117,7 +117,7 @@ public:
 	template<int Idx>
 	void setVertex(const vertex_type& v){
 		BOOST_STATIC_ASSERT(Idx < N);
-		verts[Idx] = v; 
+		verts[Idx] = v;
 		recompute_normal(v[0],v[1],v[2],*this);
 	}
 	template<int Idx>
@@ -126,7 +126,7 @@ public:
 	//runtime getter setter
 	void setVertex(size_t idx,const vertex_type& v){
 		assert(((idx < N) && "index out of bound"));
-		verts[idx] = v; 
+		verts[idx] = v;
 		recompute_normal(v[0],v[1],v[2],*this);
 	}
 	const vertex_type& getVertex(size_t idx)const{
@@ -135,7 +135,7 @@ public:
 	}
 
 	const normal_type& normal()const{return static_cast<const normal_type&>(*this);}
-	const normal_type& recompute_normal()const{recompute_normal(v[0],v[1],v[2],*this);return *this;}
+	const normal_type& recompute_normal()const{recompute_normal(verts[0], verts[1], verts[2],*this);return *this;}
 private:
 	vertex_type verts[N];
 };
@@ -155,7 +155,7 @@ namespace ma_traits{
 		static const int vertex_count = N;
 		static const bool is_fixed = true; // indicate the vertex_count of every face is fixed or variable
 		enum{direction = dir};
-		
+
 	};
 }
 namespace triangle_op{

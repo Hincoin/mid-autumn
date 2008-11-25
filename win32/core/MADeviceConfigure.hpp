@@ -24,6 +24,10 @@
 #include "AddPointer.hpp"
 
 #include "MAColor.hpp"
+
+#include "MAGeometryRenderer.hpp"
+#include "MAAffineRasterizer.hpp"
+
 namespace ma{
 	
 
@@ -55,6 +59,12 @@ namespace ma{
 
 		typedef test_empty Texture;
 		typedef add_ptr<Texture>::type TexturePtr;
+		typedef MAAffineRasterizer Rasterizer;
+		typedef MAGeometryRenderer<MAAffineRasterizer> GeometryRenderer;
+
+		typedef boost::shared_ptr<MAAffineRasterizer> RasterizerPtr;
+		//typedef MAGeometryRenderer<MAAffineRasterizer>* GeometryRendererPtr;
+		typedef boost::shared_ptr<MAGeometryRenderer<MAAffineRasterizer> > GeometryRendererPtr;
 	};
 	//default driver creator traits
 	template<>

@@ -15,6 +15,8 @@
 #include <boost/noncopyable.hpp>
 
 #include "Move.hpp"
+
+#include "MeshBuffer.hpp"
 //#include <boost/enable_i>
 namespace ma{
 
@@ -25,7 +27,7 @@ namespace ma{
 	//	typename Face_Container = std::vector<Face_Type>
 	//>
 	//struct MARenderMesh:private Topology_Type{
-	//	
+	//
 	//	Vertex_Container vertices;
 	//	Face_Container faces;
 	//};
@@ -40,7 +42,7 @@ namespace ma{
 	////	ma_traits::vertex_traits<Vert_Type>;
 	//	typedef face_index_type edge_index_type;
 	//	static const face_index_type null_index = face_index_type(-1);
-	//	
+	//
 	//	struct self_type:
 	//		std::vector<typename boost::mpl::if_c<ma_traits::polygon_traits<Poly_Type>::is_fixed,
 	//		boost::array<face_index_type,ma_traits::polygon_traits<Poly_Type>::vertex_count>,
@@ -55,36 +57,40 @@ namespace ma{
 	//	void add_singular_face(){self_.push_back(self_type::value_type());}
 	//};
 
-	//editable mesh can borrow some concept from blender's bmesh or cgal's algorithm
 
-	//this mesh type can be animated, rendered but the vertex number cannot changed
-
-	//a mesh interface
-	template<typename Derived>
-	class MeshI{
-		Derived& derived(){return static_cast<Derived&>(*this);}
-		const Derived& derived()const{return static_cast<const Derived&>(*this);}
-	public:
-		//make a clone of self
-		Derived* clone()const{derived().clone();} 
-	};
 	//render part refer to scene::IMeshBuffer
 	//animation part refer to CSkinnedMesh
+	namespace ma_traits{
+			template<typename VertexType,typename FacesByIndex,typename MaterialType>
+			struct MARenderMeshFixedTraits{
+				typedef VertexType vertex_type;
+				typedef FacesByIndex face_type;
+				typedef MaterialType material_type;
+			};
+
+	}
 	template<typename VertexType,typename FacesByIndex,typename MaterialType>
-	struct MARenderMeshFixed:MeshI<MARenderMeshFixed<VertexType,FacesByIndex,MaterialType> >{
+	struct MARenderMeshFixed/*:MeshBuffer<
+		MARenderMeshFixed<VertexType,FacesByIndex,MaterialType>,
+		ma_traits::MARenderMeshFixedTraits<VertexType,FacesByIndex,MaterialType> >*/{
 		//tri-mesh or quad-mesh for storage efficiency
 		typedef VertexType vertex_type;
 		typedef MaterialType material_type;
+		typedef FacesByIndex face_type;
+
 		enum{vertex_per_face = FacesByIndex::vertex_count};
 		typedef typename FacesByIndex::index_type index_type;
 
-		struct SubMesh:MeshI<SubMesh>,boost::noncopyable{
+		struct SubMesh:MeshBuffer<SubMesh,
+			ma_traits::MARenderMeshFixedTraits<VertexType,FacesByIndex,MaterialType> >,
+			boost::noncopyable{
+			typedef MaterialType material_type;
 		private:
 			std::vector<ma::vector3i> faces_indices_;// faces_indices in parent mesh
 			index_type material_index_;
 			//the topology is shared from parent mesh which can be accessed by faces_indices_
 
-			template<typename VertexType,typename FacesByIndex,typename MaterialType>
+			template<typename VertexT,typename FacesByI,typename Material>
 			friend struct MARenderMeshFixed;
 
 			SubMesh(){}
@@ -102,7 +108,7 @@ namespace ma{
 		std::vector<VertexType> verts_;
 
 		// vertex_per_face vertices construct a face and it contains some structure as face normal
-		std::vector<FacesByIndex> faces_; 
+		std::vector<FacesByIndex> faces_;
 		std::vector<MaterialType> materials_;
 
 		std::vector<SubMesh> sub_meshes_;
@@ -170,14 +176,26 @@ namespace ma{
 		void setVertexArray(ma::move_from<std::vector<VertexType> > v){verts_.swap(v);}
 		void setFaceIndexArray(const std::vector<FacesByIndex>& f){faces_ = f;}
 		void setFaceIndexArray(ma::move_from<std::vector<FacesByIndex> > f){faces_.swap(f);}
-		
-		void setMaterial(const std::vector<MaterialType>& mat){materials_ = mat}
-		
+
+		void setMaterial(const std::vector<MaterialType>& mat){materials_ = mat;}
+
 		void rebuildTopology(){buildTopology(verts_,faces_);}
 
 		MARenderMeshFixed* clone()const{
 			//...
 		}
+
+		//vertex_type& getVertex(index_type i){return verts_[i];}
+		const vertex_type& getVertex(index_type i)const
+		{
+			return verts_[i];
+		}
+		const face_type& getFace(index_type i)const{return faces_[i];}
+
+		const SubMesh& getIndexedSubMesh(index_type i)const{return sub_meshes_[i];}
+
+		static void calculateFaceNormals(const std::vector<vertex_type>& v,std::vector<face_type>& faces){}
+		static void calculateVertexNormals( std::vector<vertex_type>& v,const std::vector<face_type>& faces){}
 	private:
 	};
 
@@ -243,8 +261,8 @@ namespace ma{
 			assert(!isSameVertices(other));
 			//holy shit comes ------loop unrolled
 
-			
-			
+
+
 			for (int i = 0;i < 3; i++)
 			{
 				if (indices_[i] == other.indices_[0] && compare_other::check(indices_,other,i,0,l_idx,r_idx))
@@ -264,18 +282,24 @@ namespace ma{
 		}
 
 		bool isSameVertices(const TriFaceByIndex& other)const{
-			return 
-				(indices_[0] == other.indices_[0] && 
+			return
+				(indices_[0] == other.indices_[0] &&
 				((indices_[1] == other.indices_[1] && indices_[2] == other.indices_[2])||(indices_[1] == other.indices_[2] && indices_[2] == other.indices_[1]) ))
-				
-				|| (indices_[0] == other.indices_[1] && 
+
+				|| (indices_[0] == other.indices_[1] &&
 				((indices_[1] == other.indices_[2] && indices_[2] == other.indices_[0])|| (indices_[1] == other.indices_[0] && indices_[2] == other.indices_[2])) )
-				
+
 				|| (indices_[0] == other.indices_[2] &&
 				((indices_[1] == other.indices_[0] && indices_[2] == other.indices_[1])|| (indices_[1] == other.indices_[1] && indices_[2] == other.indices_[0]) ));
 		}
 	};
 
+	namespace ma_traits{
+		template<typename FaceType>
+		struct face_normal_policy{
+			static  void calculate(){}
+		};
+	}
 	//typedef MARenderMeshFixed<MAVertex>
 	namespace mesh_op{
 		//refer to CMeshManipulator
