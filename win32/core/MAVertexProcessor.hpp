@@ -68,7 +68,7 @@ namespace ma{
 				unsigned index = *indices++;
 
 				for (unsigned i = 0; i < VertexShader::attribute_count; ++i) {
-					in[i] = static_cast<const char*>(attributes_[i].buffer) + 
+					in[i] = static_cast<const float*>(attributes_[i].buffer) + 
 						index * attributes_[i].stride;
 				}
 

@@ -536,6 +536,8 @@ namespace ma{
 		typedef Eigen::Matrix4f matrix44f;
 
 		typedef Eigen::Transform3f transform3f;
+		typedef Eigen::AngleAxis<float> AngleAxis3f;
+		typedef Eigen::Translation3f translation3f;
 
 		typedef vector2i scalar2i;
 
