@@ -12,6 +12,8 @@ template<typename Rasterizer>
 MAGeometryRenderer<Rasterizer>::MAGeometryRenderer(const boost::shared_ptr<Rasterizer>& rasterizer)
 :rasterizer_(rasterizer)
 {
+	cull_mode_ = CULL_CW;
+	viewport_.ox = viewport_.oy = viewport_.px = viewport_.py = 0;
 }
 
 template<typename Rasterizer>
@@ -30,16 +32,19 @@ template<typename Rasterizer>
 void MAGeometryRenderer<Rasterizer>::
 viewport(int x, int y, int w, int h)
 {
+	assert(false);
 }
 
 // the depth range to use. Normally from 0 to a value less than MAX_INT
 template<typename Rasterizer>
 void MAGeometryRenderer<Rasterizer>::
-depth_range(int n, int f){}
+depth_range(int n, int f){assert(false);}
 
 template<typename Rasterizer>
 void MAGeometryRenderer<Rasterizer>::
-vertex_attrib_pointer(int n, int stride, const void* buffer){}
+vertex_attrib_pointer(int n, int stride, const void* buffer){
+	Base::vertex_attrib_pointer(n, stride, buffer);
+}
 
 // count gives the number of indices
 template<typename Rasterizer>

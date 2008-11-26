@@ -50,7 +50,7 @@ namespace ma{
 	{
 		geometry_renderer_->template vertex_shader<VertexShader>();
 		geometry_renderer_->template fragment_shader<FragShader>();
-		geometry_renderer_->vertex_attrib_pointer(vert_count,vert_stride,vertex_buffer);
+		geometry_renderer_->vertex_attrib_pointer(0,vert_stride,vertex_buffer);
 		geometry_renderer_->draw_triangles(tri_count, tri_index_buffer);
 	}
 }
