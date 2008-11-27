@@ -60,6 +60,48 @@ namespace ma{
 		template <typename FragSpan>
 		void triangle_template(const Vertex &v1, const Vertex &v2, const Vertex &v3)
 		{
+
+			float y1 = v1.y;
+			float y2 = v2.y;
+			float y3 = v3.y;
+
+			float x1 = v1.x;
+			float x2 = v2.x;
+			float x3 = v3.x;
+
+			// Bounding rectangle
+			int minx = (int)std::min(std::min(x1, x2), x3);
+			int maxx = (int)std::max(std::max (x1, x2), x3);
+			int miny = (int)std::min(std::min(y1, y2), y3);
+			int maxy = (int)std::max(std::max(y1, y2), y3);
+
+			//(char*&)colorBuffer += miny * stride;
+
+			FragmentData fd;
+			fd.varyings[0] = 0xFFFFFFFF;
+			fd.varyings[1] = 0xFFFFFFFF;
+			fd.varyings[2] = 0xFFFFFFFF;
+			// Scan through bounding rectangle
+			if(clip_test(minx,miny) || clip_test(maxx,maxy))
+			for(int y = miny; y < maxy; y++)
+			{
+				for(int x = minx; x < maxx; x++)
+				{
+					// When all half-space functions positive, pixel is in triangle
+					if( clip_test(x,y)&&
+						(x1 - x2) * (y - y1) - (y1 - y2) * (x - x1) > 0 &&
+						 (x2 - x3) * (y - y2) - (y2 - y3) * (x - x2) > 0 &&
+						 (x3 - x1) * (y - y3) - (y3 - y1) * (x - x3) > 0
+						)
+					{
+						//colorBuffer[x] = 0x00FFFFFF;<< // White
+						FragSpan::single_fragment(x,y,fd);
+					}
+				}
+				//(char*&)colorBuffer += stride;
+			}
+
+
 //			//using namespace detail;
 //
 //			// Early bounds test. Skip triangle if outside clip rect. 

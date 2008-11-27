@@ -277,7 +277,7 @@ namespace ma_test{
 			int g = std::min(std::max(0, fd.varyings[1]>>16), 255) >> 2;
 			int b = std::min(std::max(0, fd.varyings[2]>>16), 255) >> 3;
 			unsigned short color = r << 11 | g << 5 | b;
-			render_target->setPixel(x,y,color);
+			render_target->setPixel(x,y,0xFFFFFFFF);
 		}
 	};
 	template<typename ImagePtr>

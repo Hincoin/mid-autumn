@@ -67,7 +67,7 @@ namespace ma{
 	public:
 		MAGeometryRenderer(const boost::shared_ptr<Rasterizer>& rasterizer);
 
-
+		boost::shared_ptr<Rasterizer>& rasterizer(){return rasterizer_;}
 		// public interface
 
 		// upper left is (0,0)
@@ -150,8 +150,16 @@ namespace ma{
 			int px, py; // width and height divided by 2
 		} viewport_;
 
+
 		struct {
-			int fmndiv2, npfdiv2; // (f - n)/2 | (n + f)/2
+			//Ü³ËûÂè¸ö±ÆµÄ windef.h
+#ifdef near
+#undef near
+#endif
+#ifdef far
+#undef far
+#endif
+			float near,far;
 		} depth_range_;
 
 		CullMode cull_mode_;

@@ -120,6 +120,8 @@ namespace ma{
 			return 0;
 		}
 		 void fill(const Color &color);
+		 int getWidth()const{return ma::scalar2_op::width(Size);}
+		 int getHeight()const{return ma::scalar2_op::height(Size);}
 	private:
 		void initData();
 		void setBitMasks();
