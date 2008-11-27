@@ -12,6 +12,9 @@ template<typename Rasterizer>
 MAGeometryRenderer<Rasterizer>::MAGeometryRenderer(const boost::shared_ptr<Rasterizer>& rasterizer)
 :rasterizer_(rasterizer)
 {
+	// don't use the full positive range (0x7fffffff) because it
+	// could be possible to get overflows at the far plane.
+	depth_range(0, 0x3fffffff);
 	cull_mode_ = CULL_CW;
 	viewport_.ox = viewport_.oy = viewport_.px = viewport_.py = 0;
 }
@@ -32,13 +35,19 @@ template<typename Rasterizer>
 void MAGeometryRenderer<Rasterizer>::
 viewport(int x, int y, int w, int h)
 {
-	assert(false);
+	viewport_.px = w / 2;
+	viewport_.py = h / 2;
+
+	// the origin is stored in fixed point so it does not need to be
+	// converted later.
+	viewport_.ox = (x + viewport_.px) ;
+	viewport_.oy = (y + viewport_.py) ;
 }
 
 // the depth range to use. Normally from 0 to a value less than MAX_INT
 template<typename Rasterizer>
 void MAGeometryRenderer<Rasterizer>::
-depth_range(int n, int f){assert(false);}
+depth_range(int n, int f){ depth_range_.near = n;depth_range_.far=f;}
 
 template<typename Rasterizer>
 void MAGeometryRenderer<Rasterizer>::
@@ -82,8 +91,46 @@ cull_mode(CullMode m){;}
 template<typename Rasterizer>
 void MAGeometryRenderer<Rasterizer>::add_interp_vertex(int t, int out, int in){assert(false);}
 
+
+// perspective divide and viewport transform of vertices
 template<typename Rasterizer>
-void MAGeometryRenderer<Rasterizer>::pdiv_and_vt(){assert(false);}
+void MAGeometryRenderer<Rasterizer>::pdiv_and_vt(){
+
+	details::static_vector<bool, MAX_VERTICES_INDICES> already_processed ;
+	already_processed.resize(vertices_.size(), false);
+
+	for (size_t i = 0; i < indices_.size(); ++i) {
+		// don't process triangles which are marked as unused by clipping
+		if (indices_[i] == SKIP_FLAG) continue;
+
+		if (!already_processed[indices_[i]]) {
+			// perspective divide
+			VertexOutput &v = vertices_[indices_[i]];
+
+			v.x/=v.w;
+			v.y/=v.w;
+			v.z/=v.w;
+			// triangle setup (x and y are converted from 16.16 to 28.4)
+			v.x = (viewport_.px * v.x + viewport_.ox); /*>> 12;*/
+
+			// y needs to be flipped since the viewport has (0,0) in the 
+			// upper left but vs output is like in OpenGL
+			v.y = (viewport_.py * -v.y + viewport_.oy); 
+			
+			//Ü³ËûÂè¸ö±ÆµÄ windef.h
+#ifdef near
+#undef near
+#endif
+#ifdef far
+#undef far
+#endif
+			v.z = ((1 + v.z)*depth_range_.far+(1-v.z)*depth_range_.near)/2; 
+			
+
+			already_processed[indices_[i]] = true;
+		}
+	}
+}
 
 template<typename Rasterizer>
 void MAGeometryRenderer<Rasterizer>::clip_triangles(){assert(false);}
@@ -91,7 +138,7 @@ template<typename Rasterizer>
 void MAGeometryRenderer<Rasterizer>::process_triangles(){
 
 	//clip_triangles();
-	//pdiv_and_vt();
+	pdiv_and_vt();
 
 	// compute facing and possibly cull and then draw the triangles		
 	for (size_t i = 0; i + 3 <= indices_.size(); i += 3) {

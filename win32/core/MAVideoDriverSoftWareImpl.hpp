@@ -9,7 +9,7 @@ namespace ma{
 		(const scalar2i& windowSize,bool fullscreen, FileSystemPtr fs):
 	ScreenSize(windowSize),FileSystem_(fs),geometry_renderer_(new GeometryRenderer(RasterizerPtr(new Rasterizer)))
 	{
-		BackBuffer = new Image(ECF_A1R5G5B5, windowSize);
+		BackBuffer = new Image(ECF_A8R8G8B8, windowSize);
 		BackBuffer->fill(Color(0));
 	}
 	template<typename Configure>
@@ -48,6 +48,9 @@ namespace ma{
 	template<typename VertexShader,typename FragShader>
 	void MAVideoDriverSoftWare<Configure>::drawIndexTriangleBuffer(std::size_t vert_count,std::size_t tri_count,std::size_t vert_stride,const void* vertex_buffer,const unsigned* tri_index_buffer)
 	{
+		//geometry_renderer_->viewport(0,0,BackBuffer->getWidth(),BackBuffer->getHeight());
+		geometry_renderer_->viewport(0,0,320,240);
+		geometry_renderer_->rasterizer()->clip_rect(0, 0, 320, 240);
 		geometry_renderer_->template vertex_shader<VertexShader>();
 		geometry_renderer_->template fragment_shader<FragShader>();
 		geometry_renderer_->vertex_attrib_pointer(0,vert_stride,vertex_buffer);

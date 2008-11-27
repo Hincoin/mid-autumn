@@ -11,10 +11,10 @@ namespace ma{
 
 		// Type definitions
 		struct Vertex {
-			int x, y; // in 28.4 fixed point
-			int z; // range from 0 to 0x7fffffff
-			int w; // in 16.16 fixed point
-			int varyings[MAX_VARYING];
+			float x, y; // in 28.4 fixed point
+			float z; // range from 0 to 0x7fffffff
+			float w; // in 16.16 fixed point
+			float varyings[MAX_VARYING];
 		};
 
 		// This is the data necessary for each fragment. It is defined here
@@ -255,7 +255,7 @@ namespace ma{
 
 			//FragSpan::affine_span(x, y, fd, fd, 1);
 		}
-		protected:
+		public:
 			void draw_line(const Vertex &v1, const Vertex &v2)
 			{
 				if (line_func_)
