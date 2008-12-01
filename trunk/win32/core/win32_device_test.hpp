@@ -42,7 +42,9 @@ namespace ma{
 			bool antiAlias,
 			bool highPrecisionFPU,
 			win32_device_test_configure::EventProcessorPtr receiver,
-			HWND externalWindow){return new win32_device_test_configure::DeviceType(driverType,windowSize,bits,fullscreen,stencilbuffer,vsync,antiAlias,highPrecisionFPU,receiver,externalWindow);}
+			HWND externalWindow){
+			    return new win32_device_test_configure::DeviceType(driverType,windowSize,bits,fullscreen,stencilbuffer,vsync,antiAlias,highPrecisionFPU,receiver,externalWindow);
+			    }
 	};
 }
 
@@ -66,8 +68,12 @@ inline void device_test_func(){
 	CreateDevice<win32_device_test_configure> device_creator;
 	delete_ptr<win32_device_test_configure::DevicePtr> device_destroyer;
 
-	win32_device_test_configure::DevicePtr device_ = device_creator(win32_device_test_configure::DriverType(0),scalar2i(800,600),32,false,false,false,0,false,0,0);
-	
+    scalar2i _800x600 = scalar2i(320,240);
+	win32_device_test_configure::DevicePtr device_ =
+	 device_creator(win32_device_test_configure::DriverType(0),
+	 _800x600,(unsigned)32,
+	 false,false,false,false,false,win32_device_test_configure::EventProcessorPtr(0),(HWND) 0);
+
 	//device_->setWindowCatption("Hello WOrld!   ---- mid-autumn demo");
 	win32_device_test_configure::DeviceConfig::VideoDriverPtr
 		driver_ptr = device_->getVideoDriver();
@@ -84,7 +90,7 @@ inline void device_test_func(){
 	}
 
 	device_destroyer(device_);
-	
+
 
 }
 

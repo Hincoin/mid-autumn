@@ -9,7 +9,7 @@ namespace ma{
 		static const int AFFINE_LENGTH = 24;
 
 		static MARasterizerBase::FragmentData compute_step_al(
-			const MARasterizerBase::FragmentData &fdl, 
+			const MARasterizerBase::FragmentData &fdl,
 			const MARasterizerBase::FragmentData &fdr)
 		{
 			MARasterizerBase::FragmentData r;
@@ -18,7 +18,7 @@ namespace ma{
 				r.z = (fdr.z - fdl.z) / AFFINE_LENGTH;
 
 			int i = 0;
-			DUFFS_DEVICE(8,int,(FragmentShader::varying_count),(r.varyings[i] = (fdr.varyings[i] - fdl.varyings[i]) / AFFINE_LENGTH; ++i;));
+			//DUFFS_DEVICE(8,int,(FragmentShader::varying_count),(r.varyings[i] = (fdr.varyings[i] - fdl.varyings[i]) / AFFINE_LENGTH; ++i;); );
 			//DUFFS_DEVICE8(
 			//	int i = 0,
 			//	r.varyings[i] = (fdr.varyings[i] - fdl.varyings[i]) / AFFINE_LENGTH; ++i,
@@ -29,7 +29,7 @@ namespace ma{
 		}
 
 		static MARasterizerBase::FragmentData compute_step(
-			const MARasterizerBase::FragmentData &fdl, 
+			const MARasterizerBase::FragmentData &fdl,
 			const MARasterizerBase::FragmentData &fdr,
 			int inv_delta)
 		{
@@ -51,7 +51,7 @@ namespace ma{
 
 		static MARasterizerBase::FragmentData fd_from_fds(const MARasterizerBase::FragmentDataPerspective &fd)
 		{
-			using namespace detail;
+			using namespace details;
 
 			MARasterizerBase::FragmentData r = MARasterizerBase::FragmentData();
 
@@ -72,11 +72,11 @@ namespace ma{
 		}
 
 		static void perspective_span(
-			int x, 
-			int y, 
-			const MARasterizerBase::FragmentDataPerspective &fd_in, 
-			const MARasterizerBase::FragmentDataPerspective &step, 
-			unsigned n) 
+			int x,
+			int y,
+			const MARasterizerBase::FragmentDataPerspective &fd_in,
+			const MARasterizerBase::FragmentDataPerspective &step,
+			unsigned n)
 		{
 			//using namespace detail;
 
@@ -119,10 +119,10 @@ namespace ma{
 	template <typename FragmentShader>
 	struct GenericSpanDrawer : public SpanDrawerBase<FragmentShader> {
 		static void affine_span(
-			int x, 
-			int y, 
-			MARasterizerBase::FragmentData fd, 
-			const MARasterizerBase::FragmentData &step, 
+			int x,
+			int y,
+			MARasterizerBase::FragmentData fd,
+			const MARasterizerBase::FragmentData &step,
 			unsigned n)
 		{
 			//DUFFS_DEVICE8(
@@ -137,10 +137,10 @@ namespace ma{
 	template <typename FragmentShader>
 	struct SpanDrawer16BitColorAndDepth : public SpanDrawerBase<FragmentShader> {
 		static void affine_span(
-			int x, 
-			int y, 
-			MARasterizerBase::FragmentData fd, 
-			const MARasterizerBase::FragmentData &step, 
+			int x,
+			int y,
+			MARasterizerBase::FragmentData fd,
+			const MARasterizerBase::FragmentData &step,
 			unsigned n)
 		{
 			//unsigned short *color16_pointer = static_cast<unsigned short*>(FragmentShader::color_pointer(x, y));

@@ -39,7 +39,7 @@ namespace ma{
 		~MADevice();
 		void createGUIAndScene();
 	public:
-		bool execute(){derived().execute();}
+		bool execute(){return derived().execute();}
 		void yield(){derived().yield();}
 		void sleep(std::size_t timeMs, bool is_pauseTimer){derived().sleep(timeMs,is_pauseTimer);}
 

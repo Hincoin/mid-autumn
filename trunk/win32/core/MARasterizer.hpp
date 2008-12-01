@@ -57,15 +57,18 @@ namespace ma{
 		struct { int offset; int mask; } interlace_;
 		unsigned varying_count_;
 
+        typedef MARasterizer<RasterizerTemplateShaderBase<Derived> > Base;
 		friend class MARasterizer<RasterizerTemplateShaderBase<Derived> >;
 
 
 	public:
+		typedef typename Base::Vertex Vertex;
+
 		RasterizerTemplateShaderBase()
 		{
-			clip_rect(0, 0, 0, 0); 
+			clip_rect(0, 0, 0, 0);
 			interlace(0, 0);
-		} 
+		}
 
 
 
@@ -77,24 +80,24 @@ namespace ma{
 		void fragment_shader()
 		{
 			varying_count_ = FragSpan::varying_count;
-			line_func_ = &RasterizerTemplateShaderBase::line_template<FragSpan>;
-			point_func_ = &RasterizerTemplateShaderBase::point_template<FragSpan>;
+			line_func_ = &RasterizerTemplateShaderBase<Derived>::template line_template<FragSpan>;
+			point_func_ = &RasterizerTemplateShaderBase<Derived>::template point_template<FragSpan>;
 		}
 
 
 
-		// Controls interlacing. Uses the following formula to determine if a 
+		// Controls interlacing. Uses the following formula to determine if a
 		// row should be drawn:
-		// 
+		//
 		// bool drawit = ((y + offset) & mask) == 0
 		//
-		// Thus to draw every line you can pass (0,0). To draw every line with 
+		// Thus to draw every line you can pass (0,0). To draw every line with
 		// even y you pass (0,1). For odd lines you pass (1,1).
 		//
-		// This should give enough control. More control could only be achived 
+		// This should give enough control. More control could only be achived
 		// by doing (y + offset) % some_value == 0 which requires an expensive
 		// mod.
-		void interlace(int offset, int mask) 
+		void interlace(int offset, int mask)
 		{
 			interlace_.offset = offset;
 			interlace_.mask = mask;
@@ -134,7 +137,7 @@ namespace ma{
 			//int adx = detail::abs(dx);
 			//int ady = detail::abs(dy);
 
-			//if (dx == 0 && dy == 0) 
+			//if (dx == 0 && dy == 0)
 			//	return;
 
 			//FragmentData fragment_data;
@@ -150,7 +153,7 @@ namespace ma{
 			//		error_term = 0;
 			//	}
 
-			//	int do_step(int absdelta) 
+			//	int do_step(int absdelta)
 			//	{
 			//		int r = step;
 			//		error_term += remainder;
@@ -244,7 +247,7 @@ namespace ma{
 			//int x = v1.x >> 4;
 			//int y = v1.y >> 4;
 
-			//if (!clip_test(x, y) || !ilace_drawit(y)) 
+			//if (!clip_test(x, y) || !ilace_drawit(y))
 			//	return;
 
 			//if (FragSpan::interpolate_z)
@@ -269,7 +272,7 @@ namespace ma{
 			}
 			void drawTriangleImpl(const Vertex &v1, const Vertex &v2, const Vertex &v3){
 				return static_cast<Derived&>(*this).drawTriangleImpl(v1,v2,v3);
-			} 
+			}
 
 			// upper left is (0,0)
 			void clip_rect(int x, int y, int w, int h)

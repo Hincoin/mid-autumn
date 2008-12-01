@@ -169,6 +169,8 @@ namespace ma{
 	}
 	//32 bit integer color (0-255) each component
 	struct Colori{
+	    typedef int32 value_type;//
+
 		int32 color;
 
 		//! Constructor of the Color. Does nothing.
@@ -340,7 +342,9 @@ namespace ma{
 	};
 
 	//32 bit float color (0-1) each component
-	struct Colorf{};
+	struct Colorf{
+	    typedef float value_type;
+	    };
 
 }
 #endif

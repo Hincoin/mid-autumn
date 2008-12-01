@@ -1,11 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2008 by luozhiyuan (luozhiyuan@gmail.com)
-// Permission to use, copy, modify, distribute and sell this software for any 
-//     purpose is hereby granted without fee, provided that the above copyright 
-//     notice appear in all copies and that both that copyright notice and this 
+// Permission to use, copy, modify, distribute and sell this software for any
+//     purpose is hereby granted without fee, provided that the above copyright
+//     notice appear in all copies and that both that copyright notice and this
 //     permission notice appear in supporting documentation.
-// The author makes no representations about the 
-//     suitability of this software for any purpose. It is provided "as is" 
+// The author makes no representations about the
+//     suitability of this software for any purpose. It is provided "as is"
 //     without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +40,7 @@ namespace ma{
 	private:
 		typedef typename  ParameterType<T>::param_type parameter_type;
 	public:
-		typedef typename T stored_type;
+		typedef T stored_type;
 
 		T smin,smax;
 
@@ -92,39 +92,39 @@ namespace ma{
 	typedef SpaceSegment<float> rangef;
 
 	//2d
-	typedef SpaceSegment<vector2i> recti;//0 left 1 top 
+	typedef SpaceSegment<vector2i> recti;//0 left 1 top
 	typedef SpaceSegment<vector2f> rectf;
-	
+
 	namespace rect_op{
-		template<typename T> 
-		inline 
+		template<typename T>
+		inline
 		static typename T::stored_type::Scalar& left(T& x){return x.smin[0];}
 
-		template<typename T> 
-		inline 
+		template<typename T>
+		inline
 		static typename T::stored_type::Scalar& top(T& x){return x.smin[1];}
 
 		template<typename T>
-		inline 
+		inline
 		static typename T::stored_type::Scalar& right(T& x){return x.smax[0];}
 
 		template<typename T>
-		inline 
+		inline
 		static typename T::stored_type::Scalar& bottom(T& x){return x.smax[1];}
 
 		template<typename T>
-		inline 
+		inline
 		static typename T::stored_type::Scalar width(const T& x){return x.smax[0]-x.smin[0];}
 
 		template<typename T>
-		inline 
+		inline
 		static typename T::stored_type::Scalar height(const T& x){return x.smax[1] - x.smin[1];}
 	}
 
 	//3d
 	typedef SpaceSegment<vector3i> boxi;
 	typedef SpaceSegment<vector3f> boxf;
-	
+
 }
 
 #endif

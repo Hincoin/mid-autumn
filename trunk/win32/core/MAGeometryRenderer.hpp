@@ -16,19 +16,19 @@ namespace ma{
 			static_vector(size_t s, const T& i) : size_(0)
 			{ resize(s, i);	}
 
-			size_t size() const 
+			size_t size() const
 			{ return size_;	}
 
-			void resize(size_t size) 
+			void resize(size_t size)
 			{ size_ = size; }
 
 			void resize(size_t size, const T& i)
 			{ while (size_ < size) data_[size_++] = i; }
 
-			T& back() 
+			T& back()
 			{ return data_[size_ - 1]; }
 
-			const T& back() const 
+			const T& back() const
 			{ const_cast<static_vector>(this)->back(); }
 
 			void push_back(const T& a)
@@ -53,7 +53,7 @@ namespace ma{
 		friend class VertexProcessor<typename Rasterizer::Vertex, MAGeometryRenderer>;
 	public:
 		enum CullMode{
-			CULL_NONE = 0, 
+			CULL_NONE = 0,
 			CULL_CCW,
 			CULL_CW
 		};
@@ -88,7 +88,7 @@ namespace ma{
 		template <typename VertexShader>
 		void vertex_shader()
 		{
-			Base::vertex_shader<VertexShader>();
+			Base::template vertex_shader<VertexShader>();
 			varying_count_ = &varying_count_template<VertexShader>;
 		}
 		template <typename FragShader>
@@ -131,7 +131,7 @@ namespace ma{
 		static const unsigned MAX_POINTS = 32;
 
 		static const unsigned MAX_VERTICES_INDICES =
-			MAX_TRIANGLES * 3 + 
+			MAX_TRIANGLES * 3 +
 			MAX_TRIANGLES * 12; // Clipping generates additional vertices
 
 		enum DrawMode {

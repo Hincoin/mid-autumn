@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="mid_autumn" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin\Debug\mid_autumn" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Debug\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-pg" />
+					<Add option="-g" />
+					<Add option="-fopenmp" />
+					<Add option="-DWIN32" />
+					<Add option="-D_WIN32" />
+					<Add option="-D__WIN32__" />
+					<Add option="-D__x86__" />
+					<Add directory="..\..\..\inc\core" />
+					<Add directory="..\..\..\extern\" />
+					<Add directory="..\..\..\win32\core" />
+				</Compiler>
+				<Linker>
+					<Add option="-pg -lgmon" />
+					<Add option="-lgomp -lpthread" />
+					<Add library="gdi32" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin\Release\mid_autumn" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Release\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-march=athlon-xp" />
+					<Add option="-march=i686" />
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
+					<Add option="-O2" />
+					<Add option="-fopenmp" />
+					<Add option="-DWIN32" />
+					<Add option="-D_WIN32" />
+					<Add option="-D__WIN32__" />
+					<Add option="-D__x86__" />
+					<Add directory="..\..\..\inc\core" />
+					<Add directory="..\..\..\extern\" />
+					<Add directory="..\..\..\win32\core" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-lgomp -lpthread" />
+					<Add library="gdi32" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="..\..\..\extern\Eigen\Array" />
+		<Unit filename="..\..\..\extern\Eigen\CMakeLists.txt" />
+		<Unit filename="..\..\..\extern\Eigen\Cholesky" />
+		<Unit filename="..\..\..\extern\Eigen\Core" />
+		<Unit filename="..\..\..\extern\Eigen\Geometry" />
+		<Unit filename="..\..\..\extern\Eigen\LU" />
+		<Unit filename="..\..\..\extern\Eigen\QR" />
+		<Unit filename="..\..\..\extern\Eigen\Regression" />
+		<Unit filename="..\..\..\extern\Eigen\SVD" />
+		<Unit filename="..\..\..\extern\Eigen\Sparse" />
+		<Unit filename="..\..\..\inc\core\AssocVector.hpp" />
+		<Unit filename="..\..\..\inc\core\CoreObject.hpp" />
+		<Unit filename="..\..\..\inc\core\FSBAllocator.hpp" />
+		<Unit filename="..\..\..\inc\core\FSBSingletonPool.hpp" />
+		<Unit filename="..\..\..\inc\core\HasMember.hpp" />
+		<Unit filename="..\..\..\inc\core\MABigPool.hpp" />
+		<Unit filename="..\..\..\inc\core\MAMemPoolSized.hpp" />
+		<Unit filename="..\..\..\inc\core\MAMemoryPool.hpp" />
+		<Unit filename="..\..\..\inc\core\MAMemoryPool_test.hpp" />
+		<Unit filename="..\..\..\inc\core\MASingleton.hpp" />
+		<Unit filename="..\..\..\inc\core\MemoryMgr.hpp" />
+		<Unit filename="..\..\..\inc\core\MemoryPolicy.hpp" />
+		<Unit filename="..\..\..\inc\core\MemoryPool.hpp" />
+		<Unit filename="..\..\..\inc\core\Memory_Test.hpp" />
+		<Unit filename="..\..\..\inc\core\MostDerivedType.hpp" />
+		<Unit filename="..\..\..\inc\core\Mutex.hpp" />
+		<Unit filename="..\..\..\inc\core\NullType.hpp" />
+		<Unit filename="..\..\..\inc\core\ObjectMemSingletonPool.hpp" />
+		<Unit filename="..\..\..\inc\core\ObjectMemoryPool.hpp" />
+		<Unit filename="..\..\..\inc\core\Timer.hpp" />
+		<Unit filename="..\..\..\inc\core\duffs_device_test.hpp" />
+		<Unit filename="..\..\..\src\core\MemoryMgr.cpp" />
+		<Unit filename="..\..\..\src\main_test.cpp" />
+		<Unit filename="..\..\..\win32\core\AddPointer.hpp" />
+		<Unit filename="..\..\..\win32\core\CRTPInterfaceMacro.hpp" />
+		<Unit filename="..\..\..\win32\core\CreateDevice.hpp" />
+		<Unit filename="..\..\..\win32\core\DuffsDevice.hpp" />
+		<Unit filename="..\..\..\win32\core\EventProcessor.hpp" />
+		<Unit filename="..\..\..\win32\core\EventType.hpp" />
+		<Unit filename="..\..\..\win32\core\FileSystem.hpp" />
+		<Unit filename="..\..\..\win32\core\Final.hpp" />
+		<Unit filename="..\..\..\win32\core\FixedAllocator.hpp" />
+		<Unit filename="..\..\..\win32\core\GUIManager.hpp" />
+		<Unit filename="..\..\..\win32\core\Image.hpp" />
+		<Unit filename="..\..\..\win32\core\KeyCodes.hpp" />
+		<Unit filename="..\..\..\win32\core\Logger.hpp" />
+		<Unit filename="..\..\..\win32\core\MAAffineRasterizer.hpp" />
+		<Unit filename="..\..\..\win32\core\MAColor.hpp" />
+		<Unit filename="..\..\..\win32\core\MAConfig.hpp" />
+		<Unit filename="..\..\..\win32\core\MADevice.hpp" />
+		<Unit filename="..\..\..\win32\core\MADeviceBase.hpp" />
+		<Unit filename="..\..\..\win32\core\MADeviceConfigure.hpp" />
+		<Unit filename="..\..\..\win32\core\MADeviceImpl.hpp" />
+		<Unit filename="..\..\..\win32\core\MADeviceWin32.hpp" />
+		<Unit filename="..\..\..\win32\core\MADeviceWin32Impl.hpp" />
+		<Unit filename="..\..\..\win32\core\MAEventProcessor.hpp" />
+		<Unit filename="..\..\..\win32\core\MAEventType.hpp" />
+		<Unit filename="..\..\..\win32\core\MAFileSystemWin32.hpp" />
+		<Unit filename="..\..\..\win32\core\MAGUIManager.hpp" />
+		<Unit filename="..\..\..\win32\core\MAGeometry.hpp" />
+		<Unit filename="..\..\..\win32\core\MAGeometryRenderer.hpp" />
+		<Unit filename="..\..\..\win32\core\MAGeometryRendererImpl.hpp" />
+		<Unit filename="..\..\..\win32\core\MAImage.hpp" />
+		<Unit filename="..\..\..\win32\core\MAImageImpl.hpp" />
+		<Unit filename="..\..\..\win32\core\MAIntersect.hpp" />
+		<Unit filename="..\..\..\win32\core\MALogger.hpp" />
+		<Unit filename="..\..\..\win32\core\MAMath.hpp" />
+		<Unit filename="..\..\..\win32\core\MAMesh.hpp" />
+		<Unit filename="..\..\..\win32\core\MANullDriver.hpp" />
+		<Unit filename="..\..\..\win32\core\MAOS.cpp" />
+		<Unit filename="..\..\..\win32\core\MAOS.hpp" />
+		<Unit filename="..\..\..\win32\core\MAOSOperatorWin32.hpp" />
+		<Unit filename="..\..\..\win32\core\MAPoly.hpp" />
+		<Unit filename="..\..\..\win32\core\MAPrinter.hpp" />
+		<Unit filename="..\..\..\win32\core\MARasterizer.hpp" />
+		<Unit filename="..\..\..\win32\core\MASceneManager.hpp" />
+		<Unit filename="..\..\..\win32\core\MATimerWin32.hpp" />
+		<Unit filename="..\..\..\win32\core\MAVertex.hpp" />
+		<Unit filename="..\..\..\win32\core\MAVertexProcessor.hpp" />
+		<Unit filename="..\..\..\win32\core\MAVideoDriverSoftWare.hpp" />
+		<Unit filename="..\..\..\win32\core\MAVideoDriverSoftWareImpl.hpp" />
+		<Unit filename="..\..\..\win32\core\MAVideoModesWin32.hpp" />
+		<Unit filename="..\..\..\win32\core\MAVideoModesWin32Impl.hpp" />
+		<Unit filename="..\..\..\win32\core\MAny.hpp" />
+		<Unit filename="..\..\..\win32\core\MeshBuffer.hpp" />
+		<Unit filename="..\..\..\win32\core\Mesh_Test.hpp" />
+		<Unit filename="..\..\..\win32\core\Move.hpp" />
+		<Unit filename="..\..\..\win32\core\OSOperator.hpp" />
+		<Unit filename="..\..\..\win32\core\OrderedTypeInfo.hpp" />
+		<Unit filename="..\..\..\win32\core\ParameterType.hpp" />
+		<Unit filename="..\..\..\win32\core\PtrTraits.hpp" />
+		<Unit filename="..\..\..\win32\core\SceneManager.hpp" />
+		<Unit filename="..\..\..\win32\core\Shader_test.hpp" />
+		<Unit filename="..\..\..\win32\core\SpaceSegment.hpp" />
+		<Unit filename="..\..\..\win32\core\TypeConversion.hpp" />
+		<Unit filename="..\..\..\win32\core\TypeDefs.hpp" />
+		<Unit filename="..\..\..\win32\core\Vector.hpp" />
+		<Unit filename="..\..\..\win32\core\VideoDriver.hpp" />
+		<Unit filename="..\..\..\win32\core\VideoModes.hpp" />
+		<Unit filename="..\..\..\win32\core\crtp_interface_macro_test.hpp" />
+		<Unit filename="..\..\..\win32\core\ma_any_test.hpp" />
+		<Unit filename="..\..\..\win32\core\move_test.hpp" />
+		<Unit filename="..\..\..\win32\core\type_conversion_test.hpp" />
+		<Unit filename="..\..\..\win32\core\win32_device_test.hpp" />
+		<Extensions>
+			<envvars />
+			<code_completion />
+			<debugger />
+			<lib_finder disable_auto="1" />
+			<wxsmith version="1">
+				<gui name="wxWidgets" src="" main="" init_handlers="necessary" language="CPP" />
+			</wxsmith>
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

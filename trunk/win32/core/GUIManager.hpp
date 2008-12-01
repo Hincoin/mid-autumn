@@ -10,7 +10,7 @@ namespace ma{
 
 		typedef typename ClassConfig::EventType EventType;
 	public:
-		bool postEventFromUser(const EventType& evt){derived().postEventFromUser(evt);}
+		bool postEventFromUser(const EventType& evt){return derived().postEventFromUser(evt);}
 	};
 }
 

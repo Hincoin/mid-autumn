@@ -32,6 +32,7 @@
 //	//all arithmetic operation here should provided for T
 //	namespace core{
 //
+
 //#define MA_VECTOR_CONSTRUCTOR(z,N_P,data) \
 //	template<typename T_Self> \
 //		Vector( BOOST_PP_ENUM_PARAMS( BOOST_PP_ADD(N_P,1), T_Self param) )\
@@ -41,6 +42,7 @@
 //		BOOST_STATIC_ASSERT(size == N_P + 1);\
 //		}
 //
+
 //#define MA_VECTOR_CONSTRUCTORS(M)\
 //		BOOST_PP_REPEAT(M,MA_VECTOR_CONSTRUCTOR,_)
 //
@@ -125,6 +127,7 @@
 //		};
 //		namespace meta_details{
 //
+
 //#define  MA_VV_BINARAY_EQUAL_UNROLLING(OPNAME) \
 //			template<std::size_t N,typename T,typename Storage> \
 //			struct OPNAME##binary_equal{ \
@@ -144,6 +147,7 @@
 //					return lhs;\
 //				}\
 //			};
+
 //#define MA_VS_BINARAY_EQUAL_UNROLLING(OPNAME) \
 //	template<std::size_t N,typename T,typename Storage> \
 //			struct OPNAME##binary_equal{ \
@@ -164,6 +168,7 @@
 //			}\
 //			};
 //
+
 //
 //#define MA_VS_BINARAY_UNROLLING(OPNAME) \
 //	template<typename T,typename Storage>\

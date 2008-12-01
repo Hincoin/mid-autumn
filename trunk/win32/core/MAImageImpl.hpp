@@ -2,7 +2,7 @@
 #define MA_IMAGE_IMPL_HPP
 
 #include "MAImage.hpp"
-
+#include "MAColor.hpp"
 #include <cassert>
 
 namespace ma{
@@ -24,13 +24,13 @@ namespace ma{
 
 	//! Returns image data size in pixels
 	template<typename Configure>
-	unsigned int MAImage<Configure>::getImageDataSizeInPixels() const 
+	unsigned int MAImage<Configure>::getImageDataSizeInPixels() const
 	{	return scalar2_op::width(Size) * scalar2_op::height(Size);}
 
 	//! Returns a pixel
 	template<typename Configure>
 	typename Configure::Color MAImage<Configure>::getPixel(unsigned int x, unsigned int y) const
-	{	
+	{
 		if (x >= (unsigned int) scalar2_op::width(Size) ||
 			y >= (unsigned int) scalar2_op::height(Size) )
 			return Color(0);
@@ -38,9 +38,9 @@ namespace ma{
 		switch(Format)
 		{
 		case ECF_A1R5G5B5:
-			return A1R5G5B5toA8R8G8B8(((unsigned short*)Data)[y * scalar2_op::width(Size)  + x]);
+			return color_op::A1R5G5B5toA8R8G8B8(((unsigned short*)Data)[y * scalar2_op::width(Size)  + x]);
 		case ECF_R5G6B5:
-			return R5G6B5toA8R8G8B8(((unsigned short*)Data)[y* scalar2_op::width(Size) + x]);
+			return color_op::R5G6B5toA8R8G8B8(((unsigned short*)Data)[y* scalar2_op::width(Size) + x]);
 		case ECF_A8R8G8B8:
 			return ((unsigned int*)Data)[y* scalar2_op::width(Size) + x];
 		case ECF_R8G8B8:
@@ -52,7 +52,6 @@ namespace ma{
 
 		return Color(0);
 	}
-
 	//! Sets a pixel
 	template<typename Configure>
 	void MAImage<Configure>::setPixel(unsigned int x, unsigned int y, const Color &color ){
@@ -65,7 +64,7 @@ namespace ma{
 			//{
 			//	unsigned short * dest = (unsigned short*) ((unsigned char*) Data + ( y * Pitch ) + ( x << 1 ));
 			//	*dest = video::A8R8G8B8toA1R5G5B5 ( color.color );
-			//} 
+			//}
 			break;
 
 		case ECF_R5G6B5:
@@ -119,11 +118,11 @@ namespace ma{
 	template<typename Configure>
 	void MAImage<Configure>::copyToScaling(void* target, int width, int height, ECOLOR_FORMAT format/*=ECF_A8R8G8B8*/, unsigned int pitch/*=0*/)
 	{
-	};
+	}
 
 	//! Copies the image into the target, scaling the image to fit
 	template<typename Configure>
-	void MAImage<Configure>::copyToScaling(ImagePtr target) 
+	void MAImage<Configure>::copyToScaling(MAImage* target)
 	{
 	}
 

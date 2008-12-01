@@ -12,7 +12,7 @@ class _CLASS_NAME{\
 	Derived& derived(){return static_cast< Derived& >(*this);}\
 	const Derived& derived()const{return static_cast<const Derived& >(*this);}\
 protected:\
-	MA_CAT(~,_CLASS_NAME) (){}\
+	~_CLASS_NAME (){}\
 public:
 
 
@@ -22,8 +22,10 @@ public:
 	//typedef typename details::ma_traits::_typedef_traits_##_TYPE_<Derived>::type  _TYPE_;
 
 #define ADD_CRTP_INTERFACE_FUNC(_RET_TYPE,_FUNC_NAME, _PARAM_TYPE_LIST, _PARAM_NAME_LIST, _CONST_NESS)\
-	_RET_TYPE _FUNC_NAME##_PARAM_TYPE_LIST _CONST_NESS {return MA_CAT(derived(). , _FUNC_NAME##_PARAM_NAME_LIST) ;}
+	_RET_TYPE _FUNC_NAME _PARAM_TYPE_LIST _CONST_NESS {return (derived()._FUNC_NAME _PARAM_NAME_LIST) ;}
 
+#define ADD_CRTP_TEMPLATE_INTERFACE_FUNC( _TEMPLATE_ARGS, _RET_TYPE,_FUNC_NAME, _PARAM_TYPE_LIST, _PARAM_NAME_LIST, _CONST_NESS)\
+   template< _TEMPLATE_ARGS > _RET_TYPE _FUNC_NAME _PARAM_TYPE_LIST _CONST_NESS { return (derived().template <_TEMPLATE_ARGS> _FUNC_NAME _PARAM_NAME_LIST);}
 
 #define END_CRTP_INTERFACE()\
 };

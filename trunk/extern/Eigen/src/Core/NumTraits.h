@@ -60,6 +60,19 @@ template<> struct NumTraits<int>
     MulCost = 1
   };
 };
+//added by lzy
+template<> struct NumTraits<unsigned int>
+{
+  typedef int Real;
+  typedef double FloatingPoint;
+  enum {
+    IsComplex = 0,
+    HasFloatingPoint = 0,
+    ReadCost = 1,
+    AddCost = 1,
+    MulCost = 1
+  };
+};
 
 template<> struct NumTraits<float>
 {

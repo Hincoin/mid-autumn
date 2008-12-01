@@ -1,6 +1,7 @@
 #ifndef MACONFIG_HPP
 #define MACONFIG_HPP
 
+#include <boost/config.hpp>
 
 static const char* ma_version = "0.000000001";
 

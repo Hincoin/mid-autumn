@@ -24,7 +24,7 @@ namespace ma{
 	template<typename T1, typename T2>
 	struct select_accurate_type_traits // select bigger type by default
 	{
-		typedef typename boost::mpl::if_c< (sizeof(T1)>sizeof(T2)), 
+		typedef typename boost::mpl::if_c< (sizeof(T1)>sizeof(T2)),
 			typename boost::mpl::if_c<std::numeric_limits<T1>::is_exact && !std::numeric_limits<T2>::is_exact,T2,T1>::type,
 			typename boost::mpl::if_c<std::numeric_limits<T2>::is_exact && !std::numeric_limits<T1>::is_exact,T1,T2>::type >::type type;
 	};
@@ -100,6 +100,15 @@ namespace ma{
 		float t = clamp((x - a) / (b - a), 0.0f, 1.0f);
 		return t * t * (3 - 2 * t);
 	}
+	template<typename T>
+	inline T linearStep(T a,T b, T x)
+	{
+	    if (x <= a)
+			return 0;
+		if (x >= b)
+			return 1;
+        return (x - a)/(b-a);
+    }
 
 	//! code is taken from IceFPU
 	//! Integer representation of a floating-point value.
@@ -279,7 +288,7 @@ namespace ma{
 #elif defined(__GNUC__) && defined(__x86__)
 		__asm__ __volatile__ ("fclex \n\t");
 #else
-#  warn clearFPUException not supported.
+#warn clearFPUException not supported.
 #endif
 #endif
 	}
@@ -287,7 +296,7 @@ namespace ma{
 	/**
 	* Computes a fast approximation to <code>pow(a, b)</code>. Adapted
 	* from <url>http://www.dctsystems.co.uk/Software/power.html</url>.
-	* 
+	*
 	* @param a a positive number
 	* @param b a number
 	* @return a^b
@@ -326,7 +335,7 @@ namespace ma{
 	/**
 	* Solves the equation ax^2+bx+c=0. Solutions are returned in a sorted array
 	* if they exist.
-	* 
+	*
 	* @param a coefficient of x^2
 	* @param b coefficient of x^1
 	* @param c coefficient of x^0
@@ -350,7 +359,7 @@ namespace ma{
 	* Return only one root for the specified cubic equation. This routine is
 	* only meant to be called by the quartic solver. It assumes the cubic is of
 	* the form: x^3+px^2+qx+r.
-	* 
+	*
 	* @param p
 	* @param q
 	* @param r
@@ -382,7 +391,7 @@ namespace ma{
 	/**
 	* Solve a quartic equation of the form ax^4+bx^3+cx^2+cx^1+d=0. The roots
 	* are returned in a sorted array of doubles in increasing order.
-	* 
+	*
 	* @param a coefficient of x^4
 	* @param b coefficient of x^3
 	* @param c coefficient of x^2

@@ -3,7 +3,7 @@
 
 #include "Image.hpp"
 #include "Vector.hpp"
-
+#include "DuffsDevice.hpp"
 namespace ma{
 	template<typename Configure>
 	class MAImage:public Image<MAImage<Configure>,Configure>{
@@ -76,7 +76,8 @@ namespace ma{
 
 		//! Sets a pixel
 		void setPixel(unsigned int x, unsigned int y, const Color &color );
-
+        //! Get a line of pixel
+        //typename Color::value_type* getPixelLine(unsigned line);
 		//! Returns the color format
 		ECOLOR_FORMAT getColorFormat() const ;
 
@@ -99,7 +100,7 @@ namespace ma{
 		void copyToScaling(void* target, int width, int height, ECOLOR_FORMAT format/*=ECF_A8R8G8B8*/, unsigned int pitch/*=0*/);
 
 		//! Copies the image into the target, scaling the image to fit
-		void copyToScaling(ImagePtr target) ;
+		void copyToScaling(MAImage* target) ;
 
 		~MAImage(){if(DeleteMemory) delete[](char*)Data;}
 
@@ -140,6 +141,33 @@ namespace ma{
 		unsigned int BlueMask;
 		unsigned int AlphaMask;
 	};
+
+	struct MADepthBuffer{
+	    scalar2i size;
+	    float* buffer_;
+
+	    void clear(){
+	        float zMax = std::numeric_limits<float>::max();
+	        unsigned i = 0;
+	        DUFFS_DEVICE(64,unsigned,size[0]*size[1], buffer_[i++]= zMax;);
+	        //std::memset(buffer_,0,sizeof(float)* size[0]*size[1]);
+	        }
+	    //! constructor
+		MADepthBuffer(const scalar2i& sz)
+		{size = sz; buffer_ = new float[size[0] * size[1]]; clear();}
+
+		//! destructor
+		~MADepthBuffer(){delete [] buffer_;}
+
+		//! sets the new size of the zbuffer
+		//void setSize(const core::dimension2d<s32>& size)
+
+		//! returns the size of the zbuffer
+		const scalar2i& getSize() const{return size;}
+		const unsigned width()const{return scalar2_op::width(size);}
+		const unsigned height()const{ return scalar2_op::height(size);}
+		float* buffer(){return buffer_;}
+	    };
 }
 
 #include "MAImageImpl.hpp"
