@@ -29,7 +29,7 @@
 #include "MAAffineRasterizer.hpp"
 
 namespace ma{
-	
+
 
 	struct test_empty{};
 	struct empty_config_file_system{
@@ -55,7 +55,9 @@ namespace ma{
 		typedef ma::MAFileSystemWin32<ma::empty_config_file_system> FileSystem;
 		typedef FileSystem* FileSystemPtr;
 		typedef ma::MAImage<default_image_config> Image;
+		typedef ma::MADepthBuffer DepthBuffer;
 		typedef add_ptr<Image>::type ImagePtr;
+		typedef add_ptr<DepthBuffer>::type DepthBufferPtr;
 
 		typedef test_empty Texture;
 		typedef add_ptr<Texture>::type TexturePtr;

@@ -52,7 +52,7 @@ namespace ma{
 		{
 			assert(VertexShader::attribute_count <= MAX_ATTRIBUTES);
 
-			static const int VERTEX_CACHE_SIZE = 16;
+			static const int VERTEX_CACHE_SIZE = 16; // be power of 2 for convienience
 
 			struct PostTransformCache {
 				unsigned index_in, index_out;
@@ -68,13 +68,13 @@ namespace ma{
 				unsigned index = *indices++;
 
 				for (unsigned i = 0; i < VertexShader::attribute_count; ++i) {
-					in[i] = static_cast<const float*>(attributes_[i].buffer) + 
-						index * attributes_[i].stride;
+					in[i] = static_cast<const char*>(attributes_[i].buffer)+
+						index * attributes_[i].stride ;
 				}
 
-				unsigned cache_index = index & VERTEX_CACHE_SIZE - 1;
+				unsigned cache_index = index & (VERTEX_CACHE_SIZE - 1);
 				if (vcache[cache_index].index_in != index) {
-					VertexOutput& out = 
+					VertexOutput& out =
 						*static_cast<Derived*>(this)->acquire_output_location();
 					VertexShader::shade(in, out);
 					vcache[cache_index].index_in = index;
@@ -93,14 +93,14 @@ namespace ma{
 		}
 
 #if 0
-		// interface for derived classes. This code is here for documentation 
+		// interface for derived classes. This code is here for documentation
 		// purposes
 
-		// This method is called every time the vertex processos need a new 
+		// This method is called every time the vertex processos need a new
 		// location to store the vertex shader output
 		typename VertexOutput* acquire_output_location();
 
-		// For every processed vertex we push a new index. This starts at 0 and 
+		// For every processed vertex we push a new index. This starts at 0 and
 		// counts upwards. If we run out of memory and need to start anew this
 		// should return true to flush the vertex cache and start counting from 0
 		// again.

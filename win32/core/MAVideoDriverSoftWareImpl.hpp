@@ -2,7 +2,7 @@
 #define MA_VIDEODRIVER_SOFTWARE_IMPL_HPP
 
 #include "MAVideoDriverSoftWare.hpp"
-
+#include "Image.hpp"
 namespace ma{
 	template<typename Configure>
 	MAVideoDriverSoftWare<Configure>::MAVideoDriverSoftWare
@@ -11,36 +11,39 @@ namespace ma{
 	{
 		BackBuffer = new Image(ECF_A8R8G8B8, windowSize);
 		BackBuffer->fill(Color(0));
+		depth_buffer_ = new DepthBuffer(windowSize);  //32 bit depth buffer
+		depth_buffer_->clear();
 	}
 	template<typename Configure>
 	MAVideoDriverSoftWare<Configure>::~MAVideoDriverSoftWare()
 	{
 		//delete pointer free memory
 		delete BackBuffer;
+		delete depth_buffer_;
 	}
 
-	
+
 	template<typename Configure>
 	template<typename Vertex_PTR>
 	void MAVideoDriverSoftWare<Configure>::drawIndexedTriangleList(const Vertex_PTR verts,unsigned int vert_cnt,const unsigned int* idx_list,unsigned int tri_cnt)
 	{
 				//
 	}
-	
-	
-	template<typename Configure>
-	template<typename Point_T> 
-	void MAVideoDriverSoftWare<Configure>::draw3DLine(const Point_T& start,const Point_T& end,Color clr)
-	{
-			
-	}
-	
+
 
 	template<typename Configure>
-		template<typename Triangle_T>	
+	template<typename Point_T>
+	void MAVideoDriverSoftWare<Configure>::draw3DLine(const Point_T& start,const Point_T& end,Color clr)
+	{
+
+	}
+
+
+	template<typename Configure>
+		template<typename Triangle_T>
 	void MAVideoDriverSoftWare<Configure>::draw3DTriangle(const Triangle_T& tri,Color clr)
 	{
-		
+
 	}
 
 

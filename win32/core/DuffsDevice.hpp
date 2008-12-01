@@ -11,33 +11,41 @@
 # include <boost/mpl/if.hpp>
 # include <boost/mpl/bool.hpp>
 
-namespace details{
+namespace ma
+{
+    namespace details
+    {
 
-	template<unsigned>
-	struct is_power_2;
-	template<>
-	struct is_power_2<1>:boost::mpl::true_
-	{};
-	template<unsigned n>
-	struct is_power_2:boost::mpl::if_c<n&1, boost::mpl::false_ ,is_power_2<(n>>1)> >::type
-	{};
+        template<unsigned>
+        struct is_power_2;
+        template<>
+        struct is_power_2<1>:boost::mpl::true_
+            {};
+        template<unsigned n>
+        struct is_power_2:boost::mpl::if_c<n&1, boost::mpl::false_ ,is_power_2<(n>>1)> >::type
+            {};
 
-template<unsigned int N>
-struct _mod{
+        template<unsigned int N>
+        struct _mod
+        {
 private:
 
-	enum{N_1 = (N-1)};
-	static unsigned mod_impl(unsigned i,boost::mpl::true_*){
-		return i&(N_1);
-	}
-	static unsigned mod_impl(unsigned i,boost::mpl::false_*){
-		return i%N;
-	}
+            enum{N_1 = (N-1)};
+            static unsigned mod_impl(unsigned i,boost::mpl::true_*)
+            {
+                return i&(N_1);
+            }
+            static unsigned mod_impl(unsigned i,boost::mpl::false_*)
+            {
+                return i%N;
+            }
 public:
-	static unsigned mod(unsigned i){
-		return mod_impl(i,(is_power_2<N>*)(0));
-	}
-};
+            static unsigned mod(unsigned i)
+            {
+                return mod_impl(i,(is_power_2<N>*)(0));
+            }
+        };
+    }
 }
 
 # /* Expands to a Duff's Device. */
@@ -55,7 +63,7 @@ public:
 	if (duffs_device_initial_cnt > 0) { \
 	COUNTER_TYPE duffs_device_running_cnt = (duffs_device_initial_cnt + (UNROLLING_FACTOR - 1)) / UNROLLING_FACTOR; \
 	switch (/*duffs_device_initial_cnt % UNROLLING_FACTOR*/  \
-	details::_mod<UNROLLING_FACTOR>::mod(duffs_device_initial_cnt)) { \
+	::ma::details::_mod<UNROLLING_FACTOR>::mod(duffs_device_initial_cnt)) { \
 	do { \
 	BOOST_PP_REPEAT(UNROLLING_FACTOR, DUFFS_DEVICE_C, (UNROLLING_FACTOR, { STATEMENT })) \
 	} while (--duffs_device_running_cnt); \

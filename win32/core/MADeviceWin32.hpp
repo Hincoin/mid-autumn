@@ -16,11 +16,11 @@
 
 namespace ma
 {
-	template<typename Configure>
-	class MADeviceWin32:public MADevice<MADeviceWin32<Configure>, Configure >,  Configure::ImagePresenter
+	template<typename Configure_T>
+	class MADeviceWin32:public MADevice<MADeviceWin32<Configure_T>, Configure_T >,  Configure_T::ImagePresenter
 	{
 	public:
-		typedef Configure Configure;
+		typedef Configure_T Configure;
 		typedef typename Configure::Printer Printer;
 		typedef typename Configure::VideoDriver VideoDriver;
 		typedef typename Configure::FileSystem FileSystem;
@@ -43,6 +43,8 @@ namespace ma
 		typedef typename Configure::EventProcessorPtr EventProcessorPtr;
 
 		typedef typename Configure::DriverType DriverType;
+
+		typedef MADevice<MADeviceWin32<Configure_T>, Configure_T > DeviceBase;
 	public:
 		MADeviceWin32(DriverType driverType,
 			scalar2i& windowSize,
@@ -103,14 +105,14 @@ namespace ma
 
 		typedef boost::bimap<HWND,MADeviceWin32<Configure>* > EnvironmentMap;
 		static  EnvironmentMap environment_map_;
-		
+
 	private:
 		static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 		static MADeviceWin32<Configure>* getDeviceFromHWnd(HWND hwnd);
 	};
 	template<typename Configure>
-	boost::bimap<HWND,MADeviceWin32<Configure>*> 
+	boost::bimap<HWND,MADeviceWin32<Configure>*>
 		MADeviceWin32<Configure>::environment_map_;
 
 

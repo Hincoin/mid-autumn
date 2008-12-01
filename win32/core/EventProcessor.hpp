@@ -5,7 +5,7 @@
 
 
 namespace ma{
-	
+
 
 
 	template<typename Derived,typename ClassConfig>
@@ -17,7 +17,7 @@ namespace ma{
 		/** \return True if the event was processed. */
 		bool onEvent(const EventType& event)
 		{
-			static_cast<Derived&>(*this).onEvent(event);
+			return static_cast<Derived&>(*this).onEvent(event);
 		}
 	protected:
 		~EventProcessor(){}

@@ -12,6 +12,8 @@ namespace ma{
 
 		typedef typename Configure::ImagePtr ImagePtr;
 		typedef typename Configure::Texture TexturePtr;
+		typedef typename Configure::DepthBuffer DepthBuffer;
+		typedef typename Configure::DepthBufferPtr DepthBufferPtr ;
 
 		typedef typename Configure::GeometryRenderer GeometryRenderer;
 		typedef typename Configure::GeometryRendererPtr GeometryRendererPtr;
@@ -31,8 +33,8 @@ namespace ma{
 			if (backBuffer)
 				BackBuffer->fill( clr );
 
-			//if (DepthBuffer && zBuffer)
-			//	DepthBuffer->clear();
+			if (depth_buffer_ && zBuffer)
+				depth_buffer_->clear();
 
 			return true;
 		}
@@ -54,8 +56,10 @@ namespace ma{
 			const void* vertex_buffer,const unsigned* tri_index_buffer);
 
 		ImagePtr getBackBuffer(){return BackBuffer;}
+		DepthBufferPtr getDepthBuffer(){return depth_buffer_;}
 	private:
 		ImagePtr BackBuffer;
+		DepthBufferPtr depth_buffer_;
 
 		TexturePtr RenderTargetTexture;
 		ImagePtr RenderTargetSurface;
@@ -67,7 +71,7 @@ namespace ma{
 		FileSystemPtr FileSystem_;
 
 		GeometryRendererPtr geometry_renderer_;
-		
+
 	};
 }
 

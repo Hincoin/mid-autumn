@@ -2,18 +2,19 @@
 #define MADEVICEWIN32IMPL_HPP
 
 #include "MADevice.hpp"
-
+#include "MADeviceWin32.hpp"
+#include "MAEventType.hpp"
 #include <winuser.h>
 
 
 
 namespace ma{
-		
+
 
 	template<typename Configure>
 	MADeviceWin32<Configure>* MADeviceWin32<Configure>::getDeviceFromHWnd(HWND hwnd)
 	{
-		typedef EnvironmentMap::left_iterator EnvMapLeftIterator;
+		typedef typename EnvironmentMap::left_iterator EnvMapLeftIterator;
 		EnvMapLeftIterator env_it = environment_map_.left.find(hwnd);
 		return env_it == environment_map_.left.end() ? 0 : env_it->second ;
 	}
@@ -28,10 +29,10 @@ namespace ma{
 #endif
 			MADeviceWin32<Configure>* dev = 0;
 
-			typedef Configure::EventType EventType;
+			typedef typename Configure::EventType EventType;
 			EventType event;
 
-			typedef EnvironmentMap::left_iterator EnvMapLeftIterator;
+			typedef typename EnvironmentMap::left_iterator EnvMapLeftIterator;
 			//SEnvMapper* envm = 0;
 
 			BYTE allKeys[256];
@@ -112,11 +113,11 @@ namespace ma{
 				event.mouse_event.Event = EMIE_LMOUSE_UP;
 				event.mouse_event.x = (short)LOWORD(lParam);
 				event.mouse_event.y= (short)HIWORD(lParam);
-				
+
 				dev = getDeviceFromHWnd(hWnd);
 				if (dev)
 					dev->postEventFromUser(event);
-				
+
 				return 0;
 
 			case WM_RBUTTONDOWN:
@@ -237,8 +238,8 @@ namespace ma{
 		}
 	template<typename Configure>
 	MADeviceWin32<Configure>::MADeviceWin32
-		(DriverType driverType, scalar2i& windowSize, 
-		unsigned int bits, bool fullscreen, bool stencilbuffer, 
+		(DriverType driverType, scalar2i& windowSize,
+		unsigned int bits, bool fullscreen, bool stencilbuffer,
 		bool vsync, bool antiAlias, bool highPrecisionFPU,
 		EventProcessorPtr receiver, HWND externalWindow)
 		:
@@ -248,7 +249,7 @@ namespace ma{
 		ExternalWindow(false)
 	{
 		std::string winversion(getWindowsVersion());
-		OSOperator_ = new OSOperator(/*winversion*/);
+		DeviceBase::OSOperator_ = new OSOperator(/*winversion*/);
 		//Printer::log(winversion.c_str(), ELL_INFORMATION);
 
 		// create window
@@ -264,12 +265,12 @@ namespace ma{
 		{
 #ifdef UNICODE
 			const char c_name[]  = "CIrrDeviceWin32";
-			wchar_t ClassName[sizeof(c_name)/2 + 1]={0}; 
+			wchar_t ClassName[sizeof(c_name)/2 + 1]={0};
 			char2wchar<sizeof(c_name)>(c_name,ClassName);
 #else
 			const char* ClassName = "CIrrDeviceWin32";
 #endif
-			
+
 
 			// Register Class
 			WNDCLASSEX wcex;
@@ -287,7 +288,7 @@ namespace ma{
 			wcex.hIconSm		= 0;
 
 			// if there is an icon, load it
-			wcex.hIcon = (HICON)LoadImage(hInstance, 0, IMAGE_ICON, 0,0, LR_LOADFROMFILE); 
+			wcex.hIcon = NULL;//(HICON)LoadImage(hInstance, 0, IMAGE_ICON, 0,0, LR_LOADFROMFILE);
 
 			RegisterClassEx(&wcex);
 
@@ -352,11 +353,11 @@ namespace ma{
 
 		createDriver(driverType, windowSize, bits, fullscreen, stencilbuffer, vsync, antiAlias, highPrecisionFPU);
 
-		if (VideoDriver_)
-			createGUIAndScene();
+		if (DeviceBase::VideoDriver_)
+			DeviceBase::createGUIAndScene();
 
 		// register environment
-		environment_map_.insert(EnvironmentMap::value_type(HWnd,this));
+		environment_map_.insert(typename EnvironmentMap::value_type(HWnd,this));
 
 		// set this as active window
 		SetActiveWindow(HWnd);
@@ -365,7 +366,7 @@ namespace ma{
 	template<typename Configure>
 	MADeviceWin32<Configure>::~MADeviceWin32()
 	{
-		EnvironmentMap::left_iterator envmap_it = environment_map_.left.find(HWnd);
+		typename EnvironmentMap::left_iterator envmap_it = environment_map_.left.find(HWnd);
 		if (envmap_it != environment_map_.left.end())
 		{
 			environment_map_.left.erase(envmap_it);
@@ -404,18 +405,18 @@ namespace ma{
 	{
 		Sleep(10);
 	}
-	
+
 	template<typename Configure>
 	void MADeviceWin32<Configure>::sleep(std::size_t timeMs, bool is_pauseTimer)
 	{
-		bool wasStopped = Timer_ ? Timer_->isStopped() : true;
+		bool wasStopped = DeviceBase::Timer_ ? DeviceBase::Timer_->isStopped() : true;
 		if (is_pauseTimer && !wasStopped)
-			Timer->stop();
+			DeviceBase::Timer_->stop();
 
 		Sleep(timeMs);
 
 		if (is_pauseTimer && !wasStopped)
-			Timer->start();
+			DeviceBase::Timer_->start();
 	}
 
 	template<typename Configure>
@@ -424,17 +425,17 @@ namespace ma{
 	{
 		if (fullscreen)	switchToFullScreen(windowSize[0], windowSize[1], bits);
 		typename Configure::DriverCreator driver_creator;
-		VideoDriver_ = driver_creator(windowSize, fullscreen, FileSystem_);
+		DeviceBase::VideoDriver_ = driver_creator(windowSize, fullscreen, DeviceBase::FileSystem_);
 	}
 	template<typename Configure>
 	void MADeviceWin32<Configure>::resizeIfNecessary()
 	{
-		
+
 	}
 	template<typename Configure>
 	void MADeviceWin32<Configure>::OnResized()
 	{
-		
+
 	}
 	template<typename Configure>
 	bool MADeviceWin32<Configure>::switchToFullScreen(int width, int height, int bits)

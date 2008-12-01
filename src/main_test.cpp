@@ -70,6 +70,10 @@
 #endif
 
 namespace ma_test{}
+
+//#define WIN32_LEAN_AND_MEAN
+//#include <windows.h>
+
 int main()
 {
     using namespace ma_test;
@@ -139,5 +143,9 @@ int main()
 #ifdef DUFFS_DEVICE_TEST
 duffs_device_test();
 #endif
+   //wchar_t a=0;
+    //using namespace std;
+    //swprintf("%c",a);
+ //   std::string a;
 	return 0;
 }

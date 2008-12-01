@@ -2,6 +2,8 @@
 #define MA_EVENT_TYPE_HPP
 
 #include "EventType.hpp"
+#include "KeyCodes.hpp"
+#include "Logger.hpp"
 
 namespace ma{
 
