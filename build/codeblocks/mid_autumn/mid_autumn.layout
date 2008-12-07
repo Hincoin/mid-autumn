@@ -55,14 +55,14 @@
 	<File name="..\..\..\win32\core\MADeviceConfigure.hpp" open="0" top="0" tabpos="0">
 		<Cursor position="1472" topLine="45" />
 	</File>
-	<File name="..\..\..\win32\core\MADeviceImpl.hpp" open="0" top="0" tabpos="0">
-		<Cursor position="445" topLine="4" />
+	<File name="..\..\..\win32\core\MADeviceImpl.hpp" open="1" top="0" tabpos="5">
+		<Cursor position="562" topLine="25" />
 	</File>
 	<File name="..\..\..\win32\core\MADeviceWin32.hpp" open="0" top="0" tabpos="2">
 		<Cursor position="1704" topLine="42" />
 	</File>
-	<File name="..\..\..\win32\core\MADeviceWin32Impl.hpp" open="0" top="0" tabpos="1">
-		<Cursor position="9365" topLine="317" />
+	<File name="..\..\..\win32\core\MADeviceWin32Impl.hpp" open="1" top="0" tabpos="6">
+		<Cursor position="9088" topLine="305" />
 	</File>
 	<File name="..\..\..\win32\core\MAEventType.hpp" open="0" top="0" tabpos="11">
 		<Cursor position="130" topLine="0" />
@@ -70,17 +70,17 @@
 	<File name="..\..\..\win32\core\MAGeometryRenderer.hpp" open="0" top="0" tabpos="0">
 		<Cursor position="2496" topLine="82" />
 	</File>
-	<File name="..\..\..\win32\core\MAGeometryRendererImpl.hpp" open="0" top="0" tabpos="1">
-		<Cursor position="3750" topLine="105" />
+	<File name="..\..\..\win32\core\MAGeometryRendererImpl.hpp" open="1" top="1" tabpos="1">
+		<Cursor position="4794" topLine="143" />
 	</File>
-	<File name="..\..\..\win32\core\MAImage.hpp" open="0" top="0" tabpos="0">
-		<Cursor position="4951" topLine="147" />
+	<File name="..\..\..\win32\core\MAImage.hpp" open="1" top="0" tabpos="3">
+		<Cursor position="4701" topLine="139" />
 	</File>
 	<File name="..\..\..\win32\core\MAImageImpl.hpp" open="0" top="0" tabpos="0">
 		<Cursor position="1792" topLine="36" />
 	</File>
-	<File name="..\..\..\win32\core\MAMath.hpp" open="0" top="0" tabpos="1">
-		<Cursor position="6423" topLine="279" />
+	<File name="..\..\..\win32\core\MAMath.hpp" open="1" top="0" tabpos="10">
+		<Cursor position="2530" topLine="61" />
 	</File>
 	<File name="..\..\..\win32\core\MAMesh.hpp" open="0" top="0" tabpos="6">
 		<Cursor position="8555" topLine="258" />
@@ -91,8 +91,8 @@
 	<File name="..\..\..\win32\core\MAPoly.hpp" open="0" top="0" tabpos="5">
 		<Cursor position="4455" topLine="128" />
 	</File>
-	<File name="..\..\..\win32\core\MARasterizer.hpp" open="0" top="0" tabpos="4">
-		<Cursor position="562" topLine="11" />
+	<File name="..\..\..\win32\core\MARasterizer.hpp" open="1" top="0" tabpos="4">
+		<Cursor position="228" topLine="0" />
 	</File>
 	<File name="..\..\..\win32\core\MAVertex.hpp" open="0" top="0" tabpos="7">
 		<Cursor position="1338" topLine="26" />
@@ -100,17 +100,17 @@
 	<File name="..\..\..\win32\core\MAVertexProcessor.hpp" open="0" top="0" tabpos="0">
 		<Cursor position="1769" topLine="48" />
 	</File>
-	<File name="..\..\..\win32\core\MAVideoDriverSoftWare.hpp" open="0" top="0" tabpos="3">
-		<Cursor position="532" topLine="3" />
+	<File name="..\..\..\win32\core\MAVideoDriverSoftWare.hpp" open="1" top="0" tabpos="8">
+		<Cursor position="1225" topLine="18" />
 	</File>
-	<File name="..\..\..\win32\core\MAVideoDriverSoftWareImpl.hpp" open="0" top="0" tabpos="6">
-		<Cursor position="1805" topLine="41" />
+	<File name="..\..\..\win32\core\MAVideoDriverSoftWareImpl.hpp" open="1" top="0" tabpos="7">
+		<Cursor position="1672" topLine="40" />
 	</File>
 	<File name="..\..\..\win32\core\Mesh_Test.hpp" open="0" top="0" tabpos="8">
 		<Cursor position="403" topLine="15" />
 	</File>
-	<File name="..\..\..\win32\core\Shader_test.hpp" open="0" top="0" tabpos="0">
-		<Cursor position="101112" topLine="2733" />
+	<File name="..\..\..\win32\core\Shader_test.hpp" open="1" top="0" tabpos="2">
+		<Cursor position="97569" topLine="2634" />
 	</File>
 	<File name="..\..\..\win32\core\SpaceSegment.hpp" open="0" top="0" tabpos="7">
 		<Cursor position="1561" topLine="26" />
@@ -121,7 +121,7 @@
 	<File name="..\..\..\win32\core\VideoDriver.hpp" open="0" top="0" tabpos="2">
 		<Cursor position="1983" topLine="28" />
 	</File>
-	<File name="..\..\..\win32\core\win32_device_test.hpp" open="0" top="0" tabpos="3">
-		<Cursor position="121" topLine="0" />
+	<File name="..\..\..\win32\core\win32_device_test.hpp" open="1" top="0" tabpos="9">
+		<Cursor position="2606" topLine="73" />
 	</File>
 </CodeBlocks_layout_file>

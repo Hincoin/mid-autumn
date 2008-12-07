@@ -147,6 +147,9 @@ namespace ma{
 	    float* buffer_;
 
 	    void clear(){
+#ifdef max
+#undef max
+#endif
 	        float zMax = std::numeric_limits<float>::max();
 	        unsigned i = 0;
 	        DUFFS_DEVICE(64,unsigned,size[0]*size[1], buffer_[i++]= zMax;);

@@ -103,7 +103,7 @@ namespace ma{
 			return VertexShader::varying_count;
 		}
 	private:
-		void add_interp_vertex(int t, int out, int in);
+		void add_interp_vertex(float t, int out, int in);
 
 		void pdiv_and_vt();
 
