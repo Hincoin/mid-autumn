@@ -107,7 +107,7 @@ namespace ma{
 		inline bool clip_test(int x, int y)
 		{
 			return (x >= clip_rect_.x0 && x < clip_rect_.x1 &&
-				x >= clip_rect_.y0 && y < clip_rect_.y1);
+				y >= clip_rect_.y0 && y < clip_rect_.y1);
 		}
 
 		inline bool ilace_drawit(int y)

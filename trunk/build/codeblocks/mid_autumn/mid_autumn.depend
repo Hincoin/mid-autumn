@@ -1429,7 +1429,7 @@
 1228035451 l:\ma\win32\core\guimanager.hpp
 	"NullType.hpp"
 
-1228138601 l:\ma\win32\core\maimage.hpp
+1228400387 l:\ma\win32\core\maimage.hpp
 	"Image.hpp"
 	"Vector.hpp"
 	"DuffsDevice.hpp"
@@ -1452,30 +1452,31 @@
 	<memory>
 	<functional>
 
-1227875586 l:\ma\win32\core\mageometryrenderer.hpp
+1228628380 l:\ma\win32\core\mageometryrenderer.hpp
 	"MAVertexProcessor.hpp"
 	<boost/shared_ptr.hpp>
 	"MAGeometryRendererImpl.hpp"
 
 1228035444 l:\ma\win32\core\mavertexprocessor.hpp
 
-1227801355 l:\ma\win32\core\mageometryrendererimpl.hpp
+1228632901 l:\ma\win32\core\mageometryrendererimpl.hpp
 	<cassert>
 	"MAGeometryRenderer.hpp"
 
-1228138280 l:\ma\win32\core\maaffinerasterizer.hpp
+1228576745 l:\ma\win32\core\maaffinerasterizer.hpp
 	"MARasterizer.hpp"
 	"MAMath.hpp"
 	<omp.h>
 
-1227891766 l:\ma\win32\core\marasterizer.hpp
+1228576242 l:\ma\win32\core\marasterizer.hpp
 	"NullType.hpp"
 
-1228140465 l:\ma\win32\core\shader_test.hpp
+1228661152 l:\ma\win32\core\shader_test.hpp
 	"Vector.hpp"
 	<boost/pointee.hpp>
 	"MAFragmentProcessor.hpp"
 	"MAMath.hpp"
+	"test_data.hpp"
 
 1227877631 l:\ma\win32\core\mafragmentprocessor.hpp
 	"MARasterizer.hpp"
@@ -7454,4 +7455,6 @@
 	<boost/throw_exception.hpp>
 	<algorithm>
 	<boost/config.hpp>
+
+1228633153 l:\ma\win32\core\test_data.hpp
 

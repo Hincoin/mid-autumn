@@ -104,7 +104,8 @@ namespace ma
             int maxy = (std::max(std::max(Y1, Y2), Y3) + 0xF) >> 4;
 
             //Bonding rectangle intersect with the clip rect
-            if( !clip_test(minx,miny) && !clip_test(maxx,maxy))
+            if( !clip_test(minx,miny) && !clip_test(maxx,maxy)
+            && !clip_test(minx,maxy) && !clip_test(maxx,miny))
                 return;
             minx = std::max(minx,clip_rect_.x0);
             miny = std::max(miny,clip_rect_.y0);
