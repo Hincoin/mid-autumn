@@ -12,7 +12,12 @@
 #include "MAMath.hpp"
 
 //shader
+#define TEXTURE_TEST
+#ifdef TEXTURE_TEST
+#include "TextureShader_Test.hpp"
+#else
 #include "Shader_test.hpp"
+#endif
 struct win32_device_test_configure{
 	//MADeviceWin32(DriverType driverType,
 	//	const rangei& windowSize,

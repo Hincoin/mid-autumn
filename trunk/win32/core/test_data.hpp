@@ -1,6 +1,8 @@
 #ifndef TEST_DATA_HPP_INCLUDED
 #define TEST_DATA_HPP_INCLUDED
 
+#include "Vector.hpp"
+
 namespace ma_test
 {
 
@@ -83,6 +85,7 @@ namespace ma_test
     		35,
     	};*/
 
+/*
     float vertex_data[] =
     {
         2.318446f, -0.849679f, 0.000000f, 0.999959f, 0.009035f, -0.000029f,
@@ -2493,6 +2496,20 @@ namespace ma_test
         840,
         884,
     };
+   */
+    using namespace ma;
+    struct TexVertex{
+        vector3f vertex;
+        float tx,ty;
+        };
+
+        TexVertex vertex_data[]={
+            {vector3f(-8,-8,1),0,0},
+            {vector3f(7,-8,1),1,0},
+            {vector3f(7,7,1),1,1},
+            {vector3f(-8,7,1),0,1},
+            };
+            unsigned index_data[] = {0, 1, 2, 0, 2, 3};
 }
 
 #endif // TEST_DATA_HPP_INCLUDED

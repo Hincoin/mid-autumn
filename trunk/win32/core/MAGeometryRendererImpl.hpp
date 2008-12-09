@@ -106,8 +106,10 @@ void MAGeometryRenderer<Rasterizer>::add_interp_vertex(float t, int out, int in)
 	v.w = lerp(a.w,b.w,t);//LINTERP(t, a.w, b.w);
 
 	for (unsigned i = 0, n = varying_count_(); i < n; ++i)
+	{
 		v.varyings[i] = lerp(a.varyings[i],b.varyings[i],t);//LINTERP(t, a.varyings[i], b.varyings[i]);
-
+		//assert(v.varyings[i] * v.w < 1.1f);
+	}
 	//#undef LINTERP
 
     }
@@ -131,6 +133,7 @@ void MAGeometryRenderer<Rasterizer>::pdiv_and_vt(){
 			v.x/=v.w;
 			v.y/=v.w;
 			v.z/=v.w;
+
 			// triangle setup (x and y are converted from 16.16 to 28.4)
 			v.x = (viewport_.px * v.x + viewport_.ox); /*>> 12;*/
 
