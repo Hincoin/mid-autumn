@@ -1329,12 +1329,13 @@
 1225194455 l:\ma\win32\core\logger.hpp
 	"NullType.hpp"
 
-1228054777 l:\ma\win32\core\win32_device_test.hpp
+1228743996 l:\ma\win32\core\win32_device_test.hpp
 	"MADeviceWin32.hpp"
 	"MADeviceConfigure.hpp"
 	"CreateDevice.hpp"
 	"PtrTraits.hpp"
 	"MAMath.hpp"
+	"TextureShader_Test.hpp"
 	"Shader_test.hpp"
 	"MAVertex.hpp"
 
@@ -1459,7 +1460,7 @@
 
 1228035444 l:\ma\win32\core\mavertexprocessor.hpp
 
-1228632901 l:\ma\win32\core\mageometryrendererimpl.hpp
+1228831477 l:\ma\win32\core\mageometryrendererimpl.hpp
 	<cassert>
 	"MAGeometryRenderer.hpp"
 
@@ -1471,7 +1472,7 @@
 1228576242 l:\ma\win32\core\marasterizer.hpp
 	"NullType.hpp"
 
-1228661152 l:\ma\win32\core\shader_test.hpp
+1228743501 l:\ma\win32\core\shader_test.hpp
 	"Vector.hpp"
 	<boost/pointee.hpp>
 	"MAFragmentProcessor.hpp"
@@ -7456,5 +7457,13 @@
 	<algorithm>
 	<boost/config.hpp>
 
-1228633153 l:\ma\win32\core\test_data.hpp
+1228829977 l:\ma\win32\core\test_data.hpp
+	"Vector.hpp"
+
+1228833061 l:\ma\win32\core\textureshader_test.hpp
+	"Vector.hpp"
+	<boost/pointee.hpp>
+	"MAFragmentProcessor.hpp"
+	"MAMath.hpp"
+	"test_data.hpp"
 

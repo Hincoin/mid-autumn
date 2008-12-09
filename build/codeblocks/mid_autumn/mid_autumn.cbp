@@ -153,6 +153,7 @@
 		<Unit filename="..\..\..\win32\core\SceneManager.hpp" />
 		<Unit filename="..\..\..\win32\core\Shader_test.hpp" />
 		<Unit filename="..\..\..\win32\core\SpaceSegment.hpp" />
+		<Unit filename="..\..\..\win32\core\TextureShader_Test.hpp" />
 		<Unit filename="..\..\..\win32\core\TypeConversion.hpp" />
 		<Unit filename="..\..\..\win32\core\TypeDefs.hpp" />
 		<Unit filename="..\..\..\win32\core\Vector.hpp" />
@@ -161,6 +162,7 @@
 		<Unit filename="..\..\..\win32\core\crtp_interface_macro_test.hpp" />
 		<Unit filename="..\..\..\win32\core\ma_any_test.hpp" />
 		<Unit filename="..\..\..\win32\core\move_test.hpp" />
+		<Unit filename="..\..\..\win32\core\test_data.hpp" />
 		<Unit filename="..\..\..\win32\core\type_conversion_test.hpp" />
 		<Unit filename="..\..\..\win32\core\win32_device_test.hpp" />
 		<Extensions>
