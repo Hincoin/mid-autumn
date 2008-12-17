@@ -14,6 +14,8 @@ namespace ma{
 		typedef typename Configure::Texture TexturePtr;
 		typedef typename Configure::DepthBuffer DepthBuffer;
 		typedef typename Configure::DepthBufferPtr DepthBufferPtr ;
+		typedef typename Configure::StencilBuffer StencilBuffer;
+		typedef typename Configure::StencilBufferPtr StencilBufferPtr;
 
 		typedef typename Configure::GeometryRenderer GeometryRenderer;
 		typedef typename Configure::GeometryRendererPtr GeometryRendererPtr;
@@ -34,8 +36,9 @@ namespace ma{
 				BackBuffer->fill( clr );
 
 			if (depth_buffer_ && zBuffer)
-				depth_buffer_->clear();
-
+				depth_buffer_->clear(std::numeric_limits<float>::max());
+            if (stencil_buffer_)
+                stencil_buffer_->clear(0);
 			return true;
 		}
 		template<typename PresenterPtr>
@@ -57,9 +60,11 @@ namespace ma{
 
 		ImagePtr getBackBuffer(){return BackBuffer;}
 		DepthBufferPtr getDepthBuffer(){return depth_buffer_;}
+		StencilBufferPtr getStencilBuffer(){return stencil_buffer_;}
 	private:
 		ImagePtr BackBuffer;
 		DepthBufferPtr depth_buffer_;
+		StencilBufferPtr stencil_buffer_;
 
 		TexturePtr RenderTargetTexture;
 		ImagePtr RenderTargetSurface;

@@ -56,8 +56,10 @@ namespace ma{
 		typedef FileSystem* FileSystemPtr;
 		typedef ma::MAImage<default_image_config> Image;
 		typedef ma::MADepthBuffer DepthBuffer;
+		typedef ma::MAStencilBuffer StencilBuffer;
 		typedef add_ptr<Image>::type ImagePtr;
 		typedef add_ptr<DepthBuffer>::type DepthBufferPtr;
+		typedef add_ptr<MAStencilBuffer>::type StencilBufferPtr;
 
 		typedef test_empty Texture;
 		typedef add_ptr<Texture>::type TexturePtr;
