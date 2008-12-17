@@ -1329,17 +1329,18 @@
 1225194455 l:\ma\win32\core\logger.hpp
 	"NullType.hpp"
 
-1228743996 l:\ma\win32\core\win32_device_test.hpp
+1229345202 l:\ma\win32\core\win32_device_test.hpp
 	"MADeviceWin32.hpp"
 	"MADeviceConfigure.hpp"
 	"CreateDevice.hpp"
 	"PtrTraits.hpp"
 	"MAMath.hpp"
+	"Stencil_buffer_test.hpp"
 	"TextureShader_Test.hpp"
 	"Shader_test.hpp"
 	"MAVertex.hpp"
 
-1228057222 l:\ma\win32\core\madeviceconfigure.hpp
+1229138694 l:\ma\win32\core\madeviceconfigure.hpp
 	"MAEventProcessor.hpp"
 	"MAFileSystemWin32.hpp"
 	"MALogger.hpp"
@@ -1405,7 +1406,7 @@
 1225114269 l:\ma\win32\core\maprinter.hpp
 	"Logger.hpp"
 
-1228057326 l:\ma\win32\core\mavideodriversoftware.hpp
+1229519580 l:\ma\win32\core\mavideodriversoftware.hpp
 	"VideoDriver.hpp"
 	"AddPointer.hpp"
 	"MAVideoDriverSoftWareImpl.hpp"
@@ -1417,7 +1418,7 @@
 1225366701 l:\ma\win32\core\addpointer.hpp
 	<boost/type_traits/add_pointer.hpp>
 
-1228057233 l:\ma\win32\core\mavideodriversoftwareimpl.hpp
+1229346339 l:\ma\win32\core\mavideodriversoftwareimpl.hpp
 	"MAVideoDriverSoftWare.hpp"
 	"Image.hpp"
 
@@ -1430,7 +1431,7 @@
 1228035451 l:\ma\win32\core\guimanager.hpp
 	"NullType.hpp"
 
-1228400387 l:\ma\win32\core\maimage.hpp
+1229143125 l:\ma\win32\core\maimage.hpp
 	"Image.hpp"
 	"Vector.hpp"
 	"DuffsDevice.hpp"
@@ -7457,7 +7458,7 @@
 	<algorithm>
 	<boost/config.hpp>
 
-1228829977 l:\ma\win32\core\test_data.hpp
+1229345737 l:\ma\win32\core\test_data.hpp
 	"Vector.hpp"
 
 1228833061 l:\ma\win32\core\textureshader_test.hpp
@@ -7466,4 +7467,14 @@
 	"MAFragmentProcessor.hpp"
 	"MAMath.hpp"
 	"test_data.hpp"
+
+1229520543 l:\ma\win32\core\stencil_buffer_test.hpp
+	"MAStencilFunction.hpp"
+	"Vector.hpp"
+	<boost/pointee.hpp>
+	"MAFragmentProcessor.hpp"
+	"MAMath.hpp"
+	"test_data.hpp"
+
+1229352097 l:\ma\win32\core\mastencilfunction.hpp
 

@@ -142,25 +142,27 @@ namespace ma{
 		unsigned int AlphaMask;
 	};
 
-	struct MADepthBuffer{
+//a 2 dimesion buffer
+    template<typename T>
+	struct MA2DBuffer{
 	    scalar2i size;
-	    float* buffer_;
-
-	    void clear(){
+	    T* buffer_;
+        //using value to fill the buffer
+	    void clear(T value){
 #ifdef max
 #undef max
 #endif
-	        float zMax = std::numeric_limits<float>::max();
+	        //float zMax = std::numeric_limits<float>::max();
 	        unsigned i = 0;
-	        DUFFS_DEVICE(64,unsigned,size[0]*size[1], buffer_[i++]= zMax;);
+	        DUFFS_DEVICE(64,unsigned,size[0]*size[1], buffer_[i++]= value;);
 	        //std::memset(buffer_,0,sizeof(float)* size[0]*size[1]);
 	        }
 	    //! constructor
-		MADepthBuffer(const scalar2i& sz)
-		{size = sz; buffer_ = new float[size[0] * size[1]]; clear();}
+		MA2DBuffer(const scalar2i& sz)
+		{size = sz; buffer_ = new T[size[0] * size[1]]; clear(T());}
 
 		//! destructor
-		~MADepthBuffer(){delete [] buffer_;}
+		~MA2DBuffer(){delete [] buffer_;}
 
 		//! sets the new size of the zbuffer
 		//void setSize(const core::dimension2d<s32>& size)
@@ -169,8 +171,10 @@ namespace ma{
 		const scalar2i& getSize() const{return size;}
 		const unsigned width()const{return scalar2_op::width(size);}
 		const unsigned height()const{ return scalar2_op::height(size);}
-		float* buffer(){return buffer_;}
+		T* buffer(){return buffer_;}
 	    };
+	    typedef MA2DBuffer<float> MADepthBuffer;
+	    typedef MA2DBuffer<char> MAStencilBuffer;
 }
 
 #include "MAImageImpl.hpp"

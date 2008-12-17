@@ -12,10 +12,17 @@
 #include "MAMath.hpp"
 
 //shader
-#define TEXTURE_TEST
+//#define TEXTURE_TEST
+#define STENCIL_TEST
+//#define SHADER_TEST
+
+#ifdef STENCIL_TEST
+#include "Stencil_buffer_test.hpp"
+#endif
 #ifdef TEXTURE_TEST
 #include "TextureShader_Test.hpp"
-#else
+#endif
+#ifdef SHADER_TEST
 #include "Shader_test.hpp"
 #endif
 struct win32_device_test_configure{

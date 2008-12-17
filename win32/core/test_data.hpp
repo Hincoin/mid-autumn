@@ -6,7 +6,8 @@
 namespace ma_test
 {
 
-/*
+#ifdef NO_TEXTURE_SMALL
+
     	float vertex_data[] = {
     		0.707107f, 0.707107f, 0.000000f, 0.886394f, 0.237509f, 0.397360f,
     		0.000000f, 0.000000f, 2.000000f, 0.886394f, 0.237509f, 0.397360f,
@@ -83,9 +84,9 @@ namespace ma_test
     		33,
     		34,
     		35,
-    	};*/
-
-/*
+    	};
+#endif
+#ifdef NO_TEXTURE_BIG
     float vertex_data[] =
     {
         2.318446f, -0.849679f, 0.000000f, 0.999959f, 0.009035f, -0.000029f,
@@ -2496,8 +2497,10 @@ namespace ma_test
         840,
         884,
     };
-   */
-    using namespace ma;
+   #endif
+
+   #ifdef HAS_TEXTURE
+       using namespace ma;
     struct TexVertex{
         vector3f vertex;
         float tx,ty;
@@ -2510,6 +2513,7 @@ namespace ma_test
             {vector3f(-8,7,1),0,1},
             };
             unsigned index_data[] = {0, 1, 2, 0, 2, 3};
+#endif
 }
 
 #endif // TEST_DATA_HPP_INCLUDED

@@ -12,7 +12,9 @@ namespace ma{
 		BackBuffer = new Image(ECF_A8R8G8B8, windowSize);
 		BackBuffer->fill(Color(0));
 		depth_buffer_ = new DepthBuffer(windowSize);  //32 bit depth buffer
-		depth_buffer_->clear();
+		depth_buffer_->clear(std::numeric_limits<float>::max());
+		stencil_buffer_ = new StencilBuffer(windowSize);
+		stencil_buffer_->clear(0);
 	}
 	template<typename Configure>
 	MAVideoDriverSoftWare<Configure>::~MAVideoDriverSoftWare()
