@@ -131,15 +131,6 @@ namespace ma
             if (DY23 < 0 || (DY23 == 0 && DX23 > 0)) C2++;
             if (DY31 < 0 || (DY31 == 0 && DX31 > 0)) C3++;
 
-            FragmentData fdi;
-            fdi.varyings[0] = 0xFF;
-            fdi.varyings[1] = 0x0;
-            fdi.varyings[2] = 0xFF;
-
-            FragmentData fdo;
-            fdo.varyings[0] = 0x0;
-            fdo.varyings[1] = 0xFF;
-            fdo.varyings[2] = 0xFF;
             // Loop through blocks
             //use openmp to do the parallel job to fill the pixels
             #pragma omp parallel for
@@ -185,7 +176,7 @@ namespace ma
                             for (int ix = x; ix < x + q; ix++)
                             {
                                 //buffer[ix] = 0x00007F00;<< // Green
-                                FragSpan::single_fragment(ix,y + iy,fdi);
+                                FragSpan::single_fragment(ix,y + iy);
                             }
 
                             //(char*&)buffer += stride;
@@ -208,7 +199,7 @@ namespace ma
                                 if (CX1 > 0 && CX2 > 0 && CX3 > 0)
                                 {
                                     //buffer[ix] = 0x0000007F;<< // Blue
-                                    FragSpan::single_fragment(ix,iy,fdo);
+                                    FragSpan::single_fragment(ix,iy);
                                 }
 
                                 CX1 -= FDY12;

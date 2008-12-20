@@ -10,6 +10,8 @@
 
 #include "MAFragmentProcessor.hpp"
 #include "MAMath.hpp"
+
+#define HAS_TEXTURE
 #include "test_data.hpp"
 
 
@@ -170,7 +172,7 @@ namespace ma_test
     {
 public:
         static const unsigned attribute_count = 1;
-        static const unsigned varying_count = 2;
+        static const unsigned persp_var_cnt = 2;
 
 public:
         static transform3f viewprojection_matrix;
@@ -196,8 +198,8 @@ public:
             out.y = vector_op::y(tvertex) ;
             out.z = vector_op::z(tvertex) ;
             out.w = vector_op::w(tvertex) ;
-            out.varyings[0] = in_vertex.tx;
-            out.varyings[1] = in_vertex.ty;
+            out.perspective_varyings[0] = in_vertex.tx;
+            out.perspective_varyings[1] = in_vertex.ty;
 
             //perspective correction for attributes u and v
             //out.varyings[0]/=out.w;
@@ -226,14 +228,15 @@ public:
     public:
         typedef typename DriverType::ImagePtr ImagePtr;
         typedef typename DriverType::DepthBufferPtr DepthBufferPtr;
+        typedef GenericSpanDrawer<FragmentShaderTex<DriverType> > Base;
 
         static const unsigned varying_count = 3;
         static const bool interpolate_z = false;
         static ImagePtr render_target;
         static DepthBufferPtr z_buffer;
-        static const MARasterizerBase::Vertex* tri_v1;
-        static const MARasterizerBase::Vertex* tri_v2;
-        static const MARasterizerBase::Vertex* tri_v3;
+        static  MARasterizerBase::Vertex* tri_v1;
+        static  MARasterizerBase::Vertex* tri_v2;
+        static  MARasterizerBase::Vertex* tri_v3;
 
         static Texture* tex;
         static float uv0[2],uv1[2],uv2[2];
@@ -243,53 +246,65 @@ public:
             const MARasterizerBase::Vertex& v2,
             const MARasterizerBase::Vertex& v3)
         {
-            tri_v1 = &v1;
-            tri_v2 = &v2;
-            tri_v3 = &v3;
-            //sort by y axis
-            if (tri_v1->y < tri_v2->y) //v1 < v2
-            {
-                if (tri_v1->y < tri_v3->y)
-                {
-                    if (tri_v2->y < tri_v3->y);
-                    else std::swap(tri_v2,tri_v3);
-                }
-                else//tri_v2->y > tri_v1->y > tri_v3->y
-                {
-                    std::swap(tri_v1,tri_v3);//tri_v1 be smallest
-                    std::swap(tri_v2,tri_v3);//tri_v3 be biggest
-                }
-            }
-            else if (tri_v1->y < tri_v3->y) // v2 < v1 < v3
-            {
-                std::swap(tri_v1,tri_v2);
-            }
-            else//v1 > v2, v1 > v3
-            {
-                if (tri_v2->y > tri_v3->y)//v1> v2 > v3
-                {
-                    std::swap(tri_v3,tri_v1);
-                }
-                else //v1 > v3 > v2
-                {
-                    std::swap(tri_v1,tri_v2);
-                    std::swap(tri_v2,tri_v3);
-                }
+            Base::prepare_gauround_triangle(v1,v2,v3,tri_v1,tri_v2,tri_v3);
+            //uv0[0] = (*tri_v1).perspective_varyings[0]/v1.w;
+            //uv0[1] = (*tri_v1).perspective_varyings[1]/v1.w;
 
-            }
+            //uv1[0] = (*tri_v2).perspective_varyings[0]/v2.w;
+            //uv1[1] = (*tri_v2).perspective_varyings[1]/v2.w;
 
-            uv0[0] = tri_v1->varyings[0]/tri_v1->w;
-            uv0[1] = tri_v1->varyings[1]/tri_v1->w;
+            //uv2[0] = (*tri_v3).perspective_varyings[0]/v3.w;
+            //uv2[1] = (*tri_v3).perspective_varyings[1]/v3.w;
+
+            //tri_v1 = &v1;
+            //tri_v2 = &v2;
+            //tri_v3 = &v3;
+            ////sort by y axis
+            //if (tri_v1->y < tri_v2->y) //v1 < v2
+            //{
+            //    if (tri_v1->y < tri_v3->y)
+            //    {
+            //        if (tri_v2->y < tri_v3->y);
+            //        else std::swap(tri_v2,tri_v3);
+            //    }
+            //    else//tri_v2->y > tri_v1->y > tri_v3->y
+            //    {
+            //        std::swap(tri_v1,tri_v3);//tri_v1 be smallest
+            //        std::swap(tri_v2,tri_v3);//tri_v3 be biggest
+            //    }
+            //}
+            //else if (tri_v1->y < tri_v3->y) // v2 < v1 < v3
+            //{
+            //    std::swap(tri_v1,tri_v2);
+            //}
+            //else//v1 > v2, v1 > v3
+            //{
+            //    if (tri_v2->y > tri_v3->y)//v1> v2 > v3
+            //    {
+            //        std::swap(tri_v3,tri_v1);
+            //    }
+            //    else //v1 > v3 > v2
+            //    {
+            //        std::swap(tri_v1,tri_v2);
+            //        std::swap(tri_v2,tri_v3);
+            //    }
+
+            //}
+
+/*
+            uv0[0] = tri_v1->perspective_varyings[0];//tri_v1->w;
+            uv0[1] = tri_v1->perspective_varyings[1];//tri_v1->w;
 
 
-            uv1[0] = tri_v2->varyings[0]/tri_v2->w;
-            uv1[1] = tri_v2->varyings[1]/tri_v2->w;
+            uv1[0] = tri_v2->perspective_varyings[0];//tri_v2->w;
+            uv1[1] = tri_v2->perspective_varyings[1];//tri_v2->w;
 
 
-            uv2[0] = tri_v3->varyings[0]/tri_v3->w;
-            uv2[1] = tri_v3->varyings[1]/tri_v3->w;
-
+            uv2[0] = tri_v3->perspective_varyings[0];//tri_v3->w;
+            uv2[1] = tri_v3->perspective_varyings[1];//tri_v3->w;
+*/
             assert( tri_v1->y <= tri_v2->y && tri_v2->y <= tri_v3->y );
+
         }
         //true if culled out
         static bool z_cull(int x,int y,
@@ -322,14 +337,19 @@ public:
             }
             return true;
         }
-        static void single_fragment(int x, int y, const MARasterizerBase::FragmentData &fd)
+        static void single_fragment(int x, int y)
         {
             using namespace ma;
+            using namespace details;
 #ifdef LINEAR_Z_INTERPOLATE
             float* z_b = z_buffer->buffer() + y * z_buffer->width() + x;
             float interpolated_z = 0;
 #endif
-
+            MARasterizerBase::FragmentData frag;
+            if(!Base::gauround_shading(x,y,*tri_v1,*tri_v2,*tri_v3,z_b,(NullType*)0,
+                StencilFunctor<ma::details::only_z_tag,ma::details::only_z_tag>(),frag,typename Base::perspective_correct_tag())) return;
+             render_target->setPixel(x,y,tex->sample(frag.perspective_varyings[0],frag.perspective_varyings[1]));
+             return;
             //simple z interpolate method: assume that no triangle intersect each other
             //interpolated_z = (tri_v1->z+tri_v2->z+tri_v3->z)/3.f;
             //if (interpolated_z >= *(z_b) )
@@ -472,11 +492,11 @@ public:
     template<typename DriverType>
     typename DriverType::DepthBufferPtr FragmentShaderTex<DriverType>::z_buffer = 0;
     template<typename DriverType>
-    const MARasterizerBase::Vertex* FragmentShaderTex<DriverType>::tri_v1 =0;
+     MARasterizerBase::Vertex* FragmentShaderTex<DriverType>::tri_v1 =0;
     template<typename DriverType>
-    const MARasterizerBase::Vertex* FragmentShaderTex<DriverType>::tri_v2 =0;
+     MARasterizerBase::Vertex* FragmentShaderTex<DriverType>::tri_v2 =0;
     template<typename DriverType>
-    const MARasterizerBase::Vertex* FragmentShaderTex<DriverType>::tri_v3 =0;
+     MARasterizerBase::Vertex* FragmentShaderTex<DriverType>::tri_v3 =0;
  template<typename DriverType>
     Texture* FragmentShaderTex<DriverType>::tex = 0;
 
@@ -501,7 +521,7 @@ public:
         VertexShaderTex<GeometryRenderer>::viewprojection_matrix = projection_matrix *
                 lookat_matrix(
                     //vector3f(sin(((t * 2)/1000.0f))*3 +5, sin(((t * 1.5f)/1000.0f))*2 + 1, sin((t/1000.0f) +5)),
-                    vector3f(0, sin(((t * 1.5f)/1000.0f))*8 + 4, sin(((t * 20)/1000.0f))*3 + 5),
+                    vector3f(0, sin(((t * 1.5f)/1000.0f))*3 + 4, sin(((t * 20)/1000.0f))*3 + 10),
                     vector3f((0.0f), (0.0f), (0.0f)),
                     vector3f((0.0f), (1.0f), (.0f)));
         t+=1.f;
@@ -523,6 +543,8 @@ public:
         FragmentShaderTex<Driver>::z_buffer = d_ptr->getDepthBuffer();
         FragmentShaderTex<Driver>::tex = &tex;
         assert( FragmentShaderTex<Driver>::render_target && FragmentShaderTex<Driver>::z_buffer);
+        MARasterizerBase::Vertex::linear_var_cnt = 0;
+        MARasterizerBase::Vertex::persp_var_cnt = 2;
         //d_ptr->template drawIndexTriangleBuffer<VertexShader<GeometryRenderer>,FragmentShader<Driver> >(sizeof(vertex_data)/sizeof(float),sizeof(index_data)/sizeof(unsigned),sizeof(float) * 6,vertex_data,index_data);
 
         d_ptr->template drawIndexTriangleBuffer<VertexShaderTex<GeometryRenderer>,FragmentShaderTex<Driver> >

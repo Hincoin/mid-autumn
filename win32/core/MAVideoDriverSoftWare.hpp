@@ -3,6 +3,13 @@
 
 #include "VideoDriver.hpp"
 #include "AddPointer.hpp"
+#ifdef max
+#undef max
+#endif
+#ifdef min
+#undef min
+#endif
+
 namespace ma{
 	template<typename Configure>
 	class MAVideoDriverSoftWare:public VideoDriver<MAVideoDriverSoftWare<Configure>,Configure >{

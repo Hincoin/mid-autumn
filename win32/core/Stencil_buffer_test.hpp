@@ -303,7 +303,9 @@ enum eClearFlag
 
     public:
         static const unsigned attribute_count = 1;
-        static const unsigned varying_count = 3;
+        //static const unsigned varying_count = 3;'
+        static const unsigned persp_var_cnt = 0;
+        static const unsigned linear_var_cnt = 3;
 
     public:
         static transform3f viewprojection_matrix;
@@ -342,9 +344,9 @@ enum eClearFlag
             out.y = vector_op::y(tvertex) ;
             out.z = vector_op::z(tvertex) ;
             out.w = vector_op::w(tvertex) ;
-            out.varyings[0] = vector_op::x(color);
-            out.varyings[1] = vector_op::y(color);
-            out.varyings[2] = vector_op::z(color);
+            out.linear_varyings[0] = vector_op::x(color);
+            out.linear_varyings[1] = vector_op::y(color);
+            out.linear_varyings[2] = vector_op::z(color);
             //debug code
             if (out.x/out.w > 0.0001f )
             {
@@ -378,12 +380,14 @@ enum eClearFlag
     class FragmentShader : public GenericSpanDrawer<FragmentShader<DriverType> >
     {
     public:
+    typedef GenericSpanDrawer<FragmentShader<DriverType> > Base;
         typedef typename DriverType::ImagePtr ImagePtr;
         typedef typename DriverType::DepthBufferPtr DepthBufferPtr;
         typedef typename DriverType::StencilBufferPtr StencilBufferPtr;
         typedef bool (*StencilFun)(float z,float *z_buffer,int ref,int mask,char* stencil);
 
         static StencilFun stencil_func;
+
         static int ref,mask;//stencil operation
         static const unsigned varying_count = 3;
         static const bool interpolate_z = false;
@@ -400,193 +404,33 @@ enum eClearFlag
             const MARasterizerBase::Vertex& v2,
             const MARasterizerBase::Vertex& v3)
         {
-            tri_v1 = &v1;
-            tri_v2 = &v2;
-            tri_v3 = &v3;
-            //sort by y axis
-            if (tri_v1->y < tri_v2->y) //v1 < v2
-            {
-                if (tri_v1->y < tri_v3->y)
-                {
-                    if (tri_v2->y < tri_v3->y);
-                    else std::swap(tri_v2,tri_v3);
-                }
-                else//tri_v2->y > tri_v1->y > tri_v3->y
-                {
-                    std::swap(tri_v1,tri_v3);//tri_v1 be smallest
-                    std::swap(tri_v2,tri_v3);//tri_v3 be biggest
-                }
-            }
-            else if (tri_v1->y < tri_v3->y) // v2 < v1 < v3
-            {
-                std::swap(tri_v1,tri_v2);
-            }
-            else//v1 > v2, v1 > v3
-            {
-                if (tri_v2->y > tri_v3->y)//v1> v2 > v3
-                {
-                    std::swap(tri_v3,tri_v1);
-                }
-                else //v1 > v3 > v2
-                {
-                    std::swap(tri_v1,tri_v2);
-                    std::swap(tri_v2,tri_v3);
-                }
-
-            }
-            assert( tri_v1->y <= tri_v2->y && tri_v2->y <= tri_v3->y );
+            Base::prepare_gauround_triangle
+            (v1,v2,v3,tri_v1,tri_v2,tri_v3);
         }
-         static void single_fragment(int x, int y, const MARasterizerBase::FragmentData &fd)
+         static void single_fragment(int x, int y)
         {
             using namespace ma;
-#ifdef LINEAR_Z_INTERPOLATE
-            float* z_b = z_buffer->buffer() + y * z_buffer->width() + x;
+            //run stencil test first
             char* s_b = stencil_buffer->buffer()+y * stencil_buffer->width() + x;
-            float interpolated_z = 0;
-#endif
-            //simple z interpolate method: assume that no triangle intersect each other
-            //interpolated_z = (tri_v1->z+tri_v2->z+tri_v3->z)/3.f;
-            //if (interpolated_z >= *(z_b) )
-            //    return;
+            if(stencil_func && !(*stencil_func)(0,0,ref,mask,s_b))return;
 
-            //*(z_b ) = interpolated_z;
-            //if (interpolated_z < 0 )
-            //{
-            //    return;
-            //}
-#ifndef LINEAR_Z_INTERPOLATE
-            //if (z_cull(x,y,*tri_v1,*tri_v2,*tri_v3))return;
-#endif
-            //gauraud shading
-            //in y axis
-            if (y < tri_v2->y) // betwenn v1,v2
+            float* z_b = z_buffer->buffer() + y * z_buffer->width() + x;
+            MARasterizerBase::FragmentData frag;
+            if(stencil_func)
             {
-                float t12 = linearStep(tri_v1->y,tri_v2->y,(float)y);
-                float t13 = linearStep(tri_v1->y,tri_v3->y,(float)y);
-#ifdef LINEAR_Z_INTERPOLATE
-                float z12 = lerp(tri_v1->z,tri_v2->z,t12);
-                float z13 = lerp(tri_v1->z,tri_v3->z,t13);
-#endif
-
-
-                float slopeR12 = lerp(tri_v1->varyings[0],tri_v2->varyings[0],t12);
-                float slopeG12 = lerp(tri_v1->varyings[1],tri_v2->varyings[1],t12);
-                float slopeB12 = lerp(tri_v1->varyings[2],tri_v2->varyings[2],t12);
-                float posx12 = lerp(tri_v1->x,tri_v2->x,t12);
-
-
-
-                float slopeR13 = lerp(tri_v1->varyings[0],tri_v3->varyings[0],t13);
-                float slopeG13 = lerp(tri_v1->varyings[1],tri_v3->varyings[1],t13);
-                float slopeB13 = lerp(tri_v1->varyings[2],tri_v3->varyings[2],t13);
-                float posx13 = lerp(tri_v1->x,tri_v3->x,t13);
-
-
-                if (posx12 < posx13)
-                {
-                    float tx = linearStep(posx12,posx13,(float)x);
-#ifdef LINEAR_Z_INTERPOLATE
-                    {
-                        interpolated_z = lerp(z12,z13,tx);
-                        assert(interpolated_z >=0 );
-                        if (interpolated_z>0 &&
-                        //*z_b > interpolated_z
-                        (*stencil_func)(interpolated_z,z_b,ref,mask,s_b)
-                        )
-                            *(z_b) = interpolated_z;
-                        else return;
-                    }
-#endif
-                    unsigned r = (unsigned)(lerp(slopeR12,slopeR13,tx)*255.f);
-                    unsigned g = (unsigned)(lerp(slopeG12,slopeG13,tx)*255.f);
-                    unsigned b = (unsigned)(lerp(slopeB12,slopeB13,tx)*255.f);
-                    unsigned color = 0xFF000000 | r << 16 | g << 8 | b;
-                    render_target->setPixel(x,y,color);
-                }
-                else
-                {
-                    float tx = linearStep(posx13,posx12,(float)x);
-#ifdef LINEAR_Z_INTERPOLATE
-                    {
-                        interpolated_z =lerp(z13,z12,tx);
-                        assert(interpolated_z >=0 );
-                        if (interpolated_z>0 &&
-                        (*stencil_func)(interpolated_z,z_b,ref,mask,s_b)
-                         //*z_b > interpolated_z
-                         )
-                            *(z_b) = interpolated_z;
-                        else return;
-                    }
-#endif
-
-                    unsigned r = (unsigned)(lerp(slopeR13,slopeR12,tx)*255.f);
-                    unsigned g = (unsigned)(lerp(slopeG13,slopeG12,tx)*255.f);
-                    unsigned b = (unsigned)(lerp(slopeB13,slopeB12,tx)*255.f);
-                    unsigned color = 0xFF000000 | r << 16 | g << 8 | b;
-                    render_target->setPixel(x,y,color);
-                }
-            }
+            StencilFunctor<float,char> sf(ref,mask,stencil_func);
+            if (!Base::gauround_shading(x,y,*tri_v1,*tri_v2,*tri_v3,z_b,s_b,sf,frag))return;}
             else
             {
-                float t23 = linearStep(tri_v2->y,tri_v3->y,(float)y);
-                float t13 = linearStep(tri_v1->y,tri_v3->y,(float)y);
-#ifdef LINEAR_Z_INTERPOLATE
-                float z23 = lerp(tri_v2->z,tri_v3->z, t23);
-                float z13 = lerp(tri_v1->z,tri_v3->z, t13);
-#endif
-                float slopeR23 = lerp(tri_v2->varyings[0],tri_v3->varyings[0],t23);
-                float slopeG23 = lerp(tri_v2->varyings[1],tri_v3->varyings[1],t23);
-                float slopeB23 = lerp(tri_v2->varyings[2],tri_v3->varyings[2],t23);
-                float posx23 = lerp(tri_v2->x,tri_v3->x,t23);
-
-
-                float slopeR13 = lerp(tri_v1->varyings[0],tri_v3->varyings[0],t13);
-                float slopeG13 = lerp(tri_v1->varyings[1],tri_v3->varyings[1],t13);
-                float slopeB13 = lerp(tri_v1->varyings[2],tri_v3->varyings[2],t13);
-                float posx13 = lerp(tri_v1->x,tri_v3->x,t13);
-
-                if (posx23 < posx13)
-                {
-
-                    float tx = linearStep(posx23,posx13,(float)x);
-#ifdef LINEAR_Z_INTERPOLATE
-                    {
-                        interpolated_z = lerp(z23,z13, tx);
-                        assert(interpolated_z >=0 );
-                        if (interpolated_z>0 && //*z_b > interpolated_z
-                        (*stencil_func)(interpolated_z,z_b,ref,mask,s_b)
-                        )
-                            *(z_b) = interpolated_z;
-                        else return;
-                    }
-#endif
-                    unsigned r = (unsigned)(lerp(slopeR23,slopeR13,tx)*255.f);
-                    unsigned g = (unsigned)(lerp(slopeG23,slopeG13,tx)*255.f);
-                    unsigned b = (unsigned)(lerp(slopeB23,slopeB13,tx)*255.f);
-                    unsigned color = 0xFF000000 | r << 16 | g << 8 | b;
-                    render_target->setPixel(x,y,color);
-                }
-                else
-                {
-                    float tx = linearStep(posx13,posx23,(float)x);
-#ifdef LINEAR_Z_INTERPOLATE
-                    {
-                        interpolated_z = lerp(z13,z23,tx);
-                        assert(interpolated_z >=0 );
-                        if (interpolated_z>0 && (*stencil_func)(interpolated_z,z_b,ref,mask,s_b)
-                        //*z_b > interpolated_z
-                        )
-                            *(z_b) = interpolated_z;
-                        else return;
-                    }
-#endif
-                    unsigned r = (unsigned)(lerp(slopeR13,slopeR23,tx)*255.f);
-                    unsigned g = (unsigned)(lerp(slopeG13,slopeG23,tx)*255.f);
-                    unsigned b = (unsigned)(lerp(slopeB13,slopeB23,tx)*255.f);
-                    unsigned color = 0xFF000000 | r << 16 | g << 8 | b;
-                    render_target->setPixel(x,y,color);
-                }
+                if(!Base::gauround_shading(x,y,*tri_v1,*tri_v2,*tri_v3,z_b,s_b,
+                StencilFunctor<ma::details::only_z_tag,ma::details::only_z_tag>(),frag)) return;
             }
+
+            unsigned r = (unsigned)(frag.linear_varyings[0]*255.f);
+            unsigned g = (unsigned)(frag.linear_varyings[1]*255.f);
+            unsigned b = (unsigned)(frag.linear_varyings[2]*255.f);
+            unsigned color = 0xFF000000 | r << 16 | g << 8 | b;
+            render_target->setPixel(x,y,color);
         }
     };
     template<typename DriverType>
@@ -596,7 +440,7 @@ enum eClearFlag
     template<typename DriverType>
     typename DriverType::StencilBufferPtr FragmentShader<DriverType>::stencil_buffer;
     template<typename DriverType>
-    typename FragmentShader<DriverType>::StencilFun FragmentShader<DriverType>::stencil_func;
+    typename FragmentShader<DriverType>::StencilFun FragmentShader<DriverType>::stencil_func = 0;
     template<typename DriverType>
     int FragmentShader<DriverType>::ref;
     template<typename DriverType>
@@ -614,6 +458,11 @@ enum eClearFlag
         typedef typename boost::pointee<driver_ptr>::type Driver;
         typedef typename Driver::GeometryRenderer GeometryRenderer;
         typedef typename Driver::ImagePtr ImagePtr;
+        typedef VertexShader<GeometryRenderer> VertexShader_;
+        typedef FragmentShader<Driver> FragmentShader_;
+
+        MARasterizerBase::Vertex::linear_var_cnt = VertexShader<GeometryRenderer>::linear_var_cnt;
+        MARasterizerBase::Vertex::persp_var_cnt = VertexShader<GeometryRenderer>::persp_var_cnt;;
         //set up matrices
         static float t = 1000.f;
 
@@ -655,6 +504,10 @@ enum eClearFlag
         FragmentShader<Driver>::mask = 0xFFFF;
         FragmentShader<Driver>::stencil_func = & stencil_test<StencilDepthTest<STENCILOP_KEEP,STENCILOP_KEEP,STENCILOP_REPLACE,CMP_NOTEQUAL> >;
          d_ptr->template drawIndexTriangleBuffer<VertexShader<GeometryRenderer>,FragmentShader<Driver> >
+        (sizeof(vertex_data)/sizeof(float),sizeof(index_data)/sizeof(unsigned),sizeof(float) * 6,vertex_data,index_data);
+        //disable stencil test
+        FragmentShader<Driver>::stencil_func = 0;
+        d_ptr->template drawIndexTriangleBuffer<VertexShader<GeometryRenderer>,FragmentShader<Driver> >
         (sizeof(vertex_data)/sizeof(float),sizeof(index_data)/sizeof(unsigned),sizeof(float) * 6,vertex_data,index_data);
     }
 }

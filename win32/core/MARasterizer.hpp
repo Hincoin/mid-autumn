@@ -6,22 +6,30 @@
 namespace ma{
 
 	//empty base
-	struct MARasterizerBase{
-		static const int MAX_VARYING = 8;
+	template<typename ComponentType,int MaX_VARYING>
+	struct MARasterizerBaseI{
+		static const int MAX_VARYING =MaX_VARYING;
 
 		// Type definitions
 		struct Vertex {
-			float x, y; // in 28.4 fixed point
-			float z; // range from 0 to 0x7fffffff
-			float w; // in 16.16 fixed point
-			float varyings[MAX_VARYING];
+			ComponentType x, y; // in 28.4 fixed point
+			ComponentType z; // range from 0 to 0x7fffffff
+			ComponentType w; // in 16.16 fixed point
+			ComponentType inv_w; //can share with w but sepearate them can be more readable
+			//float varyings[MAX_VARYING];
+			ComponentType perspective_varyings[MAX_VARYING];//such as texture coordinate
+			ComponentType linear_varyings[MAX_VARYING];//such as z,color
+			static unsigned persp_var_cnt;
+			static unsigned linear_var_cnt;
 		};
 
 		// This is the data necessary for each fragment. It is defined here
 		// as probably all rasterizers will need this.
 		struct FragmentData {
-			int z;
-			int varyings[MAX_VARYING];
+ComponentType z;
+			//float varyings[MAX_VARYING];
+			ComponentType perspective_varyings[MAX_VARYING];
+			ComponentType linear_varyings[MAX_VARYING];
 		};
 
 		// Use for perspective spans. Defined here for convenience
@@ -30,9 +38,16 @@ namespace ma{
 			FragmentData fd;
 		};
 	protected:
-		MARasterizerBase(){}
-		~MARasterizerBase(){}
+		MARasterizerBaseI(){}
+		~MARasterizerBaseI(){}
 	};
+	template<typename ComponentType,int MaxVarying>
+	unsigned MARasterizerBaseI<ComponentType,MaxVarying>::Vertex::persp_var_cnt;
+	template<typename ComponentType,int MaxVarying>
+	unsigned MARasterizerBaseI<ComponentType,MaxVarying>::Vertex::linear_var_cnt;
+
+    typedef MARasterizerBaseI<float,8> MARasterizerBase;
+
 	template<typename Derived, typename Configure=EmptyType>
 	class MARasterizer:public MARasterizerBase{
 		Derived& derived(){return static_cast<Derived&>(*this);}
@@ -55,7 +70,7 @@ namespace ma{
 	protected:
 		struct { int x0, y0, x1, y1; } clip_rect_;
 		struct { int offset; int mask; } interlace_;
-		unsigned varying_count_;
+		//unsigned varying_count_;
 
         typedef MARasterizer<RasterizerTemplateShaderBase<Derived> > Base;
 		friend class MARasterizer<RasterizerTemplateShaderBase<Derived> >;
@@ -72,14 +87,14 @@ namespace ma{
 
 
 
-		unsigned varying_count()
-		{ return varying_count_; }
+		//unsigned varying_count()
+		//{ return varying_count_; }
 
 		// set the fragment shader
 		template <typename FragSpan>
 		void fragment_shader()
 		{
-			varying_count_ = FragSpan::varying_count;
+			//varying_count_ = FragSpan::varying_count;
 			line_func_ = &RasterizerTemplateShaderBase<Derived>::template line_template<FragSpan>;
 			point_func_ = &RasterizerTemplateShaderBase<Derived>::template point_template<FragSpan>;
 		}
