@@ -1,7 +1,7 @@
 #ifndef MASTENCILFUNCTION_HPP_INCLUDED
 #define MASTENCILFUNCTION_HPP_INCLUDED
 
-
+namespace ma{
 ///----------------------------------------------------------------------------
 /// <summary> Comparision functions </summary>
 ///----------------------------------------------------------------------------
@@ -111,33 +111,33 @@ namespace details{
     struct StencilOp;
         template <>
     struct StencilOp<STENCILOP_KEEP>{
-                template <typename T,typename U>
+                template <typename U>
         void operator()(int ref,int mask,U* stencil)const{}
         };    template <>
     struct StencilOp<STENCILOP_ZERO>{
-                template <typename T,typename U>
+                template <typename U>
         void operator()(int ref,int mask,U* stencil)const{*stencil = U(0);}
         };
             template <>
     struct StencilOp<STENCILOP_REPLACE>{
-                template <typename T,typename U>
+                template <typename U>
         void operator()(int ref,int mask,U* stencil)const{*stencil = ref;}
 
         };
             template <>
     struct StencilOp<STENCILOP_INCR>{
-                template <typename T,typename U>
+                template <typename U>
         void operator()(int ref,int mask,U* stencil)const{ ++ *stencil;}
         };
             template<>
     struct StencilOp<STENCILOP_DECR>{
-                template <typename T,typename U>
+                template <typename U>
         void operator()(int ref,int mask,U* stencil)const{ -- *stencil;}
         };
 
             template<>
     struct StencilOp<STENCILOP_INVERT>{
-                template <typename T,typename U>
+                template <typename U>
         void operator()(int ref,int mask,U* stencil)const{ *stencil = ~ *stencil;}
         };
 }
@@ -145,26 +145,33 @@ namespace details{
     struct StencilDepthTest // true if the pixel should be processed
     {
         template<typename U,typename T>
-        bool operator()(U z,U* z_buffer,int ref,int mask,T* stencil)
+        bool operator()(U z,U* z_buffer,int ref,int mask,T* stencil)const
         {
             using namespace details;
-            if (MACompare<Cmp>()(*stencil & mask, ref& mask)) //stencil pass
-            {
+            if (z_buffer)//stencil pass
+            {// z test only
                 if(z < *z_buffer) // z pass
                 {
                 StencilOp<SPZP_Fun>()(ref,mask,stencil);return true;}
                 else // z fail
                 {StencilOp<SPZF_Fun>()(ref,mask,stencil);return false;}
-
+            }// stencil test only
+            else
+            {
+                if (MACompare<Cmp>()(*stencil & mask, ref& mask)) //stencil pass
+            {
+                return true;
             }
             else // stencil fail
             {
                 StencilOp<SF_Fun>()(ref,mask,stencil);
                 return false;
             }
+            }
         }
 
     };
 
+}
 
 #endif // MASTENCILFUNCTION_HPP_INCLUDED

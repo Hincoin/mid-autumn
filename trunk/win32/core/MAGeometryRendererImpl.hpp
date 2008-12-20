@@ -4,6 +4,7 @@
 #include <cassert>
 
 #include "MAGeometryRenderer.hpp"
+#include "MAMath.hpp"
 namespace ma
 {
 
@@ -105,10 +106,14 @@ void MAGeometryRenderer<Rasterizer>::add_interp_vertex(float t, int out, int in)
 	v.z = lerp(a.z,b.z,t);//LINTERP(t, a.z, b.z);
 	v.w = lerp(a.w,b.w,t);//LINTERP(t, a.w, b.w);
 
-	for (unsigned i = 0, n = varying_count_(); i < n; ++i)
+	for (unsigned i = 0; i < VertexOutput::persp_var_cnt; ++i)
 	{
-		v.varyings[i] = lerp(a.varyings[i],b.varyings[i],t);//LINTERP(t, a.varyings[i], b.varyings[i]);
+		v.perspective_varyings[i] = lerp(a.perspective_varyings[i],b.perspective_varyings[i],t);//LINTERP(t, a.varyings[i], b.varyings[i]);
 		//assert(v.varyings[i] * v.w < 1.1f);
+	}
+	for (unsigned i = 0; i < VertexOutput::linear_var_cnt; ++i)
+	{
+		v.linear_varyings[i] = lerp(a.linear_varyings[i],b.linear_varyings[i],t);
 	}
 	//#undef LINTERP
 
@@ -116,6 +121,7 @@ void MAGeometryRenderer<Rasterizer>::add_interp_vertex(float t, int out, int in)
 
 
 // perspective divide and viewport transform of vertices
+// call this after clippint
 template<typename Rasterizer>
 void MAGeometryRenderer<Rasterizer>::pdiv_and_vt(){
 
@@ -133,6 +139,7 @@ void MAGeometryRenderer<Rasterizer>::pdiv_and_vt(){
 			v.x/=v.w;
 			v.y/=v.w;
 			v.z/=v.w;
+			v.inv_w = reciprocal_approxim(v.w);//1.f/v.w;
 
 			// triangle setup (x and y are converted from 16.16 to 28.4)
 			v.x = (viewport_.px * v.x + viewport_.ox); /*>> 12;*/
@@ -149,6 +156,9 @@ void MAGeometryRenderer<Rasterizer>::pdiv_and_vt(){
 #undef far
 #endif
 			v.z = ((1 + v.z)*depth_range_.far+(1-v.z)*depth_range_.near)/2;
+			int k = 0;
+			DUFFS_DEVICE(8,int,VertexOutput::persp_var_cnt,
+			v.perspective_varyings[k] *= v.inv_w;++k;);
 
 			already_processed[indices_[i]] = true;
 		}

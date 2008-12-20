@@ -1,886 +1,4 @@
 # depslib dependency file v1.0
-1223553838 source:/mnt/mobile_disk/ma/extern/Eigen/src/Cholesky/CholeskyInstantiations.cpp
-	"../../Core"
-	"../../Cholesky"
-
-1223553852 /mnt/mobile_disk/ma/extern/Eigen/Core
-	<emmintrin.h>
-	<xmmintrin.h>
-	<pmmintrin.h>
-	<tmmintrin.h>
-	<altivec.h>
-	<cstdlib>
-	<cmath>
-	<complex>
-	<cassert>
-	<functional>
-	<iostream>
-	<cstring>
-	<string>
-	"src/Core/util/Macros.h"
-	"src/Core/util/Constants.h"
-	"src/Core/util/ForwardDeclarations.h"
-	"src/Core/util/Meta.h"
-	"src/Core/util/XprHelper.h"
-	"src/Core/util/StaticAssert.h"
-	"src/Core/util/Memory.h"
-	"src/Core/NumTraits.h"
-	"src/Core/MathFunctions.h"
-	"src/Core/GenericPacketMath.h"
-	"src/Core/arch/SSE/PacketMath.h"
-	"src/Core/arch/AltiVec/PacketMath.h"
-	"src/Core/Functors.h"
-	"src/Core/MatrixBase.h"
-	"src/Core/Coeffs.h"
-	"src/Core/Assign.h"
-	"src/Core/MatrixStorage.h"
-	"src/Core/NestByValue.h"
-	"src/Core/Flagged.h"
-	"src/Core/Matrix.h"
-	"src/Core/Cwise.h"
-	"src/Core/CwiseBinaryOp.h"
-	"src/Core/CwiseUnaryOp.h"
-	"src/Core/CwiseNullaryOp.h"
-	"src/Core/Dot.h"
-	"src/Core/Product.h"
-	"src/Core/DiagonalProduct.h"
-	"src/Core/SolveTriangular.h"
-	"src/Core/MapBase.h"
-	"src/Core/Map.h"
-	"src/Core/Block.h"
-	"src/Core/Minor.h"
-	"src/Core/Transpose.h"
-	"src/Core/DiagonalMatrix.h"
-	"src/Core/DiagonalCoeffs.h"
-	"src/Core/Sum.h"
-	"src/Core/Redux.h"
-	"src/Core/Visitor.h"
-	"src/Core/Fuzzy.h"
-	"src/Core/IO.h"
-	"src/Core/Swap.h"
-	"src/Core/CommaInitializer.h"
-	"src/Core/Part.h"
-	"src/Core/CacheFriendlyProduct.h"
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/util/Macros.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/util/Constants.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/util/ForwardDeclarations.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/util/Meta.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/util/XprHelper.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/util/StaticAssert.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/util/Memory.h
-
-1226936252 /mnt/mobile_disk/ma/extern/Eigen/src/Core/NumTraits.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/MathFunctions.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/GenericPacketMath.h
-
-1223553846 /mnt/mobile_disk/ma/extern/Eigen/src/Core/arch/SSE/PacketMath.h
-
-1223553846 /mnt/mobile_disk/ma/extern/Eigen/src/Core/arch/AltiVec/PacketMath.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/Functors.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/MatrixBase.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/Coeffs.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/Assign.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/MatrixStorage.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/NestByValue.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/Flagged.h
-
-1223707780 /mnt/mobile_disk/ma/extern/Eigen/src/Core/Matrix.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/Cwise.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/CwiseBinaryOp.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/CwiseUnaryOp.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/CwiseNullaryOp.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/Dot.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/Product.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/DiagonalProduct.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/SolveTriangular.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/MapBase.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/Map.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/Block.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/Minor.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/Transpose.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/DiagonalMatrix.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/DiagonalCoeffs.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/Sum.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/Redux.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/Visitor.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/Fuzzy.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/IO.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/Swap.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/CommaInitializer.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/Part.h
-
-1223553849 /mnt/mobile_disk/ma/extern/Eigen/src/Core/CacheFriendlyProduct.h
-
-1223553852 /mnt/mobile_disk/ma/extern/Eigen/Cholesky
-	"Core"
-	"src/Array/CwiseOperators.h"
-	"src/Array/Functors.h"
-	"src/Cholesky/Cholesky.h"
-	"src/Cholesky/CholeskyWithoutSquareRoot.h"
-
-1223553852 /mnt/mobile_disk/ma/extern/Eigen/src/Array/CwiseOperators.h
-
-1223553852 /mnt/mobile_disk/ma/extern/Eigen/src/Array/Functors.h
-
-1223553838 /mnt/mobile_disk/ma/extern/Eigen/src/Cholesky/Cholesky.h
-
-1223553837 /mnt/mobile_disk/ma/extern/Eigen/src/Cholesky/CholeskyWithoutSquareRoot.h
-
-1223553849 source:/mnt/mobile_disk/ma/extern/Eigen/src/Core/CoreInstantiations.cpp
-	"../../Core"
-
-1224314283 source:/mnt/mobile_disk/ma/src/core/MemoryMgr.cpp
-
-1227370971 source:/mnt/mobile_disk/ma/src/main_test.cpp
-	"Timer.hpp"
-	"Memory_Test.hpp"
-	<limits>
-	<cstdlib>
-	"move_test.hpp"
-	"MADeviceWin32.hpp"
-	"win32_device_test.hpp"
-	"type_conversion_test.hpp"
-	"ma_any_test.hpp"
-	"crtp_interface_macro_test.hpp"
-	"Mesh_Test.hpp"
-	"duffs_device_test.hpp"
-
-1227289510 /mnt/mobile_disk/ma/win32/core/Vector.hpp
-	<Eigen/Core>
-	<Eigen/LU>
-	<Eigen/QR>
-	<Eigen/Geometry>
-	<Eigen/Array>
-	"NullType.hpp"
-	<boost/static_assert.hpp>
-
-1223553852 /mnt/mobile_disk/ma/extern//Eigen/Core
-	<emmintrin.h>
-	<xmmintrin.h>
-	<pmmintrin.h>
-	<tmmintrin.h>
-	<altivec.h>
-	<cstdlib>
-	<cmath>
-	<complex>
-	<cassert>
-	<functional>
-	<iostream>
-	<cstring>
-	<string>
-	"src/Core/util/Macros.h"
-	"src/Core/util/Constants.h"
-	"src/Core/util/ForwardDeclarations.h"
-	"src/Core/util/Meta.h"
-	"src/Core/util/XprHelper.h"
-	"src/Core/util/StaticAssert.h"
-	"src/Core/util/Memory.h"
-	"src/Core/NumTraits.h"
-	"src/Core/MathFunctions.h"
-	"src/Core/GenericPacketMath.h"
-	"src/Core/arch/SSE/PacketMath.h"
-	"src/Core/arch/AltiVec/PacketMath.h"
-	"src/Core/Functors.h"
-	"src/Core/MatrixBase.h"
-	"src/Core/Coeffs.h"
-	"src/Core/Assign.h"
-	"src/Core/MatrixStorage.h"
-	"src/Core/NestByValue.h"
-	"src/Core/Flagged.h"
-	"src/Core/Matrix.h"
-	"src/Core/Cwise.h"
-	"src/Core/CwiseBinaryOp.h"
-	"src/Core/CwiseUnaryOp.h"
-	"src/Core/CwiseNullaryOp.h"
-	"src/Core/Dot.h"
-	"src/Core/Product.h"
-	"src/Core/DiagonalProduct.h"
-	"src/Core/SolveTriangular.h"
-	"src/Core/MapBase.h"
-	"src/Core/Map.h"
-	"src/Core/Block.h"
-	"src/Core/Minor.h"
-	"src/Core/Transpose.h"
-	"src/Core/DiagonalMatrix.h"
-	"src/Core/DiagonalCoeffs.h"
-	"src/Core/Sum.h"
-	"src/Core/Redux.h"
-	"src/Core/Visitor.h"
-	"src/Core/Fuzzy.h"
-	"src/Core/IO.h"
-	"src/Core/Swap.h"
-	"src/Core/CommaInitializer.h"
-	"src/Core/Part.h"
-	"src/Core/CacheFriendlyProduct.h"
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/util/Macros.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/util/Constants.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/util/ForwardDeclarations.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/util/Meta.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/util/XprHelper.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/util/StaticAssert.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/util/Memory.h
-
-1226936252 /mnt/mobile_disk/ma/extern//Eigen/src/Core/NumTraits.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/MathFunctions.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/GenericPacketMath.h
-
-1223553846 /mnt/mobile_disk/ma/extern//Eigen/src/Core/arch/SSE/PacketMath.h
-
-1223553846 /mnt/mobile_disk/ma/extern//Eigen/src/Core/arch/AltiVec/PacketMath.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/Functors.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/MatrixBase.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/Coeffs.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/Assign.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/MatrixStorage.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/NestByValue.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/Flagged.h
-
-1223707780 /mnt/mobile_disk/ma/extern//Eigen/src/Core/Matrix.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/Cwise.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/CwiseBinaryOp.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/CwiseUnaryOp.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/CwiseNullaryOp.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/Dot.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/Product.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/DiagonalProduct.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/SolveTriangular.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/MapBase.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/Map.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/Block.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/Minor.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/Transpose.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/DiagonalMatrix.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/DiagonalCoeffs.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/Sum.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/Redux.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/Visitor.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/Fuzzy.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/IO.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/Swap.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/CommaInitializer.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/Part.h
-
-1223553849 /mnt/mobile_disk/ma/extern//Eigen/src/Core/CacheFriendlyProduct.h
-
-1223553852 /mnt/mobile_disk/ma/extern//Eigen/LU
-	"Core"
-	"src/LU/LU.h"
-	"src/LU/Determinant.h"
-	"src/LU/Inverse.h"
-
-1223553836 /mnt/mobile_disk/ma/extern//Eigen/src/LU/LU.h
-
-1223553836 /mnt/mobile_disk/ma/extern//Eigen/src/LU/Determinant.h
-
-1223553836 /mnt/mobile_disk/ma/extern//Eigen/src/LU/Inverse.h
-
-1223553852 /mnt/mobile_disk/ma/extern//Eigen/QR
-	"Core"
-	"Cholesky"
-	"src/QR/QR.h"
-	"src/QR/Tridiagonalization.h"
-	"src/QR/EigenSolver.h"
-	"src/QR/SelfAdjointEigenSolver.h"
-	"src/QR/HessenbergDecomposition.h"
-
-1223553852 /mnt/mobile_disk/ma/extern//Eigen/Cholesky
-	"Core"
-	"src/Array/CwiseOperators.h"
-	"src/Array/Functors.h"
-	"src/Cholesky/Cholesky.h"
-	"src/Cholesky/CholeskyWithoutSquareRoot.h"
-
-1223553852 /mnt/mobile_disk/ma/extern//Eigen/src/Array/CwiseOperators.h
-
-1223553852 /mnt/mobile_disk/ma/extern//Eigen/src/Array/Functors.h
-
-1223553838 /mnt/mobile_disk/ma/extern//Eigen/src/Cholesky/Cholesky.h
-
-1223553837 /mnt/mobile_disk/ma/extern//Eigen/src/Cholesky/CholeskyWithoutSquareRoot.h
-
-1223553841 /mnt/mobile_disk/ma/extern//Eigen/src/QR/QR.h
-
-1223553841 /mnt/mobile_disk/ma/extern//Eigen/src/QR/Tridiagonalization.h
-
-1223553841 /mnt/mobile_disk/ma/extern//Eigen/src/QR/EigenSolver.h
-
-1223553841 /mnt/mobile_disk/ma/extern//Eigen/src/QR/SelfAdjointEigenSolver.h
-
-1223553841 /mnt/mobile_disk/ma/extern//Eigen/src/QR/HessenbergDecomposition.h
-
-1223553852 /mnt/mobile_disk/ma/extern//Eigen/Geometry
-	"Array"
-	"src/Geometry/OrthoMethods.h"
-	"src/Geometry/RotationBase.h"
-	"src/Geometry/Rotation2D.h"
-	"src/Geometry/Quaternion.h"
-	"src/Geometry/AngleAxis.h"
-	"src/Geometry/Transform.h"
-	"src/Geometry/Translation.h"
-	"src/Geometry/Scaling.h"
-	"src/Geometry/Hyperplane.h"
-	"src/Geometry/ParametrizedLine.h"
-
-1223553852 /mnt/mobile_disk/ma/extern//Eigen/Array
-	"Core"
-	"src/Array/CwiseOperators.h"
-	"src/Array/Functors.h"
-	"src/Array/AllAndAny.h"
-	"src/Array/Select.h"
-	"src/Array/PartialRedux.h"
-	"src/Array/Random.h"
-
-1223553852 /mnt/mobile_disk/ma/extern//Eigen/src/Array/AllAndAny.h
-
-1223553852 /mnt/mobile_disk/ma/extern//Eigen/src/Array/Select.h
-
-1223553852 /mnt/mobile_disk/ma/extern//Eigen/src/Array/PartialRedux.h
-
-1223553852 /mnt/mobile_disk/ma/extern//Eigen/src/Array/Random.h
-
-1223553850 /mnt/mobile_disk/ma/extern//Eigen/src/Geometry/OrthoMethods.h
-
-1223553850 /mnt/mobile_disk/ma/extern//Eigen/src/Geometry/RotationBase.h
-
-1223553850 /mnt/mobile_disk/ma/extern//Eigen/src/Geometry/Rotation2D.h
-
-1223553850 /mnt/mobile_disk/ma/extern//Eigen/src/Geometry/Quaternion.h
-
-1223553850 /mnt/mobile_disk/ma/extern//Eigen/src/Geometry/AngleAxis.h
-
-1223553850 /mnt/mobile_disk/ma/extern//Eigen/src/Geometry/Transform.h
-
-1223553850 /mnt/mobile_disk/ma/extern//Eigen/src/Geometry/Translation.h
-
-1223553850 /mnt/mobile_disk/ma/extern//Eigen/src/Geometry/Scaling.h
-
-1223553850 /mnt/mobile_disk/ma/extern//Eigen/src/Geometry/Hyperplane.h
-
-1223553850 /mnt/mobile_disk/ma/extern//Eigen/src/Geometry/ParametrizedLine.h
-
-1226935379 /mnt/mobile_disk/ma/inc/core/NullType.hpp
-	<cassert>
-
-1225194455 /mnt/mobile_disk/ma/inc/core/Timer.hpp
-	<ctime>
-	<iostream>
-	"NullType.hpp"
-
-1224690466 /mnt/mobile_disk/ma/inc/core/Memory_Test.hpp
-	"MemoryMgr.hpp"
-	"MemoryPool.hpp"
-	"ObjectMemoryPool.hpp"
-	"CoreObject.hpp"
-	"Timer.hpp"
-	<iostream>
-
-1223917636 /mnt/mobile_disk/ma/inc/core/MemoryMgr.hpp
-	<memory>
-	"NullType.hpp"
-	"HasMember.hpp"
-
-1223988999 /mnt/mobile_disk/ma/inc/core/HasMember.hpp
-
-1223988998 /mnt/mobile_disk/ma/inc/core/MemoryPool.hpp
-	"Mutex.hpp"
-	<boost/type_traits.hpp>
-	"AssocVector.hpp"
-	<cassert>
-	<boost/pool/pool.hpp>
-	"AssocVector.hpp"
-
-1223988998 /mnt/mobile_disk/ma/inc/core/Mutex.hpp
-
-1224304183 /mnt/mobile_disk/ma/inc/core/AssocVector.hpp
-	<algorithm>
-	<functional>
-	<vector>
-	<utility>
-
-1223988998 /mnt/mobile_disk/ma/inc/core/ObjectMemoryPool.hpp
-	"Mutex.hpp"
-	<boost/type_traits.hpp>
-	<boost/pool/pool.hpp>
-	<boost/pool/singleton_pool.hpp>
-	"FSBSingletonPool.hpp"
-
-1223917487 /mnt/mobile_disk/ma/inc/core/FSBSingletonPool.hpp
-	"FSBAllocator.hpp"
-	<boost/pool/singleton_pool.hpp>
-	"Mutex.hpp"
-
-1223917411 /mnt/mobile_disk/ma/inc/core/FSBAllocator.hpp
-	<new>
-	<cassert>
-	<vector>
-
-1223988999 /mnt/mobile_disk/ma/inc/core/CoreObject.hpp
-	"NullType.hpp"
-	"MemoryPolicy.hpp"
-
-1223917744 /mnt/mobile_disk/ma/inc/core/MemoryPolicy.hpp
-	"MemoryMgr.hpp"
-	"MemoryPool.hpp"
-	"ObjectMemoryPool.hpp"
-	"MAMemoryPool.hpp"
-	"MostDerivedType.hpp"
-	"MAMemPoolSized.hpp"
-
-1223917635 /mnt/mobile_disk/ma/inc/core/MAMemoryPool.hpp
-	<boost/pool/singleton_pool.hpp>
-	"Mutex.hpp"
-	"MABigPool.hpp"
-
-1223917631 /mnt/mobile_disk/ma/inc/core/MABigPool.hpp
-	<set>
-	<boost/pool/pool_alloc.hpp>
-	<boost/preprocessor.hpp>
-	<map>
-	<boost/unordered_set.hpp>
-	<boost/unordered_map.hpp>
-	"FSBAllocator.hpp"
-
-1223988999 /mnt/mobile_disk/ma/inc/core/MostDerivedType.hpp
-	<boost/mpl/if.hpp>
-	"NullType.hpp"
-
-1223988998 /mnt/mobile_disk/ma/inc/core/MAMemPoolSized.hpp
-	"MemoryPool.hpp"
-	"Mutex.hpp"
-	<boost/unordered_map.hpp>
-	"MemoryPool.hpp"
-	"MAMemoryPool.hpp"
-	"ObjectMemoryPool.hpp"
-
-1223988751 /mnt/mobile_disk/ma/win32/core/move_test.hpp
-	"Move.hpp"
-	<iostream>
-	<algorithm>
-	<boost/operators.hpp>
-	"SpaceSegment.hpp"
-
-1223998934 /mnt/mobile_disk/ma/win32/core/Move.hpp
-	<cassert>
-	<iterator>
-	<memory>
-	<boost/iterator/iterator_adaptor.hpp>
-	<boost/mpl/bool.hpp>
-	<boost/mpl/and.hpp>
-	<boost/mpl/or.hpp>
-	<boost/mpl/not.hpp>
-	<boost/mpl/assert.hpp>
-	<boost/range/begin.hpp>
-	<boost/range/end.hpp>
-	<boost/type_traits/is_convertible.hpp>
-	<boost/type_traits/is_same.hpp>
-	<boost/type_traits/is_class.hpp>
-	<boost/utility/enable_if.hpp>
-
-1225895725 /mnt/mobile_disk/ma/win32/core/SpaceSegment.hpp
-	"ParameterType.hpp"
-	"Move.hpp"
-	<boost/operators.hpp>
-	"MAMath.hpp"
-	"Vector.hpp"
-
-1223988753 /mnt/mobile_disk/ma/win32/core/ParameterType.hpp
-	<boost/call_traits.hpp>
-
-1225898678 /mnt/mobile_disk/ma/win32/core/MAMath.hpp
-	"MAConfig.hpp"
-	<utility>
-	<cmath>
-	<limits>
-	<boost/mpl/bool.hpp>
-	<boost/mpl/if.hpp>
-	"TypeDefs.hpp"
-
-1225475651 /mnt/mobile_disk/ma/win32/core/MAConfig.hpp
-
-1225526219 /mnt/mobile_disk/ma/win32/core/TypeDefs.hpp
-
-1225369113 /mnt/mobile_disk/ma/win32/core/MADeviceWin32.hpp
-	"MAConfig.hpp"
-	"MADevice.hpp"
-	"Vector.hpp"
-	<string>
-	<boost/bimap.hpp>
-	"SpaceSegment.hpp"
-	<windows.h>
-	"MADeviceWin32Impl.hpp"
-
-1225368636 /mnt/mobile_disk/ma/win32/core/MADevice.hpp
-	"MADeviceBase.hpp"
-	"MADeviceImpl.hpp"
-
-1225368455 /mnt/mobile_disk/ma/win32/core/MADeviceBase.hpp
-	<boost/static_assert.hpp>
-	<boost/type_traits.hpp>
-	<boost/noncopyable.hpp>
-
-1225368935 /mnt/mobile_disk/ma/win32/core/MADeviceImpl.hpp
-	"MADevice.hpp"
-
-1225624711 /mnt/mobile_disk/ma/win32/core/MADeviceWin32Impl.hpp
-	"MADevice.hpp"
-	<winuser.h>
-
-1227337600 /mnt/mobile_disk/ma/win32/core/win32_device_test.hpp
-	"MADeviceWin32.hpp"
-	"MADeviceConfigure.hpp"
-	"CreateDevice.hpp"
-	"PtrTraits.hpp"
-	"MAMath.hpp"
-	"Shader_test.hpp"
-	"MAVertex.hpp"
-
-1227344220 /mnt/mobile_disk/ma/win32/core/MADeviceConfigure.hpp
-	"MAEventProcessor.hpp"
-	"MAFileSystemWin32.hpp"
-	"MALogger.hpp"
-	"MAOSOperatorWin32.hpp"
-	"MASceneManager.hpp"
-	"MATimerWin32.hpp"
-	"MAVideoModesWin32.hpp"
-	"MAPrinter.hpp"
-	"MAVideoDriverSoftWare.hpp"
-	"MAGUIManager.hpp"
-	"MAEventType.hpp"
-	"MAImage.hpp"
-	"CreateDevice.hpp"
-	"PtrTraits.hpp"
-	"AddPointer.hpp"
-	"MAColor.hpp"
-	"MAGeometryRenderer.hpp"
-	"MAAffineRasterizer.hpp"
-
-1225203129 /mnt/mobile_disk/ma/win32/core/MAEventProcessor.hpp
-	"EventProcessor.hpp"
-	"KeyCodes.hpp"
-	"Logger.hpp"
-
-1225193091 /mnt/mobile_disk/ma/win32/core/EventProcessor.hpp
-	"CRTPInterfaceMacro.hpp"
-
-1225194392 /mnt/mobile_disk/ma/win32/core/CRTPInterfaceMacro.hpp
-	"NullType.hpp"
-
-1225193091 /mnt/mobile_disk/ma/win32/core/KeyCodes.hpp
-
-1225194455 /mnt/mobile_disk/ma/win32/core/Logger.hpp
-	"NullType.hpp"
-
-1225193091 /mnt/mobile_disk/ma/win32/core/MAFileSystemWin32.hpp
-	"FileSystem.hpp"
-
-1225193091 /mnt/mobile_disk/ma/win32/core/FileSystem.hpp
-	<string>
-	"CRTPInterfaceMacro.hpp"
-
-1225106606 /mnt/mobile_disk/ma/win32/core/MALogger.hpp
-	"Logger.hpp"
-
-1225003011 /mnt/mobile_disk/ma/win32/core/MAOSOperatorWin32.hpp
-	"OSOperator.hpp"
-
-1225194455 /mnt/mobile_disk/ma/win32/core/OSOperator.hpp
-	"NullType.hpp"
-
-1225203274 /mnt/mobile_disk/ma/win32/core/MASceneManager.hpp
-	"SceneManager.hpp"
-
-1225203290 /mnt/mobile_disk/ma/win32/core/SceneManager.hpp
-	"NullType.hpp"
-
-1225106606 /mnt/mobile_disk/ma/win32/core/MATimerWin32.hpp
-	"Timer.hpp"
-
-1225003011 /mnt/mobile_disk/ma/win32/core/MAVideoModesWin32.hpp
-	"VideoModes.hpp"
-
-1225193624 /mnt/mobile_disk/ma/win32/core/VideoModes.hpp
-	"Vector.hpp"
-	"NullType.hpp"
-
-1225114269 /mnt/mobile_disk/ma/win32/core/MAPrinter.hpp
-	"Logger.hpp"
-
-1227339039 /mnt/mobile_disk/ma/win32/core/MAVideoDriverSoftWare.hpp
-	"VideoDriver.hpp"
-	"AddPointer.hpp"
-	"MAVideoDriverSoftWareImpl.hpp"
-
-1227338160 /mnt/mobile_disk/ma/win32/core/VideoDriver.hpp
-	"CRTPInterfaceMacro.hpp"
-	"SpaceSegment.hpp"
-
-1225366701 /mnt/mobile_disk/ma/win32/core/AddPointer.hpp
-	<boost/type_traits/add_pointer.hpp>
-
-1227339039 /mnt/mobile_disk/ma/win32/core/MAVideoDriverSoftWareImpl.hpp
-	"MAVideoDriverSoftWare.hpp"
-
-1225203639 /mnt/mobile_disk/ma/win32/core/MAGUIManager.hpp
-	"GUIManager.hpp"
-
-1225203548 /mnt/mobile_disk/ma/win32/core/GUIManager.hpp
-	"NullType.hpp"
-
-1225196404 /mnt/mobile_disk/ma/win32/core/MAEventType.hpp
-	"EventType.hpp"
-
-1225196233 /mnt/mobile_disk/ma/win32/core/EventType.hpp
-
-1225525951 /mnt/mobile_disk/ma/win32/core/MAImage.hpp
-	"Image.hpp"
-	"Vector.hpp"
-	"MAImageImpl.hpp"
-
-1225525902 /mnt/mobile_disk/ma/win32/core/Image.hpp
-	"AddPointer.hpp"
-
-1225558423 /mnt/mobile_disk/ma/win32/core/MAImageImpl.hpp
-	"MAImage.hpp"
-	<cassert>
-
-1225106607 /mnt/mobile_disk/ma/win32/core/CreateDevice.hpp
-	"SpaceSegment.hpp"
-	"Vector.hpp"
-
-1225193091 /mnt/mobile_disk/ma/win32/core/PtrTraits.hpp
-	<memory>
-	<functional>
-
-1225898763 /mnt/mobile_disk/ma/win32/core/MAColor.hpp
-	"TypeDefs.hpp"
-	"MAMath.hpp"
-
-1227289858 /mnt/mobile_disk/ma/win32/core/MAVertex.hpp
-	"Vector.hpp"
-	"NullType.hpp"
-
-1224418794 /mnt/mobile_disk/ma/win32/core/type_conversion_test.hpp
-	"TypeConversion.hpp"
-	<iostream>
-	<typeinfo>
-
-1224605592 /mnt/mobile_disk/ma/win32/core/TypeConversion.hpp
-	<boost/type_traits/is_same.hpp>
-	<boost/mpl/push_back.hpp>
-	<boost/mpl/pop_front.hpp>
-	<boost/mpl/vector.hpp>
-	<boost/variant.hpp>
-	<boost/static_assert.hpp>
-	<boost/mpl/max_element.hpp>
-	<boost/mpl/transform_view.hpp>
-	<boost/mpl/deref.hpp>
-	<boost/mpl/placeholders.hpp>
-	<boost/mpl/sizeof.hpp>
-	<boost/mpl/set.hpp>
-	<boost/mpl/copy.hpp>
-	<boost/mpl/insert.hpp>
-	<boost/mpl/transform.hpp>
-	<boost/mpl/remove_if.hpp>
-	<boost/mpl/next.hpp>
-	<boost/mpl/find.hpp>
-	<boost/mpl/fold.hpp>
-	<boost/mpl/size.hpp>
-	<boost/mpl/at.hpp>
-	<boost/mpl/int.hpp>
-	"OrderedTypeInfo.hpp"
-	"AssocVector.hpp"
-	<vector>
-	<algorithm>
-	<iostream>
-	<string>
-
-1224255583 /mnt/mobile_disk/ma/win32/core/OrderedTypeInfo.hpp
-	<typeinfo>
-	<cassert>
-
-1224604693 /mnt/mobile_disk/ma/win32/core/ma_any_test.hpp
-	"MAny.hpp"
-
-1224607357 /mnt/mobile_disk/ma/win32/core/MAny.hpp
-	<typeinfo>
-	<algorithm>
-	<typeinfo>
-	<boost/mpl/bool.hpp>
-	<boost/mpl/if.hpp>
-	<boost/noncopyable.hpp>
-	<boost/operators.hpp>
-	<boost/static_assert.hpp>
-	<boost/type_traits/has_nothrow_copy.hpp>
-	<boost/type_traits/is_pointer.hpp>
-	<boost/type_traits/is_reference.hpp>
-	<boost/type_traits/is_same.hpp>
-	<boost/type_traits/remove_const.hpp>
-	<boost/type_traits/remove_pointer.hpp>
-	<boost/type_traits/remove_reference.hpp>
-	"Move.hpp"
-	"ParameterType.hpp"
-	"TypeConversion.hpp"
-	"FixedAllocator.hpp"
-
-1224502016 /mnt/mobile_disk/ma/win32/core/FixedAllocator.hpp
-	"FSBAllocator.hpp"
-
-1225193091 /mnt/mobile_disk/ma/win32/core/crtp_interface_macro_test.hpp
-	"CRTPInterfaceMacro.hpp"
-
-1226936581 /mnt/mobile_disk/ma/win32/core/Mesh_Test.hpp
-	"MAMesh.hpp"
-
-1227289839 /mnt/mobile_disk/ma/win32/core/MAMesh.hpp
-	<vector>
-	<list>
-	<cassert>
-	"Vector.hpp"
-	"MAVertex.hpp"
-	"MAPoly.hpp"
-	<boost/array.hpp>
-	<boost/mpl/if.hpp>
-	<boost/noncopyable.hpp>
-	"Move.hpp"
-	"MeshBuffer.hpp"
-
-1227289938 /mnt/mobile_disk/ma/win32/core/MAPoly.hpp
-	"Vector.hpp"
-	"Move.hpp"
-	<boost/static_assert.hpp>
-	<boost/mpl/bool.hpp>
-	"MAVertex.hpp"
-	<cassert>
-
-1227014930 /mnt/mobile_disk/ma/win32/core/MeshBuffer.hpp
-
-1226937890 source:/mnt/mobile_disk/ma/win32/core/MAOS.cpp
-	"MAOS.hpp"
-
-1226937940 /mnt/mobile_disk/ma/win32/core/MAOS.hpp
-
-1227344529 /mnt/mobile_disk/ma/win32/core/MAGeometryRenderer.hpp
-	"MAVertexProcessor.hpp"
-	<boost/array.hpp>
-
-1227104828 /mnt/mobile_disk/ma/win32/core/MAVertexProcessor.hpp
-
-1227344972 /mnt/mobile_disk/ma/win32/core/MAAffineRasterizer.hpp
-	"MARasterizer.hpp"
-
-1227351234 /mnt/mobile_disk/ma/win32/core/MARasterizer.hpp
-	"NullType.hpp"
-
-1227357021 /mnt/mobile_disk/ma/win32/core/Shader_test.hpp
-	"Vector.hpp"
-	<boost/pointee.hpp>
-	"MAFragmentProcessor.hpp"
-
-1227356949 /mnt/mobile_disk/ma/win32/core/MAFragmentProcessor.hpp
-	"MARasterizer.hpp"
-
-1227373005 /mnt/mobile_disk/ma/inc/core/duffs_device_test.hpp
-	"DuffsDevice.hpp"
-
-1227373016 /mnt/mobile_disk/ma/win32/core/DuffsDevice.hpp
-	<cassert>
-	<boost/preprocessor/repetition/repeat.hpp>
-	<boost/preprocessor/tuple/elem.hpp>
-	<boost/mpl/if.hpp>
-	<boost/mpl/bool.hpp>
-
-1226937890 source:i:\ma\win32\core\maos.cpp
-	"MAOS.hpp"
-
-1226937940 i:\ma\win32\core\maos.hpp
-
-1224314283 source:i:\ma\src\core\memorymgr.cpp
-
-1226937890 source:l:\ma\win32\core\maos.cpp
-	"MAOS.hpp"
-
-1226937940 l:\ma\win32\core\maos.hpp
-
-1224314283 source:l:\ma\src\core\memorymgr.cpp
-
 1227891280 source:l:\ma\src\main_test.cpp
 	"Timer.hpp"
 	"Memory_Test.hpp"
@@ -927,670 +45,6 @@
 	"AssocVector.hpp"
 
 1223988998 l:\ma\inc\core\mutex.hpp
-
-1224304183 l:\ma\inc\core\assocvector.hpp
-	<algorithm>
-	<functional>
-	<vector>
-	<utility>
-
-1223988998 l:\ma\inc\core\objectmemorypool.hpp
-	"Mutex.hpp"
-	<boost/type_traits.hpp>
-	<boost/pool/pool.hpp>
-	<boost/pool/singleton_pool.hpp>
-	"FSBSingletonPool.hpp"
-
-1223917487 l:\ma\inc\core\fsbsingletonpool.hpp
-	"FSBAllocator.hpp"
-	<boost/pool/singleton_pool.hpp>
-	"Mutex.hpp"
-
-1223917411 l:\ma\inc\core\fsballocator.hpp
-	<new>
-	<cassert>
-	<vector>
-
-1223988999 l:\ma\inc\core\coreobject.hpp
-	"NullType.hpp"
-	"MemoryPolicy.hpp"
-
-1223917744 l:\ma\inc\core\memorypolicy.hpp
-	"MemoryMgr.hpp"
-	"MemoryPool.hpp"
-	"ObjectMemoryPool.hpp"
-	"MAMemoryPool.hpp"
-	"MostDerivedType.hpp"
-	"MAMemPoolSized.hpp"
-
-1223917635 l:\ma\inc\core\mamemorypool.hpp
-	<boost/pool/singleton_pool.hpp>
-	"Mutex.hpp"
-	"MABigPool.hpp"
-
-1223917631 l:\ma\inc\core\mabigpool.hpp
-	<set>
-	<boost/pool/pool_alloc.hpp>
-	<boost/preprocessor.hpp>
-	<map>
-	<boost/unordered_set.hpp>
-	<boost/unordered_map.hpp>
-	"FSBAllocator.hpp"
-
-1223988999 l:\ma\inc\core\mostderivedtype.hpp
-	<boost/mpl/if.hpp>
-	"NullType.hpp"
-
-1223988998 l:\ma\inc\core\mamempoolsized.hpp
-	"MemoryPool.hpp"
-	"Mutex.hpp"
-	<boost/unordered_map.hpp>
-	"MemoryPool.hpp"
-	"MAMemoryPool.hpp"
-	"ObjectMemoryPool.hpp"
-
-1223988751 l:\ma\win32\core\move_test.hpp
-	"Move.hpp"
-	<iostream>
-	<algorithm>
-	<boost/operators.hpp>
-	"SpaceSegment.hpp"
-
-1223998934 l:\ma\win32\core\move.hpp
-	<cassert>
-	<iterator>
-	<memory>
-	<boost/iterator/iterator_adaptor.hpp>
-	<boost/mpl/bool.hpp>
-	<boost/mpl/and.hpp>
-	<boost/mpl/or.hpp>
-	<boost/mpl/not.hpp>
-	<boost/mpl/assert.hpp>
-	<boost/range/begin.hpp>
-	<boost/range/end.hpp>
-	<boost/type_traits/is_convertible.hpp>
-	<boost/type_traits/is_same.hpp>
-	<boost/type_traits/is_class.hpp>
-	<boost/utility/enable_if.hpp>
-
-1227864429 l:\ma\win32\core\spacesegment.hpp
-	"ParameterType.hpp"
-	"Move.hpp"
-	<boost/operators.hpp>
-	"MAMath.hpp"
-	"Vector.hpp"
-
-1223988753 l:\ma\win32\core\parametertype.hpp
-	<boost/call_traits.hpp>
-
-1228055373 l:\ma\win32\core\mamath.hpp
-	"MAConfig.hpp"
-	<utility>
-	<cmath>
-	<limits>
-	<boost/mpl/bool.hpp>
-	<boost/mpl/if.hpp>
-	"TypeDefs.hpp"
-
-1227972959 l:\ma\win32\core\maconfig.hpp
-	<boost/config.hpp>
-
-1225526219 l:\ma\win32\core\typedefs.hpp
-
-1228035626 l:\ma\win32\core\vector.hpp
-	<Eigen/Core>
-	<Eigen/LU>
-	<Eigen/QR>
-	<Eigen/Geometry>
-	<Eigen/Array>
-	"NullType.hpp"
-	<boost/static_assert.hpp>
-
-1223553852 l:\ma\extern\\eigen\core
-	<emmintrin.h>
-	<xmmintrin.h>
-	<pmmintrin.h>
-	<tmmintrin.h>
-	<altivec.h>
-	<cstdlib>
-	<cmath>
-	<complex>
-	<cassert>
-	<functional>
-	<iostream>
-	<cstring>
-	<string>
-	"src/Core/util/Macros.h"
-	"src/Core/util/Constants.h"
-	"src/Core/util/ForwardDeclarations.h"
-	"src/Core/util/Meta.h"
-	"src/Core/util/XprHelper.h"
-	"src/Core/util/StaticAssert.h"
-	"src/Core/util/Memory.h"
-	"src/Core/NumTraits.h"
-	"src/Core/MathFunctions.h"
-	"src/Core/GenericPacketMath.h"
-	"src/Core/arch/SSE/PacketMath.h"
-	"src/Core/arch/AltiVec/PacketMath.h"
-	"src/Core/Functors.h"
-	"src/Core/MatrixBase.h"
-	"src/Core/Coeffs.h"
-	"src/Core/Assign.h"
-	"src/Core/MatrixStorage.h"
-	"src/Core/NestByValue.h"
-	"src/Core/Flagged.h"
-	"src/Core/Matrix.h"
-	"src/Core/Cwise.h"
-	"src/Core/CwiseBinaryOp.h"
-	"src/Core/CwiseUnaryOp.h"
-	"src/Core/CwiseNullaryOp.h"
-	"src/Core/Dot.h"
-	"src/Core/Product.h"
-	"src/Core/DiagonalProduct.h"
-	"src/Core/SolveTriangular.h"
-	"src/Core/MapBase.h"
-	"src/Core/Map.h"
-	"src/Core/Block.h"
-	"src/Core/Minor.h"
-	"src/Core/Transpose.h"
-	"src/Core/DiagonalMatrix.h"
-	"src/Core/DiagonalCoeffs.h"
-	"src/Core/Sum.h"
-	"src/Core/Redux.h"
-	"src/Core/Visitor.h"
-	"src/Core/Fuzzy.h"
-	"src/Core/IO.h"
-	"src/Core/Swap.h"
-	"src/Core/CommaInitializer.h"
-	"src/Core/Part.h"
-	"src/Core/CacheFriendlyProduct.h"
-
-1223553849 l:\ma\extern\\eigen\src\core\util\macros.h
-
-1223553849 l:\ma\extern\\eigen\src\core\util\constants.h
-
-1223553849 l:\ma\extern\\eigen\src\core\util\forwarddeclarations.h
-
-1223553849 l:\ma\extern\\eigen\src\core\util\meta.h
-
-1223553849 l:\ma\extern\\eigen\src\core\util\xprhelper.h
-
-1223553849 l:\ma\extern\\eigen\src\core\util\staticassert.h
-
-1223553849 l:\ma\extern\\eigen\src\core\util\memory.h
-
-1226936252 l:\ma\extern\\eigen\src\core\numtraits.h
-
-1223553849 l:\ma\extern\\eigen\src\core\mathfunctions.h
-
-1223553849 l:\ma\extern\\eigen\src\core\genericpacketmath.h
-
-1223553846 l:\ma\extern\\eigen\src\core\arch\sse\packetmath.h
-
-1223553846 l:\ma\extern\\eigen\src\core\arch\altivec\packetmath.h
-
-1223553849 l:\ma\extern\\eigen\src\core\functors.h
-
-1223553849 l:\ma\extern\\eigen\src\core\matrixbase.h
-
-1223553849 l:\ma\extern\\eigen\src\core\coeffs.h
-
-1223553849 l:\ma\extern\\eigen\src\core\assign.h
-
-1223553849 l:\ma\extern\\eigen\src\core\matrixstorage.h
-
-1223553849 l:\ma\extern\\eigen\src\core\nestbyvalue.h
-
-1223553849 l:\ma\extern\\eigen\src\core\flagged.h
-
-1223707780 l:\ma\extern\\eigen\src\core\matrix.h
-
-1223553849 l:\ma\extern\\eigen\src\core\cwise.h
-
-1223553849 l:\ma\extern\\eigen\src\core\cwisebinaryop.h
-
-1223553849 l:\ma\extern\\eigen\src\core\cwiseunaryop.h
-
-1223553849 l:\ma\extern\\eigen\src\core\cwisenullaryop.h
-
-1223553849 l:\ma\extern\\eigen\src\core\dot.h
-
-1223553849 l:\ma\extern\\eigen\src\core\product.h
-
-1223553849 l:\ma\extern\\eigen\src\core\diagonalproduct.h
-
-1223553849 l:\ma\extern\\eigen\src\core\solvetriangular.h
-
-1223553849 l:\ma\extern\\eigen\src\core\mapbase.h
-
-1223553849 l:\ma\extern\\eigen\src\core\map.h
-
-1223553849 l:\ma\extern\\eigen\src\core\block.h
-
-1223553849 l:\ma\extern\\eigen\src\core\minor.h
-
-1223553849 l:\ma\extern\\eigen\src\core\transpose.h
-
-1223553849 l:\ma\extern\\eigen\src\core\diagonalmatrix.h
-
-1223553849 l:\ma\extern\\eigen\src\core\diagonalcoeffs.h
-
-1223553849 l:\ma\extern\\eigen\src\core\sum.h
-
-1223553849 l:\ma\extern\\eigen\src\core\redux.h
-
-1223553849 l:\ma\extern\\eigen\src\core\visitor.h
-
-1223553849 l:\ma\extern\\eigen\src\core\fuzzy.h
-
-1223553849 l:\ma\extern\\eigen\src\core\io.h
-
-1223553849 l:\ma\extern\\eigen\src\core\swap.h
-
-1223553849 l:\ma\extern\\eigen\src\core\commainitializer.h
-
-1223553849 l:\ma\extern\\eigen\src\core\part.h
-
-1223553849 l:\ma\extern\\eigen\src\core\cachefriendlyproduct.h
-
-1223553852 l:\ma\extern\\eigen\lu
-	"Core"
-	"src/LU/LU.h"
-	"src/LU/Determinant.h"
-	"src/LU/Inverse.h"
-
-1223553836 l:\ma\extern\\eigen\src\lu\lu.h
-
-1223553836 l:\ma\extern\\eigen\src\lu\determinant.h
-
-1223553836 l:\ma\extern\\eigen\src\lu\inverse.h
-
-1223553852 l:\ma\extern\\eigen\qr
-	"Core"
-	"Cholesky"
-	"src/QR/QR.h"
-	"src/QR/Tridiagonalization.h"
-	"src/QR/EigenSolver.h"
-	"src/QR/SelfAdjointEigenSolver.h"
-	"src/QR/HessenbergDecomposition.h"
-
-1223553852 l:\ma\extern\\eigen\cholesky
-	"Core"
-	"src/Array/CwiseOperators.h"
-	"src/Array/Functors.h"
-	"src/Cholesky/Cholesky.h"
-	"src/Cholesky/CholeskyWithoutSquareRoot.h"
-
-1223553852 l:\ma\extern\\eigen\src\array\cwiseoperators.h
-
-1223553852 l:\ma\extern\\eigen\src\array\functors.h
-
-1223553838 l:\ma\extern\\eigen\src\cholesky\cholesky.h
-
-1223553837 l:\ma\extern\\eigen\src\cholesky\choleskywithoutsquareroot.h
-
-1223553841 l:\ma\extern\\eigen\src\qr\qr.h
-
-1223553841 l:\ma\extern\\eigen\src\qr\tridiagonalization.h
-
-1223553841 l:\ma\extern\\eigen\src\qr\eigensolver.h
-
-1223553841 l:\ma\extern\\eigen\src\qr\selfadjointeigensolver.h
-
-1223553841 l:\ma\extern\\eigen\src\qr\hessenbergdecomposition.h
-
-1223553852 l:\ma\extern\\eigen\geometry
-	"Array"
-	"src/Geometry/OrthoMethods.h"
-	"src/Geometry/RotationBase.h"
-	"src/Geometry/Rotation2D.h"
-	"src/Geometry/Quaternion.h"
-	"src/Geometry/AngleAxis.h"
-	"src/Geometry/Transform.h"
-	"src/Geometry/Translation.h"
-	"src/Geometry/Scaling.h"
-	"src/Geometry/Hyperplane.h"
-	"src/Geometry/ParametrizedLine.h"
-
-1223553852 l:\ma\extern\\eigen\array
-	"Core"
-	"src/Array/CwiseOperators.h"
-	"src/Array/Functors.h"
-	"src/Array/AllAndAny.h"
-	"src/Array/Select.h"
-	"src/Array/PartialRedux.h"
-	"src/Array/Random.h"
-
-1223553852 l:\ma\extern\\eigen\src\array\allandany.h
-
-1223553852 l:\ma\extern\\eigen\src\array\select.h
-
-1223553852 l:\ma\extern\\eigen\src\array\partialredux.h
-
-1223553852 l:\ma\extern\\eigen\src\array\random.h
-
-1223553850 l:\ma\extern\\eigen\src\geometry\orthomethods.h
-
-1223553850 l:\ma\extern\\eigen\src\geometry\rotationbase.h
-
-1223553850 l:\ma\extern\\eigen\src\geometry\rotation2d.h
-
-1223553850 l:\ma\extern\\eigen\src\geometry\quaternion.h
-
-1223553850 l:\ma\extern\\eigen\src\geometry\angleaxis.h
-
-1223553850 l:\ma\extern\\eigen\src\geometry\transform.h
-
-1223553850 l:\ma\extern\\eigen\src\geometry\translation.h
-
-1223553850 l:\ma\extern\\eigen\src\geometry\scaling.h
-
-1223553850 l:\ma\extern\\eigen\src\geometry\hyperplane.h
-
-1223553850 l:\ma\extern\\eigen\src\geometry\parametrizedline.h
-
-1227892974 l:\ma\win32\core\madevicewin32.hpp
-	"MAConfig.hpp"
-	"MADevice.hpp"
-	"Vector.hpp"
-	<string>
-	<boost/bimap.hpp>
-	"SpaceSegment.hpp"
-	<windows.h>
-	"MADeviceWin32Impl.hpp"
-
-1228035324 l:\ma\win32\core\madevice.hpp
-	"MADeviceBase.hpp"
-	"MADeviceImpl.hpp"
-
-1225368455 l:\ma\win32\core\madevicebase.hpp
-	<boost/static_assert.hpp>
-	<boost/type_traits.hpp>
-	<boost/noncopyable.hpp>
-
-1225368935 l:\ma\win32\core\madeviceimpl.hpp
-	"MADevice.hpp"
-
-1227976889 l:\ma\win32\core\madevicewin32impl.hpp
-	"MADevice.hpp"
-	"MADeviceWin32.hpp"
-	"MAEventType.hpp"
-	<winuser.h>
-
-1227864851 l:\ma\win32\core\maeventtype.hpp
-	"EventType.hpp"
-	"KeyCodes.hpp"
-	"Logger.hpp"
-
-1225196233 l:\ma\win32\core\eventtype.hpp
-
-1225193091 l:\ma\win32\core\keycodes.hpp
-
-1225194455 l:\ma\win32\core\logger.hpp
-	"NullType.hpp"
-
-1229345202 l:\ma\win32\core\win32_device_test.hpp
-	"MADeviceWin32.hpp"
-	"MADeviceConfigure.hpp"
-	"CreateDevice.hpp"
-	"PtrTraits.hpp"
-	"MAMath.hpp"
-	"Stencil_buffer_test.hpp"
-	"TextureShader_Test.hpp"
-	"Shader_test.hpp"
-	"MAVertex.hpp"
-
-1229138694 l:\ma\win32\core\madeviceconfigure.hpp
-	"MAEventProcessor.hpp"
-	"MAFileSystemWin32.hpp"
-	"MALogger.hpp"
-	"MAOSOperatorWin32.hpp"
-	"MASceneManager.hpp"
-	"MATimerWin32.hpp"
-	"MAVideoModesWin32.hpp"
-	"MAPrinter.hpp"
-	"MAVideoDriverSoftWare.hpp"
-	"MAGUIManager.hpp"
-	"MAEventType.hpp"
-	"MAImage.hpp"
-	"CreateDevice.hpp"
-	"PtrTraits.hpp"
-	"AddPointer.hpp"
-	"MAColor.hpp"
-	"MAGeometryRenderer.hpp"
-	"MAAffineRasterizer.hpp"
-
-1225203129 l:\ma\win32\core\maeventprocessor.hpp
-	"EventProcessor.hpp"
-	"KeyCodes.hpp"
-	"Logger.hpp"
-
-1228035332 l:\ma\win32\core\eventprocessor.hpp
-	"CRTPInterfaceMacro.hpp"
-
-1227869085 l:\ma\win32\core\crtpinterfacemacro.hpp
-	"NullType.hpp"
-
-1225193091 l:\ma\win32\core\mafilesystemwin32.hpp
-	"FileSystem.hpp"
-
-1227876222 l:\ma\win32\core\filesystem.hpp
-	<string>
-	"CRTPInterfaceMacro.hpp"
-
-1225106606 l:\ma\win32\core\malogger.hpp
-	"Logger.hpp"
-
-1225003011 l:\ma\win32\core\maosoperatorwin32.hpp
-	"OSOperator.hpp"
-
-1225194455 l:\ma\win32\core\osoperator.hpp
-	"NullType.hpp"
-
-1225203274 l:\ma\win32\core\mascenemanager.hpp
-	"SceneManager.hpp"
-
-1225203290 l:\ma\win32\core\scenemanager.hpp
-	"NullType.hpp"
-
-1225106606 l:\ma\win32\core\matimerwin32.hpp
-	"Timer.hpp"
-
-1225003011 l:\ma\win32\core\mavideomodeswin32.hpp
-	"VideoModes.hpp"
-
-1225193624 l:\ma\win32\core\videomodes.hpp
-	"Vector.hpp"
-	"NullType.hpp"
-
-1225114269 l:\ma\win32\core\maprinter.hpp
-	"Logger.hpp"
-
-1229519580 l:\ma\win32\core\mavideodriversoftware.hpp
-	"VideoDriver.hpp"
-	"AddPointer.hpp"
-	"MAVideoDriverSoftWareImpl.hpp"
-
-1227876042 l:\ma\win32\core\videodriver.hpp
-	"CRTPInterfaceMacro.hpp"
-	"SpaceSegment.hpp"
-
-1225366701 l:\ma\win32\core\addpointer.hpp
-	<boost/type_traits/add_pointer.hpp>
-
-1229346339 l:\ma\win32\core\mavideodriversoftwareimpl.hpp
-	"MAVideoDriverSoftWare.hpp"
-	"Image.hpp"
-
-1225525902 l:\ma\win32\core\image.hpp
-	"AddPointer.hpp"
-
-1225203639 l:\ma\win32\core\maguimanager.hpp
-	"GUIManager.hpp"
-
-1228035451 l:\ma\win32\core\guimanager.hpp
-	"NullType.hpp"
-
-1229143125 l:\ma\win32\core\maimage.hpp
-	"Image.hpp"
-	"Vector.hpp"
-	"DuffsDevice.hpp"
-	"MAImageImpl.hpp"
-
-1228024455 l:\ma\win32\core\maimageimpl.hpp
-	"MAImage.hpp"
-	"MAColor.hpp"
-	<cassert>
-
-1228023711 l:\ma\win32\core\macolor.hpp
-	"TypeDefs.hpp"
-	"MAMath.hpp"
-
-1225106607 l:\ma\win32\core\createdevice.hpp
-	"SpaceSegment.hpp"
-	"Vector.hpp"
-
-1225193091 l:\ma\win32\core\ptrtraits.hpp
-	<memory>
-	<functional>
-
-1228628380 l:\ma\win32\core\mageometryrenderer.hpp
-	"MAVertexProcessor.hpp"
-	<boost/shared_ptr.hpp>
-	"MAGeometryRendererImpl.hpp"
-
-1228035444 l:\ma\win32\core\mavertexprocessor.hpp
-
-1228831477 l:\ma\win32\core\mageometryrendererimpl.hpp
-	<cassert>
-	"MAGeometryRenderer.hpp"
-
-1228576745 l:\ma\win32\core\maaffinerasterizer.hpp
-	"MARasterizer.hpp"
-	"MAMath.hpp"
-	<omp.h>
-
-1228576242 l:\ma\win32\core\marasterizer.hpp
-	"NullType.hpp"
-
-1228743501 l:\ma\win32\core\shader_test.hpp
-	"Vector.hpp"
-	<boost/pointee.hpp>
-	"MAFragmentProcessor.hpp"
-	"MAMath.hpp"
-	"test_data.hpp"
-
-1227877631 l:\ma\win32\core\mafragmentprocessor.hpp
-	"MARasterizer.hpp"
-
-1227378000 l:\ma\win32\core\mavertex.hpp
-	"Vector.hpp"
-	"NullType.hpp"
-
-1224418794 l:\ma\win32\core\type_conversion_test.hpp
-	"TypeConversion.hpp"
-	<iostream>
-	<typeinfo>
-
-1224605592 l:\ma\win32\core\typeconversion.hpp
-	<boost/type_traits/is_same.hpp>
-	<boost/mpl/push_back.hpp>
-	<boost/mpl/pop_front.hpp>
-	<boost/mpl/vector.hpp>
-	<boost/variant.hpp>
-	<boost/static_assert.hpp>
-	<boost/mpl/max_element.hpp>
-	<boost/mpl/transform_view.hpp>
-	<boost/mpl/deref.hpp>
-	<boost/mpl/placeholders.hpp>
-	<boost/mpl/sizeof.hpp>
-	<boost/mpl/set.hpp>
-	<boost/mpl/copy.hpp>
-	<boost/mpl/insert.hpp>
-	<boost/mpl/transform.hpp>
-	<boost/mpl/remove_if.hpp>
-	<boost/mpl/next.hpp>
-	<boost/mpl/find.hpp>
-	<boost/mpl/fold.hpp>
-	<boost/mpl/size.hpp>
-	<boost/mpl/at.hpp>
-	<boost/mpl/int.hpp>
-	"OrderedTypeInfo.hpp"
-	"AssocVector.hpp"
-	<vector>
-	<algorithm>
-	<iostream>
-	<string>
-
-1224255583 l:\ma\win32\core\orderedtypeinfo.hpp
-	<typeinfo>
-	<cassert>
-
-1224604693 l:\ma\win32\core\ma_any_test.hpp
-	"MAny.hpp"
-
-1224607357 l:\ma\win32\core\many.hpp
-	<typeinfo>
-	<algorithm>
-	<typeinfo>
-	<boost/mpl/bool.hpp>
-	<boost/mpl/if.hpp>
-	<boost/noncopyable.hpp>
-	<boost/operators.hpp>
-	<boost/static_assert.hpp>
-	<boost/type_traits/has_nothrow_copy.hpp>
-	<boost/type_traits/is_pointer.hpp>
-	<boost/type_traits/is_reference.hpp>
-	<boost/type_traits/is_same.hpp>
-	<boost/type_traits/remove_const.hpp>
-	<boost/type_traits/remove_pointer.hpp>
-	<boost/type_traits/remove_reference.hpp>
-	"Move.hpp"
-	"ParameterType.hpp"
-	"TypeConversion.hpp"
-	"FixedAllocator.hpp"
-
-1224502016 l:\ma\win32\core\fixedallocator.hpp
-	"FSBAllocator.hpp"
-
-1225193091 l:\ma\win32\core\crtp_interface_macro_test.hpp
-	"CRTPInterfaceMacro.hpp"
-
-1226936581 l:\ma\win32\core\mesh_test.hpp
-	"MAMesh.hpp"
-
-1227289839 l:\ma\win32\core\mamesh.hpp
-	<vector>
-	<list>
-	<cassert>
-	"Vector.hpp"
-	"MAVertex.hpp"
-	"MAPoly.hpp"
-	<boost/array.hpp>
-	<boost/mpl/if.hpp>
-	<boost/noncopyable.hpp>
-	"Move.hpp"
-	"MeshBuffer.hpp"
-
-1227289938 l:\ma\win32\core\mapoly.hpp
-	"Vector.hpp"
-	"Move.hpp"
-	<boost/static_assert.hpp>
-	<boost/mpl/bool.hpp>
-	"MAVertex.hpp"
-	<cassert>
-
-1227014930 l:\ma\win32\core\meshbuffer.hpp
-
-1227373005 l:\ma\inc\core\duffs_device_test.hpp
-	"DuffsDevice.hpp"
-
-1228138200 l:\ma\win32\core\duffsdevice.hpp
-	<cassert>
-	<boost/preprocessor/repetition/repeat.hpp>
-	<boost/preprocessor/tuple/elem.hpp>
-	<boost/mpl/if.hpp>
-	<boost/mpl/bool.hpp>
 
 1196014039 l:\ma\extern\\boost\type_traits.hpp
 	"boost/type_traits/add_const.hpp"
@@ -3480,6 +1934,12 @@
 	<boost/type_traits/detail/bool_trait_def.hpp>
 	<boost/type_traits/detail/bool_trait_undef.hpp>
 
+1224304183 l:\ma\inc\core\assocvector.hpp
+	<algorithm>
+	<functional>
+	<vector>
+	<utility>
+
 1196014039 l:\ma\extern\\boost\pool\pool.hpp
 	<boost/config.hpp>
 	<functional>
@@ -3514,6 +1974,13 @@
 	<functional>
 	<boost/pool/poolfwd.hpp>
 
+1223988998 l:\ma\inc\core\objectmemorypool.hpp
+	"Mutex.hpp"
+	<boost/type_traits.hpp>
+	<boost/pool/pool.hpp>
+	<boost/pool/singleton_pool.hpp>
+	"FSBSingletonPool.hpp"
+
 1096376145 l:\ma\extern\\boost\pool\singleton_pool.hpp
 	<boost/pool/poolfwd.hpp>
 	<boost/pool/pool.hpp>
@@ -3523,6 +1990,42 @@
 1096376145 l:\ma\extern\\boost\pool\detail\singleton.hpp
 
 1096376145 l:\ma\extern\\boost\pool\detail\guard.hpp
+
+1223917487 l:\ma\inc\core\fsbsingletonpool.hpp
+	"FSBAllocator.hpp"
+	<boost/pool/singleton_pool.hpp>
+	"Mutex.hpp"
+
+1223917411 l:\ma\inc\core\fsballocator.hpp
+	<new>
+	<cassert>
+	<vector>
+
+1223988999 l:\ma\inc\core\coreobject.hpp
+	"NullType.hpp"
+	"MemoryPolicy.hpp"
+
+1223917744 l:\ma\inc\core\memorypolicy.hpp
+	"MemoryMgr.hpp"
+	"MemoryPool.hpp"
+	"ObjectMemoryPool.hpp"
+	"MAMemoryPool.hpp"
+	"MostDerivedType.hpp"
+	"MAMemPoolSized.hpp"
+
+1223917635 l:\ma\inc\core\mamemorypool.hpp
+	<boost/pool/singleton_pool.hpp>
+	"Mutex.hpp"
+	"MABigPool.hpp"
+
+1223917631 l:\ma\inc\core\mabigpool.hpp
+	<set>
+	<boost/pool/pool_alloc.hpp>
+	<boost/preprocessor.hpp>
+	<map>
+	<boost/unordered_set.hpp>
+	<boost/unordered_map.hpp>
+	"FSBAllocator.hpp"
 
 1146554256 l:\ma\extern\\boost\pool\pool_alloc.hpp
 	<boost/limits.hpp>
@@ -4535,6 +3038,42 @@
 	<boost/unordered/detail/hash_table.hpp>
 	<boost/unordered/detail/move.hpp>
 
+1223988999 l:\ma\inc\core\mostderivedtype.hpp
+	<boost/mpl/if.hpp>
+	"NullType.hpp"
+
+1223988998 l:\ma\inc\core\mamempoolsized.hpp
+	"MemoryPool.hpp"
+	"Mutex.hpp"
+	<boost/unordered_map.hpp>
+	"MemoryPool.hpp"
+	"MAMemoryPool.hpp"
+	"ObjectMemoryPool.hpp"
+
+1223988751 l:\ma\win32\core\move_test.hpp
+	"Move.hpp"
+	<iostream>
+	<algorithm>
+	<boost/operators.hpp>
+	"SpaceSegment.hpp"
+
+1223998934 l:\ma\win32\core\move.hpp
+	<cassert>
+	<iterator>
+	<memory>
+	<boost/iterator/iterator_adaptor.hpp>
+	<boost/mpl/bool.hpp>
+	<boost/mpl/and.hpp>
+	<boost/mpl/or.hpp>
+	<boost/mpl/not.hpp>
+	<boost/mpl/assert.hpp>
+	<boost/range/begin.hpp>
+	<boost/range/end.hpp>
+	<boost/type_traits/is_convertible.hpp>
+	<boost/type_traits/is_same.hpp>
+	<boost/type_traits/is_class.hpp>
+	<boost/utility/enable_if.hpp>
+
 1196014039 l:\ma\extern\\boost\iterator\iterator_adaptor.hpp
 	<boost/static_assert.hpp>
 	<boost/iterator.hpp>
@@ -4998,6 +3537,16 @@
 	<boost/iterator.hpp>
 	<boost/detail/workaround.hpp>
 
+1227864429 l:\ma\win32\core\spacesegment.hpp
+	"ParameterType.hpp"
+	"Move.hpp"
+	<boost/operators.hpp>
+	"MAMath.hpp"
+	"Vector.hpp"
+
+1223988753 l:\ma\win32\core\parametertype.hpp
+	<boost/call_traits.hpp>
+
 1070458451 l:\ma\extern\\boost\call_traits.hpp
 	<boost/config.hpp>
 	<boost/detail/ob_call_traits.hpp>
@@ -5031,7 +3580,295 @@
 	<boost/type_traits/is_pointer.hpp>
 	<boost/detail/workaround.hpp>
 
+1229795304 l:\ma\win32\core\mamath.hpp
+	"MAConfig.hpp"
+	<utility>
+	<cmath>
+	<limits>
+	<boost/mpl/bool.hpp>
+	<boost/mpl/if.hpp>
+	"TypeDefs.hpp"
+
+1227972959 l:\ma\win32\core\maconfig.hpp
+	<boost/config.hpp>
+
+1225526219 l:\ma\win32\core\typedefs.hpp
+
+1228035626 l:\ma\win32\core\vector.hpp
+	<Eigen/Core>
+	<Eigen/LU>
+	<Eigen/QR>
+	<Eigen/Geometry>
+	<Eigen/Array>
+	"NullType.hpp"
+	<boost/static_assert.hpp>
+
+1223553852 l:\ma\extern\\eigen\core
+	<emmintrin.h>
+	<xmmintrin.h>
+	<pmmintrin.h>
+	<tmmintrin.h>
+	<altivec.h>
+	<cstdlib>
+	<cmath>
+	<complex>
+	<cassert>
+	<functional>
+	<iostream>
+	<cstring>
+	<string>
+	"src/Core/util/Macros.h"
+	"src/Core/util/Constants.h"
+	"src/Core/util/ForwardDeclarations.h"
+	"src/Core/util/Meta.h"
+	"src/Core/util/XprHelper.h"
+	"src/Core/util/StaticAssert.h"
+	"src/Core/util/Memory.h"
+	"src/Core/NumTraits.h"
+	"src/Core/MathFunctions.h"
+	"src/Core/GenericPacketMath.h"
+	"src/Core/arch/SSE/PacketMath.h"
+	"src/Core/arch/AltiVec/PacketMath.h"
+	"src/Core/Functors.h"
+	"src/Core/MatrixBase.h"
+	"src/Core/Coeffs.h"
+	"src/Core/Assign.h"
+	"src/Core/MatrixStorage.h"
+	"src/Core/NestByValue.h"
+	"src/Core/Flagged.h"
+	"src/Core/Matrix.h"
+	"src/Core/Cwise.h"
+	"src/Core/CwiseBinaryOp.h"
+	"src/Core/CwiseUnaryOp.h"
+	"src/Core/CwiseNullaryOp.h"
+	"src/Core/Dot.h"
+	"src/Core/Product.h"
+	"src/Core/DiagonalProduct.h"
+	"src/Core/SolveTriangular.h"
+	"src/Core/MapBase.h"
+	"src/Core/Map.h"
+	"src/Core/Block.h"
+	"src/Core/Minor.h"
+	"src/Core/Transpose.h"
+	"src/Core/DiagonalMatrix.h"
+	"src/Core/DiagonalCoeffs.h"
+	"src/Core/Sum.h"
+	"src/Core/Redux.h"
+	"src/Core/Visitor.h"
+	"src/Core/Fuzzy.h"
+	"src/Core/IO.h"
+	"src/Core/Swap.h"
+	"src/Core/CommaInitializer.h"
+	"src/Core/Part.h"
+	"src/Core/CacheFriendlyProduct.h"
+
+1223553849 l:\ma\extern\\eigen\src\core\util\macros.h
+
+1223553849 l:\ma\extern\\eigen\src\core\util\constants.h
+
+1223553849 l:\ma\extern\\eigen\src\core\util\forwarddeclarations.h
+
+1223553849 l:\ma\extern\\eigen\src\core\util\meta.h
+
+1223553849 l:\ma\extern\\eigen\src\core\util\xprhelper.h
+
+1223553849 l:\ma\extern\\eigen\src\core\util\staticassert.h
+
+1223553849 l:\ma\extern\\eigen\src\core\util\memory.h
+
+1226936252 l:\ma\extern\\eigen\src\core\numtraits.h
+
+1223553849 l:\ma\extern\\eigen\src\core\mathfunctions.h
+
+1223553849 l:\ma\extern\\eigen\src\core\genericpacketmath.h
+
+1223553846 l:\ma\extern\\eigen\src\core\arch\sse\packetmath.h
+
+1223553846 l:\ma\extern\\eigen\src\core\arch\altivec\packetmath.h
+
+1223553849 l:\ma\extern\\eigen\src\core\functors.h
+
+1223553849 l:\ma\extern\\eigen\src\core\matrixbase.h
+
+1223553849 l:\ma\extern\\eigen\src\core\coeffs.h
+
+1223553849 l:\ma\extern\\eigen\src\core\assign.h
+
+1223553849 l:\ma\extern\\eigen\src\core\matrixstorage.h
+
+1223553849 l:\ma\extern\\eigen\src\core\nestbyvalue.h
+
+1223553849 l:\ma\extern\\eigen\src\core\flagged.h
+
+1223707780 l:\ma\extern\\eigen\src\core\matrix.h
+
+1223553849 l:\ma\extern\\eigen\src\core\cwise.h
+
+1223553849 l:\ma\extern\\eigen\src\core\cwisebinaryop.h
+
+1223553849 l:\ma\extern\\eigen\src\core\cwiseunaryop.h
+
+1223553849 l:\ma\extern\\eigen\src\core\cwisenullaryop.h
+
+1223553849 l:\ma\extern\\eigen\src\core\dot.h
+
+1223553849 l:\ma\extern\\eigen\src\core\product.h
+
+1223553849 l:\ma\extern\\eigen\src\core\diagonalproduct.h
+
+1223553849 l:\ma\extern\\eigen\src\core\solvetriangular.h
+
+1223553849 l:\ma\extern\\eigen\src\core\mapbase.h
+
+1223553849 l:\ma\extern\\eigen\src\core\map.h
+
+1223553849 l:\ma\extern\\eigen\src\core\block.h
+
+1223553849 l:\ma\extern\\eigen\src\core\minor.h
+
+1223553849 l:\ma\extern\\eigen\src\core\transpose.h
+
+1223553849 l:\ma\extern\\eigen\src\core\diagonalmatrix.h
+
+1223553849 l:\ma\extern\\eigen\src\core\diagonalcoeffs.h
+
+1223553849 l:\ma\extern\\eigen\src\core\sum.h
+
+1223553849 l:\ma\extern\\eigen\src\core\redux.h
+
+1223553849 l:\ma\extern\\eigen\src\core\visitor.h
+
+1223553849 l:\ma\extern\\eigen\src\core\fuzzy.h
+
+1223553849 l:\ma\extern\\eigen\src\core\io.h
+
+1223553849 l:\ma\extern\\eigen\src\core\swap.h
+
+1223553849 l:\ma\extern\\eigen\src\core\commainitializer.h
+
+1223553849 l:\ma\extern\\eigen\src\core\part.h
+
+1223553849 l:\ma\extern\\eigen\src\core\cachefriendlyproduct.h
+
+1223553852 l:\ma\extern\\eigen\lu
+	"Core"
+	"src/LU/LU.h"
+	"src/LU/Determinant.h"
+	"src/LU/Inverse.h"
+
+1223553836 l:\ma\extern\\eigen\src\lu\lu.h
+
+1223553836 l:\ma\extern\\eigen\src\lu\determinant.h
+
+1223553836 l:\ma\extern\\eigen\src\lu\inverse.h
+
+1223553852 l:\ma\extern\\eigen\qr
+	"Core"
+	"Cholesky"
+	"src/QR/QR.h"
+	"src/QR/Tridiagonalization.h"
+	"src/QR/EigenSolver.h"
+	"src/QR/SelfAdjointEigenSolver.h"
+	"src/QR/HessenbergDecomposition.h"
+
+1223553852 l:\ma\extern\\eigen\cholesky
+	"Core"
+	"src/Array/CwiseOperators.h"
+	"src/Array/Functors.h"
+	"src/Cholesky/Cholesky.h"
+	"src/Cholesky/CholeskyWithoutSquareRoot.h"
+
+1223553852 l:\ma\extern\\eigen\src\array\cwiseoperators.h
+
+1223553852 l:\ma\extern\\eigen\src\array\functors.h
+
+1223553838 l:\ma\extern\\eigen\src\cholesky\cholesky.h
+
+1223553837 l:\ma\extern\\eigen\src\cholesky\choleskywithoutsquareroot.h
+
+1223553841 l:\ma\extern\\eigen\src\qr\qr.h
+
+1223553841 l:\ma\extern\\eigen\src\qr\tridiagonalization.h
+
+1223553841 l:\ma\extern\\eigen\src\qr\eigensolver.h
+
+1223553841 l:\ma\extern\\eigen\src\qr\selfadjointeigensolver.h
+
+1223553841 l:\ma\extern\\eigen\src\qr\hessenbergdecomposition.h
+
+1223553852 l:\ma\extern\\eigen\geometry
+	"Array"
+	"src/Geometry/OrthoMethods.h"
+	"src/Geometry/RotationBase.h"
+	"src/Geometry/Rotation2D.h"
+	"src/Geometry/Quaternion.h"
+	"src/Geometry/AngleAxis.h"
+	"src/Geometry/Transform.h"
+	"src/Geometry/Translation.h"
+	"src/Geometry/Scaling.h"
+	"src/Geometry/Hyperplane.h"
+	"src/Geometry/ParametrizedLine.h"
+
+1223553852 l:\ma\extern\\eigen\array
+	"Core"
+	"src/Array/CwiseOperators.h"
+	"src/Array/Functors.h"
+	"src/Array/AllAndAny.h"
+	"src/Array/Select.h"
+	"src/Array/PartialRedux.h"
+	"src/Array/Random.h"
+
+1223553852 l:\ma\extern\\eigen\src\array\allandany.h
+
+1223553852 l:\ma\extern\\eigen\src\array\select.h
+
+1223553852 l:\ma\extern\\eigen\src\array\partialredux.h
+
+1223553852 l:\ma\extern\\eigen\src\array\random.h
+
+1223553850 l:\ma\extern\\eigen\src\geometry\orthomethods.h
+
+1223553850 l:\ma\extern\\eigen\src\geometry\rotationbase.h
+
+1223553850 l:\ma\extern\\eigen\src\geometry\rotation2d.h
+
+1223553850 l:\ma\extern\\eigen\src\geometry\quaternion.h
+
+1223553850 l:\ma\extern\\eigen\src\geometry\angleaxis.h
+
+1223553850 l:\ma\extern\\eigen\src\geometry\transform.h
+
+1223553850 l:\ma\extern\\eigen\src\geometry\translation.h
+
+1223553850 l:\ma\extern\\eigen\src\geometry\scaling.h
+
+1223553850 l:\ma\extern\\eigen\src\geometry\hyperplane.h
+
+1223553850 l:\ma\extern\\eigen\src\geometry\parametrizedline.h
+
+1227892974 l:\ma\win32\core\madevicewin32.hpp
+	"MAConfig.hpp"
+	"MADevice.hpp"
+	"Vector.hpp"
+	<string>
+	<boost/bimap.hpp>
+	"SpaceSegment.hpp"
+	<windows.h>
+	"MADeviceWin32Impl.hpp"
+
+1228035324 l:\ma\win32\core\madevice.hpp
+	"MADeviceBase.hpp"
+	"MADeviceImpl.hpp"
+
+1225368455 l:\ma\win32\core\madevicebase.hpp
+	<boost/static_assert.hpp>
+	<boost/type_traits.hpp>
+	<boost/noncopyable.hpp>
+
 1093022226 l:\ma\extern\\boost\noncopyable.hpp
+
+1225368935 l:\ma\win32\core\madeviceimpl.hpp
+	"MADevice.hpp"
 
 1196014039 l:\ma\extern\\boost\bimap.hpp
 	<boost/bimap/bimap.hpp>
@@ -6804,6 +5641,163 @@
 	<boost/bimap/support/map_type_by.hpp>
 	<boost/bimap/relation/detail/access_builder.hpp>
 
+1227976889 l:\ma\win32\core\madevicewin32impl.hpp
+	"MADevice.hpp"
+	"MADeviceWin32.hpp"
+	"MAEventType.hpp"
+	<winuser.h>
+
+1227864851 l:\ma\win32\core\maeventtype.hpp
+	"EventType.hpp"
+	"KeyCodes.hpp"
+	"Logger.hpp"
+
+1225196233 l:\ma\win32\core\eventtype.hpp
+
+1225193091 l:\ma\win32\core\keycodes.hpp
+
+1225194455 l:\ma\win32\core\logger.hpp
+	"NullType.hpp"
+
+1229770862 l:\ma\win32\core\win32_device_test.hpp
+	"MADeviceWin32.hpp"
+	"MADeviceConfigure.hpp"
+	"CreateDevice.hpp"
+	"PtrTraits.hpp"
+	"MAMath.hpp"
+	"Stencil_buffer_test.hpp"
+	"TextureShader_Test.hpp"
+	"Shader_test.hpp"
+	"MAVertex.hpp"
+
+1229138694 l:\ma\win32\core\madeviceconfigure.hpp
+	"MAEventProcessor.hpp"
+	"MAFileSystemWin32.hpp"
+	"MALogger.hpp"
+	"MAOSOperatorWin32.hpp"
+	"MASceneManager.hpp"
+	"MATimerWin32.hpp"
+	"MAVideoModesWin32.hpp"
+	"MAPrinter.hpp"
+	"MAVideoDriverSoftWare.hpp"
+	"MAGUIManager.hpp"
+	"MAEventType.hpp"
+	"MAImage.hpp"
+	"CreateDevice.hpp"
+	"PtrTraits.hpp"
+	"AddPointer.hpp"
+	"MAColor.hpp"
+	"MAGeometryRenderer.hpp"
+	"MAAffineRasterizer.hpp"
+
+1225203129 l:\ma\win32\core\maeventprocessor.hpp
+	"EventProcessor.hpp"
+	"KeyCodes.hpp"
+	"Logger.hpp"
+
+1228035332 l:\ma\win32\core\eventprocessor.hpp
+	"CRTPInterfaceMacro.hpp"
+
+1227869085 l:\ma\win32\core\crtpinterfacemacro.hpp
+	"NullType.hpp"
+
+1225193091 l:\ma\win32\core\mafilesystemwin32.hpp
+	"FileSystem.hpp"
+
+1227876222 l:\ma\win32\core\filesystem.hpp
+	<string>
+	"CRTPInterfaceMacro.hpp"
+
+1225106606 l:\ma\win32\core\malogger.hpp
+	"Logger.hpp"
+
+1225003011 l:\ma\win32\core\maosoperatorwin32.hpp
+	"OSOperator.hpp"
+
+1225194455 l:\ma\win32\core\osoperator.hpp
+	"NullType.hpp"
+
+1225203274 l:\ma\win32\core\mascenemanager.hpp
+	"SceneManager.hpp"
+
+1225203290 l:\ma\win32\core\scenemanager.hpp
+	"NullType.hpp"
+
+1225106606 l:\ma\win32\core\matimerwin32.hpp
+	"Timer.hpp"
+
+1225003011 l:\ma\win32\core\mavideomodeswin32.hpp
+	"VideoModes.hpp"
+
+1225193624 l:\ma\win32\core\videomodes.hpp
+	"Vector.hpp"
+	"NullType.hpp"
+
+1225114269 l:\ma\win32\core\maprinter.hpp
+	"Logger.hpp"
+
+1229745198 l:\ma\win32\core\mavideodriversoftware.hpp
+	"VideoDriver.hpp"
+	"AddPointer.hpp"
+	"MAVideoDriverSoftWareImpl.hpp"
+
+1227876042 l:\ma\win32\core\videodriver.hpp
+	"CRTPInterfaceMacro.hpp"
+	"SpaceSegment.hpp"
+
+1225366701 l:\ma\win32\core\addpointer.hpp
+	<boost/type_traits/add_pointer.hpp>
+
+1229346339 l:\ma\win32\core\mavideodriversoftwareimpl.hpp
+	"MAVideoDriverSoftWare.hpp"
+	"Image.hpp"
+
+1225525902 l:\ma\win32\core\image.hpp
+	"AddPointer.hpp"
+
+1225203639 l:\ma\win32\core\maguimanager.hpp
+	"GUIManager.hpp"
+
+1228035451 l:\ma\win32\core\guimanager.hpp
+	"NullType.hpp"
+
+1229143125 l:\ma\win32\core\maimage.hpp
+	"Image.hpp"
+	"Vector.hpp"
+	"DuffsDevice.hpp"
+	"MAImageImpl.hpp"
+
+1228138200 l:\ma\win32\core\duffsdevice.hpp
+	<cassert>
+	<boost/preprocessor/repetition/repeat.hpp>
+	<boost/preprocessor/tuple/elem.hpp>
+	<boost/mpl/if.hpp>
+	<boost/mpl/bool.hpp>
+
+1228024455 l:\ma\win32\core\maimageimpl.hpp
+	"MAImage.hpp"
+	"MAColor.hpp"
+	<cassert>
+
+1228023711 l:\ma\win32\core\macolor.hpp
+	"TypeDefs.hpp"
+	"MAMath.hpp"
+
+1225106607 l:\ma\win32\core\createdevice.hpp
+	"SpaceSegment.hpp"
+	"Vector.hpp"
+
+1225193091 l:\ma\win32\core\ptrtraits.hpp
+	<memory>
+	<functional>
+
+1229769665 l:\ma\win32\core\mageometryrenderer.hpp
+	"MAVertexProcessor.hpp"
+	<boost/shared_ptr.hpp>
+	"MAGeometryRendererImpl.hpp"
+
+1228035444 l:\ma\win32\core\mavertexprocessor.hpp
+
 1215879485 l:\ma\extern\\boost\shared_ptr.hpp
 	<boost/config.hpp>
 	<boost/detail/shared_ptr_nmt.hpp>
@@ -6965,6 +5959,29 @@
 
 1215865279 l:\ma\extern\\boost\memory_order.hpp
 
+1229789351 l:\ma\win32\core\mageometryrendererimpl.hpp
+	<cassert>
+	"MAGeometryRenderer.hpp"
+	"MAMath.hpp"
+
+1229604687 l:\ma\win32\core\maaffinerasterizer.hpp
+	"MARasterizer.hpp"
+	"MAMath.hpp"
+	<omp.h>
+
+1229788462 l:\ma\win32\core\marasterizer.hpp
+	"NullType.hpp"
+
+1229765063 l:\ma\win32\core\stencil_buffer_test.hpp
+	"MAStencilFunction.hpp"
+	"Vector.hpp"
+	<boost/pointee.hpp>
+	"MAFragmentProcessor.hpp"
+	"MAMath.hpp"
+	"test_data.hpp"
+
+1229745331 l:\ma\win32\core\mastencilfunction.hpp
+
 1206222355 l:\ma\extern\\boost\pointee.hpp
 	<boost/detail/is_incrementable.hpp>
 	<boost/iterator/iterator_traits.hpp>
@@ -6981,6 +5998,66 @@
 	<boost/detail/workaround.hpp>
 	<boost/type_traits/detail/bool_trait_def.hpp>
 	<boost/type_traits/detail/bool_trait_undef.hpp>
+
+1229789052 l:\ma\win32\core\mafragmentprocessor.hpp
+	"MARasterizer.hpp"
+	"DuffsDevice.hpp"
+
+1229345737 l:\ma\win32\core\test_data.hpp
+	"Vector.hpp"
+
+1229788073 l:\ma\win32\core\textureshader_test.hpp
+	"Vector.hpp"
+	<boost/pointee.hpp>
+	"MAFragmentProcessor.hpp"
+	"MAMath.hpp"
+	"test_data.hpp"
+
+1228743501 l:\ma\win32\core\shader_test.hpp
+	"Vector.hpp"
+	<boost/pointee.hpp>
+	"MAFragmentProcessor.hpp"
+	"MAMath.hpp"
+	"test_data.hpp"
+
+1227378000 l:\ma\win32\core\mavertex.hpp
+	"Vector.hpp"
+	"NullType.hpp"
+
+1224418794 l:\ma\win32\core\type_conversion_test.hpp
+	"TypeConversion.hpp"
+	<iostream>
+	<typeinfo>
+
+1224605592 l:\ma\win32\core\typeconversion.hpp
+	<boost/type_traits/is_same.hpp>
+	<boost/mpl/push_back.hpp>
+	<boost/mpl/pop_front.hpp>
+	<boost/mpl/vector.hpp>
+	<boost/variant.hpp>
+	<boost/static_assert.hpp>
+	<boost/mpl/max_element.hpp>
+	<boost/mpl/transform_view.hpp>
+	<boost/mpl/deref.hpp>
+	<boost/mpl/placeholders.hpp>
+	<boost/mpl/sizeof.hpp>
+	<boost/mpl/set.hpp>
+	<boost/mpl/copy.hpp>
+	<boost/mpl/insert.hpp>
+	<boost/mpl/transform.hpp>
+	<boost/mpl/remove_if.hpp>
+	<boost/mpl/next.hpp>
+	<boost/mpl/find.hpp>
+	<boost/mpl/fold.hpp>
+	<boost/mpl/size.hpp>
+	<boost/mpl/at.hpp>
+	<boost/mpl/int.hpp>
+	"OrderedTypeInfo.hpp"
+	"AssocVector.hpp"
+	<vector>
+	<algorithm>
+	<iostream>
+	<string>
 
 1094139697 l:\ma\extern\\boost\mpl\pop_front.hpp
 	<boost/mpl/pop_front_fwd.hpp>
@@ -7449,6 +6526,64 @@
 	<boost/mpl/apply.hpp>
 	<boost/mpl/aux_/inserter_algorithm.hpp>
 
+1224255583 l:\ma\win32\core\orderedtypeinfo.hpp
+	<typeinfo>
+	<cassert>
+
+1224604693 l:\ma\win32\core\ma_any_test.hpp
+	"MAny.hpp"
+
+1224607357 l:\ma\win32\core\many.hpp
+	<typeinfo>
+	<algorithm>
+	<typeinfo>
+	<boost/mpl/bool.hpp>
+	<boost/mpl/if.hpp>
+	<boost/noncopyable.hpp>
+	<boost/operators.hpp>
+	<boost/static_assert.hpp>
+	<boost/type_traits/has_nothrow_copy.hpp>
+	<boost/type_traits/is_pointer.hpp>
+	<boost/type_traits/is_reference.hpp>
+	<boost/type_traits/is_same.hpp>
+	<boost/type_traits/remove_const.hpp>
+	<boost/type_traits/remove_pointer.hpp>
+	<boost/type_traits/remove_reference.hpp>
+	"Move.hpp"
+	"ParameterType.hpp"
+	"TypeConversion.hpp"
+	"FixedAllocator.hpp"
+
+1224502016 l:\ma\win32\core\fixedallocator.hpp
+	"FSBAllocator.hpp"
+
+1225193091 l:\ma\win32\core\crtp_interface_macro_test.hpp
+	"CRTPInterfaceMacro.hpp"
+
+1226936581 l:\ma\win32\core\mesh_test.hpp
+	"MAMesh.hpp"
+
+1227289839 l:\ma\win32\core\mamesh.hpp
+	<vector>
+	<list>
+	<cassert>
+	"Vector.hpp"
+	"MAVertex.hpp"
+	"MAPoly.hpp"
+	<boost/array.hpp>
+	<boost/mpl/if.hpp>
+	<boost/noncopyable.hpp>
+	"Move.hpp"
+	"MeshBuffer.hpp"
+
+1227289938 l:\ma\win32\core\mapoly.hpp
+	"Vector.hpp"
+	"Move.hpp"
+	<boost/static_assert.hpp>
+	<boost/mpl/bool.hpp>
+	"MAVertex.hpp"
+	<cassert>
+
 1196014039 l:\ma\extern\\boost\array.hpp
 	<cstddef>
 	<stdexcept>
@@ -7458,23 +6593,15 @@
 	<algorithm>
 	<boost/config.hpp>
 
-1229345737 l:\ma\win32\core\test_data.hpp
-	"Vector.hpp"
+1227014930 l:\ma\win32\core\meshbuffer.hpp
 
-1228833061 l:\ma\win32\core\textureshader_test.hpp
-	"Vector.hpp"
-	<boost/pointee.hpp>
-	"MAFragmentProcessor.hpp"
-	"MAMath.hpp"
-	"test_data.hpp"
+1227373005 l:\ma\inc\core\duffs_device_test.hpp
+	"DuffsDevice.hpp"
 
-1229520543 l:\ma\win32\core\stencil_buffer_test.hpp
-	"MAStencilFunction.hpp"
-	"Vector.hpp"
-	<boost/pointee.hpp>
-	"MAFragmentProcessor.hpp"
-	"MAMath.hpp"
-	"test_data.hpp"
+1226937890 source:l:\ma\win32\core\maos.cpp
+	"MAOS.hpp"
 
-1229352097 l:\ma\win32\core\mastencilfunction.hpp
+1226937940 l:\ma\win32\core\maos.hpp
+
+1224314283 source:l:\ma\src\core\memorymgr.cpp
 

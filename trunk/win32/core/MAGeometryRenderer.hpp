@@ -89,7 +89,7 @@ namespace ma{
 		void vertex_shader()
 		{
 			Base::template vertex_shader<VertexShader>();
-			varying_count_ = &varying_count_template<VertexShader>;
+			//varying_count_ = &varying_count_template<VertexShader>;
 		}
 		template <typename FragShader>
 		void fragment_shader()
@@ -100,7 +100,7 @@ namespace ma{
 		template <typename VertexShader>
 		static unsigned varying_count_template()
 		{
-			return VertexShader::varying_count;
+			//return VertexShader::varying_count;
 		}
 	private:
 		void add_interp_vertex(float t, int out, int in);
@@ -165,8 +165,7 @@ namespace ma{
 		CullMode cull_mode_;
 
 		// internal function pointer; returns the number of varyings to interpolate.
-		unsigned (*varying_count_)();
-
+		//unsigned (*varying_count_)();
 		boost::shared_ptr<Rasterizer> rasterizer_;
 	};
 }
