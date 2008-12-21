@@ -139,7 +139,7 @@ void MAGeometryRenderer<Rasterizer>::pdiv_and_vt(){
 			v.x/=v.w;
 			v.y/=v.w;
 			v.z/=v.w;
-			v.inv_w = reciprocal_approxim(v.w);//1.f/v.w;
+			v.inv_w = 1.f/v.w;//reciprocal_approxim(v.w);
 
 			// triangle setup (x and y are converted from 16.16 to 28.4)
 			v.x = (viewport_.px * v.x + viewport_.ox); /*>> 12;*/
