@@ -13,7 +13,7 @@
 	"Mesh_Test.hpp"
 	"duffs_device_test.hpp"
 
-1225194455 l:\ma\inc\core\timer.hpp
+1229832538 l:\ma\inc\core\timer.hpp
 	<ctime>
 	<iostream>
 	"NullType.hpp"
@@ -5959,7 +5959,7 @@
 
 1215865279 l:\ma\extern\\boost\memory_order.hpp
 
-1229789351 l:\ma\win32\core\mageometryrendererimpl.hpp
+1229838076 l:\ma\win32\core\mageometryrendererimpl.hpp
 	<cassert>
 	"MAGeometryRenderer.hpp"
 	"MAMath.hpp"
@@ -5999,18 +5999,19 @@
 	<boost/type_traits/detail/bool_trait_def.hpp>
 	<boost/type_traits/detail/bool_trait_undef.hpp>
 
-1229789052 l:\ma\win32\core\mafragmentprocessor.hpp
+1229837316 l:\ma\win32\core\mafragmentprocessor.hpp
 	"MARasterizer.hpp"
 	"DuffsDevice.hpp"
 
 1229345737 l:\ma\win32\core\test_data.hpp
 	"Vector.hpp"
 
-1229788073 l:\ma\win32\core\textureshader_test.hpp
+1229832364 l:\ma\win32\core\textureshader_test.hpp
 	"Vector.hpp"
 	<boost/pointee.hpp>
 	"MAFragmentProcessor.hpp"
 	"MAMath.hpp"
+	"Timer.hpp"
 	"test_data.hpp"
 
 1228743501 l:\ma\win32\core\shader_test.hpp

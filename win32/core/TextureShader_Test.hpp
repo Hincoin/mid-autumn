@@ -10,7 +10,7 @@
 
 #include "MAFragmentProcessor.hpp"
 #include "MAMath.hpp"
-
+#include "Timer.hpp"
 #define HAS_TEXTURE
 #include "test_data.hpp"
 
@@ -510,11 +510,20 @@ public:
     template<typename driver_ptr>
     inline void test_fun(driver_ptr d_ptr)
     {
+        static perf::Timer timer;
+        static int cnt=0;
         typedef typename boost::pointee<driver_ptr>::type Driver;
         typedef typename Driver::GeometryRenderer GeometryRenderer;
         typedef typename Driver::ImagePtr ImagePtr;
         //set up matrices
         static float t = 1000.f;
+
+        if (cnt == 0)
+        timer.start();
+        ++cnt;
+        if (cnt == 30)
+        { timer.end();timer.stop();cnt = 0;}
+
 
         transform3f projection_matrix = perspective_matrix((54.0f), (4.0f/3.0f), (0.1f), (50.0f));
         VertexShaderTex<GeometryRenderer>::model_matrix = rotation((-(t / 1000.0f) * 90), (0), (0), (1));
