@@ -49,11 +49,11 @@ viewport(int x, int y, int w, int h)
 // the depth range to use. Normally from 0 to a value less than MAX_INT
 template<typename Rasterizer>
 void MAGeometryRenderer<Rasterizer>::
-depth_range(int n, int f){ depth_range_.near = n;depth_range_.far=f;}
+depth_range(float n, float f){ depth_range_.near = n;depth_range_.far=f;}
 
 template<typename Rasterizer>
 void MAGeometryRenderer<Rasterizer>::
-vertex_attrib_pointer(int n, int stride, const void* buffer){
+vertex_attrib_pointer(unsigned n, unsigned stride, const void* buffer){
 	Base::vertex_attrib_pointer(n, stride, buffer);
 }
 
@@ -322,8 +322,8 @@ void MAGeometryRenderer<Rasterizer>::process_triangles(){
 		// here x and y are in 28.4 fixed point. I don't use the fixmul<4>
 		// here since these coordinates are clipped to the viewport and
 		// therefore are sufficiently small to not overflow.
-		int facing = (v0.x-v1.x)*(v2.y-v1.y)-(v2.x-v1.x)*(v0.y-v1.y);
-		if (facing > 0) {
+		float facing = (v0.x-v1.x)*(v2.y-v1.y)-(v2.x-v1.x)*(v0.y-v1.y);
+		if (facing > 0.f) {
 			if (cull_mode_ != CULL_CCW)
 				rasterizer_->drawTriangle(v0, v1, v2);
 		}

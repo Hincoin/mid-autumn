@@ -13,6 +13,7 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-Wall" />
 					<Add option="-pg" />
 					<Add option="-g" />
 					<Add option="-fopenmp" />
@@ -20,6 +21,7 @@
 					<Add option="-D_WIN32" />
 					<Add option="-D__WIN32__" />
 					<Add option="-D__x86__" />
+					<Add option="-D_DEBUG" />
 					<Add directory="..\..\..\inc\core" />
 					<Add directory="..\..\..\extern\" />
 					<Add directory="..\..\..\win32\core" />
@@ -41,6 +43,7 @@
 					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
 					<Add option="-O2" />
+					<Add option="-Wall" />
 					<Add option="-fopenmp" />
 					<Add option="-DWIN32" />
 					<Add option="-D_WIN32" />

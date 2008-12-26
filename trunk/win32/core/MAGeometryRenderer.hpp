@@ -74,9 +74,9 @@ namespace ma{
 		void viewport(int x, int y, int w, int h);
 
 		// the depth range to use. Normally from 0 to a value less than MAX_INT
-		void depth_range(int n, int f);
+		void depth_range(float n, float f);
 
-		void vertex_attrib_pointer(int n, int stride, const void* buffer);
+		void vertex_attrib_pointer(unsigned n, unsigned stride, const void* buffer);
 
 		// count gives the number of indices
 		void draw_triangles(unsigned count,const unsigned *indices);
@@ -97,11 +97,11 @@ namespace ma{
 			rasterizer_->template fragment_shader<FragShader>();
 		}
 	private:
-		template <typename VertexShader>
-		static unsigned varying_count_template()
-		{
+//		template <typename VertexShader>
+	//	static unsigned varying_count_template()
+		//{
 			//return VertexShader::varying_count;
-		}
+	//	}
 	private:
 		void add_interp_vertex(float t, int out, int in);
 

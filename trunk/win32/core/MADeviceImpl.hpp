@@ -8,9 +8,9 @@ namespace ma
 //ctor and dtor
 template<typename Derived,typename Configure>
 MADevice<Derived,Configure>::MADevice(EventProcessorPtr evt_processor):
-VideoDriver_(0),GUIEnvironment_(0),SceneManager_(0),UserReceiver_(evt_processor),
-OSOperator_(0),VideoModeList_(0),FileSystem_(new FileSystem),InputReceivingSceneManager_(0),
-Timer_(new Timer)
+VideoDriver_(0),GUIEnvironment_(0),SceneManager_(0),
+Timer_(new Timer),VideoModeList_(0),UserReceiver_(evt_processor),
+OSOperator_(0),FileSystem_(new FileSystem),InputReceivingSceneManager_(0)
 {
 	if (Printer::logger)
 	{
@@ -74,7 +74,7 @@ MADevice<Derived,Configure>::~MADevice()
 template<typename Derived,typename Configure>
 
 template<typename EventType>
-void MADevice<Derived, Configure>::postEventFromUser(const EventType& event) 
+void MADevice<Derived, Configure>::postEventFromUser(const EventType& event)
 {
 	bool absorbed = false;
 
