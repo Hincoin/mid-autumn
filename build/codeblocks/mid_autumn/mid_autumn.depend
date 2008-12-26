@@ -3580,7 +3580,7 @@
 	<boost/type_traits/is_pointer.hpp>
 	<boost/detail/workaround.hpp>
 
-1229795304 l:\ma\win32\core\mamath.hpp
+1230221281 l:\ma\win32\core\mamath.hpp
 	"MAConfig.hpp"
 	<utility>
 	<cmath>
@@ -3594,7 +3594,7 @@
 
 1225526219 l:\ma\win32\core\typedefs.hpp
 
-1228035626 l:\ma\win32\core\vector.hpp
+1230045736 l:\ma\win32\core\vector.hpp
 	<Eigen/Core>
 	<Eigen/LU>
 	<Eigen/QR>
@@ -3692,7 +3692,7 @@
 
 1223553849 l:\ma\extern\\eigen\src\core\coeffs.h
 
-1223553849 l:\ma\extern\\eigen\src\core\assign.h
+1230043367 l:\ma\extern\\eigen\src\core\assign.h
 
 1223553849 l:\ma\extern\\eigen\src\core\matrixstorage.h
 
@@ -3860,14 +3860,14 @@
 	"MADeviceBase.hpp"
 	"MADeviceImpl.hpp"
 
-1225368455 l:\ma\win32\core\madevicebase.hpp
+1230044126 l:\ma\win32\core\madevicebase.hpp
 	<boost/static_assert.hpp>
 	<boost/type_traits.hpp>
 	<boost/noncopyable.hpp>
 
 1093022226 l:\ma\extern\\boost\noncopyable.hpp
 
-1225368935 l:\ma\win32\core\madeviceimpl.hpp
+1230045652 l:\ma\win32\core\madeviceimpl.hpp
 	"MADevice.hpp"
 
 1196014039 l:\ma\extern\\boost\bimap.hpp
@@ -5641,7 +5641,7 @@
 	<boost/bimap/support/map_type_by.hpp>
 	<boost/bimap/relation/detail/access_builder.hpp>
 
-1227976889 l:\ma\win32\core\madevicewin32impl.hpp
+1230043247 l:\ma\win32\core\madevicewin32impl.hpp
 	"MADevice.hpp"
 	"MADeviceWin32.hpp"
 	"MAEventType.hpp"
@@ -5659,7 +5659,7 @@
 1225194455 l:\ma\win32\core\logger.hpp
 	"NullType.hpp"
 
-1229770862 l:\ma\win32\core\win32_device_test.hpp
+1230223015 l:\ma\win32\core\win32_device_test.hpp
 	"MADeviceWin32.hpp"
 	"MADeviceConfigure.hpp"
 	"CreateDevice.hpp"
@@ -5698,7 +5698,7 @@
 1228035332 l:\ma\win32\core\eventprocessor.hpp
 	"CRTPInterfaceMacro.hpp"
 
-1227869085 l:\ma\win32\core\crtpinterfacemacro.hpp
+1230045776 l:\ma\win32\core\crtpinterfacemacro.hpp
 	"NullType.hpp"
 
 1225193091 l:\ma\win32\core\mafilesystemwin32.hpp
@@ -5736,19 +5736,19 @@
 1225114269 l:\ma\win32\core\maprinter.hpp
 	"Logger.hpp"
 
-1229745198 l:\ma\win32\core\mavideodriversoftware.hpp
+1230215444 l:\ma\win32\core\mavideodriversoftware.hpp
 	"VideoDriver.hpp"
 	"AddPointer.hpp"
 	"MAVideoDriverSoftWareImpl.hpp"
 
-1227876042 l:\ma\win32\core\videodriver.hpp
+1230216640 l:\ma\win32\core\videodriver.hpp
 	"CRTPInterfaceMacro.hpp"
 	"SpaceSegment.hpp"
 
 1225366701 l:\ma\win32\core\addpointer.hpp
 	<boost/type_traits/add_pointer.hpp>
 
-1229346339 l:\ma\win32\core\mavideodriversoftwareimpl.hpp
+1230215912 l:\ma\win32\core\mavideodriversoftwareimpl.hpp
 	"MAVideoDriverSoftWare.hpp"
 	"Image.hpp"
 
@@ -5791,7 +5791,7 @@
 	<memory>
 	<functional>
 
-1229769665 l:\ma\win32\core\mageometryrenderer.hpp
+1230045483 l:\ma\win32\core\mageometryrenderer.hpp
 	"MAVertexProcessor.hpp"
 	<boost/shared_ptr.hpp>
 	"MAGeometryRendererImpl.hpp"
@@ -5959,12 +5959,12 @@
 
 1215865279 l:\ma\extern\\boost\memory_order.hpp
 
-1229838076 l:\ma\win32\core\mageometryrendererimpl.hpp
+1230043139 l:\ma\win32\core\mageometryrendererimpl.hpp
 	<cassert>
 	"MAGeometryRenderer.hpp"
 	"MAMath.hpp"
 
-1229604687 l:\ma\win32\core\maaffinerasterizer.hpp
+1230222864 l:\ma\win32\core\maaffinerasterizer.hpp
 	"MARasterizer.hpp"
 	"MAMath.hpp"
 	<omp.h>
@@ -5972,7 +5972,7 @@
 1229788462 l:\ma\win32\core\marasterizer.hpp
 	"NullType.hpp"
 
-1229765063 l:\ma\win32\core\stencil_buffer_test.hpp
+1230219470 l:\ma\win32\core\stencil_buffer_test.hpp
 	"MAStencilFunction.hpp"
 	"Vector.hpp"
 	<boost/pointee.hpp>
@@ -5999,14 +5999,14 @@
 	<boost/type_traits/detail/bool_trait_def.hpp>
 	<boost/type_traits/detail/bool_trait_undef.hpp>
 
-1229837316 l:\ma\win32\core\mafragmentprocessor.hpp
+1230217271 l:\ma\win32\core\mafragmentprocessor.hpp
 	"MARasterizer.hpp"
 	"DuffsDevice.hpp"
 
 1229345737 l:\ma\win32\core\test_data.hpp
 	"Vector.hpp"
 
-1229832364 l:\ma\win32\core\textureshader_test.hpp
+1230222991 l:\ma\win32\core\textureshader_test.hpp
 	"Vector.hpp"
 	<boost/pointee.hpp>
 	"MAFragmentProcessor.hpp"

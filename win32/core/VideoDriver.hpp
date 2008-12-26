@@ -36,7 +36,7 @@ namespace ma{
 		ADD_CRTP_INTERFACE_FUNC(template<typename Triangle_T> void,draw3DTriangle,(const Triangle_T& tri,Color clr),(tri,clr),)
 		//ADD_CRTP_INTERFACE_FUNC( template<typename VertexShader,typename FragShader> void, drawIndexTriangleBuffer,(size_t vert_count,size_t tri_count,size_t vert_stride,const void* vertex_buffer,const unsigned* tri_index_buffer),(vert_count,tri_count,vert_stride,vertex_buffer,tri_index_buffer), )
 		//ADD_CRTP_TEMPLATE_INTERFACE_FUNC( ( typename VertexShader,typename FragShader ), void , drawIndexTriangleBuffer,(size_t vert_count,size_t tri_count,size_t vert_stride,const void* vertex_buffer,const unsigned* tri_index_buffer),(vert_count,tri_count,vert_stride,vertex_buffer,tri_index_buffer), )
-		template<typename VertexShader,typename FragShader> void drawIndexTriangleBuffer(size_t vert_count,size_t tri_count,size_t vert_stride,const void* vertex_buffer,const unsigned* tri_index_buffer){ return derived().template drawIndexTriangleBuffer<VertexShader,FragShader>(vert_count,tri_count,vert_stride,vertex_buffer,tri_index_buffer);}
+		//template<typename VertexShader,typename FragShader> void drawIndexTriangleBuffer(size_t vert_count,size_t tri_count,size_t vert_stride,const void* vertex_buffer,const unsigned* tri_index_buffer){ return derived().template drawIndexTriangleBuffer<VertexShader,FragShader>(vert_count,tri_count,vert_stride,vertex_buffer,tri_index_buffer);}
 		END_CRTP_INTERFACE()
 
 

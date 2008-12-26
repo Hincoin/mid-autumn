@@ -125,15 +125,16 @@ namespace ma
     template<typename Z,typename S>
     struct StencilFunctor
     {
-        typedef bool (*StencilFun)(Z,Z*,int,int,S*);
-        StencilFun stencil_func;
-        int ref;
-        int mask;
+typedef bool (*StencilFun)(Z,Z*,int,int,S*);
+
         StencilFunctor(int r,int m,StencilFun sf):ref(r),mask(m),stencil_func(sf){}
         bool operator()(Z z,Z* z_b,S* s_b)const
         {
             return (*stencil_func)(z,z_b,ref,mask,s_b);
         }
+        int ref;
+        int mask;
+        StencilFun stencil_func;
     };
     template<>
     struct StencilFunctor<details::only_z_tag,details::only_z_tag>
@@ -149,22 +150,16 @@ namespace ma
     template <typename FragmentShader>
     struct GenericSpanDrawer : public SpanDrawerBase<FragmentShader>
     {
-
-
-        static void flat_shading();
-        static void prepare_gauround_triangle(
-           const MARasterizerBase::Vertex& v1,
+        static bool sort_triangle_vertex(const MARasterizerBase::Vertex& v1,
            const MARasterizerBase::Vertex& v2,
            const MARasterizerBase::Vertex& v3,
-            MARasterizerBase::Vertex*& tri_v1,
-            MARasterizerBase::Vertex*& tri_v2,
-            MARasterizerBase::Vertex*& tri_v3
-        )
+           const MARasterizerBase::Vertex*& tri_v1,
+           const MARasterizerBase::Vertex*& tri_v2,
+           const MARasterizerBase::Vertex*& tri_v3)
         {
-            typedef MARasterizerBase::Vertex* VertexPtr;
-             tri_v1 = const_cast<VertexPtr>(&v1);
-            tri_v2 = const_cast<VertexPtr>(&v2);
-            tri_v3 = const_cast<VertexPtr>(&v3);
+            tri_v1 = (&v1);
+            tri_v2 = (&v2);
+            tri_v3 = (&v3);
             //sort by y axis
             if (tri_v1->y < tri_v2->y) //v1 < v2
             {
@@ -194,349 +189,16 @@ namespace ma
                     std::swap(tri_v1,tri_v2);
                     std::swap(tri_v2,tri_v3);
                 }
-
             }
-            /*
-            int i = 0;
-            DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::persp_var_cnt,
-            tri_v1->perspective_varyings[i]/=tri_v1->w;++i;
-            );
-            i=0;
-            DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::persp_var_cnt,
-            tri_v2->perspective_varyings[i]/=tri_v2->w;++i;
-            );
-            i=0;
-            DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::persp_var_cnt,
-            tri_v3->perspective_varyings[i]/=tri_v3->w;++i;
-            );
-            */
-            assert( tri_v1->y <= tri_v2->y && tri_v2->y <= tri_v3->y );
+			 assert( tri_v1->y <= tri_v2->y && tri_v2->y <= tri_v3->y );
+            float ax = tri_v3->x - tri_v2->x;
+            float ay = tri_v3->y - tri_v2->y;
+            float bx = tri_v1->x - tri_v2->x;
+            float by = tri_v1->y - tri_v2->y;
+			//because left up is (0,0) , so reverse it
+            return ax * by - ay * bx  < 0;
         }
-        struct perspective_correct_tag{};
-        struct linear_tag{};
-        template<typename Z,typename S,typename SF>
-        static bool gauround_shading(int x,int y,
-                                     const MARasterizerBase::Vertex& tri_v1,
-                                     const MARasterizerBase::Vertex& tri_v2,
-                                     const MARasterizerBase::Vertex& tri_v3,
-                                     Z* z_b,
-                                     S* s_b,
-                                     const SF& stencil_func,
-                                     MARasterizerBase::FragmentData& fragment,
-                                     const linear_tag&
-                                    )
-        {
-            Z interpolated_z = 0;
-
-            float linear_varyings12[MARasterizerBase::MAX_VARYING];//such as z,color
-            float linear_varyings13[MARasterizerBase::MAX_VARYING];
-            float linear_varyings23[MARasterizerBase::MAX_VARYING];
-            //gauraud shading
-            //in y axis
-            if (y < tri_v2.y) // betwenn v1,v2
-            {
-                float t12 = linearStep(tri_v1.y,tri_v2.y,(float)y);
-                float t13 = linearStep(tri_v1.y,tri_v3.y,(float)y);
-
-                float z12 = lerp(tri_v1.z,tri_v2.z,t12);
-                float z13 = lerp(tri_v1.z,tri_v3.z,t13);
-                int i = 0;
-                DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::linear_var_cnt,
-                             linear_varyings12[i]=lerp(tri_v1.linear_varyings[i],tri_v2.linear_varyings[i],t12);++i;
-                            );
-                float posx12 = lerp(tri_v1.x,tri_v2.x,t12);
-
-
-                i = 0;
-                DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::linear_var_cnt,
-                             linear_varyings13[i]=lerp(tri_v1.linear_varyings[i],tri_v3.linear_varyings[i],t13);++i;
-                            );
-                float posx13 = lerp(tri_v1.x,tri_v3.x,t13);
-
-
-                if (posx12 < posx13)
-                {
-                    float tx = linearStep(posx12,posx13,(float)x);
-                    {
-                        interpolated_z = lerp(z12,z13,tx);
-                        assert(interpolated_z >=0 );
-                        if (interpolated_z>0 &&
-                                //*z_b > interpolated_z
-                                (stencil_func)(interpolated_z,z_b,s_b)
-                           )
-                            *(z_b) = interpolated_z;
-                        else return false;
-                    }
-                    fragment.z = interpolated_z;
-                    i = 0;
-                    DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::linear_var_cnt,
-                                 fragment.linear_varyings[i]=lerp(linear_varyings12[i],linear_varyings13[i],tx);++i;
-                                );
-                }
-                else
-                {
-                    float tx = linearStep(posx13,posx12,(float)x);
-                    {
-                        interpolated_z =lerp(z13,z12,tx);
-                        assert(interpolated_z >=0 );
-                        if (interpolated_z>0 &&
-                                (stencil_func)(interpolated_z,z_b,s_b)
-                                //*z_b > interpolated_z
-                           )
-                            *(z_b) = interpolated_z;
-                        else return false;
-                    }
-                    fragment.z = interpolated_z;
-                    i = 0;
-                    DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::linear_var_cnt,
-                                 fragment.linear_varyings[i]=lerp(linear_varyings13[i],linear_varyings12[i],tx);++i;
-                                );
-                }
-            }
-            else
-            {
-                float t23 = linearStep(tri_v2.y,tri_v3.y,(float)y);
-                float t13 = linearStep(tri_v1.y,tri_v3.y,(float)y);
-
-                float z23 = lerp(tri_v2.z,tri_v3.z, t23);
-                float z13 = lerp(tri_v1.z,tri_v3.z, t13);
-                int i = 0;
-                DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::linear_var_cnt,
-                             linear_varyings23[i]=lerp(tri_v2.linear_varyings[i],tri_v3.linear_varyings[i],t23);++i;
-                            );
-                float posx23 = lerp(tri_v2.x,tri_v3.x,t23);
-
-                i = 0;
-                DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::linear_var_cnt,
-                             linear_varyings13[i]=lerp(tri_v1.linear_varyings[i],tri_v3.linear_varyings[i],t13);++i;
-                            );
-                float posx13 = lerp(tri_v1.x,tri_v3.x,t13);
-
-                if (posx23 < posx13)
-                {
-
-                    float tx = linearStep(posx23,posx13,(float)x);
-
-                    {
-                        interpolated_z = lerp(z23,z13, tx);
-                        assert(interpolated_z >=0 );
-                        if (interpolated_z>0 && //*z_b > interpolated_z
-                                (stencil_func)(interpolated_z,z_b,s_b)
-                           )
-                            *(z_b) = interpolated_z;
-                        else return false;
-                    }
-                    fragment.z = interpolated_z;
-                    i = 0;
-                    DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::linear_var_cnt,
-                                 fragment.linear_varyings[i]=lerp(linear_varyings23[i],linear_varyings13[i],tx);++i;
-                                );
-                }
-                else
-                {
-                    float tx = linearStep(posx13,posx23,(float)x);
-                    {
-                        interpolated_z = lerp(z13,z23,tx);
-                        assert(interpolated_z >=0 );
-                        if (interpolated_z>0 &&
-                                (stencil_func)(interpolated_z,z_b,s_b)
-                           )
-                            *(z_b) = interpolated_z;
-                        else return false;
-                    }
-                    fragment.z = interpolated_z;
-                    i = 0;
-                    DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::linear_var_cnt,
-                                 fragment.linear_varyings[i]=lerp(linear_varyings13[i],linear_varyings23[i],tx);++i;
-                                );
-                }
-            }
-            return true;
-        }
-        template<typename Z,typename S,typename SF>
-        static bool gauround_shading(int x,int y,
-                                     const MARasterizerBase::Vertex& tri_v1,
-                                     const MARasterizerBase::Vertex& tri_v2,
-                                     const MARasterizerBase::Vertex& tri_v3,
-                                     Z* z_b,
-                                     S* s_b,
-                                     const SF& stencil_func,
-                                     MARasterizerBase::FragmentData& fragment,
-                                     const perspective_correct_tag&
-                                    )
-        {
-            Z interpolated_z = 0;
-            float perspective_varyings12[MARasterizerBase::MAX_VARYING];//such as texture coordinate
-            float perspective_varyings13[MARasterizerBase::MAX_VARYING];
-            float perspective_varyings23[MARasterizerBase::MAX_VARYING];
-            float linear_varyings12[MARasterizerBase::MAX_VARYING];//such as z,color
-            float linear_varyings13[MARasterizerBase::MAX_VARYING];
-            float linear_varyings23[MARasterizerBase::MAX_VARYING];
-            //gauraud shading
-            //in y axis
-            if (y < tri_v2.y) // betwenn v1,v2
-            {
-                float t12 = linearStep(tri_v1.y,tri_v2.y,(float)y);
-                float t13 = linearStep(tri_v1.y,tri_v3.y,(float)y);
-
-                float z12 = lerp(tri_v1.z,tri_v2.z,t12);
-                float z13 = lerp(tri_v1.z,tri_v3.z,t13);
-                int i = 0;
-                DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::linear_var_cnt,
-                             linear_varyings12[i]=lerp(tri_v1.linear_varyings[i],tri_v2.linear_varyings[i],t12);++i;
-                            );
-                i = 0;
-                DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::persp_var_cnt,
-                             perspective_varyings12[i]=lerp(tri_v1.perspective_varyings[i],tri_v2.perspective_varyings[i],t12);++i;
-                            );
-                float w12 = lerp(tri_v1.inv_w,tri_v2.inv_w,t12);
-
-                float posx12 = lerp(tri_v1.x,tri_v2.x,t12);
-
-
-                i = 0;
-                DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::linear_var_cnt,
-                             linear_varyings13[i]=lerp(tri_v1.linear_varyings[i],tri_v3.linear_varyings[i],t13);++i;
-                            );
-                i = 0;
-                DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::persp_var_cnt,
-                             perspective_varyings13[i]=lerp(tri_v1.perspective_varyings[i],tri_v3.perspective_varyings[i],t13);++i;
-                            );
-                float w13 = lerp( tri_v1.inv_w, tri_v3.inv_w,t13);
-
-                float posx13 = lerp(tri_v1.x,tri_v3.x,t13);
-
-
-                if (posx12 < posx13)
-                {
-                    float tx = linearStep(posx12,posx13,(float)x);
-                    {
-                        interpolated_z = lerp(z12,z13,tx);
-                        assert(interpolated_z >=0 );
-                        if (interpolated_z>0 &&
-                                //*z_b > interpolated_z
-                                (stencil_func)(interpolated_z,z_b,s_b)
-                           )
-                            *(z_b) = interpolated_z;
-                        else return false;
-                    }
-                    fragment.z = interpolated_z;
-                    i = 0;
-                    DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::linear_var_cnt,
-                                 fragment.linear_varyings[i]=lerp(linear_varyings12[i],linear_varyings13[i],tx);++i;
-                                );
-                    float w =lerp(w12,w13,tx);
-                    i = 0;
-                    DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::persp_var_cnt,
-                                 fragment.perspective_varyings[i]=lerp(perspective_varyings12[i],perspective_varyings13[i],tx)/w;++i;
-                                );
-                }
-                else
-                {
-                    float tx = linearStep(posx13,posx12,(float)x);
-                    {
-                        interpolated_z =lerp(z13,z12,tx);
-                        assert(interpolated_z >=0 );
-                        if (interpolated_z>0 &&
-                                (stencil_func)(interpolated_z,z_b,s_b)
-                                //*z_b > interpolated_z
-                           )
-                            *(z_b) = interpolated_z;
-                        else return false;
-                    }
-                    fragment.z = interpolated_z;
-                    i = 0;
-                    DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::linear_var_cnt,
-                                 fragment.linear_varyings[i]=lerp(linear_varyings13[i],linear_varyings12[i],tx);++i;
-                                );
-                    float w =lerp(w13,w12,tx);
-                    i = 0;
-                    DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::persp_var_cnt,
-                                 fragment.perspective_varyings[i]=lerp(perspective_varyings13[i],perspective_varyings12[i],tx)/w;++i;
-                                 );
-                }
-            }
-            else
-            {
-                float t23 = linearStep(tri_v2.y,tri_v3.y,(float)y);
-                float t13 = linearStep(tri_v1.y,tri_v3.y,(float)y);
-
-                float z23 = lerp(tri_v2.z,tri_v3.z, t23);
-                float z13 = lerp(tri_v1.z,tri_v3.z, t13);
-                int i = 0;
-                DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::linear_var_cnt,
-                             linear_varyings23[i]=lerp(tri_v2.linear_varyings[i],tri_v3.linear_varyings[i],t23);++i;
-                            );
-                i = 0;
-                DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::persp_var_cnt,
-                             perspective_varyings23[i]=lerp(tri_v2.perspective_varyings[i],tri_v3.perspective_varyings[i],t23);++i;
-                            );
-                float w23 = lerp(tri_v2.inv_w,tri_v3.inv_w,t23);
-                float posx23 = lerp(tri_v2.x,tri_v3.x,t23);
-
-                i = 0;
-                DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::linear_var_cnt,
-                             linear_varyings13[i]=lerp(tri_v1.linear_varyings[i],tri_v3.linear_varyings[i],t13);++i;
-                            );
-                i =  0;
-                DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::persp_var_cnt,
-                             perspective_varyings13[i]=lerp(tri_v1.perspective_varyings[i],tri_v3.perspective_varyings[i],t13);++i;
-                            );
-                float w13 = lerp( tri_v1.inv_w, tri_v3.inv_w,t13);
-                float posx13 = lerp(tri_v1.x,tri_v3.x,t13);
-
-                if (posx23 < posx13)
-                {
-
-                    float tx = linearStep(posx23,posx13,(float)x);
-
-                    {
-                        interpolated_z = lerp(z23,z13, tx);
-                        assert(interpolated_z >=0 );
-                        if (interpolated_z>0 && //*z_b > interpolated_z
-                                (stencil_func)(interpolated_z,z_b,s_b)
-                           )
-                            *(z_b) = interpolated_z;
-                        else return false;
-                    }
-                    fragment.z = interpolated_z;
-                    i = 0;
-                    DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::linear_var_cnt,
-                                 fragment.linear_varyings[i]=lerp(linear_varyings23[i],linear_varyings13[i],tx);++i;
-                                );
-                    float inv_w = lerp(w23,w13,tx);
-                    i = 0;
-                    DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::persp_var_cnt,
-                                fragment.perspective_varyings[i]=lerp(perspective_varyings23[i],perspective_varyings13[i],tx)/inv_w;++i;
-                                );
-                }
-                else
-                {
-                    float tx = linearStep(posx13,posx23,(float)x);
-                    {
-                        interpolated_z = lerp(z13,z23,tx);
-                        assert(interpolated_z >=0 );
-                        if (interpolated_z>0 &&
-                                (stencil_func)(interpolated_z,z_b,s_b)
-                           )
-                            *(z_b) = interpolated_z;
-                        else return false;
-                    }
-                    fragment.z = interpolated_z;
-                    i = 0;
-                    DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::linear_var_cnt,
-                                 fragment.linear_varyings[i]=lerp(linear_varyings13[i],linear_varyings23[i],tx);++i;
-                                );
-                    float inv_w = lerp(w13,w23,tx);
-                    i = 0;
-                    DUFFS_DEVICE(8,int,MARasterizerBase::Vertex::persp_var_cnt,
-                                 fragment.perspective_varyings[i]=lerp(perspective_varyings13[i],perspective_varyings23[i],tx)/inv_w;++i;
-                                );
-                }
-            }
-            return true;
-        }
-    };
+   };
 
     template <typename FragmentShader>
     struct SpanDrawer16BitColorAndDepth : public SpanDrawerBase<FragmentShader>

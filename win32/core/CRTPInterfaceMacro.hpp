@@ -30,7 +30,7 @@ public:
 #define END_CRTP_INTERFACE()\
 };
 
-
+/*
 //#define MA_DECLARE_TYPEDEF_TRAITS_TYPE(_TYPE_) \
 //	namespace details { namespace ma_traits{\
 //	template<typename U> struct _typedef_traits_##_TYPE_;} }
@@ -42,5 +42,5 @@ public:
 //	{\
 //	typedef _CONFIG_CLASS_NAME::_TYPE_ type;\
 //	};}}
-
+*/
 #endif

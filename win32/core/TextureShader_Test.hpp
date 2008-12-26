@@ -153,15 +153,22 @@ namespace ma_test
 
         unsigned int sample(float u, float v)
         {
+			//u = clamp(u,0.f,1.f);
+			//v = clamp(v,0.f,1.f);
             int tx = (int)( u* width );
             int ty = (int) (v * height);
+            if (!(tx <= width && ty<= height && tx>=0 && ty>= 0))
+                std::cerr<<tx<<" "<<ty<<std::endl;
+			//assert(tx <= width && ty<= height && tx>=0 && ty>= 0);
+			tx = clamp(tx,0,width);
+			ty = clamp(ty,0,height);
             char* r = tex+tx + ty*width ;
             unsigned color = 0xff;
             color = color << 8;
             color |= *r;
-            color << 8;
+            color = color << 8;
             color |= *(r+1);
-            color << 8;
+            color = color << 8;
             color |= *(r+2);
             return color;
         }
@@ -246,245 +253,19 @@ public:
             const MARasterizerBase::Vertex& v2,
             const MARasterizerBase::Vertex& v3)
         {
-            Base::prepare_gauround_triangle(v1,v2,v3,tri_v1,tri_v2,tri_v3);
-            //uv0[0] = (*tri_v1).perspective_varyings[0]/v1.w;
-            //uv0[1] = (*tri_v1).perspective_varyings[1]/v1.w;
-
-            //uv1[0] = (*tri_v2).perspective_varyings[0]/v2.w;
-            //uv1[1] = (*tri_v2).perspective_varyings[1]/v2.w;
-
-            //uv2[0] = (*tri_v3).perspective_varyings[0]/v3.w;
-            //uv2[1] = (*tri_v3).perspective_varyings[1]/v3.w;
-
-            //tri_v1 = &v1;
-            //tri_v2 = &v2;
-            //tri_v3 = &v3;
-            ////sort by y axis
-            //if (tri_v1->y < tri_v2->y) //v1 < v2
-            //{
-            //    if (tri_v1->y < tri_v3->y)
-            //    {
-            //        if (tri_v2->y < tri_v3->y);
-            //        else std::swap(tri_v2,tri_v3);
-            //    }
-            //    else//tri_v2->y > tri_v1->y > tri_v3->y
-            //    {
-            //        std::swap(tri_v1,tri_v3);//tri_v1 be smallest
-            //        std::swap(tri_v2,tri_v3);//tri_v3 be biggest
-            //    }
-            //}
-            //else if (tri_v1->y < tri_v3->y) // v2 < v1 < v3
-            //{
-            //    std::swap(tri_v1,tri_v2);
-            //}
-            //else//v1 > v2, v1 > v3
-            //{
-            //    if (tri_v2->y > tri_v3->y)//v1> v2 > v3
-            //    {
-            //        std::swap(tri_v3,tri_v1);
-            //    }
-            //    else //v1 > v3 > v2
-            //    {
-            //        std::swap(tri_v1,tri_v2);
-            //        std::swap(tri_v2,tri_v3);
-            //    }
-
-            //}
-
-/*
-            uv0[0] = tri_v1->perspective_varyings[0];//tri_v1->w;
-            uv0[1] = tri_v1->perspective_varyings[1];//tri_v1->w;
-
-
-            uv1[0] = tri_v2->perspective_varyings[0];//tri_v2->w;
-            uv1[1] = tri_v2->perspective_varyings[1];//tri_v2->w;
-
-
-            uv2[0] = tri_v3->perspective_varyings[0];//tri_v3->w;
-            uv2[1] = tri_v3->perspective_varyings[1];//tri_v3->w;
-*/
-            assert( tri_v1->y <= tri_v2->y && tri_v2->y <= tri_v3->y );
-
         }
-        //true if culled out
-        static bool z_cull(int x,int y,
-                           const MARasterizerBase::Vertex& v1,
-                           const MARasterizerBase::Vertex& v2,
-                           const MARasterizerBase::Vertex& v3)
-        {
-            if ( v1.z < 0 && v2.z < 0 && v3.z < 0)return true;
-            float* z_b = z_buffer->buffer() + y * z_buffer->width() + x;
-            float area = (v2.x - v1.x) * (v3.y - v1.y) - (v2.y - v1.y) * (v3.x - v1.x) ;
-
-            float u = (v1.x-x) * (v2.y-y) - (v2.x - x) * (v1.y - y);
-            float v = (v2.x-x) * (v3.y-y) - (v2.y-y) * (v3.x-x);
-            u /= area;
-            v /= area;
-            u = std::abs(u);
-            v = std::abs(v);
-            float w  = 1- u - v;
-            float interpolated_z = u * v3.z + v * v1.z + w * v2.z;
-
-            if (interpolated_z <0)
-            {
-                //std::cout<<interpolated_z<<std::endl;
-                return true;
-            }
-            if (*z_b > interpolate_z)
-            {
-                *z_b = interpolated_z;
-                return false;
-            }
-            return true;
-        }
-        static void single_fragment(int x, int y)
+        static void single_fragment(int x, int y,const MARasterizerBase::FragmentData& frag)
         {
             using namespace ma;
             using namespace details;
 #ifdef LINEAR_Z_INTERPOLATE
             float* z_b = z_buffer->buffer() + y * z_buffer->width() + x;
-            float interpolated_z = 0;
 #endif
-            MARasterizerBase::FragmentData frag;
-            if(!Base::gauround_shading(x,y,*tri_v1,*tri_v2,*tri_v3,z_b,(NullType*)0,
-                StencilFunctor<ma::details::only_z_tag,ma::details::only_z_tag>(),frag,typename Base::perspective_correct_tag())) return;
+            if (*z_b < frag.z)return;
+            *z_b = frag.z;
              render_target->setPixel(x,y,tex->sample(frag.perspective_varyings[0],frag.perspective_varyings[1]));
              return;
-            //simple z interpolate method: assume that no triangle intersect each other
-            //interpolated_z = (tri_v1->z+tri_v2->z+tri_v3->z)/3.f;
-            //if (interpolated_z >= *(z_b) )
-            //    return;
 
-            //*(z_b ) = interpolated_z;
-            //if (interpolated_z < 0 )
-            //{
-            //    return;
-            //}
-#ifndef LINEAR_Z_INTERPOLATE
-            if (z_cull(x,y,*tri_v1,*tri_v2,*tri_v3))return;
-#endif
-            //gauraud shading
-            //in y axis
-            if (y < tri_v2->y) // betwenn v1,v2
-            {
-                float t12 = linearStep(tri_v1->y,tri_v2->y,(float)y);
-                float t13 = linearStep(tri_v1->y,tri_v3->y,(float)y);
-#ifdef LINEAR_Z_INTERPOLATE
-                float z12 = lerp(tri_v1->z,tri_v2->z,t12);
-                float z13 = lerp(tri_v1->z,tri_v3->z,t13);
-#endif
-
-
-                float slopeU12 = lerp(uv0[0],uv1[0],t12);
-                float slopeV12 = lerp(uv0[1],uv1[1],t12);
-                float slopeW12 = lerp(1.f/tri_v1->w,1.f/tri_v2->w,t12);
-
-                float posx12 = lerp(tri_v1->x,tri_v2->x,t12);
-
-
-
-                float slopeU13 = lerp(uv0[0],uv2[0],t13);
-                float slopeV13 = lerp(uv0[1],uv2[1],t13);
-                float slopeW13 = lerp(1.f/tri_v1->w, 1.f/tri_v3->w,t13);
-                float posx13 = lerp(tri_v1->x,tri_v3->x,t13);
-
-
-                if (posx12 < posx13)
-                {
-                    float tx = linearStep(posx12,posx13,(float)x);
-#ifdef LINEAR_Z_INTERPOLATE
-                    {
-                        interpolated_z = lerp(z12,z13,tx);
-
-                        if (interpolated_z>0 && *z_b > interpolated_z)
-                            *(z_b) = interpolated_z;
-                        else return;
-                    }
-#endif
-                    float u =  (lerp(slopeU12,slopeU13,tx) );
-                    float v =  (lerp(slopeV12,slopeV13,tx) );
-                    float inv_w = lerp(slopeW12,slopeW13,tx);
-
-                    //unsigned color = 0xFF000000 | r << 16 | g << 8 | b;
-                    render_target->setPixel(x,y,tex->sample(u / inv_w ,v / inv_w));
-                }
-                else
-                {
-                    float tx = linearStep(posx13,posx12,(float)x);
-#ifdef LINEAR_Z_INTERPOLATE
-                    {
-                        interpolated_z =lerp(z13,z12,tx);
-                        if (interpolated_z>0 && *z_b > interpolated_z)
-                            *(z_b) = interpolated_z;
-                        else return;
-                    }
-#endif
-
-                    float u = (lerp(slopeU13,slopeU12,tx) );
-                    float v = (lerp(slopeV13,slopeV12,tx) );
-                    float inv_w = lerp(slopeW13,slopeW12,tx);
-
-                    //unsigned color = 0xFF000000 | r << 16 | g << 8 | b;
-                    render_target->setPixel(x,y,tex->sample(u/inv_w,v/inv_w));
-                }
-            }
-            else
-            {
-                float t23 = linearStep(tri_v2->y,tri_v3->y,(float)y);
-                float t13 = linearStep(tri_v1->y,tri_v3->y,(float)y);
-#ifdef LINEAR_Z_INTERPOLATE
-                float z23 = lerp(tri_v2->z,tri_v3->z, t23);
-                float z13 = lerp(tri_v1->z,tri_v3->z, t13);
-#endif
-                float slopeU23 = lerp(uv1[0],uv2[0],t23);
-                float slopeV23 = lerp(uv1[1],uv2[1],t23);
-                float slopeW23 = lerp(1.f/ tri_v2->w,1.f/tri_v3->w,t23);
-
-                float posx23 = lerp(tri_v2->x,tri_v3->x,t23);
-
-
-                float slopeU13 = lerp(uv0[0],uv2[0],t13);
-                float slopeV13 = lerp(uv0[1],uv2[1],t13);
-                float slopeW13 = lerp(1.f/tri_v1->w, 1.f/tri_v3->w,t13);
-
-                float posx13 = lerp(tri_v1->x,tri_v3->x,t13);
-
-                if (posx23 < posx13)
-                {
-
-                    float tx = linearStep(posx23,posx13,(float)x);
-#ifdef LINEAR_Z_INTERPOLATE
-                    {
-                        interpolated_z = lerp(z23,z13, tx);
-                        if (interpolated_z>0 && *z_b > interpolated_z)
-                            *(z_b) = interpolated_z;
-                        else return;
-                    }
-#endif
-                    float u = (lerp(slopeU23,slopeU13,tx));
-                    float v = (lerp(slopeV23,slopeV13,tx) );
-                    float inv_w = lerp(slopeW23,slopeW13,tx);
-                    //unsigned color = 0xFF000000 | r << 16 | g << 8 | b;
-                    render_target->setPixel(x,y,tex->sample(u/inv_w,v/inv_w));
-                }
-                else
-                {
-                    float tx = linearStep(posx13,posx23,(float)x);
-#ifdef LINEAR_Z_INTERPOLATE
-                    {
-                        interpolated_z = lerp(z13,z23,tx);
-                        if (interpolated_z>0 && *z_b > interpolated_z)
-                            *(z_b) = interpolated_z;
-                        else return;
-                    }
-#endif
-                    float u =  (lerp(slopeU13,slopeU23,tx) );
-                    float v =  (lerp(slopeV13,slopeV23,tx) );
-                    float inv_w = lerp(slopeW13,slopeW23,tx);
-                    //unsigned color = 0xFF000000 | r << 16 | g << 8 | b;
-                    render_target->setPixel(x,y,tex->sample(u/inv_w,v/inv_w));
-                }
-            }
         }
     };
     template<typename DriverType>
@@ -515,8 +296,10 @@ public:
         typedef typename boost::pointee<driver_ptr>::type Driver;
         typedef typename Driver::GeometryRenderer GeometryRenderer;
         typedef typename Driver::ImagePtr ImagePtr;
+        typedef VertexShaderTex<GeometryRenderer> VertexShader;
+        typedef FragmentShaderTex<Driver> FragmentShader;
         //set up matrices
-        static float t = 1000.f;
+        static float t = 5000.f;
 
         if (cnt == 0)
         timer.start();
@@ -555,9 +338,10 @@ public:
         MARasterizerBase::Vertex::linear_var_cnt = 0;
         MARasterizerBase::Vertex::persp_var_cnt = 2;
         //d_ptr->template drawIndexTriangleBuffer<VertexShader<GeometryRenderer>,FragmentShader<Driver> >(sizeof(vertex_data)/sizeof(float),sizeof(index_data)/sizeof(unsigned),sizeof(float) * 6,vertex_data,index_data);
-
-        d_ptr->template drawIndexTriangleBuffer<VertexShaderTex<GeometryRenderer>,FragmentShaderTex<Driver> >
-        (sizeof(vertex_data)/sizeof(float),sizeof(index_data)/sizeof(unsigned),sizeof(TexVertex) ,vertex_data,index_data);
+        d_ptr->template vertexBuffer<VertexShader>(0,sizeof(TexVertex),vertex_data);
+        d_ptr->template drawIndexedTriangle<FragmentShader>(sizeof (index_data) / sizeof( unsigned ),index_data);
+        //d_ptr->template drawIndexTriangleBuffer<VertexShaderTex<GeometryRenderer>,FragmentShaderTex<Driver> >
+        //(sizeof(vertex_data)/sizeof(float),sizeof(index_data)/sizeof(unsigned),sizeof(TexVertex) ,vertex_data,index_data);
     }
 }
 

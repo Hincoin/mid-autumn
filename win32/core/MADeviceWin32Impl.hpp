@@ -449,7 +449,7 @@ namespace ma{
 	{
 		HWND hwnd = HWnd;
 		if ( windowId )
-			hwnd = reinterpret_cast<HWND>(windowId);
+			hwnd = reinterpret_cast<HWND>((void*)&windowId);//get rid of warning
 
 		HDC dc = GetDC(hwnd);
 

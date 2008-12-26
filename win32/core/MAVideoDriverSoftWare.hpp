@@ -58,16 +58,14 @@ namespace ma{
 		template<typename Point_T> void draw3DLine(const Point_T& start,const Point_T& end,Color clr);
 		template<typename Triangle_T> void draw3DTriangle(const Triangle_T& tri,Color clr);
 
-		template<typename VertexShader,typename FragShader>
-		void drawIndexTriangleBuffer(
-			std::size_t vert_count,
-			std::size_t tri_count,
-			std::size_t vert_stride,
-			const void* vertex_buffer,const unsigned* tri_index_buffer);
-
 		ImagePtr getBackBuffer(){return BackBuffer;}
 		DepthBufferPtr getDepthBuffer(){return depth_buffer_;}
 		StencilBufferPtr getStencilBuffer(){return stencil_buffer_;}
+		void viewport(int left,int top,int right,int bottom);
+		template<typename VertexShader>
+		void vertexBuffer(unsigned attribute_start_idx,unsigned vert_stride,void* buffer);
+		template<typename FragShader>
+		void drawIndexedTriangle(unsigned tri_count ,const unsigned *tri_idx);
 	private:
 		ImagePtr BackBuffer;
 		DepthBufferPtr depth_buffer_;

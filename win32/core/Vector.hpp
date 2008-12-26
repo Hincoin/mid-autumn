@@ -14,7 +14,7 @@
 #define VECTOR_HPP
 
 
-
+/*
 // the following implementation is not conformed to c++ standard when using nameless union
 //
 //#include <boost/static_assert.hpp>
@@ -471,6 +471,7 @@
 //		typedef Vector<float,VectorStorageN<float,4> > vector4f;
 //	}
 //}
+*/
 
 #ifdef _MSC_VER
 #pragma   warning(push)

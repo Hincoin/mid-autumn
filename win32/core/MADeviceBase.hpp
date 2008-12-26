@@ -1,11 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2008 by luozhiyuan (luozhiyuan@gmail.com)
-// Permission to use, copy, modify, distribute and sell this software for any 
-//     purpose is hereby granted without fee, provided that the above copyright 
-//     notice appear in all copies and that both that copyright notice and this 
+// Permission to use, copy, modify, distribute and sell this software for any
+//     purpose is hereby granted without fee, provided that the above copyright
+//     notice appear in all copies and that both that copyright notice and this
 //     permission notice appear in supporting documentation.
-// The author makes no representations about the 
-//     suitability of this software for any purpose. It is provided "as is" 
+// The author makes no representations about the
+//     suitability of this software for any purpose. It is provided "as is"
 //     without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,7 +17,7 @@
 #include <boost/type_traits.hpp>
 #include <boost/noncopyable.hpp>
 namespace ma{
- 
+
 	//render device
 	template<typename Derived,typename Configure>
 	class MADeviceBase: boost::noncopyable{
@@ -56,7 +56,7 @@ namespace ma{
 
 		//! Provides access to the video driver for drawing 3d and 2d geometry.
 		/** \return Pointer the video driver. */
-		
+
 		VideoDriverPtr getVideoDriver(){return static_cast<Derived&>(*this).getVideoDriver();}
 
 		//! Provides access to the virtual file system.
@@ -138,7 +138,7 @@ namespace ma{
 
 		//! Sets a new event receiver to receive events.
 		/** \param receiver New receiver to be used. */
-		void setEventReceiver(EventProcessorPtr receiver) 
+		void setEventReceiver(EventProcessorPtr receiver)
 		{
 			derived().setEventReceiver(receiver);
 		}
@@ -154,10 +154,10 @@ namespace ma{
 		the engine. Internally, this method only delegates the events
 		further to the scene manager and the GUI environment. */
 		template<typename EventType>
-		void postEventFromUser(const EventType& event) 
+		void postEventFromUser(const EventType& event)
 		{
 			return derived().template postEventFromUser<EventType>(event);
-		};
+		}
 
 		//! Sets the input receiving scene manager.
 		/** If set to null, the main scene manager (returned by

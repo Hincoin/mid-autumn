@@ -9,7 +9,7 @@
 #include "MAFragmentProcessor.hpp"
 #include "MAMath.hpp"
 
-#define NO_TEXTURE_SMALL
+#define NO_TEXTURE_BIG
 #include "test_data.hpp"
 namespace ma_test{
 
@@ -407,7 +407,7 @@ enum eClearFlag
             Base::prepare_gauround_triangle
             (v1,v2,v3,tri_v1,tri_v2,tri_v3);
         }
-         static void single_fragment(int x, int y)
+         static void single_fragment(int x, int y,const MARasterizerBase::FragmentData& frag)
         {
             using namespace ma;
             //run stencil test first
@@ -415,15 +415,22 @@ enum eClearFlag
             if(stencil_func && !(*stencil_func)(0,0,ref,mask,s_b))return;
 
             float* z_b = z_buffer->buffer() + y * z_buffer->width() + x;
-            MARasterizerBase::FragmentData frag;
+            ;
             if(stencil_func)
             {
             StencilFunctor<float,char> sf(ref,mask,stencil_func);
-            if (!Base::gauround_shading(x,y,*tri_v1,*tri_v2,*tri_v3,z_b,s_b,sf,frag))return;}
+            if(sf(frag.z,z_b,s_b))
+             *z_b = frag.z;
+             else return;
+            }
             else
             {
-                if(!Base::gauround_shading(x,y,*tri_v1,*tri_v2,*tri_v3,z_b,s_b,
-                StencilFunctor<ma::details::only_z_tag,ma::details::only_z_tag>(),frag)) return;
+                 //sf;
+                if (StencilFunctor<ma::details::only_z_tag,ma::details::only_z_tag>()(frag.z,z_b,s_b))
+                *z_b = frag.z;
+                else return;
+                //if(!Base::gauround_shading(x,y,*tri_v1,*tri_v2,*tri_v3,z_b,s_b,
+                //StencilFunctor<ma::details::only_z_tag,ma::details::only_z_tag>(),frag)) return;
             }
 
             unsigned r = (unsigned)(frag.linear_varyings[0]*255.f);
@@ -487,7 +494,8 @@ enum eClearFlag
         VertexShader<GeometryRenderer>::lights[0].color = vector3f((0.5f),.5f,.5f);
         VertexShader<GeometryRenderer>::lights[1].dir = (vector3f((5.0f), (5.0f), (1.0f))).normalized();
         VertexShader<GeometryRenderer>::lights[1].color = vector3f((0.3f),.3f,.3f);
-        //bind render target
+        d_ptr->template vertexBuffer<VertexShader_>(0,sizeof(float)*6,vertex_data);
+		//bind render target
         FragmentShader<Driver>::render_target = d_ptr->getBackBuffer();
         FragmentShader<Driver>::z_buffer = d_ptr->getDepthBuffer();
         FragmentShader<Driver>::stencil_buffer = d_ptr->getStencilBuffer();
@@ -495,20 +503,22 @@ enum eClearFlag
         FragmentShader<Driver>::mask = 0xFFFF;
         assert( FragmentShader<Driver>::render_target && FragmentShader<Driver>::z_buffer &&
         FragmentShader<Driver>::stencil_buffer);
-        //d_ptr->template drawIndexTriangleBuffer<VertexShader<GeometryRenderer>,FragmentShader<Driver> >(sizeof(vertex_data)/sizeof(float),sizeof(index_data)/sizeof(unsigned),sizeof(float) * 6,vertex_data,index_data);
-         FragmentShader<Driver>::stencil_func = & stencil_test<StencilDepthTest<STENCILOP_KEEP,STENCILOP_KEEP,STENCILOP_REPLACE,CMP_ALWAYS> >;
-        d_ptr->template drawIndexTriangleBuffer<VertexShader<GeometryRenderer>,FragmentShader<Driver> >
-        (sizeof(vertex_data)/sizeof(float),sizeof(index_data)/sizeof(unsigned),sizeof(float) * 6,vertex_data,index_data);
+        /*
+        FragmentShader<Driver>::stencil_func = & stencil_test<StencilDepthTest<STENCILOP_KEEP,STENCILOP_KEEP,STENCILOP_REPLACE,CMP_ALWAYS> >;
+
+		d_ptr->template drawIndexedTriangle<FragmentShader<Driver> >
+        (sizeof(index_data)/sizeof(unsigned),index_data);
 
         FragmentShader<Driver>::ref = 1;
         FragmentShader<Driver>::mask = 0xFFFF;
         FragmentShader<Driver>::stencil_func = & stencil_test<StencilDepthTest<STENCILOP_KEEP,STENCILOP_KEEP,STENCILOP_REPLACE,CMP_NOTEQUAL> >;
-         d_ptr->template drawIndexTriangleBuffer<VertexShader<GeometryRenderer>,FragmentShader<Driver> >
-        (sizeof(vertex_data)/sizeof(float),sizeof(index_data)/sizeof(unsigned),sizeof(float) * 6,vertex_data,index_data);
+		d_ptr->template drawIndexedTriangle<FragmentShader<Driver> >
+			(sizeof(index_data)/sizeof(unsigned),index_data);
+			*/
         //disable stencil test
         FragmentShader<Driver>::stencil_func = 0;
-        d_ptr->template drawIndexTriangleBuffer<VertexShader<GeometryRenderer>,FragmentShader<Driver> >
-        (sizeof(vertex_data)/sizeof(float),sizeof(index_data)/sizeof(unsigned),sizeof(float) * 6,vertex_data,index_data);
+		d_ptr->template drawIndexedTriangle<FragmentShader<Driver> >
+			(sizeof(index_data)/sizeof(unsigned),index_data);
     }
 }
 

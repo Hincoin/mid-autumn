@@ -13,8 +13,8 @@
 
 //shader
 #define TEXTURE_TEST
-//#define STENCIL_TEST
-//#define SHADER_TEST
+///#define STENCIL_TEST
+///#define SHADER_TEST
 
 #ifdef STENCIL_TEST
 #include "Stencil_buffer_test.hpp"
@@ -79,8 +79,11 @@ inline void device_test_func(){
 
 	CreateDevice<win32_device_test_configure> device_creator;
 	delete_ptr<win32_device_test_configure::DevicePtr> device_destroyer;
-
-    scalar2i _800x600 = scalar2i(320,240);
+#ifdef _DEBUG
+        scalar2i _800x600 = scalar2i(320,240);
+#else
+    scalar2i _800x600 = scalar2i(800,600);
+#endif
 	win32_device_test_configure::DevicePtr device_ =
 	 device_creator(win32_device_test_configure::DriverType(0),
 	 _800x600,(unsigned)32,
@@ -89,11 +92,11 @@ inline void device_test_func(){
 	//device_->setWindowCatption("Hello WOrld!   ---- mid-autumn demo");
 	win32_device_test_configure::DeviceConfig::VideoDriverPtr
 		driver_ptr = device_->getVideoDriver();
-	win32_device_test_configure::DeviceConfig::SceneManagerPtr
-		smgr = device_->getSceneManager();
-	win32_device_test_configure::DeviceConfig::GUIManagerPtr
-		guimgr = device_->getGUIEnvironment();
-
+	//win32_device_test_configure::DeviceConfig::SceneManagerPtr
+	//	smgr = device_->getSceneManager();
+	//win32_device_test_configure::DeviceConfig::GUIManagerPtr
+	//	guimgr = device_->getGUIEnvironment();
+	driver_ptr->viewport(0,0,scalar2_op::width(_800x600),scalar2_op::height(_800x600));
 	while (device_->execute())
 	{
 		driver_ptr->beginScene(true,true,win32_device_test_configure::DeviceConfig::VideoDriver::Color(0));
