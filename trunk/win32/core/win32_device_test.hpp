@@ -13,7 +13,7 @@
 
 //shader
 #define TEXTURE_TEST
-///#define STENCIL_TEST
+//#define STENCIL_TEST
 ///#define SHADER_TEST
 
 #ifdef STENCIL_TEST
