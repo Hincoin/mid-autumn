@@ -58,7 +58,7 @@ public:
 #
 #
 # define DUFFS_DEVICE(UNROLLING_FACTOR, COUNTER_TYPE, N, STATEMENT) \
-	do { \
+	{ \
 	COUNTER_TYPE duffs_device_initial_cnt = (N); \
 	if (duffs_device_initial_cnt > 0) { \
 	COUNTER_TYPE duffs_device_running_cnt = (duffs_device_initial_cnt + (UNROLLING_FACTOR - 1)) / UNROLLING_FACTOR; \
@@ -69,7 +69,7 @@ public:
 	} while (--duffs_device_running_cnt); \
 		 } \
 	} \
-	} while (0) \
+	}\
 	/**/
 #
 
