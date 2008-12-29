@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1227891280 source:l:\ma\src\main_test.cpp
+1230394003 source:l:\ma\src\main_test.cpp
 	"Timer.hpp"
 	"Memory_Test.hpp"
 	<limits>
@@ -7,6 +7,7 @@
 	"move_test.hpp"
 	"MADeviceWin32.hpp"
 	"win32_device_test.hpp"
+	"x11_device_test.hpp"
 	"type_conversion_test.hpp"
 	"ma_any_test.hpp"
 	"crtp_interface_macro_test.hpp"
@@ -3589,7 +3590,7 @@
 	<boost/mpl/if.hpp>
 	"TypeDefs.hpp"
 
-1227972959 l:\ma\win32\core\maconfig.hpp
+1230394474 l:\ma\win32\core\maconfig.hpp
 	<boost/config.hpp>
 
 1225526219 l:\ma\win32\core\typedefs.hpp
@@ -5641,7 +5642,7 @@
 	<boost/bimap/support/map_type_by.hpp>
 	<boost/bimap/relation/detail/access_builder.hpp>
 
-1230043247 l:\ma\win32\core\madevicewin32impl.hpp
+1230477008 l:\ma\win32\core\madevicewin32impl.hpp
 	"MADevice.hpp"
 	"MADeviceWin32.hpp"
 	"MAEventType.hpp"
@@ -5659,7 +5660,7 @@
 1225194455 l:\ma\win32\core\logger.hpp
 	"NullType.hpp"
 
-1230223015 l:\ma\win32\core\win32_device_test.hpp
+1230476526 l:\ma\win32\core\win32_device_test.hpp
 	"MADeviceWin32.hpp"
 	"MADeviceConfigure.hpp"
 	"CreateDevice.hpp"
@@ -5767,7 +5768,7 @@
 	"DuffsDevice.hpp"
 	"MAImageImpl.hpp"
 
-1228138200 l:\ma\win32\core\duffsdevice.hpp
+1230365767 l:\ma\win32\core\duffsdevice.hpp
 	<cassert>
 	<boost/preprocessor/repetition/repeat.hpp>
 	<boost/preprocessor/tuple/elem.hpp>
@@ -5964,12 +5965,12 @@
 	"MAGeometryRenderer.hpp"
 	"MAMath.hpp"
 
-1230222864 l:\ma\win32\core\maaffinerasterizer.hpp
+1230365177 l:\ma\win32\core\maaffinerasterizer.hpp
 	"MARasterizer.hpp"
 	"MAMath.hpp"
 	<omp.h>
 
-1229788462 l:\ma\win32\core\marasterizer.hpp
+1230437060 l:\ma\win32\core\marasterizer.hpp
 	"NullType.hpp"
 
 1230219470 l:\ma\win32\core\stencil_buffer_test.hpp
@@ -6006,7 +6007,7 @@
 1229345737 l:\ma\win32\core\test_data.hpp
 	"Vector.hpp"
 
-1230222991 l:\ma\win32\core\textureshader_test.hpp
+1230465333 l:\ma\win32\core\textureshader_test.hpp
 	"Vector.hpp"
 	<boost/pointee.hpp>
 	"MAFragmentProcessor.hpp"
@@ -6605,4 +6606,6 @@
 1226937940 l:\ma\win32\core\maos.hpp
 
 1224314283 source:l:\ma\src\core\memorymgr.cpp
+
+1230394045 l:\ma\win32\core\x11_device_test.hpp
 

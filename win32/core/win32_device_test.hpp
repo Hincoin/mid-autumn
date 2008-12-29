@@ -99,9 +99,15 @@ inline void device_test_func(){
 	driver_ptr->viewport(0,0,scalar2_op::width(_800x600),scalar2_op::height(_800x600));
 	while (device_->execute())
 	{
-		driver_ptr->beginScene(true,true,win32_device_test_configure::DeviceConfig::VideoDriver::Color(0));
-		ma_test::test_fun(driver_ptr);
-		driver_ptr->endScene(device_,0,0);
+		if (device_->isWindowActive())
+		{
+			driver_ptr->beginScene(true,true,win32_device_test_configure::DeviceConfig::VideoDriver::Color(0));
+			ma_test::test_fun(driver_ptr);
+			driver_ptr->endScene(device_,0,0);
+		}
+		else
+			device_->yield();
+
 	}
 
 	device_destroyer(device_);

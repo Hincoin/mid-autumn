@@ -42,9 +42,9 @@ ComponentType z;
 		~MARasterizerBaseI(){}
 	};
 	template<typename ComponentType,int MaxVarying>
-	unsigned MARasterizerBaseI<ComponentType,MaxVarying>::Vertex::persp_var_cnt;
+	unsigned MARasterizerBaseI<ComponentType,MaxVarying>::Vertex::persp_var_cnt=0;
 	template<typename ComponentType,int MaxVarying>
-	unsigned MARasterizerBaseI<ComponentType,MaxVarying>::Vertex::linear_var_cnt;
+	unsigned MARasterizerBaseI<ComponentType,MaxVarying>::Vertex::linear_var_cnt = 0;
 
     typedef MARasterizerBaseI<float,8> MARasterizerBase;
 

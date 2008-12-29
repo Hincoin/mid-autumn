@@ -44,6 +44,8 @@
 #include "win32_device_test.hpp"
 #else
 //...
+#include "x11_device_test.hpp"
+
 #endif
 #endif // DEVICE_TEST
 
