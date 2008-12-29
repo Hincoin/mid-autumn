@@ -4,6 +4,12 @@
 	<File name="..\..\..\extern\Eigen\QR" open="0" top="0" tabpos="3">
 		<Cursor position="1399" topLine="46" />
 	</File>
+	<File name="..\..\..\inc\core\AssocVector.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="498" topLine="0" />
+	</File>
+	<File name="..\..\..\inc\core\MAX11Device.hpp" open="1" top="0" tabpos="2">
+		<Cursor position="1115" topLine="20" />
+	</File>
 	<File name="..\..\..\inc\core\Timer.hpp" open="0" top="0" tabpos="0">
 		<Cursor position="3497" topLine="86" />
 	</File>
@@ -11,7 +17,7 @@
 		<Cursor position="130" topLine="0" />
 	</File>
 	<File name="..\..\..\src\main_test.cpp" open="0" top="0" tabpos="1">
-		<Cursor position="749" topLine="31" />
+		<Cursor position="2475" topLine="118" />
 	</File>
 	<File name="..\..\..\win32\core\CRTPInterfaceMacro.hpp" open="0" top="0" tabpos="14">
 		<Cursor position="1289" topLine="27" />
@@ -40,14 +46,14 @@
 	<File name="..\..\..\win32\core\Logger.hpp" open="0" top="0" tabpos="13">
 		<Cursor position="100" topLine="0" />
 	</File>
-	<File name="..\..\..\win32\core\MAAffineRasterizer.hpp" open="1" top="0" tabpos="8">
+	<File name="..\..\..\win32\core\MAAffineRasterizer.hpp" open="0" top="0" tabpos="8">
 		<Cursor position="18953" topLine="357" />
 	</File>
 	<File name="..\..\..\win32\core\MAColor.hpp" open="0" top="0" tabpos="0">
 		<Cursor position="2120" topLine="75" />
 	</File>
 	<File name="..\..\..\win32\core\MAConfig.hpp" open="0" top="0" tabpos="0">
-		<Cursor position="247" topLine="0" />
+		<Cursor position="365" topLine="0" />
 	</File>
 	<File name="..\..\..\win32\core\MADevice.hpp" open="0" top="0" tabpos="10">
 		<Cursor position="2905" topLine="23" />
@@ -55,14 +61,14 @@
 	<File name="..\..\..\win32\core\MADeviceBase.hpp" open="0" top="0" tabpos="7">
 		<Cursor position="6834" topLine="147" />
 	</File>
-	<File name="..\..\..\win32\core\MADeviceConfigure.hpp" open="0" top="0" tabpos="12">
-		<Cursor position="1406" topLine="48" />
+	<File name="..\..\..\win32\core\MADeviceConfigure.hpp" open="1" top="0" tabpos="5">
+		<Cursor position="1074" topLine="57" />
 	</File>
 	<File name="..\..\..\win32\core\MADeviceImpl.hpp" open="0" top="0" tabpos="11">
 		<Cursor position="302" topLine="1" />
 	</File>
-	<File name="..\..\..\win32\core\MADeviceWin32.hpp" open="0" top="0" tabpos="2">
-		<Cursor position="1704" topLine="42" />
+	<File name="..\..\..\win32\core\MADeviceWin32.hpp" open="1" top="0" tabpos="3">
+		<Cursor position="3507" topLine="105" />
 	</File>
 	<File name="..\..\..\win32\core\MADeviceWin32Impl.hpp" open="0" top="0" tabpos="6">
 		<Cursor position="9088" topLine="305" />
@@ -82,8 +88,8 @@
 	<File name="..\..\..\win32\core\MAImageImpl.hpp" open="0" top="0" tabpos="0">
 		<Cursor position="1792" topLine="36" />
 	</File>
-	<File name="..\..\..\win32\core\MAMath.hpp" open="1" top="0" tabpos="5">
-		<Cursor position="9215" topLine="352" />
+	<File name="..\..\..\win32\core\MAMath.hpp" open="0" top="0" tabpos="5">
+		<Cursor position="9262" topLine="343" />
 	</File>
 	<File name="..\..\..\win32\core\MAMesh.hpp" open="0" top="0" tabpos="9">
 		<Cursor position="5262" topLine="155" />
@@ -103,10 +109,10 @@
 	<File name="..\..\..\win32\core\MAVertexProcessor.hpp" open="0" top="0" tabpos="0">
 		<Cursor position="1769" topLine="48" />
 	</File>
-	<File name="..\..\..\win32\core\MAVideoDriverSoftWare.hpp" open="1" top="0" tabpos="3">
+	<File name="..\..\..\win32\core\MAVideoDriverSoftWare.hpp" open="0" top="0" tabpos="3">
 		<Cursor position="3026" topLine="63" />
 	</File>
-	<File name="..\..\..\win32\core\MAVideoDriverSoftWareImpl.hpp" open="1" top="0" tabpos="2">
+	<File name="..\..\..\win32\core\MAVideoDriverSoftWareImpl.hpp" open="0" top="0" tabpos="2">
 		<Cursor position="1496" topLine="43" />
 	</File>
 	<File name="..\..\..\win32\core\MeshBuffer.hpp" open="0" top="0" tabpos="0">
@@ -127,11 +133,11 @@
 	<File name="..\..\..\win32\core\SpaceSegment.hpp" open="0" top="0" tabpos="7">
 		<Cursor position="1561" topLine="26" />
 	</File>
-	<File name="..\..\..\win32\core\Stencil_buffer_test.hpp" open="1" top="0" tabpos="1">
+	<File name="..\..\..\win32\core\Stencil_buffer_test.hpp" open="0" top="0" tabpos="1">
 		<Cursor position="13927" topLine="440" />
 	</File>
-	<File name="..\..\..\win32\core\TextureShader_Test.hpp" open="1" top="0" tabpos="4">
-		<Cursor position="9836" topLine="296" />
+	<File name="..\..\..\win32\core\TextureShader_Test.hpp" open="1" top="1" tabpos="4">
+		<Cursor position="3828" topLine="128" />
 	</File>
 	<File name="..\..\..\win32\core\Vector.hpp" open="0" top="0" tabpos="13">
 		<Cursor position="15949" topLine="465" />
@@ -139,10 +145,13 @@
 	<File name="..\..\..\win32\core\VideoDriver.hpp" open="0" top="0" tabpos="2">
 		<Cursor position="2036" topLine="19" />
 	</File>
-	<File name="..\..\..\win32\core\test_data.hpp" open="1" top="0" tabpos="7">
+	<File name="..\..\..\win32\core\test_data.hpp" open="0" top="0" tabpos="7">
 		<Cursor position="93350" topLine="2481" />
 	</File>
-	<File name="..\..\..\win32\core\win32_device_test.hpp" open="1" top="1" tabpos="6">
-		<Cursor position="474" topLine="12" />
+	<File name="..\..\..\win32\core\win32_device_test.hpp" open="0" top="0" tabpos="6">
+		<Cursor position="2074" topLine="63" />
+	</File>
+	<File name="..\..\..\win32\core\x11_device_test.hpp" open="1" top="0" tabpos="1">
+		<Cursor position="117" topLine="0" />
 	</File>
 </CodeBlocks_layout_file>

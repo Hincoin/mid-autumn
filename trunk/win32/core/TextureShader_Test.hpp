@@ -127,16 +127,22 @@ namespace ma_test
     {
         char *tex;
         int width,height;
-        const static int block_size = 8;
+        const static int block_size = 16;
         void setup()
         {
             for (int j = 0;j < height;j++)
-                for (int i=0;i<width * 3;i+=3)
+                for (int i=0;i<width ;i++)
                 {
-                    char* t = tex + j*width + i/3;
-                    *t = ((j*width + i/3) & (block_size-1)) ?0:255;
-                    *(t+1) = ((j*width + i/3) & (block_size-1)) ?0:255;
-                    *(t+2) = ((j*width + i/3) & (block_size-1)) ?0:255;
+                    char* t = tex + 3*(j*width + i);
+                    //black or white
+                    int bow = j*width + i;
+                    if ( (j/block_size) & 1 && (i/block_size)&1)
+                    {
+                        *t =*(t+1) = *(t+2)=196;
+                    }
+                    else{
+                        *t =*(t+1) = *(t+2)=0;
+                    }
                 }
         }
     public:
@@ -162,7 +168,7 @@ namespace ma_test
 			//assert(tx <= width && ty<= height && tx>=0 && ty>= 0);
 			tx = clamp(tx,0,width);
 			ty = clamp(ty,0,height);
-            char* r = tex+tx + ty*width ;
+            char* r = tex+ (tx + ty*width)*3 ;
             unsigned color = 0xff;
             color = color << 8;
             color |= *r;

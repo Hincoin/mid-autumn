@@ -5,11 +5,11 @@
 		<Option title="mid_autumn" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="Geometry\;Impl\;Interface\;Memory\;traits\;utility\;Tests\;Impl\Render\;Impl\Geometry\;Interface\Render\;Interface\Geometry\;" />
+		<Option virtualFolders="Geometry/;Impl/;Interface/;Memory/;traits/;utility/;Tests/;Impl/Render/;Impl/Geometry/;Interface/Render/;Interface/Geometry/;" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin\Debug\mid_autumn" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Debug\" />
+				<Option output="bin/Debug/mid_autumn" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -22,9 +22,9 @@
 					<Add option="-D__WIN32__" />
 					<Add option="-D__x86__" />
 					<Add option="-D_DEBUG" />
-					<Add directory="..\..\..\inc\core" />
-					<Add directory="..\..\..\extern\" />
-					<Add directory="..\..\..\win32\core" />
+					<Add directory="../../../inc/core" />
+					<Add directory="../../../extern/" />
+					<Add directory="../../../win32/core" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -33,8 +33,8 @@
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="bin\Release\mid_autumn" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Release\" />
+				<Option output="bin/Release/mid_autumn" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -49,9 +49,9 @@
 					<Add option="-D_WIN32" />
 					<Add option="-D__WIN32__" />
 					<Add option="-D__x86__" />
-					<Add directory="..\..\..\inc\core" />
-					<Add directory="..\..\..\extern\" />
-					<Add directory="..\..\..\win32\core" />
+					<Add directory="../../../inc/core" />
+					<Add directory="../../../extern/" />
+					<Add directory="../../../win32/core" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -63,308 +63,310 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="..\..\..\extern\Eigen\Array" />
-		<Unit filename="..\..\..\extern\Eigen\CMakeLists.txt" />
-		<Unit filename="..\..\..\extern\Eigen\Cholesky" />
-		<Unit filename="..\..\..\extern\Eigen\Core" />
-		<Unit filename="..\..\..\extern\Eigen\Geometry" />
-		<Unit filename="..\..\..\extern\Eigen\LU" />
-		<Unit filename="..\..\..\extern\Eigen\QR" />
-		<Unit filename="..\..\..\extern\Eigen\Regression" />
-		<Unit filename="..\..\..\extern\Eigen\SVD" />
-		<Unit filename="..\..\..\extern\Eigen\Sparse" />
-		<Unit filename="..\..\..\inc\core\AssocVector.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../extern/Eigen/Array" />
+		<Unit filename="../../../extern/Eigen/CMakeLists.txt" />
+		<Unit filename="../../../extern/Eigen/Cholesky" />
+		<Unit filename="../../../extern/Eigen/Core" />
+		<Unit filename="../../../extern/Eigen/Geometry" />
+		<Unit filename="../../../extern/Eigen/LU" />
+		<Unit filename="../../../extern/Eigen/QR" />
+		<Unit filename="../../../extern/Eigen/Regression" />
+		<Unit filename="../../../extern/Eigen/SVD" />
+		<Unit filename="../../../extern/Eigen/Sparse" />
+		<Unit filename="../../../inc/core/AssocVector.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\inc\core\CoreObject.hpp">
-			<Option virtualFolder="Memory\" />
+		<Unit filename="../../../inc/core/CoreObject.hpp">
+			<Option virtualFolder="Memory/" />
 		</Unit>
-		<Unit filename="..\..\..\inc\core\FSBAllocator.hpp">
-			<Option virtualFolder="Memory\" />
+		<Unit filename="../../../inc/core/FSBAllocator.hpp">
+			<Option virtualFolder="Memory/" />
 		</Unit>
-		<Unit filename="..\..\..\inc\core\FSBSingletonPool.hpp">
-			<Option virtualFolder="Memory\" />
+		<Unit filename="../../../inc/core/FSBSingletonPool.hpp">
+			<Option virtualFolder="Memory/" />
 		</Unit>
-		<Unit filename="..\..\..\inc\core\HasMember.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../inc/core/HasMember.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\inc\core\MABigPool.hpp">
-			<Option virtualFolder="Memory\" />
+		<Unit filename="../../../inc/core/MABigPool.hpp">
+			<Option virtualFolder="Memory/" />
 		</Unit>
-		<Unit filename="..\..\..\inc\core\MAMemPoolSized.hpp">
-			<Option virtualFolder="Memory\" />
+		<Unit filename="../../../inc/core/MAMemPoolSized.hpp">
+			<Option virtualFolder="Memory/" />
 		</Unit>
-		<Unit filename="..\..\..\inc\core\MAMemoryPool.hpp">
-			<Option virtualFolder="Memory\" />
+		<Unit filename="../../../inc/core/MAMemoryPool.hpp">
+			<Option virtualFolder="Memory/" />
 		</Unit>
-		<Unit filename="..\..\..\inc\core\MAMemoryPool_test.hpp">
-			<Option virtualFolder="Tests\" />
+		<Unit filename="../../../inc/core/MAMemoryPool_test.hpp">
+			<Option virtualFolder="Tests/" />
 		</Unit>
-		<Unit filename="..\..\..\inc\core\MASingleton.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../inc/core/MASingleton.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\inc\core\MemoryMgr.hpp">
-			<Option virtualFolder="Memory\" />
+		<Unit filename="../../../inc/core/MAX11Device.hpp" />
+		<Unit filename="../../../inc/core/MemoryMgr.hpp">
+			<Option virtualFolder="Memory/" />
 		</Unit>
-		<Unit filename="..\..\..\inc\core\MemoryPolicy.hpp">
-			<Option virtualFolder="Memory\" />
+		<Unit filename="../../../inc/core/MemoryPolicy.hpp">
+			<Option virtualFolder="Memory/" />
 		</Unit>
-		<Unit filename="..\..\..\inc\core\MemoryPool.hpp">
-			<Option virtualFolder="Memory\" />
+		<Unit filename="../../../inc/core/MemoryPool.hpp">
+			<Option virtualFolder="Memory/" />
 		</Unit>
-		<Unit filename="..\..\..\inc\core\Memory_Test.hpp">
-			<Option virtualFolder="Tests\" />
+		<Unit filename="../../../inc/core/Memory_Test.hpp">
+			<Option virtualFolder="Tests/" />
 		</Unit>
-		<Unit filename="..\..\..\inc\core\MostDerivedType.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../inc/core/MostDerivedType.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\inc\core\Mutex.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../inc/core/Mutex.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\inc\core\NullType.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../inc/core/NullType.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\inc\core\ObjectMemSingletonPool.hpp">
-			<Option virtualFolder="Memory\" />
+		<Unit filename="../../../inc/core/ObjectMemSingletonPool.hpp">
+			<Option virtualFolder="Memory/" />
 		</Unit>
-		<Unit filename="..\..\..\inc\core\ObjectMemoryPool.hpp">
-			<Option virtualFolder="Memory\" />
+		<Unit filename="../../../inc/core/ObjectMemoryPool.hpp">
+			<Option virtualFolder="Memory/" />
 		</Unit>
-		<Unit filename="..\..\..\inc\core\Timer.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../inc/core/Timer.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\inc\core\duffs_device_test.hpp">
-			<Option virtualFolder="Tests\" />
+		<Unit filename="../../../inc/core/duffs_device_test.hpp">
+			<Option virtualFolder="Tests/" />
 		</Unit>
-		<Unit filename="..\..\..\src\core\MemoryMgr.cpp" />
-		<Unit filename="..\..\..\src\main_test.cpp">
-			<Option virtualFolder="Tests\" />
+		<Unit filename="../../../src/core/MemoryMgr.cpp" />
+		<Unit filename="../../../src/main_test.cpp">
+			<Option virtualFolder="Tests/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\AddPointer.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../win32/core/AddPointer.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\CRTPInterfaceMacro.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../win32/core/CRTPInterfaceMacro.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\CreateDevice.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/CreateDevice.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\DuffsDevice.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../win32/core/DuffsDevice.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\EventProcessor.hpp">
-			<Option virtualFolder="Interface\" />
+		<Unit filename="../../../win32/core/EventProcessor.hpp">
+			<Option virtualFolder="Interface/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\EventType.hpp">
-			<Option virtualFolder="Interface\" />
+		<Unit filename="../../../win32/core/EventType.hpp">
+			<Option virtualFolder="Interface/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\FileSystem.hpp">
-			<Option virtualFolder="Interface\" />
+		<Unit filename="../../../win32/core/FileSystem.hpp">
+			<Option virtualFolder="Interface/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\Final.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../win32/core/Final.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\FixedAllocator.hpp">
-			<Option virtualFolder="Memory\" />
+		<Unit filename="../../../win32/core/FixedAllocator.hpp">
+			<Option virtualFolder="Memory/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\GUIManager.hpp">
-			<Option virtualFolder="Interface\" />
+		<Unit filename="../../../win32/core/GUIManager.hpp">
+			<Option virtualFolder="Interface/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\Image.hpp">
-			<Option virtualFolder="Interface\" />
+		<Unit filename="../../../win32/core/Image.hpp">
+			<Option virtualFolder="Interface/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\KeyCodes.hpp">
-			<Option virtualFolder="Interface\" />
+		<Unit filename="../../../win32/core/KeyCodes.hpp">
+			<Option virtualFolder="Interface/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\Logger.hpp">
-			<Option virtualFolder="Interface\" />
+		<Unit filename="../../../win32/core/Logger.hpp">
+			<Option virtualFolder="Interface/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAAffineRasterizer.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAAffineRasterizer.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAColor.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAColor.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAConfig.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAConfig.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MADevice.hpp">
-			<Option virtualFolder="Interface\" />
+		<Unit filename="../../../win32/core/MADevice.hpp">
+			<Option virtualFolder="Interface/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MADeviceBase.hpp">
-			<Option virtualFolder="Interface\" />
+		<Unit filename="../../../win32/core/MADeviceBase.hpp">
+			<Option virtualFolder="Interface/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MADeviceConfigure.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MADeviceConfigure.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MADeviceImpl.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MADeviceImpl.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MADeviceWin32.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MADeviceWin32.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MADeviceWin32Impl.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MADeviceWin32Impl.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAEventProcessor.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAEventProcessor.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAEventType.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAEventType.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAFileSystemWin32.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAFileSystemWin32.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAGUIManager.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAGUIManager.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAGeometry.hpp">
-			<Option virtualFolder="Geometry\" />
+		<Unit filename="../../../win32/core/MAGeometry.hpp">
+			<Option virtualFolder="Geometry/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAGeometryRenderer.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAGeometryRenderer.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAGeometryRendererImpl.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAGeometryRendererImpl.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAImage.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAImage.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAImageImpl.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAImageImpl.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAIntersect.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAIntersect.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MALogger.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MALogger.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAMath.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../win32/core/MAMath.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAMesh.hpp">
-			<Option virtualFolder="Geometry\" />
+		<Unit filename="../../../win32/core/MAMesh.hpp">
+			<Option virtualFolder="Geometry/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MANullDriver.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MANullDriver.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAOS.cpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAOS.cpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAOS.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../win32/core/MAOS.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAOSOperatorWin32.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAOSOperatorWin32.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAPoly.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAPoly.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAPrinter.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAPrinter.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MARasterizer.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MARasterizer.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MASceneManager.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MASceneManager.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MATimerWin32.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MATimerWin32.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAVertex.hpp">
-			<Option virtualFolder="Geometry\" />
+		<Unit filename="../../../win32/core/MAVertex.hpp">
+			<Option virtualFolder="Geometry/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAVertexProcessor.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAVertexProcessor.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAVideoDriverSoftWare.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAVideoDriverSoftWare.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAVideoDriverSoftWareImpl.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAVideoDriverSoftWareImpl.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAVideoModesWin32.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAVideoModesWin32.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAVideoModesWin32Impl.hpp">
-			<Option virtualFolder="Impl\" />
+		<Unit filename="../../../win32/core/MAVideoModesWin32Impl.hpp">
+			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MAny.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../win32/core/MAny.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\MeshBuffer.hpp">
-			<Option virtualFolder="Interface\" />
+		<Unit filename="../../../win32/core/MeshBuffer.hpp">
+			<Option virtualFolder="Interface/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\Mesh_Test.hpp">
-			<Option virtualFolder="Tests\" />
+		<Unit filename="../../../win32/core/Mesh_Test.hpp">
+			<Option virtualFolder="Tests/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\Move.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../win32/core/Move.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\OSOperator.hpp">
-			<Option virtualFolder="Interface\" />
+		<Unit filename="../../../win32/core/OSOperator.hpp">
+			<Option virtualFolder="Interface/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\OrderedTypeInfo.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../win32/core/OrderedTypeInfo.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\ParameterType.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../win32/core/ParameterType.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\PtrTraits.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../win32/core/PtrTraits.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\SceneManager.hpp">
-			<Option virtualFolder="Interface\" />
+		<Unit filename="../../../win32/core/SceneManager.hpp">
+			<Option virtualFolder="Interface/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\Shader_test.hpp">
-			<Option virtualFolder="Tests\" />
+		<Unit filename="../../../win32/core/Shader_test.hpp">
+			<Option virtualFolder="Tests/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\ShadowVolumn_Test.hpp">
-			<Option virtualFolder="Tests\" />
+		<Unit filename="../../../win32/core/ShadowVolumn_Test.hpp">
+			<Option virtualFolder="Tests/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\SpaceSegment.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../win32/core/SpaceSegment.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\Stencil_buffer_test.hpp">
-			<Option virtualFolder="Tests\" />
+		<Unit filename="../../../win32/core/Stencil_buffer_test.hpp">
+			<Option virtualFolder="Tests/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\TextureShader_Test.hpp">
-			<Option virtualFolder="Tests\" />
+		<Unit filename="../../../win32/core/TextureShader_Test.hpp">
+			<Option virtualFolder="Tests/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\TypeConversion.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../win32/core/TypeConversion.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\TypeDefs.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../win32/core/TypeDefs.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\Vector.hpp">
-			<Option virtualFolder="utility\" />
+		<Unit filename="../../../win32/core/Vector.hpp">
+			<Option virtualFolder="utility/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\VideoDriver.hpp">
-			<Option virtualFolder="Interface\" />
+		<Unit filename="../../../win32/core/VideoDriver.hpp">
+			<Option virtualFolder="Interface/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\VideoModes.hpp">
-			<Option virtualFolder="Interface\" />
+		<Unit filename="../../../win32/core/VideoModes.hpp">
+			<Option virtualFolder="Interface/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\crtp_interface_macro_test.hpp">
-			<Option virtualFolder="Tests\" />
+		<Unit filename="../../../win32/core/crtp_interface_macro_test.hpp">
+			<Option virtualFolder="Tests/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\ma_any_test.hpp">
-			<Option virtualFolder="Tests\" />
+		<Unit filename="../../../win32/core/ma_any_test.hpp">
+			<Option virtualFolder="Tests/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\move_test.hpp">
-			<Option virtualFolder="Tests\" />
+		<Unit filename="../../../win32/core/move_test.hpp">
+			<Option virtualFolder="Tests/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\test_data.hpp">
-			<Option virtualFolder="Tests\" />
+		<Unit filename="../../../win32/core/test_data.hpp">
+			<Option virtualFolder="Tests/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\type_conversion_test.hpp">
-			<Option virtualFolder="Tests\" />
+		<Unit filename="../../../win32/core/type_conversion_test.hpp">
+			<Option virtualFolder="Tests/" />
 		</Unit>
-		<Unit filename="..\..\..\win32\core\win32_device_test.hpp">
-			<Option virtualFolder="Tests\" />
+		<Unit filename="../../../win32/core/win32_device_test.hpp">
+			<Option virtualFolder="Tests/" />
 		</Unit>
+		<Unit filename="../../../win32/core/x11_device_test.hpp" />
 		<Extensions>
 			<envvars />
 			<code_completion />

@@ -401,6 +401,11 @@ namespace ma{
 		return !quit;
 	}
 	template<typename Configure>
+	bool MADeviceWin32<Configure>::isWindowActive()const
+	{
+		return (GetActiveWindow() == HWnd);
+	}
+	template<typename Configure>
 	void MADeviceWin32<Configure>::yield()
 	{
 		Sleep(10);
