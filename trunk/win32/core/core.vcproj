@@ -528,6 +528,10 @@
 				Name="Geometry"
 				>
 				<File
+					RelativePath=".\DifferentialGeometry.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\MAAffineRasterizer.hpp"
 					>
 				</File>
@@ -569,6 +573,14 @@
 				</File>
 				<File
 					RelativePath=".\MAVertexProcessor.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Point.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Ray.hpp"
 					>
 				</File>
 			</Filter>
