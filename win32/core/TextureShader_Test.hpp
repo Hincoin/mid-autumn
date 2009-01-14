@@ -135,7 +135,7 @@ namespace ma_test
                 {
                     char* t = tex + 3*(j*width + i);
                     //black or white
-                    int bow = j*width + i;
+                    //int bow = j*width + i;
                     if ( (j/block_size) & 1 && (i/block_size)&1)
                     {
                         *t =*(t+1) = *(t+2)=196;
