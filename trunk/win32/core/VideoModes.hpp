@@ -15,27 +15,36 @@ namespace ma{
 	protected:
 		~VideoModes(){}
 	public:
-		//Get the pixel depth of a video mode in bits. 
-		int  getDesktopDepth () const 
+		//Get the pixel depth of a video mode in bits.
+		int  getDesktopDepth () const
 		{return derived().getDesktopDepth();}
 
-		//Get current desktop screen resolution. 
-		scalar2i getDesktopResolution () const 
+		//Get current desktop screen resolution.
+		scalar2i getDesktopResolution () const
 		{
 			return derived().getDesktopResolution();
 		}
-		//Gets amount of video modes in the list. 
-		int  getVideoModeCount () const {return derived().getVideoModeCount();} 
+		//Gets amount of video modes in the list.
+		int  getVideoModeCount () const {return derived().getVideoModeCount();}
 
-		//Get the pixel depth of a video mode in bits. 
-		int  getVideoModeDepth (int modeNumber) const {return derived().getVideoModeDepth(modeNumber);}; 
+		//Get the pixel depth of a video mode in bits.
+		int  getVideoModeDepth (int modeNumber) const {return derived().getVideoModeDepth(modeNumber);};
 
-		//Get the screen size of a video mode in pixels. 
-		scalar2i  getVideoModeResolution (int modeNumber) const 
+		//Get the screen size of a video mode in pixels.
+		scalar2i  getVideoModeResolution (int modeNumber) const
 		{
 			return derived().getVideoModeResolution(modeNumber);
 		}
-			
+				//! adds a new mode to the list
+		void addMode(const scalar2i& size, int depth){
+		    return derived().addMode(size,depth);
+		    }
+
+		void setDesktop(int desktopDepth, const scalar2i& desktopSize)
+		{
+		    return derived().setDesktop(desktopDepth,desktopSize);
+        }
+
 	};
 }
 #endif

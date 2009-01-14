@@ -92,7 +92,7 @@ namespace ma{
 
 	//! Returns the color format
 	template<typename Configure>
-	ECOLOR_FORMAT MAImage<Configure>::getColorFormat() const  {return ;}
+	ECOLOR_FORMAT MAImage<Configure>::getColorFormat() const  {assert(false);return (ECOLOR_FORMAT) 0;}
 
 	//! Returns mask for red value of a pixel
 	template<typename Configure>

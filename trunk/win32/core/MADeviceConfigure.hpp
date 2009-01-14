@@ -8,7 +8,7 @@
 #include "MAOSOperatorWin32.hpp"
 #include "MASceneManager.hpp"
 #include "MATimerWin32.hpp"
-#include "MAVideoModesWin32.hpp"
+#include "MAVideoModes.hpp"
 #include "MAPrinter.hpp"
 
 #include "MAVideoDriverSoftWare.hpp"
@@ -73,7 +73,7 @@ namespace ma{
 	//default driver creator traits
 	template<>
 	struct CreateDriver<MAVideoDriverSoftWare<default_video_driver_software_config> >{
-		template<typename Config> friend  class MADeviceWin32;
+		template<typename Config> friend  class MADeviceX11;
 
 		typedef MAVideoDriverSoftWare<default_video_driver_software_config>::FileSystemPtr FileSystemPtr;
 	private:
@@ -83,6 +83,8 @@ namespace ma{
 		}
 	};
 }
+
+
 struct TestDeviceConfigureWin32{
 	enum DriverType{};
 	//make it compile
@@ -95,7 +97,7 @@ struct TestDeviceConfigureWin32{
 	typedef ma::MAGUIManager<ma::event_processor_config> GUIManager;
 	typedef ma::MASceneManager<ma::event_processor_config> SceneManager;
 	typedef ma::MALogger Logger;
-	typedef ma::MAVideoModesWin32 VideoMode;
+	typedef ma::MAVideoModes VideoMode;
 	typedef ma::MAOSOperatorWin32 OSOperator;
 	typedef ma::MATimerWin32 Timer;
 	typedef ma::MAEventProcessor<ma::event_processor_config> EventProcessor;
@@ -135,5 +137,8 @@ struct TestDeviceConfigureWin32{
 	}
 
 };
+///test currently no difference
+struct TestDeviceConfigureX11:TestDeviceConfigureWin32{
 
+    };
 #endif
