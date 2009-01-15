@@ -5782,7 +5782,7 @@
 	<boost/mpl/if.hpp>
 	<boost/mpl/bool.hpp>
 
-1231610504 /mnt/mobile_disk/ma/win32/core/MAImageImpl.hpp
+1232031499 /mnt/mobile_disk/ma/win32/core/MAImageImpl.hpp
 	"MAImage.hpp"
 	"MAColor.hpp"
 	<cassert>
@@ -6616,7 +6616,7 @@
 1227373005 /mnt/mobile_disk/ma/inc/core/duffs_device_test.hpp
 	"DuffsDevice.hpp"
 
-1231690522 /mnt/mobile_disk/ma/inc/core/MADeviceX11.hpp
+1232030262 /mnt/mobile_disk/ma/inc/core/MADeviceX11.hpp
 	"MAConfig.hpp"
 	"MADevice.hpp"
 	"Vector.hpp"
