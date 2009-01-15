@@ -293,7 +293,9 @@
 		<Unit filename="../../../win32/core/MAVideoDriverSoftWareImpl.hpp">
 			<Option virtualFolder="Impl/" />
 		</Unit>
-		<Unit filename="../../../win32/core/MAVideoModes.hpp" />
+		<Unit filename="../../../win32/core/MAVideoModes.hpp">
+			<Option virtualFolder="Impl/" />
+		</Unit>
 		<Unit filename="../../../win32/core/MAny.hpp">
 			<Option virtualFolder="utility/" />
 		</Unit>
@@ -369,7 +371,9 @@
 		<Unit filename="../../../win32/core/win32_device_test.hpp">
 			<Option virtualFolder="Tests/" />
 		</Unit>
-		<Unit filename="../../../win32/core/x11_device_test.hpp" />
+		<Unit filename="../../../win32/core/x11_device_test.hpp">
+			<Option virtualFolder="Tests/" />
+		</Unit>
 		<Extensions>
 			<envvars />
 			<code_completion />
