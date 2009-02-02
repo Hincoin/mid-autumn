@@ -6,8 +6,9 @@
 #include "MADeviceConfigure.hpp"
 #include "CreateDevice.hpp"
 #include "MAMath.hpp"
-#define TEXTURE_TEST
-//#define STENCIL_TEST
+
+//#define TEXTURE_TEST
+#define STENCIL_TEST
 //#define SHADER_TEST
 //
 #ifdef STENCIL_TEST
