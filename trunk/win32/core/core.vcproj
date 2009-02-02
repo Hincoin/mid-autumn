@@ -512,6 +512,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ScalarType.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\SpaceSegment.hpp"
 					>
 				</File>
@@ -521,6 +525,10 @@
 				</File>
 				<File
 					RelativePath=".\Vector.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\VectorType.hpp"
 					>
 				</File>
 			</Filter>
@@ -568,6 +576,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\MATriangleMesh.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\MAVertex.hpp"
 					>
 				</File>
@@ -581,6 +593,10 @@
 				</File>
 				<File
 					RelativePath=".\Ray.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\inc\core\Shape.hpp"
 					>
 				</File>
 			</Filter>

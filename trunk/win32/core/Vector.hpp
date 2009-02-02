@@ -490,13 +490,12 @@
 
 #include "NullType.hpp"
 #include <boost/static_assert.hpp>
+#include "ScalarType.hpp"
 
+#include "VectorType.hpp" //
 namespace ma{
 
 
-	//meta-function to get the scalar type of a vector
-	template<typename T> struct scalar_type;
-	template<typename T> struct dimensions;
 
 	template<>struct scalar_type<EmptyType>{typedef NullType type;};
 	template<int N> struct scalar_type<MultiEmptyType<N> >{
@@ -510,6 +509,21 @@ namespace ma{
 	};
 
 
+	template<typename T,int D>
+	struct vector_type{
+		typedef Eigen::Matrix<T,Size,1> type;
+	};
+	template<typename _S,int _D>
+	struct transform_type{
+		typedef Eigen::Transform<_S,_D> type;
+	};
+
+	template<typename _S,int _R,int _S>
+	struct matrix_type{
+		typedef Eigen::Matrix<_S,_R,_S> type;
+	};
+
+
 	template<typename T,int Size,int Cols>
 	struct scalar_type<Eigen::Matrix<T,Size,Cols> >{
 		typedef T type;
@@ -519,6 +533,8 @@ namespace ma{
 	{
 		enum{value = Size};
 	};
+
+
 		//using eigen lib's vectors
 
 		typedef Eigen::Vector2i vector2i;
@@ -664,5 +680,35 @@ namespace ma{
 			};
 
 		}
+
+namespace transform_op{
+    		///! transformation
+		template<typename Tran>
+		bool swap_handness(const Tran& m){
+                return ((m.matrix()[0][0] *
+                (m.matrix()[1][1] * m.matrix()[2][2] -
+                m.matrix()[1][2] * m.matrix()[2][1])) -
+                (m.matrix()[0][1] *
+                (m.matrix()[1][0] * m.matrix()[2][2] -
+                m.matrix[1][2] * m.matrix()[2][0]))+
+                (m.matrix()[0][2] *
+                (m.matrix()[1][0] * m.matrix()[2][1] -
+                m.matrix()[1][1] * m.matrix()[2][0]))) < 0;
+		    }
+
+    }
+
+//specialize for eigen
+template<typename _Scalar, int _Dim>
+struct scalar_type<Eigen::Transform<_Scalar,_Dim> >{
+	typedef _Scalar type;
+};
+
+template<typename S,int D>
+typename vector_type<S,D>::type operator *(const transform_type<S,D>::type& trans, 
+										   const typename vector_type<S,D>::type& v)
+{
+	return trans.linear() * v;
+}
 }
 #endif

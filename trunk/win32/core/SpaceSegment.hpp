@@ -41,11 +41,18 @@ namespace ma{
 		typedef typename  ParameterType<T>::param_type parameter_type;
 	public:
 		typedef T stored_type;
+		typedef scalar_type<T>::type sclr_t;
 
 		T smin,smax;
 
 		//regular model
-		SpaceSegment(){}
+		SpaceSegment(){
+			for (int i = 0;i < dimensions<T>::value; ++i)
+			{
+				smin[i] = numeric_limits<sclr_t>::infinity();
+				smax[i] = -numeric_limits<sclr_t>::infinity();
+			}
+		}
 		SpaceSegment(parameter_type min_value,parameter_type max_value):smin(min_value),smax(max_value){}
 		SpaceSegment(const SpaceSegment& other):smin(other.smin),smax(other.smax)
 		{}
@@ -66,6 +73,29 @@ namespace ma{
 			swap(smax,other.source.smax);
 			return *this;
 		}
+
+		bool isOverlap(const SpaceSegment& other)const{
+
+			typedef SpaceSegment<T> SST;
+			typedef typename dimensions<SST>::value_type i_t;
+			bool ret = true;
+			for (i_t i = 0;i < dimensions<SST>::value; ++i)
+			{
+				ret = ret && (smin[i] <= other.smax[i] ) && (smax[i] >= other.smin[i]);
+			}
+			return ret;
+		}
+		bool isInside(const stored_type& p)const{
+			typedef SpaceSegment<T> SST;
+			typedef typename dimensions<SST>::value_type i_t;
+			bool ret = true;
+			for (i_t i = 0;i < dimensions<SST>::value; ++i)
+			{
+				ret = ret && p[i] >= smin[i] && p[i] <= smax[i];
+			}
+			return ret;
+		}
+
 	};
 	template<typename T,class EqualCompare>
 	inline void swap(SpaceSegment<T,EqualCompare>& a,SpaceSegment<T,EqualCompare>& b)
@@ -74,7 +104,58 @@ namespace ma{
 		swap(a.smin,b.smin);
 	}
 }
+#include "ScalarType.hpp"
+#include "VectorType.hpp"
 
+namespace ma{
+	template<typename T>
+	struct dimensions<SpaceSegment<T> >
+	{
+		typedef int value_type;
+		static const int value = dimensions<T>::value;
+	};
+	template<typename T>
+	struct scalar_type<SpaceSegment<T> >
+	{
+		typedef typename scalar_type<T>::type type;
+	};
+	/// transformation 
+	template<typename T>
+	SpaceSegment<T> operator*(
+		const typename transform_type<typename scalar_type<SpaceSegment<T> >::type,dimensions<SpaceSegment<T> >::value >::type& trans,
+		const SpaceSegment<T>& seg)
+	{
+		return SpaceSegment<T>(trans * seg.smin,trans * seg.smax);
+	}
+
+	template<typename T>
+	inline SpaceSegment<T> space_union(const SpaceSegment<T>& s0,const SpaceSegment<T>& s1)
+	{
+		typedef SpaceSegment<T> SST;
+		typedef typename dimensions<SST>::value_type i_t;
+		SST ret;
+		for (i_t i = 0;i < dimensions<SST>::value; ++i)
+		{
+			ret.smin[i] = std::min(s0.smin[i],s1.smin[i]);
+			ret.smax[i] = std::max(s0.smax[i],s1.smax[i]);
+		}
+		return ret;
+	}
+
+	template<typename T>
+	inline SpaceSegment<T> space_union(const SpaceSegment<T>& s0,const Point<T>& p)
+	{
+		typedef SpaceSegment<T> SST;
+		typedef typename dimensions<SST>::value_type i_t;
+		SST ret;
+		for (i_t i = 0;i < dimensions<SST>::value; ++i)
+		{
+			ret.smin[i] = std::min(s0.smin[i],p[i]);
+			ret.smax[i] = std::max(s0.smax[i],p[i]);
+		}
+		return ret;
+	}
+}
 
 #include "Vector.hpp"
 namespace ma{
