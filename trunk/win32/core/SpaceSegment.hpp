@@ -119,12 +119,13 @@ namespace ma{
 	{
 		typedef typename scalar_type<T>::type type;
 	};
-	/// transformation 
+	/// transformation
 	template<typename T>
 	SpaceSegment<T> operator*(
 		const typename transform_type<typename scalar_type<SpaceSegment<T> >::type,dimensions<SpaceSegment<T> >::value >::type& trans,
 		const SpaceSegment<T>& seg)
 	{
+	    assert(false);///transform box is not correctly implemented
 		return SpaceSegment<T>(trans * seg.smin,trans * seg.smax);
 	}
 
@@ -155,6 +156,24 @@ namespace ma{
 		}
 		return ret;
 	}
+
+	template<typename T>
+	inline SpaceSegment<T> space_union(const Point<T>& p0,const Point<T>& p1)
+	{
+        typedef SpaceSegment<T> SST;
+		typedef typename dimensions<SST>::value_type i_t;
+		SST ret;
+		for (i_t i = 0;i < dimensions<SST>::value; ++i)
+		{
+			ret.smin[i] = std::min(s0.smin[i],p0[i]);
+			ret.smax[i] = std::max(s0.smax[i],p0[i]);
+
+
+			ret.smin[i] = std::min(s0.smin[i],p1[i]);
+			ret.smax[i] = std::max(s0.smax[i],p1[i]);
+		}
+		return ret;
+    }
 }
 
 #include "Vector.hpp"
