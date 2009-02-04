@@ -287,6 +287,7 @@
 		<Unit filename="../../../win32/core/MATimerWin32.hpp">
 			<Option virtualFolder="Impl/" />
 		</Unit>
+		<Unit filename="../../../win32/core/MATriangleMesh.hpp" />
 		<Unit filename="../../../win32/core/MAVertex.hpp">
 			<Option virtualFolder="Geometry/" />
 		</Unit>
@@ -328,6 +329,7 @@
 			<Option virtualFolder="utility/" />
 		</Unit>
 		<Unit filename="../../../win32/core/Ray.hpp" />
+		<Unit filename="../../../win32/core/ScalarType.hpp" />
 		<Unit filename="../../../win32/core/SceneManager.hpp">
 			<Option virtualFolder="Interface/" />
 		</Unit>
@@ -355,6 +357,7 @@
 		<Unit filename="../../../win32/core/Vector.hpp">
 			<Option virtualFolder="utility/" />
 		</Unit>
+		<Unit filename="../../../win32/core/VectorType.hpp" />
 		<Unit filename="../../../win32/core/VideoDriver.hpp">
 			<Option virtualFolder="Interface/" />
 		</Unit>

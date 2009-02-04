@@ -173,7 +173,11 @@ namespace ma
 #endif
     }
 
-
+template<typename T>
+inline T reciprocal(const T v)
+{
+    return T(1) / v;
+}
 
     inline float reciprocal ( const float f )
     {

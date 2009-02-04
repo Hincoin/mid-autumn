@@ -6,14 +6,16 @@
 
 namespace ma
 {
-    template<typename V,typename Shape>
+    template<typename S>
     class DifferentialGeometry
     {
-        typedef Point<V> point_type;
-        typedef V vector_type;
+        typedef S shape_type;
+        typedef S* shape_pointer;
+        typedef typename S::VectorType vector_type;
+        typedef Point<vector_type> point_type;
+
         typedef scalar_type<V>::type scalar_type;
-        typedef Shape shape_type;
-        typedef Shape* shape_pointer;
+
         ///
 
         DifferentialGeometry(const point_type& p,

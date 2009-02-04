@@ -576,6 +576,32 @@ namespace ma{
 			template <typename Scalar2_t>
 			inline const typename scalar_type<Scalar2_t>::type height(const Scalar2_t& x){return x[1];}
 		}
+		template<typename V>
+		inline V cross(const V& lhs,const V& rhs){
+		    return lhs.cross(rhs);
+		    }
+        template<typename V>
+		inline typename scalar_type<V>::type dot(const V& lhs,const V& rhs){
+		    return lhs.dot(rhs);
+		    }
+        template<typename V>
+        inline V normalize(const V& v){return v.normalize();}
+        template<typename V>
+        inline typename scalar_type<V>::type length(const V& v){return v.norm();}
+        template<typename V>
+        inline void coordinate_system(const V& v1,V& v2,V& v3)
+        {
+            if (std::abs(v1[0]) > std::abs(v1[y]))
+            {
+                float inv_len = reciprocal(std::sqrt(v1[0]*v1[0] + v1[2] * v1[2]));
+                v2 = V(-v1[2] * inv_len, 0, v1[0] * inv_len);
+            }
+            else{
+                float inv_len = reciprocal(std::sqrt(v1[1]*v1[1] + v1[2] * v1[2]));
+                v2 = V(0,v1[2] * inv_len, -v1[1] * inv_len);
+                }
+                v3 = cross(v1,v2);
+        }
 		namespace vector_op{
 
 			using namespace Eigen;
@@ -705,7 +731,7 @@ struct scalar_type<Eigen::Transform<_Scalar,_Dim> >{
 };
 
 template<typename S,int D>
-typename vector_type<S,D>::type operator *(const transform_type<S,D>::type& trans, 
+typename vector_type<S,D>::type operator *(const transform_type<S,D>::type& trans,
 										   const typename vector_type<S,D>::type& v)
 {
 	return trans.linear() * v;

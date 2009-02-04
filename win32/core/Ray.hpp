@@ -18,6 +18,8 @@ struct Ray{
 
     point_type operator(scalar_type t)const{return o+dir*t;}
 
+    vector_type& dir(){return dir;}
+    const vector_type& dir()const{return dir;}
 
 
 	point_type o;
