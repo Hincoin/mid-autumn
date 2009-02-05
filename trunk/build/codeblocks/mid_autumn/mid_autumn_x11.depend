@@ -3545,11 +3545,14 @@
 	<boost/iterator.hpp>
 	<boost/detail/workaround.hpp>
 
-1227864429 /mnt/mobile_disk/ma/win32/core/SpaceSegment.hpp
+1233846741 /mnt/mobile_disk/ma/win32/core/SpaceSegment.hpp
 	"ParameterType.hpp"
 	"Move.hpp"
 	<boost/operators.hpp>
 	"MAMath.hpp"
+	"Point.hpp"
+	"ScalarType.hpp"
+	"VectorType.hpp"
 	"Vector.hpp"
 
 1223988753 /mnt/mobile_disk/ma/win32/core/ParameterType.hpp
@@ -3588,7 +3591,7 @@
 	<boost/type_traits/is_pointer.hpp>
 	<boost/detail/workaround.hpp>
 
-1230221281 /mnt/mobile_disk/ma/win32/core/MAMath.hpp
+1233756023 /mnt/mobile_disk/ma/win32/core/MAMath.hpp
 	"MAConfig.hpp"
 	<utility>
 	<cmath>
@@ -3602,7 +3605,7 @@
 
 1225526219 /mnt/mobile_disk/ma/win32/core/TypeDefs.hpp
 
-1230045736 /mnt/mobile_disk/ma/win32/core/Vector.hpp
+1233846584 /mnt/mobile_disk/ma/win32/core/Vector.hpp
 	<Eigen/Core>
 	<Eigen/LU>
 	<Eigen/QR>
@@ -3610,6 +3613,8 @@
 	<Eigen/Array>
 	"NullType.hpp"
 	<boost/static_assert.hpp>
+	"ScalarType.hpp"
+	"VectorType.hpp"
 
 1223553852 /mnt/mobile_disk/ma/extern//Eigen/Core
 	<emmintrin.h>
@@ -6616,7 +6621,7 @@
 1227373005 /mnt/mobile_disk/ma/inc/core/duffs_device_test.hpp
 	"DuffsDevice.hpp"
 
-1232030262 /mnt/mobile_disk/ma/inc/core/MADeviceX11.hpp
+1232253753 /mnt/mobile_disk/ma/inc/core/MADeviceX11.hpp
 	"MAConfig.hpp"
 	"MADevice.hpp"
 	"Vector.hpp"
@@ -12878,4 +12883,11 @@
 
 1231686849 /mnt/mobile_disk/ma/win32/core/MAVideoModes.hpp
 	"VideoModes.hpp"
+
+1233847201 /mnt/mobile_disk/ma/win32/core/Point.hpp
+	"VectorType.hpp"
+
+1233050833 /mnt/mobile_disk/ma/win32/core/VectorType.hpp
+
+1232799886 /mnt/mobile_disk/ma/win32/core/ScalarType.hpp
 

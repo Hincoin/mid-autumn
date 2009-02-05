@@ -511,16 +511,16 @@ namespace ma{
 
 	template<typename T,int D>
 	struct vector_type{
-		typedef Eigen::Matrix<T,Size,1> type;
+		typedef Eigen::Matrix<T,D,1> type;
 	};
 	template<typename _S,int _D>
 	struct transform_type{
 		typedef Eigen::Transform<_S,_D> type;
 	};
 
-	template<typename _S,int _R,int _S>
+	template<typename _S,int _R,int _C>
 	struct matrix_type{
-		typedef Eigen::Matrix<_S,_R,_S> type;
+		typedef Eigen::Matrix<_S,_R,_C> type;
 	};
 
 
@@ -591,7 +591,7 @@ namespace ma{
         template<typename V>
         inline void coordinate_system(const V& v1,V& v2,V& v3)
         {
-            if (std::abs(v1[0]) > std::abs(v1[y]))
+            if (std::abs(v1[0]) > std::abs(v1[1]))
             {
                 float inv_len = reciprocal(std::sqrt(v1[0]*v1[0] + v1[2] * v1[2]));
                 v2 = V(-v1[2] * inv_len, 0, v1[0] * inv_len);
@@ -731,7 +731,7 @@ struct scalar_type<Eigen::Transform<_Scalar,_Dim> >{
 };
 
 template<typename S,int D>
-typename vector_type<S,D>::type operator *(const transform_type<S,D>::type& trans,
+typename vector_type<S,D>::type operator *(const typename transform_type<S,D>::type& trans,
 										   const typename vector_type<S,D>::type& v)
 {
 	return trans.linear() * v;
