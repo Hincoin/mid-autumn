@@ -13,6 +13,7 @@ namespace ma
         typedef S* shape_pointer;
         typedef typename S::VectorType vector_type;
         typedef Point<vector_type> point_type;
+        typedef vector_type normal_type;
 
         typedef scalar_type<V>::type scalar_type;
 
@@ -28,10 +29,10 @@ namespace ma
                 normal *= -1;
         }
 
-        Point<V> point;
-        V normal;
-        V dpdu,dpdv;
-        V dndu,dndv;
+        point_type point;
+        normal_type normal;
+        vector_type dpdu,dpdv;
+        vector_type dndu,dndv;
         scalar_type u,v;
         const shape_pointer shape;
     };

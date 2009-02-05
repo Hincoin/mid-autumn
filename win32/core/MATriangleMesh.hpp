@@ -156,6 +156,32 @@ private:
                 dgShading = dg;return;
                 }
                 ///
+                ScalarType uv[3][2];
+                s.getUVs(uv);
+                typename matrix_type<ScalarType,2,2>::type A ;
+                typename vector_type<ScalarType,2>::type C(dg.u - uv[0][0],dg.v - uv[0][1]),B;
+                ScalarType b;
+                A<<(uv[1][0]-uv[0][0]),(uv[2][0]-uv[0][0]),(uv[1][1] - uv[0][1]),(uv[2][1] - uv[0][1]);
+                if (std::abs(A.determinant()) < std::numeric_limits<ScalarType>::epsilon() )
+                b=B[0]=B[1] = ScalarType(1)/ScalarType(3);
+                else B = A.inverse() * C;
+                NormalType ns;
+                VectorType ss,ts;
+                if (mesh.normals()) ns = normalize(b * mesh.normals()[v[0]] +
+                                                B[0] * mesh.normals()[v[1]] +
+                                                B[1] * mesh.normals()[v[2]]);
+                else ns = dg.normal;
+                if (mesh.tangents()) ss = normalize(b * mesh.tangents()[v[0]] +
+                B[0] * mesh.tangents()[v[1]] + B[1] * mesh.tangents()[v[2]];
+                else ss = normalize(dg.dpdu);
+                ts = cross(ss,ns);
+                ss = cross(ts,ns);
+                ts = normalize(obj2world * ts);
+                ss = normalize(obj2world * ss);
+                );
+
+                dgShading =  ShapeTraits<SHAPE>::differential_geometry(dg.point,ss,ts,
+                dndu,dndv,dg.u,dg.v,dg.shape);
         }
 
         template<typename SHAPE>

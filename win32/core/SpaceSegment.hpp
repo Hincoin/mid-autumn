@@ -18,7 +18,7 @@
 #include <boost/operators.hpp>
 
 #include "MAMath.hpp"
-
+#include "Point.hpp"
 namespace ma{
 	//this class define an "segment" in space (1d,2d,3d)
 	template<typename T,class EqualCompare> struct SpaceSegment;
@@ -41,16 +41,17 @@ namespace ma{
 		typedef typename  ParameterType<T>::param_type parameter_type;
 	public:
 		typedef T stored_type;
-		typedef scalar_type<T>::type sclr_t;
+		typedef typename scalar_type<T>::type sclr_t;
+		typedef Point<T> point_type;
 
-		T smin,smax;
+		point_type smin,smax;
 
 		//regular model
 		SpaceSegment(){
-			for (int i = 0;i < dimensions<T>::value; ++i)
+			for (int i = 0;i < dimensions<point_type>::value; ++i)
 			{
-				smin[i] = numeric_limits<sclr_t>::infinity();
-				smax[i] = -numeric_limits<sclr_t>::infinity();
+				smin[i] = std::numeric_limits<sclr_t>::infinity();
+				smax[i] = -std::numeric_limits<sclr_t>::infinity();
 			}
 		}
 		SpaceSegment(parameter_type min_value,parameter_type max_value):smin(min_value),smax(max_value){}
@@ -119,15 +120,7 @@ namespace ma{
 	{
 		typedef typename scalar_type<T>::type type;
 	};
-	/// transformation
-	template<typename T>
-	SpaceSegment<T> operator*(
-		const typename transform_type<typename scalar_type<SpaceSegment<T> >::type,dimensions<SpaceSegment<T> >::value >::type& trans,
-		const SpaceSegment<T>& seg)
-	{
-	    assert(false);///transform box is not correctly implemented
-		return SpaceSegment<T>(trans * seg.smin,trans * seg.smax);
-	}
+
 
 	template<typename T>
 	inline SpaceSegment<T> space_union(const SpaceSegment<T>& s0,const SpaceSegment<T>& s1)
@@ -165,15 +158,46 @@ namespace ma{
 		SST ret;
 		for (i_t i = 0;i < dimensions<SST>::value; ++i)
 		{
-			ret.smin[i] = std::min(s0.smin[i],p0[i]);
-			ret.smax[i] = std::max(s0.smax[i],p0[i]);
+			ret.smin[i] = std::min(ret.smin[i],p0[i]);
+			ret.smax[i] = std::max(ret.smax[i],p0[i]);
 
 
-			ret.smin[i] = std::min(s0.smin[i],p1[i]);
-			ret.smax[i] = std::max(s0.smax[i],p1[i]);
+			ret.smin[i] = std::min(ret.smin[i],p1[i]);
+			ret.smax[i] = std::max(ret.smax[i],p1[i]);
 		}
 		return ret;
     }
+
+    	/// transformation
+	template<typename T>
+	SpaceSegment<T> operator*(
+		const typename transform_type<typename scalar_type<SpaceSegment<T> >::type,dimensions<SpaceSegment<T> >::value >::type& trans,
+		const SpaceSegment<T>& seg)
+	{
+	    ///assert(false);///transform box is not correctly implemented
+	    typedef T VectorType;
+        typename SpaceSegment<T>::point_type p(trans * seg.smin);
+        VectorType v[dimensions<VectorType>::value];
+
+        for(int i = 0;i < dimensions<VectorType>::value;++i)
+        {
+            v[i][i] = seg.smax[i] - seg.smin[i];
+            v[i].swap( trans * v[i] );
+        }
+        SpaceSegment<T> ret;
+        ret.swap(space_union(ret,p));
+        for (int i = 0;i < dimensions<VectorType>::value; ++i)
+        {ret.swap(space_union(ret,p+v[i]));}
+        for(int i = 0;i < dimensions<VectorType>::value;++i)
+        {
+            p += v[i];
+        }
+        ret.swap(space_union(ret,p));
+        for (int i = 0;i < dimensions<VectorType>::value; ++i)
+        {ret.swap(space_union(ret,p-v[i]));}
+
+		return ret;
+	}
 }
 
 #include "Vector.hpp"
