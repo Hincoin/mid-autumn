@@ -328,6 +328,18 @@ class Matrix
     }
 
     explicit Matrix(const Scalar *data);
+	explicit Matrix(const Scalar data[RowsAtCompileTime][ColsAtCompileTime]){
+		EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix, RowsAtCompileTime,ColsAtCompileTime);	
+		for (int i = 0;i < RowsAtCompileTime;++i)
+		{
+			for (int j = 0;j < ColsAtCompileTime; ++j)
+			{
+				(*this)(i,j) = data[i][j];
+			}
+			
+		}
+		
+	}
 
     /** Constructor copying the value of the expression \a other */
     template<typename OtherDerived>

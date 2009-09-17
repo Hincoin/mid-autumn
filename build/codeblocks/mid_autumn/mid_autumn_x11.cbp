@@ -111,6 +111,7 @@
 		<Unit filename="../../../inc/core/MAMemoryPool_test.hpp">
 			<Option virtualFolder="Tests/" />
 		</Unit>
+		<Unit filename="../../../inc/core/MAPrimitive.hpp" />
 		<Unit filename="../../../inc/core/MASingleton.hpp">
 			<Option virtualFolder="utility/" />
 		</Unit>
@@ -142,12 +143,15 @@
 			<Option virtualFolder="Memory/" />
 		</Unit>
 		<Unit filename="../../../inc/core/Shape.hpp" />
+		<Unit filename="../../../inc/core/SharedPointer.hpp" />
 		<Unit filename="../../../inc/core/Timer.hpp">
 			<Option virtualFolder="utility/" />
 		</Unit>
+		<Unit filename="../../../inc/core/VirtualInterface.hpp" />
 		<Unit filename="../../../inc/core/duffs_device_test.hpp">
 			<Option virtualFolder="Tests/" />
 		</Unit>
+		<Unit filename="../../../src/core/KdTree.cpp" />
 		<Unit filename="../../../src/core/MemoryMgr.cpp" />
 		<Unit filename="../../../src/main_test.cpp">
 			<Option virtualFolder="Tests/" />
