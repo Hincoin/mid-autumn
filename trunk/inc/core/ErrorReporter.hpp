@@ -1,0 +1,27 @@
+#include <cstdio>
+#include <cstdlib>
+#include <cstdarg>
+
+namespace ma{
+	inline void report_error(const char* s, ...)
+	{
+		char buff[1024]={};
+		va_list args;
+		va_start(args,s);
+#ifdef _MSC_VER
+		::_snprintf(buff,sizeof(buff),s, args);
+#else
+		::snprintf(buff,sizeof(buff),s,args);
+#endif
+		va_end(args);
+	
+		throw std::runtime_error(buff);
+	}
+	inline void report_warning(const char* s, ...)
+	{
+		va_list args;
+		va_start(args,s);
+		printf(s,args);
+		va_end(args);
+	}
+}

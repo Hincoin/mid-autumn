@@ -1,0 +1,37 @@
+#ifndef _MA_INCLUDED_MITCHELL_HPP_
+#define _MA_INCLUDED_MITCHELL_HPP_
+#include "Sampling.hpp"
+namespace ma{
+	// Mitchell Filter Declarations
+	template<typename Conf>
+	class MitchellFilter : public Filter<MitchellFilter<Conf>,Conf> {
+		typedef Filter<MitchellFilter<Conf>,Conf> parent_type;
+		ADD_SAME_TYPEDEF(Conf,scalar_t)
+	public:
+		// MitchellFilter Public Methods
+		MitchellFilter(scalar_t b, scalar_t c, scalar_t xw, scalar_t yw)
+			: parent_type(xw, yw) { B = b; C = c; }
+		scalar_t evaluateImpl(scalar_t x, scalar_t y) const;
+	private:
+		scalar_t Mitchell1D(scalar_t x) const {
+			x = fabsf(2.f * x);
+			if (x > 1.f)
+				return ((-B - 6*C) * x*x*x + (6*B + 30*C) * x*x +
+				(-12*B - 48*C) * x + (8*B + 24*C)) * (1.f/6.f);
+			else
+				return ((12 - 9*B - 6*C) * x*x*x +
+				(-18 + 12*B + 6*C) * x*x +
+				(6 - 2*B)) * (1.f/6.f);
+		}
+	private:
+		scalar_t B, C;
+	};
+	// Mitchell Filter Method Definitions
+		template<typename Conf>
+		typename Conf::scalar_t MitchellFilter<Conf>::evaluateImpl(scalar_t x, scalar_t y) const {
+		return Mitchell1D(x * invXWidth) *
+			Mitchell1D(y * invYWidth);
+	}
+}
+
+#endif
