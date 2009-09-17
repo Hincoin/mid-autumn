@@ -1,0 +1,4 @@
+#ifndef _MA_INCLUDED_GEOMETRY_HPP_
+#define _MA_INCLUDED_GEOMETRY_HPP_
+
+#endif

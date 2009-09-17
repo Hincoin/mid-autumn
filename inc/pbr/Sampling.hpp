@@ -1,0 +1,147 @@
+#ifndef _MA_INCLUDED_SAMPLING_HPP_
+#define _MA_INCLUDED_SAMPLING_HPP_
+
+#include "MAMath.hpp"
+namespace ma{
+
+	BEGIN_CRTP_INTERFACE(Sampler)
+		ADD_CRTP_INTERFACE_TYPEDEF(sample_t)
+protected:
+	int x_pixel_start,x_pixel_end,y_pixel_start,y_pixel_end;
+	int samples_per_pixel;
+public:
+		Sampler(int xs,int xe,int ys,int ye,int spp)
+			:x_pixel_start(xs),x_pixel_end(xe),
+			y_pixel_start(ys),y_pixel_end(ye),samples_per_pixel(spp){}
+		CRTP_METHOD(bool,getNextSample,1,(IN(sample_t&,s)));
+		int totalSamples()const{return samples_per_pixel * (x_pixel_end-x_pixel_start) * (y_pixel_end - y_pixel_start);}
+		CRTP_CONST_METHOD(int,roundSize,1,(IN(int ,size)));
+	END_CRTP_INTERFACE
+
+	template<typename Conf>
+	struct Sample{
+		ADD_SAME_TYPEDEF(Conf,surface_integrator_ptr);
+		ADD_SAME_TYPEDEF(Conf,volume_integrator_ptr);
+		ADD_SAME_TYPEDEF(Conf,scene_ptr);
+		ADD_SAME_TYPEDEF(Conf,scalar_t);
+	public:
+		Sample(surface_integrator_ptr surf,volume_integrator_ptr vol,const scene_ptr s)
+		{
+			surf->requestSamples(*this, s);
+			//vol->requestSamples(this, s);
+			// Allocate storage for sample pointers
+			size_t nPtrs = n1D.size() + n2D.size();
+			if (!nPtrs) {
+				oneD = twoD = 0;
+				return;
+			}
+			oneD = (scalar_t **)malloc(nPtrs * sizeof(scalar_t *));
+			twoD = oneD + n1D.size();
+			// Compute total number of sample values needed
+			size_t totSamples = 0;
+			for (size_t i = 0; i < n1D.size(); ++i)
+				totSamples += n1D[i];
+			for (size_t i = 0; i < n2D.size(); ++i)
+				totSamples += 2 * n2D[i];
+			// Allocate storage for sample values
+			scalar_t *mem = (scalar_t *)malloc(totSamples *
+				sizeof(scalar_t));
+			for (unsigned i = 0; i < n1D.size(); ++i) {
+				oneD[i] = mem;
+				mem += n1D[i];
+			}
+			for (unsigned i = 0; i < n2D.size(); ++i) {
+				twoD[i] = mem;
+				mem += 2 * n2D[i];
+			}
+
+		}
+		unsigned add1D(unsigned n){n1D.push_back(n);return n1D.size()-1;}
+		unsigned add2D(unsigned n){n2D.push_back(n);return n2D.size()-1;}
+		~Sample(){
+			if (oneD)
+			{
+				::free(oneD[0]);
+				::free(oneD);
+			}
+		}
+		//private:
+		scalar_t image_x,image_y;
+		scalar_t lens_u,lens_v;
+		scalar_t time;
+		std::vector<unsigned> n1D,n2D;
+		scalar_t **oneD,**twoD;
+	};
+	BEGIN_CRTP_INTERFACE(Filter)
+		ADD_CRTP_INTERFACE_TYPEDEF(scalar_t)
+	public:
+		// Filter Interface
+		Filter(scalar_t xw, scalar_t yw)
+			: xWidth(xw), yWidth(yw), invXWidth(reciprocal(xw)),
+			invYWidth(reciprocal(yw)) {
+		}
+		CRTP_CONST_METHOD(scalar_t,evaluate,2,(IN(scalar_t,x),IN(scalar_t , y)));
+		// Filter Public Data
+		const scalar_t xWidth, yWidth;
+		const scalar_t invXWidth, invYWidth;
+	END_CRTP_INTERFACE
+}
+
+
+namespace ma{
+
+	// Sampling Inline Functions
+
+	inline float VanDerCorput(unsigned n, unsigned scramble) {
+		n = (n << 16) | (n >> 16);
+		n = ((n & 0x00ff00ff) << 8) | ((n & 0xff00ff00) >> 8);
+		n = ((n & 0x0f0f0f0f) << 4) | ((n & 0xf0f0f0f0) >> 4);
+		n = ((n & 0x33333333) << 2) | ((n & 0xcccccccc) >> 2);
+		n = ((n & 0x55555555) << 1) | ((n & 0xaaaaaaaa) >> 1);
+		n ^= scramble;
+		return (float)n / (float)0x100000000LL;
+	}
+	inline float Sobol2(unsigned n, unsigned scramble) {
+		for (unsigned v = 1 << 31; n != 0; n >>= 1, v ^= v >> 1)
+			if (n & 0x1) scramble ^= v;
+		return (float)scramble / (float)0x100000000LL;
+	}
+	inline void Sample02(unsigned n, unsigned scramble[2],
+		float sample[2]) {
+			sample[0] = VanDerCorput(n, scramble[0]);
+			sample[1] = Sobol2(n, scramble[1]);
+	}
+	inline float
+		LarcherPillichshammer2(unsigned n, unsigned scramble) {
+			for (unsigned v = 1 << 31; n != 0; n >>= 1, v |= v >> 1)
+				if (n & 0x1) scramble ^= v;
+			return (float)scramble / (float)0x100000000LL;
+	}
+	inline void Shuffle(float *samp, size_t count, size_t dims) {
+		using std::swap;
+		for (size_t i = 0; i < count; ++i) {
+			unsigned other = RandomUInt() % count;
+			for (size_t j = 0; j < dims; ++j)
+				swap(samp[dims*i + j], samp[dims*other + j]);
+		}
+	}
+	inline void LDShuffleScrambled1D(size_t nSamples,
+		size_t nPixel, float *samples) {
+			unsigned scramble = RandomUInt();
+			for (unsigned i = 0; i < nSamples * nPixel; ++i)
+				samples[i] = VanDerCorput(i, scramble);
+			for (unsigned i = 0; i < nPixel; ++i)
+				Shuffle(samples + i * nSamples, nSamples, 1);
+			Shuffle(samples, nPixel, nSamples);
+	}
+	inline void LDShuffleScrambled2D(size_t nSamples,
+		size_t nPixel, float *samples) {
+			unsigned scramble[2] = { RandomUInt(), RandomUInt() };
+			for (unsigned i = 0; i < nSamples * nPixel; ++i)
+				Sample02(i, scramble, &samples[2*i]);
+			for (unsigned i = 0; i < nPixel; ++i)
+				Shuffle(samples + 2 * i * nSamples, nSamples, 2);
+			Shuffle(samples, nPixel, 2 * nSamples);
+	}
+}
+#endif
