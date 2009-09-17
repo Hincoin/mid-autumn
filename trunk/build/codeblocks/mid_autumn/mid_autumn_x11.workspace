@@ -2,5 +2,6 @@
 <CodeBlocks_workspace_file>
 	<Workspace title="Workspace">
 		<Project filename="mid_autumn_x11.cbp" active="1" />
+		<Project filename="pbrt/pbrt.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

@@ -3545,7 +3545,7 @@
 	<boost/iterator.hpp>
 	<boost/detail/workaround.hpp>
 
-1233846741 /mnt/mobile_disk/ma/win32/core/SpaceSegment.hpp
+1235747756 /mnt/mobile_disk/ma/win32/core/SpaceSegment.hpp
 	"ParameterType.hpp"
 	"Move.hpp"
 	<boost/operators.hpp>
@@ -3600,12 +3600,13 @@
 	<boost/mpl/if.hpp>
 	"TypeDefs.hpp"
 
-1230394474 /mnt/mobile_disk/ma/win32/core/MAConfig.hpp
+1234360245 /mnt/mobile_disk/ma/win32/core/MAConfig.hpp
 	<boost/config.hpp>
+	<cassert>
 
 1225526219 /mnt/mobile_disk/ma/win32/core/TypeDefs.hpp
 
-1233846584 /mnt/mobile_disk/ma/win32/core/Vector.hpp
+1235837795 /mnt/mobile_disk/ma/win32/core/Vector.hpp
 	<Eigen/Core>
 	<Eigen/LU>
 	<Eigen/QR>
@@ -5683,7 +5684,7 @@
 	"Shader_test.hpp"
 	"MAVertex.hpp"
 
-1231686341 /mnt/mobile_disk/ma/win32/core/MADeviceConfigure.hpp
+1234085617 /mnt/mobile_disk/ma/win32/core/MADeviceConfigure.hpp
 	"MAEventProcessor.hpp"
 	"MAFileSystemWin32.hpp"
 	"MALogger.hpp"
@@ -5702,6 +5703,7 @@
 	"MAColor.hpp"
 	"MAGeometryRenderer.hpp"
 	"MAAffineRasterizer.hpp"
+	"SharedPointer.hpp"
 
 1225203129 /mnt/mobile_disk/ma/win32/core/MAEventProcessor.hpp
 	"EventProcessor.hpp"
@@ -12890,4 +12892,46 @@
 1233050833 /mnt/mobile_disk/ma/win32/core/VectorType.hpp
 
 1232799886 /mnt/mobile_disk/ma/win32/core/ScalarType.hpp
+
+1234085450 /mnt/mobile_disk/ma/inc/core/SharedPointer.hpp
+	<boost/shared_ptr.hpp>
+
+1235837662 source:/mnt/mobile_disk/ma/src/core/KdTree.cpp
+	"MAPrimitive.hpp"
+	"TypeDefs.hpp"
+	<list>
+	"MAIntersect.hpp"
+	<malloc.h>
+	<alloca.h>
+
+1235749352 /mnt/mobile_disk/ma/inc/core/MAPrimitive.hpp
+	"MAConfig.hpp"
+	"VectorType.hpp"
+	"SpaceSegment.hpp"
+	"DifferentialGeometry.hpp"
+	"Ray.hpp"
+	"SharedPointer.hpp"
+	<vector>
+	"VirtualInterface.hpp"
+
+1235659138 /mnt/mobile_disk/ma/win32/core/DifferentialGeometry.hpp
+	"Point.hpp"
+	"VectorType.hpp"
+
+1235659957 /mnt/mobile_disk/ma/win32/core/Ray.hpp
+	<limits>
+	"Point.hpp"
+
+1235661058 /mnt/mobile_disk/ma/inc/core/VirtualInterface.hpp
+	<boost/type_traits.hpp>
+
+1235751495 /mnt/mobile_disk/ma/win32/core/MAIntersect.hpp
+	"MAMath.hpp"
+	"SpaceSegment.hpp"
+	"Ray.hpp"
+	<utility>
+
+1229282287 /usr/include/malloc.h
+	<features.h>
+	<stddef.h>
 
