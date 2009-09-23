@@ -9,6 +9,7 @@
 #include <cassert>
 #include "details/intrusive_rbtree.hpp"
 #include "details/intrusive_list.hpp"
+#include "details/pool_mutex.hpp"
 
 #include "details/common_functions.hpp"
 
@@ -94,6 +95,7 @@ namespace ma{
 		}
 
 		//memblock-freeblock-rawmemory
+		template<typename Mutex>
 		struct big_memory_pool{
 			void* alloc(size_t sz);
 			void* realloc(void* ptr,size_t size){
@@ -197,10 +199,12 @@ namespace ma{
 			MemBlock* cached_block_;//cached most big block
 			MemBlock* mr_block_;//cached most recently used block
 			small_free_node_list small_free_list;
+			Mutex mutex_;
 			// the maximum small allocation, anything larger goes to the tree allocator
 			// must be a power of two
 			static const size_t MAX_SMALL_ALLOCATION_LOG2 = 8UL;
 			static const size_t MAX_SMALL_ALLOCATION  = 1UL << MAX_SMALL_ALLOCATION_LOG2;
+			typedef details::scope_lock<Mutex> scope_lock_t;
 		private:
 			void* tree_alloc(size_t sz);
 			void* tree_realloc(void* p,size_t sz);
@@ -413,13 +417,17 @@ namespace ma{
 			}
 
 		};
-		void* big_memory_pool::alloc(size_t sz)
+		template<typename Mutex>
+		void* big_memory_pool<Mutex>::alloc(size_t sz)
 		{
 			return tree_alloc(sz);
 		}
-		void* big_memory_pool::tree_alloc(size_t sz)//0
+		template<typename Mutex>
+		void* big_memory_pool<Mutex>::tree_alloc(size_t sz)//0
 		{
 			//
+			scope_lock_t lock(mutex_);
+			lock;
 			debug_allocated_size += sz;
 			assert(checkAllBlocks());
 			if(sz < sizeof(FreeBlock)) sz = sizeof(FreeBlock);
@@ -535,16 +543,24 @@ namespace ma{
 			assert(checkAllBlocks());
 			return block+1;
 		}
-		void big_memory_pool::tree_free(void* p)
+		template<typename Mutex>
+		void big_memory_pool<Mutex>::tree_free(void* p)
 		{
 			//if(p)
 			{
+				scope_lock_t lock(mutex_);
+				lock;
 				MemBlock* cur = static_cast<MemBlock*>(p) - 1;
+
 				add_free_block_from_free(cur);
 			}
 			assert(checkAllBlocks());
 		}
-		void* big_memory_pool::tree_realloc(void* ptr,size_t sz){
+		template<typename Mutex>
+		void* big_memory_pool<Mutex>::tree_realloc(void* ptr,size_t sz){
+			scope_lock_t lock(mutex_);
+			lock;
+
 			sz = details::round_up(sz,sizeof(MemBlock));
 			MemBlock* cur = static_cast<MemBlock*>(ptr) - 1;
 			assert(checkAllBlocks());
@@ -559,6 +575,7 @@ namespace ma{
 				assert(checkAllBlocks());
 				return cur+1;
 			}
+
 
 			//search for next free page
 			MemBlock* next = cur->next();
@@ -624,9 +641,12 @@ namespace ma{
 
 			return 0;
 		}
-		bool big_memory_pool::tree_recycle(size_t mem_size)
+		template<typename Mutex>
+		bool big_memory_pool<Mutex>::tree_recycle(size_t mem_size)
 		{
 			//clean unused memory from the free blocks
+			scope_lock_t lock(mutex_);
+			lock;
 			MemBlock* cached_free_block = reorganize_freeblock(cached_block_);
 			if(cached_free_block) {insert_free_block(cached_free_block);cached_block_ = 0;}
 
@@ -660,6 +680,7 @@ namespace ma{
 			//assert(free_blocks.empty()? true : ret);
 			return ret;
 		}
+		template<typename Mutex>
 		class small_memory_pool
 		{
 		private:
@@ -720,18 +741,20 @@ namespace ma{
 				bool check_marker(unsigned marker) const {return mMarker == (marker ^ (unsigned)((size_t)this));}
 			};
 			typedef intrusive_list<page> page_list;
-			class bucket {
+			typedef details::scope_lock<Mutex> scope_lock_t;
+			class bucket:Mutex {
 				page_list mPageList;
-#ifdef MULTITHREADED
-				static const size_t SPIN_COUNT = 256;
-				mutable mutex mLock;
-#endif
+//#ifdef MULTITHREADED
+				
+				//static const size_t SPIN_COUNT = 256;
+//				mutable mutex mLock;
+//#endif
 				unsigned mMarker;
-#ifdef MULTITHREADED
-				unsigned char _padding[sizeof(void*)*16 - sizeof(page_list) - sizeof(mutex) - sizeof(unsigned)];
-#else
-				unsigned char _padding[sizeof(void*)*4 - sizeof(page_list) - sizeof(unsigned)];
-#endif
+//#ifdef MULTITHREADED
+//				unsigned char _padding[sizeof(void*)*16 - sizeof(page_list) - sizeof(mutex) - sizeof(unsigned)];
+//#else
+//				unsigned char _padding[sizeof(void*)*4 - sizeof(page_list) - sizeof(unsigned)];
+//#endif
 				static const unsigned MARKER = 0x628bf2b6;
 			public:
 				bucket()
@@ -744,9 +767,9 @@ namespace ma{
 					mMarker = rand() ^ MARKER;
 #endif
 				}
-#ifdef MULTITHREADED
-				mutex& get_lock() const {return mLock;}
-#endif
+//#ifdef MULTITHREADED
+				Mutex& get_lock() /*const*/ {return *this;}
+//#endif
 				unsigned marker() const {return mMarker;}
 				const page* page_list_begin() const {return mPageList.begin();}
 				page* page_list_begin() {return mPageList.begin();}
@@ -829,9 +852,9 @@ namespace ma{
 				assert(size <= MAX_SMALL_ALLOCATION);
 				unsigned bi = bucket_spacing_function(size);
 				assert(bi < NUM_BUCKETS);
-#ifdef MULTITHREADED
-				mutex::scoped lock(mBuckets[bi].get_lock());
-#endif
+//#ifdef MULTITHREADED
+				scope_lock_t lock(mBuckets[bi].get_lock());
+//#endif
 				// get the page info and check if there's any available elements
 				page* p = mBuckets[bi].get_free_page();
 				if (!p) {
@@ -848,9 +871,9 @@ namespace ma{
 			void* bucket_alloc_direct(unsigned bi)
 			{
 				assert(bi < NUM_BUCKETS);
-#ifdef MULTITHREADED
-				mutex::scoped lock(mBuckets[bi].get_lock());
-#endif
+//#ifdef MULTITHREADED
+				scope_lock_t lock(mBuckets[bi].get_lock());
+//#endif
 				page* p = mBuckets[bi].get_free_page();
 				if (!p) {
 					size_t bsize = bucket_spacing_function_inverse(bi);
@@ -879,9 +902,9 @@ namespace ma{
 				page* p = ptr_get_page(ptr);
 				unsigned bi = p->bucket_index();
 				assert(bi < NUM_BUCKETS);
-#ifdef MULTITHREADED
-				mutex::scoped lock(mBuckets[bi].get_lock());
-#endif
+//#ifdef MULTITHREADED
+				scope_lock_t lock(mBuckets[bi].get_lock());
+//#endif
 				mBuckets[bi].free(p, ptr);
 			}
 			void bucket_free_direct(void* ptr, unsigned bi)
@@ -891,17 +914,17 @@ namespace ma{
 				// if this asserts, the free size doesn't match the allocated size
 				// most likely a class needs a base virtual destructor
 				assert(bi == p->bucket_index());
-#ifdef MULTITHREADED
-				mutex::scoped lock(mBuckets[bi].get_lock());
-#endif
+//#ifdef MULTITHREADED
+				scope_lock_t lock(mBuckets[bi].get_lock());
+//#endif
 				mBuckets[bi].free(p, ptr);
 			}
 			void bucket_purge()
 			{
 				for (unsigned i = 0; i < NUM_BUCKETS; i++) {
-#ifdef MULTITHREADED
-					mutex::scoped lock(mBuckets[i].get_lock());
-#endif
+//#ifdef MULTITHREADED
+					scope_lock_t lock(mBuckets[i].get_lock());
+//#endif
 					page *pageEnd = mBuckets[i].page_list_end();
 					for (page* p = mBuckets[i].page_list_begin(); p != pageEnd; ) {
 						// early out if we reach fully occupied page (the remaining should all be full)
@@ -936,9 +959,9 @@ namespace ma{
 					// the exhaustive search below will catch this case 
 					// and that will indicate that more secure measures are needed
 #ifndef NDEBUG
-#ifdef MULTITHREADED
-					mutex::scoped lock(mBuckets[bi].get_lock());
-#endif
+//#ifdef MULTITHREADED
+					scope_lock_t lock(mBuckets[bi].get_lock());
+//#endif
 					const page* pe = mBuckets[bi].page_list_end();
 					const page* pb = mBuckets[bi].page_list_begin();
 					for (; pb != pe && pb != p; pb = pb->next()) {}
@@ -981,6 +1004,7 @@ namespace ma{
 		};
 	}
 	//template<typename ThreadingModel,bool Auto = false,typename UserTag = details::memory_null_tag>
+	template<typename Mutex>
 	class memory_pool{
 	public:
 		typedef std::size_t size_type;
@@ -1005,10 +1029,11 @@ namespace ma{
 			big_memory_allocator_.free(ptr);
 		}
 	//private:
-		core::big_memory_pool big_memory_allocator_;
-		core::small_memory_pool small_memory_allocator_;
+		core::big_memory_pool<Mutex> big_memory_allocator_;
+		core::small_memory_pool<Mutex> small_memory_allocator_;
 	};
-	void* memory_pool::alloc(size_t sz)
+	template<typename Mutex>
+	void* memory_pool<Mutex>::alloc(size_t sz)
 	{
 		if (!sz )return 0;
 
@@ -1018,7 +1043,8 @@ namespace ma{
 		}
 		return big_memory_allocator_.alloc(sz);
 	}
-	void* memory_pool::calloc(size_t sz)
+	template<typename Mutex>
+	void* memory_pool<Mutex>::calloc(size_t sz)
 	{
 		void *p = alloc(sz);
 		if (p)
@@ -1027,7 +1053,8 @@ namespace ma{
 		}
 		return p;
 	}
-	void* memory_pool::realloc(void* ptr,size_t size)
+	template<typename Mutex>
+	void* memory_pool<Mutex>::realloc(void* ptr,size_t size)
 	{
 		if(! ptr)return alloc(size);
 		if(! size){ free(ptr); return 0;}
@@ -1047,7 +1074,8 @@ namespace ma{
 
 		return big_memory_allocator_.realloc(ptr,size);
 	}
-	void memory_pool::free(void *p)
+	template<typename Mutex>
+	void memory_pool<Mutex>::free(void *p)
 	{
 		if (p)
 		{

@@ -17,7 +17,7 @@ struct single_thread{};
 using namespace ma;
 using namespace ma::core;
 using namespace std;
-typedef big_memory_pool pool_t;
+typedef big_memory_pool<details::null_mutex> pool_t;
 
 #define REALLOCATE_TEST
 
@@ -27,7 +27,7 @@ typedef big_memory_pool pool_t;
 
 
 HPHAllocator hpha_allocator;
-memory_pool my_pool;
+memory_pool<details::null_mutex> my_pool;
 unsigned big_memory_size()
 {
 	return	( rand()%(1024*1024)+256);
@@ -236,7 +236,7 @@ int main()
 
 
 	std::vector<int,pool_allocator<int,details::mutex_t> > v;
-	int n = N;
+	int n = N*N;
 	while (n--)
 	{
 		v.push_back(n);
