@@ -59,7 +59,7 @@ namespace ma{
 		};
 		template <typename Tag,
 			typename Mutex,
-			typename Pool = memory_pool
+			typename Pool = memory_pool<Mutex>
 		>
 		struct generic_singleton_pool
 		{
@@ -69,7 +69,7 @@ namespace ma{
 			typedef typename Pool::size_type size_type;
 			typedef typename Pool::difference_type difference_type;
 		private:
-			struct pool_type: Mutex
+			struct pool_type//: Mutex
 			{
 				Pool p;
 			};
@@ -82,25 +82,25 @@ namespace ma{
 			static void * alloc(size_type size)
 			{
 				pool_type & p = singleton::instance();
-				details::scope_lock<Mutex> g(p);
+				//details::scope_lock<Mutex> g(p);
 				return p.p.alloc(size);
 			}
 			static void free(void * const ptr)
 			{
 				pool_type & p = singleton::instance();
-				details::scope_lock<Mutex> g(p);
+				//details::scope_lock<Mutex> g(p);
 				p.p.free(ptr);
 			}
 			static void free(void * const ptr,size_type sz)
 			{
 				pool_type & p = singleton::instance();
-				details::scope_lock<Mutex> g(p);
+				//details::scope_lock<Mutex> g(p);
 				p.p.free(ptr,sz);
 			}
 			static bool release_memory()
 			{
 				pool_type & p = singleton::instance();
-				details::scope_lock<Mutex> g(p);
+				//details::scope_lock<Mutex> g(p);
 				return p.p.release_memory();
 			}
 		};
