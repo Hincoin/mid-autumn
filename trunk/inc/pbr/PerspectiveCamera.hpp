@@ -33,29 +33,29 @@ namespace ma{
 	};
 
 	template<typename Conf>
-	typename Conf::scalar_t 
+	typename Conf::scalar_t
 		PerspectiveCamera<Conf>::generateRayImpl(const sample_t &sample, ray_t &ray)const
 	{
 		// Generate raster and camera samples
 		point_t Pras(sample.image_x, sample.image_y, 0);
 		//point_t Pras(24.0711,2.3352,0);
 		point_t Pcamera;
-		Pcamera.p = RasterToCamera * Pras.p;
+		Pcamera.p = parent_type::RasterToCamera * Pras.p;
 
 		ray.o = Pcamera;
-		ray.dir = vector_t(Pcamera.x(), Pcamera.y(), Pcamera.z());
+		ray.dir=(typename parent_type::vector_t(Pcamera.x(), Pcamera.y(), Pcamera.z()));
 		// Set ray time value
 		//ray.time =lerp(shutter_open,shutter_close,sample.time);
 		// Modify ray for depth of field
-		if (LensRadius > 0.) {
+		if (parent_type::LensRadius > 0.) {
 			// Sample point on lens
 			float lensU, lensV;
 			ConcentricSampleDisk(sample.lens_u, sample.lens_v,
 				&lensU, &lensV);
-			lensU *= LensRadius;
-			lensV *= LensRadius;
+			lensU *= parent_type::LensRadius;
+			lensV *= parent_type::LensRadius;
 			// Compute point on plane of focus
-			float ft = (FocalDistance - clip_hither) / ray.dir.z();
+			float ft = (parent_type::FocalDistance - parent_type::clip_hither) / ray.dir.z();
 			point_t Pfocus = ray.o + (ray.dir) * (ft);
 			// Update ray for effect of lens
 			ray.o.x() += lensU;
@@ -64,9 +64,9 @@ namespace ma{
 		}
 		ray.dir.normalize();
 		ray.mint = 0.;
-		ray.maxt = (clip_yon - clip_hither) / ray.dir.z();
+		ray.maxt = (parent_type::clip_yon - parent_type::clip_hither) / ray.dir.z();
 
-		ray = camera_to_world * ray;
+		ray = parent_type::camera_to_world * ray;
 
 		return scalar_t(1);
 	}

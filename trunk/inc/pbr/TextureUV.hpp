@@ -22,8 +22,8 @@ namespace ma{
 		spectrum_t evaluateImpl(const differential_geometry_t &dg) const {
 			scalar_t s, t, dsdx, dtdx, dsdy, dtdy;
 			mapping->map(dg, s, t, dsdx, dtdx, dsdy, dtdy);
-			scalar_t cs[COLOR_SAMPLES];
-			memset(cs, 0, COLOR_SAMPLES * sizeof(scalar_t));
+			scalar_t cs[spectrum_t::COLOR_SAMPLES];
+			memset(cs, 0, spectrum_t::COLOR_SAMPLES * sizeof(scalar_t));
 			cs[0] = s - Floor2Int(s);
 			cs[1] = t - Floor2Int(t);
 			return spectrum_t(cs);

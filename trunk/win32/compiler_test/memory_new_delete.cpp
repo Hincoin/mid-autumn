@@ -47,6 +47,7 @@ for how well your compiler can handle Loki.
 
 #include <iostream>
 #include <new>
+#include <string.h>
 
 
 // ----------------------------------------------------------------------------

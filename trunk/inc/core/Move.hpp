@@ -2,7 +2,7 @@
 #define MA_MOVE_HPP
 
 
-//implement move semantic for c++ 
+//implement move semantic for c++
 //for pimpl and array member
 #include <cassert>
 #include <iterator>
@@ -106,6 +106,8 @@ namespace ma{
 
 	template<typename T>
 	inline move_from<T> force_move(T& x){return move_from<T>(x);}
+    template<typename T>
+	inline move_from<T> force_move(const T& x){return move_from<T>(x);}
 
 	template<typename InputIterator,typename OutputIterator>
 	inline OutputIterator move(InputIterator f,InputIterator l, OutputIterator result)
@@ -177,7 +179,7 @@ namespace ma{
 
 	template<typename InputIterator,
 		typename ForwardIterator>
-		inline ForwardIterator 
+		inline ForwardIterator
 		uninitialized_move(InputIterator f,InputIterator l,ForwardIterator r,typename move_sink<typename std::iterator_traits<InputIterator>::value_type>::type = 0)
 	{
 		while(f != l){

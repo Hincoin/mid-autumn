@@ -45,8 +45,8 @@ namespace ma{
 	LDSampler<Conf>::LDSampler(int xstart, int xend,
 		int ystart, int yend, int ps)
 		: parent_type(xstart, xend, ystart, yend, RoundUpPow2(ps)) {
-			xPos = x_pixel_start - 1;
-			yPos = y_pixel_start;
+			xPos = parent_type::x_pixel_start - 1;
+			yPos = parent_type::y_pixel_start;
 			if (!isPowerOf2(ps)) {
 				/*Warning("Pixel samples being"
 					"rounded up to power of 2");*/
@@ -74,11 +74,11 @@ namespace ma{
 		}
 		if (samplePos == pixelSamples) {
 			// Advance to next pixel for low-discrepancy sampling
-			if (++xPos == x_pixel_end) {
-				xPos = x_pixel_start;
+			if (++xPos == parent_type::x_pixel_end) {
+				xPos = parent_type::x_pixel_start;
 				++yPos;
 			}
-			if (yPos == y_pixel_end)
+			if (yPos == parent_type::y_pixel_end)
 				return false;
 			samplePos = 0;
 			// Generate low-discrepancy samples for pixel

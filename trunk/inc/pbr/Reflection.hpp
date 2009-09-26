@@ -78,7 +78,7 @@ class BSDF{
 			return num;}
 		bool hasShadingGeometry()const{return (nn.x() != ng.x() || nn.y() != ng.y() || nn.z() != ng.z());}
 		vector_t worldToLocal(const vector_t& v)const{return vector_t(dot(v, sn), dot(v, tn), dot(v, nn));}
-		vector_t localToWorld(const vector_t& v)const{		
+		vector_t localToWorld(const vector_t& v)const{
 			return vector_t(sn.x() * v.x() + tn.x() * v.y() + nn.x() * v.z(),
 			sn.y() * v.x() + tn.y() * v.y() + nn.y() * v.z(),
 			sn.z() * v.x() + tn.z() * v.y() + nn.z() * v.z());}
@@ -97,7 +97,7 @@ class BSDF{
 		int nBxDFs;
 		static const int MAX_BxDFS = 8;
 		BxDF_ptr bxdfs[MAX_BxDFS];
-		
+
 
 };
 
@@ -258,7 +258,7 @@ typename Conf::spectrum_t BxDF<D,Conf>::sample_f(const typename Conf::vector_t &
 							ppdf = pdf(wo, wi);
 							return f(wo, wi);
 }
-
+const float INV_PI = 0.318309886f;
 template<typename D,typename Conf>
 typename Conf::scalar_t BxDF<D,Conf>::pdf(const typename Conf::vector_t &wo, const typename Conf::vector_t &wi) const {
 	return
@@ -296,6 +296,7 @@ typename Conf::spectrum_t BxDF<D,Conf>::rho(int nSamples, scalar_t &samples) con
 		// Estimate one term of $\rho_{hh}$
 		vector_t wo, wi;
 		wo = UniformSampleHemisphere(samples[4*i], samples[4*i+1]);
+		const float INV_TWOPI = INV_PI/2;
 		scalar_t pdf_o = INV_TWOPI, pdf_i = 0.f;
 		spectrum_t f =
 			sample_f(wo,  wi, samples[4*i+2], samples[4*i+3],
@@ -328,13 +329,17 @@ CRTP_CONST_VOID_METHOD(sample_f,5,(
 CRTP_CONST_METHOD(scalar_t,pdf,2,(IN(const vector_t&,wo),IN(const vector_t&,wi)))
 END_CRTP_INTERFACE
 
-const float INV_PI = 0.318309886f;
+
 template<typename Conf>
 class Lambertian : public BxDF<Lambertian<Conf>,Conf> {
 public:
+	ADD_SAME_TYPEDEF(Conf,vector_t);
+	ADD_SAME_TYPEDEF(Conf,scalar_t);
+	ADD_SAME_TYPEDEF(Conf,spectrum_t);
+	typedef BxDF<Lambertian<Conf>,Conf> parent_type;
 	// Lambertian Public Methods
 	Lambertian(const spectrum_t &reflectance)
-		: BxDF(BxDFType(BSDF_REFLECTION | BSDF_DIFFUSE)),
+		: parent_type(BxDFType(BSDF_REFLECTION | BSDF_DIFFUSE)),
 		R(reflectance), RoverPI(reflectance * INV_PI) {
 	}
 	spectrum_t fImpl(const vector_t &wo, const vector_t &wi) const
@@ -352,11 +357,12 @@ class OrenNayar : public BxDF<OrenNayar<Conf>,Conf> {
 	ADD_SAME_TYPEDEF(Conf,vector_t);
 	ADD_SAME_TYPEDEF(Conf,scalar_t);
 	ADD_SAME_TYPEDEF(Conf,spectrum_t);
+	typedef BxDF<OrenNayar<Conf>,Conf> parent_type;
 public:
 	// OrenNayar Public Methods
 	spectrum_t f(const vector_t &wo, const vector_t &wi) const;
 	OrenNayar(const spectrum_t &reflectance, scalar_t sig)
-		: BxDF(BxDFType(BSDF_REFLECTION | BSDF_DIFFUSE)),
+		: parent_type(BxDFType(BSDF_REFLECTION | BSDF_DIFFUSE)),
 		R(reflectance) {
 			scalar_t sigma = Radians(sig);
 			scalar_t sigma2 = sigma*sigma;

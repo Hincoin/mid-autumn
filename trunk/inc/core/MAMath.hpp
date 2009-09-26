@@ -10,6 +10,7 @@
 #include <boost/mpl/if.hpp>
 
 #include "TypeDefs.hpp"
+#include "Vector.hpp"
 
 #ifdef max
 #undef max
@@ -575,7 +576,7 @@ namespace ma{
 		static uniform_int_t uni_dist(0,std::numeric_limits<unsigned long>::max());
 		static generator_t generator(5489UL);
 		static boost::variate_generator<generator_t&, uniform_int_t > uni(generator, uni_dist);
-		
+
 		return uni();
 	}
 	inline float RandomFloat()
@@ -675,7 +676,7 @@ namespace ma{
 			*dx = r*cosf(theta);
 			*dy = r*sinf(theta);
 	}
-	
+
 
 	template<typename RealT>
 	inline typename vector_type<RealT,3>::type CosineSampleHemisphere(RealT u1, RealT u2) {

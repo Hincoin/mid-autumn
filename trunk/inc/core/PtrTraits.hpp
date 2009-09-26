@@ -118,7 +118,7 @@ namespace ma
 		enum {is_array = false};
 		static void delete_ptr(pointer_type&){}
 		static bool empty_ptr(const_pointer_type& x){
-			return ma::empty_ptr<T>()(x.get())
+			return ma::empty_ptr<T>()(x.get());
 		}
 	};
 
@@ -132,7 +132,7 @@ namespace ma
 		enum {is_array = false};
 		static void delete_ptr(pointer_type&){}
 		static bool empty_ptr(const_pointer_type& x){
-			return ma::empty_ptr<T>()(x.get())
+			return ma::empty_ptr<T>()(x.get());
 		}
 	};
 	template<typename T>
@@ -155,7 +155,7 @@ namespace ma
 	template<typename Ptr>
 	void inline delete_array(Ptr p)
 	{
-		typedef ptr_traits<Ptr>::value_type ptr_type;
+		typedef typename ptr_traits<Ptr>::value_type ptr_type;
 		return ptr_traits<ptr_type (*)[]>::delete_ptr(p);
 	}
 

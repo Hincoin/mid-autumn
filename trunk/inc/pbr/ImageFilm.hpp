@@ -17,7 +17,7 @@ namespace ma{
 			return _aligned_malloc(size, L1_CACHE_LINE_SIZE);
 #elif defined(__APPLE__)
 			return valloc(size);
-#else 
+#else
 			return memalign(L1_CACHE_LINE_SIZE, size);
 #endif
 		}
@@ -102,17 +102,17 @@ namespace ma{
 				premultiplyAlpha = premult;
 				writeFrequency = sampleCount = wf;
 				// Compute film image extent
-				xPixelStart = ceil32(x_resolution * cropWindow[0]);
+				xPixelStart = ceil32(parent_type::x_resolution * cropWindow[0]);
 				xPixelCount =
-					ceil32(x_resolution * cropWindow[1]) - xPixelStart;
+					ceil32(parent_type::x_resolution * cropWindow[1]) - xPixelStart;
 				yPixelStart =
-					ceil32(y_resolution * cropWindow[2]);
+					ceil32(parent_type::y_resolution * cropWindow[2]);
 				yPixelCount =
-					ceil32(y_resolution * cropWindow[3]) - yPixelStart;
+					ceil32(parent_type::y_resolution * cropWindow[3]) - yPixelStart;
 				// Allocate film image storage
 				pixels = new BlockedArray<Pixel>(xPixelCount, yPixelCount);
 				// Precompute filter weight table
-				
+
 				filterTable =
 					new scalar_t[FILTER_TABLE_SIZE * FILTER_TABLE_SIZE];
 				scalar_t *ftp = filterTable;
@@ -228,7 +228,7 @@ namespace ma{
 #ifdef _DEBUG
 					if(alpha[offset] !=0)
 					{
-						Pixel &pixel = (*pixels)(x - xPixelStart, y - yPixelStart);	
+						Pixel &pixel = (*pixels)(x - xPixelStart, y - yPixelStart);
 						printf("pixel (%d,%d): (%.6f,%.6f,%.6f,%.6f)\n",x,y,rgb[3*offset  ],rgb[3*offset+1],rgb[3*offset+2],
 							alpha[offset] );
 					}
@@ -240,7 +240,7 @@ namespace ma{
 			//// Write RGBA image
 			WriteRGBAImage(filename, rgb, alpha,
 				xPixelCount, yPixelCount,
-				x_resolution, y_resolution,
+				parent_type::x_resolution, parent_type::y_resolution,
 				xPixelStart, yPixelStart);
 			// Release temporary image memory
 			delete[] alpha;

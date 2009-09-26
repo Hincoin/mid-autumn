@@ -111,8 +111,8 @@ namespace ma{
 			vector_t dir(lx-ex,ly-ey,lz-ez);
 			dir.normalize();
 			//left or right
-			vector_t right;
-			right= dir.cross(normalize(vector_t(ux,uy,uz)));
+			vector_t right(ux,uy,uz);
+			right= dir.cross(normalize(right));
 			vector_t newUp;
 			newUp = right.cross(dir);
 			m(0,0) = right.x();
@@ -227,7 +227,7 @@ namespace  ma{
 		//	{
 		//		typedef typename transform_t::parent_type parent_type;
 		//		typedef typename result_type::parent_type normal_parent;
-		//		return /*static_cast<const parent_type&>*/(trans.linear().inverse().transpose()) * 
+		//		return /*static_cast<const parent_type&>*/(trans.linear().inverse().transpose()) *
 		//			static_cast<const normal_parent&>(n);
 		//	}
 		//};
@@ -244,17 +244,17 @@ namespace  ma{
 		//};
 	}
 	template<typename S,int D,typename Impl,typename TImpl>
-	inline typename vector_type<S,D>::type operator*(const typename Transform<S,D,TImpl>& trans,
+	inline typename vector_type<S,D>::type operator*(const Transform<S,D,TImpl>& trans,
 		const Eigen::Matrix<S,D,1>& v)
 	{
 		return vector_type<S,D>::type(trans.linear() * v);
 	}
 	template<typename S,int D,typename Impl,typename TImpl>
-	inline typename normal_type<S,D>::type operator*(const typename Transform<S,D,TImpl>& trans,
+	inline typename normal_type<S,D>::type operator*(const Transform<S,D,TImpl>& trans,
 		const Normal<S,D,Impl>& n)
 	{
-		typedef Normal<S,D,Impl>::parent_type normal_parent;
-		return normal_type<S,D>::type(trans.linear().inverse().transpose() * static_cast<const normal_parent&>(n));
+		typedef typename Normal<S,D,Impl>::parent_type normal_parent;
+		return typename normal_type<S,D>::type(trans.linear().inverse().transpose() * static_cast<const normal_parent&>(n));
 	}
 	template<typename V>
 	inline Point<V> operator*(const typename transform_type<typename scalar_type<V>::type,dimensions<V>::value>::type& trans,
