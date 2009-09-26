@@ -20,7 +20,7 @@ namespace ma{
 		ADD_SAME_TYPEDEF(Conf,intersection_t);
 		ADD_SAME_TYPEDEF(Conf,bsdf_ptr);
 		ADD_SAME_TYPEDEF(Conf,visibility_tester_t);
-
+		ADD_SAME_TYPEDEF(Conf,sample_t);
 	public:
 		void preprocessImpl(const scene_ptr){}
 		void requestSamplesImpl(sample_t& ,const scene_ptr){}

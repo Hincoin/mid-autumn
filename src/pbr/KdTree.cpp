@@ -78,7 +78,7 @@ namespace ma
         &KdTreeAccel::canIntersect,
         &KdTreeAccel::intersect,
         &KdTreeAccel::intersectP,
-        0
+        0,0
     };
 // KdTreeAccel Method Definitions
     KdTreeAccel::

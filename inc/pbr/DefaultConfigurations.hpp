@@ -108,7 +108,7 @@ namespace ma{
 	struct filter_config:public B{};
 	template<typename B>
 	struct film_config:B{
-		
+
 		typedef Sample<sample_config<B> > sample_t;
 
 		typedef MitchellFilter<filter_config<B> >* filter_ptr;
@@ -158,7 +158,7 @@ namespace ma{
 	typedef ConstantTexture<texture_config<B,typename B::scalar_t> > texture_scalar_t;
 	typedef boost::shared_ptr<texture_spectrum_t>  texture_spectrum_ref;
 	typedef boost::shared_ptr<texture_scalar_t> texture_scalar_t_ref;
-	 
+
 
 	typedef DifferentialGeometry<typename B::scalar_t,B::dimension> differential_geometry_t;
 
@@ -185,7 +185,7 @@ namespace ma{
 	template<typename B>
 	struct primitive_config:primitive_interface_config<B>{
 
-		
+
 		typedef Matte<material_config<B> > material_t;
 
 		//typedef typename Conf::ScalarType ScalarType;
@@ -202,22 +202,23 @@ namespace ma{
 	};
 	template<typename B>
 	struct geometry_primitive_config:primitive_config<B>{
+	    typedef primitive_config<B> parent_type;
 		typedef MATriangleMesh<> shape_t;
 		typedef MAGeometryPrimitive<refined_primitive_config<B> > refined_primitive_type;
 		typedef MATriangle<> refined_shape_t;
 		typedef boost::shared_ptr<refined_shape_t> refined_shape_ref_t;
 
 		typedef const boost::shared_ptr<shape_t> const_shape_ref_t;
-		typedef const boost::shared_ptr<material_t> const_material_ref_t;
+		typedef const boost::shared_ptr<typename parent_type::material_t> const_material_ref_t;
 	};
 	template<typename B>
 	struct refined_primitive_config:geometry_primitive_config<B>{
-		typedef refined_shape_t shape_t;
+		typedef typename geometry_primitive_config<B>::refined_shape_t shape_t;
 		typedef const boost::shared_ptr<shape_t> const_shape_ref_t;
 	};
 	template<typename B>
 	struct visibility_tester_config:B{
-		typedef Scene<scene_config<B> >* scene_ptr; 
+		typedef Scene<scene_config<B> >* scene_ptr;
 	};
 	template<typename B>
 	struct light_config:public B{
@@ -230,7 +231,7 @@ namespace ma{
 
 	template<typename B>
 	struct bxdf_config:public B{
-		
+
 	};
 	template<typename B>
 	struct bsdf_config:public B{

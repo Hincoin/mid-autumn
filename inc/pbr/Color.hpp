@@ -3,12 +3,15 @@
 
 #include <iostream>
 #include <limits>
+#include <cmath>
+#include "MAMath.hpp"
 namespace ma{
 	// Spectrum Declarations
 	template<typename S = float,int C_S = 3>
 	class Spectrum {
-		static const int COLOR_SAMPLES = C_S;
 	public:
+		static const int COLOR_SAMPLES = C_S;
+	
 		typedef S sample_type;
 		// Spectrum Public Methods
 		Spectrum(sample_type v = 0.f) {

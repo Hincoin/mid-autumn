@@ -17,7 +17,6 @@ namespace ma{
 		ADD_SAME_TYPEDEF(Conf,scene_ptr);
 		ADD_SAME_TYPEDEF(Conf,point_t);
 		ADD_SAME_TYPEDEF(Conf,vector_t);
-		ADD_SAME_TYPEDEF(Conf,transform_t);
 		ADD_SAME_TYPEDEF(Conf,scalar_t);
 		ADD_SAME_TYPEDEF(Conf,ray_t);
 	private:
@@ -51,7 +50,7 @@ namespace ma{
 	template<typename Conf>
 	typename Conf::spectrum_t PointLight<Conf>::sample_lImpl(const point_t &p, vector_t &wi,
 		visibility_tester_t &visibility) const {
-			wi.swap (light_pos - p);
+			wi = (light_pos - p);
 			wi.normalize();
 			visibility.setSegment(p, light_pos);
 			return intensity /  (light_pos - p).norm2();

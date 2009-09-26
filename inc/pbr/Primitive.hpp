@@ -124,7 +124,7 @@ MA_VTABLE_FUNC(bool, canIntersect, (const interface_type&))
 MA_VTABLE_FUNC(bool, intersect,(const interface_type&,const typename parent_type::ray_type& ,typename parent_type::intersection_t&))
 MA_VTABLE_FUNC(bool, intersectP,(const interface_type&, const typename parent_type::ray_type& ))
 MA_VTABLE_FUNC(void, refine,(const interface_type&,typename parent_type::shared_primitive_array&))
-MA_VTABLE_FUNC(bsdf_ptr, getBSDF,(const interface_type&,const differential_geometry_t &,const transform_t &))
+MA_VTABLE_FUNC(typename parent_type::bsdf_ptr, getBSDF,(const interface_type&,const typename parent_type::differential_geometry_t&,const typename parent_type::transform_t&))
 MA_VTABLE_END
 
 MA_VTABLE_IMPL(void ,destruct,(),(*this))
@@ -135,8 +135,8 @@ MA_VTABLE_IMPL(bool, intersect,
 (const typename parent_type::ray_type& r,typename parent_type::intersection_t& isect)const,(*this,r,isect))
 MA_VTABLE_IMPL(bool, intersectP,(const typename parent_type::ray_type& r)const,(*this,r))
 MA_VTABLE_IMPL(void, refine,(typename parent_type::shared_primitive_array& ps)const,(*this,ps))
-MA_VTABLE_IMPL(bsdf_ptr, getBSDF,(const differential_geometry_t &dg,const transform_t &WorldToObject)const,(*this,dg,WorldToObject))
-protected:
+MA_VTABLE_IMPL(typename parent_type::bsdf_ptr, getBSDF,(const typename parent_type::differential_geometry_t &dg,const typename parent_type::transform_t &WorldToObject)const,(*this,dg,WorldToObject))
+
 MA_FORWARD_TYPEDEF(shared_primitive)
 MA_FORWARD_TYPEDEF(shared_primitive_array)
 MA_FORWARD_TYPEDEF(ray_type)
@@ -157,7 +157,7 @@ struct MAGeometryPrimitive:MAPrimitive<typename Conf::interface_config/*Primitiv
 
 		typedef typename Conf::const_shape_ref_t const_shape_ref_t;
         typedef typename Conf::material_t material_type;
-      
+
         typedef typename Conf::const_material_ref_t const_material_ref_t;
 
 		typedef typename Conf::bsdf_ptr bsdf_ptr;
@@ -209,7 +209,7 @@ private:
 				shared_primitive p (new refined_primitive_type(refined_shapes[i],self(x).material_));
 				refined.push_back(p);
 			}
-			
+
            // MA_ASSERT(false);
         }
         static typename interface_type::BBox worldBound(const interface_type& x)

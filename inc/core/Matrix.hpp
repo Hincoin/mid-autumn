@@ -15,7 +15,7 @@ namespace ma{
 		typedef Impl BaseType;
 		Matrix(){}
 		Matrix(const Matrix& other):BaseType(other.self()){}
-		Matrix(move_from<Matrix> other){m.swap(other.source.self());};
+		Matrix(move_from<Matrix> other){swap(other.source.self());};
 		Matrix(T m_[Row][Col]):BaseType(m_){};
 		//Matrix(T t[Row*Col]):BaseType(t){}
 		Matrix(const Impl& im):BaseType(im){}

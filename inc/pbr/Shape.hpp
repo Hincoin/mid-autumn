@@ -8,6 +8,7 @@
 #include "Ray.hpp"
 #include "DifferentialGeometry.hpp"
 #include "Vector.hpp"
+#include "Transform.hpp"
 /// shape interface it's for rendering not for geometry operation
 /// no geometry operation here
 namespace ma
@@ -28,7 +29,7 @@ namespace ma
     public:
         //type compute
 		typedef Configure config_t;
-        friend class Configure;
+       // friend class Configure;
 		typedef typename Configure::ScalarType ScalarType;
 		
 		static const int Dimension = Configure::Dimension ;

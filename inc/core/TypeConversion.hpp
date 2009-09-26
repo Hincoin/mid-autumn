@@ -66,7 +66,7 @@ public:
 template<typename T>
 struct promote_types{
 private:
-	struct details{
+	struct _details_{
 		template<typename U>
 		struct is_top_promote:boost::is_same<U,typename type_promote<U>::type>
 		{};
@@ -89,11 +89,11 @@ private:
 				typename type_promote<U>::type ,is_top_promote<U>::value
 				>::type,U
 			>::type type;
-		
+
 		};
 
 	};
-	typedef typename details::do_promote<T,details::is_top_promote<T>::value>::type types;
+	typedef typename _details_::template do_promote<T,_details_::template is_top_promote<T>::value>::type types;
 public:
 	typedef types type;
 };
@@ -145,9 +145,9 @@ private:
 		typedef typename boost::mpl::deref<CurIterator>::type cur_set;
 		typedef typename boost::mpl::begin<cur_set>::type cur_begin;
 		typedef typename iterate_insert_S<cur_set,ResultSet,cur_begin,boost::is_same<cur_begin,typename boost::mpl::end<cur_set>::type>::value>::type cur_result;
-		
+
 		typedef typename boost::mpl::next<CurIterator>::type next_iter;
-		
+
 		typedef typename iterate_insert<SOS,cur_result,next_iter,
 			boost::is_same<next_iter,typename boost::mpl::end<SOS>::type>::value >::type type;
 	};
@@ -202,11 +202,11 @@ struct same_type_seq{
 	template<typename Seq_Iter,typename Seq_End,typename Seq_1>
 	struct impl{
 		typedef typename boost::mpl::find<Seq_1,typename boost::mpl::deref<Seq_Iter>::type>::type find_iter;
-		enum{value = 
+		enum{value =
 			! boost::is_same<find_iter,typename boost::mpl::end<Seq_1>::type>::value
 			&& impl<typename boost::mpl::next<Seq_Iter>::type,Seq_End,Seq_1>::value};
 	};
-	enum{value = boost::mpl::size<Seq0>::value == boost::mpl::size<Seq1>::value && 
+	enum{value = boost::mpl::size<Seq0>::value == boost::mpl::size<Seq1>::value &&
 		impl<typename boost::mpl::begin<Seq0>::type,typename boost::mpl::end<Seq0>::type,Seq1>::value  &&
 		impl<typename boost::mpl::begin<Seq1>::type,typename boost::mpl::end<Seq1>::type,Seq0>::value
 	};
@@ -230,7 +230,7 @@ struct dfs_promote
 {
 private:
 	typedef boost::mpl::_ _;
-	
+
 	typedef typename boost::mpl::front<TypeStack>::type current_top;
 	typedef typename multiple_type_promote<current_top>::type promote_types;
 
@@ -263,7 +263,7 @@ struct multiple_promote{
 private:
 	typedef typename multiple_type_promote<T>::type test_set ;
 	typedef typename dfs_promote<
-		boost::mpl::vector<T>,	
+		boost::mpl::vector<T>,
 		test_set,
 		boost::mpl::set<T> >::type set_type;
 public:
@@ -351,7 +351,7 @@ private:
 public:
 	static const TypeCastFuncMap casted_types_info;
 	static const void* cast_to(const TypeInfo& t_info,const void* const x){
-		TypeCastFuncMap::const_iterator it(casted_types_info.find(t_info));
+		typename TypeCastFuncMap::const_iterator it(casted_types_info.find(t_info));
 		return it == casted_types_info.end()? 0: (*(it->second))(reinterpret_cast<const stored_type* const>(x));
 	}
 	template<typename TO_U>
@@ -395,7 +395,7 @@ struct multiple_type_promote<unsigned short>
 template<>
 struct multiple_type_promote<unsigned int>
 {
-	typedef boost::mpl::vector<unsigned int,long,double> type; 
+	typedef boost::mpl::vector<unsigned int,long,double> type;
 };
 
 template<>

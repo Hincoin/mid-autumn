@@ -36,7 +36,7 @@ namespace ma
 		typedef Point<vector_t> point_t;
 		typedef Ray<VectorType>  ray_t;
 		typedef typename parent_type::ScalarType scalar_t;
- 
+
         typedef Point<VectorType> PointType;
         typedef typename parent_type::ScalarType ScalarType;
         typedef typename parent_type::BBox BBox;
@@ -77,14 +77,14 @@ namespace ma
         {
             ///
             BBox bbox;
-            for (point_array::const_iterator it = points_.begin(); it != points_.end(); ++it)
+            for (typename point_array::const_iterator it = points_.begin(); it != points_.end(); ++it)
             {
                 bbox = (space_union(bbox,  (*it)));
             }
             return bbox;
         }
 		bool intersectPImpl(const ray_t& )const{MA_ASSERT(false);return false;}
-		bool intersectImpl(const ray_t& ,ScalarType& ,differential_geometry& )const{
+		bool intersectImpl(const ray_t& ,ScalarType& ,typename parent_type::differential_geometry& )const{
 			MA_ASSERT(false);
 			return false;
 		}
@@ -128,9 +128,9 @@ private:
         {
             ///
             BBox bbox;
-            for (point_array::iterator it = points_.begin(); it != points_.end(); ++it)
+            for (typename point_array::iterator it = points_.begin(); it != points_.end(); ++it)
             {
-                bbox.swap(space_union(bbox, world_to_obj_ * (*it)));
+                bbox.swap(space_union(bbox, parent_type::world_to_obj_ * (*it)));
             }
         }
         template<typename Tri_Ref>
@@ -141,7 +141,7 @@ private:
             size_t nTris = vertex_indices_.size()/3;
             for (size_t i = 0;i < nTris; ++i)
             {
-                refined.push_back(Tri_Ref(new Tri(obj_to_world_,reverse_normal_,*this,i)));
+                refined.push_back(Tri_Ref(new Tri(parent_type::obj_to_world_,parent_type::reverse_normal_,*this,i)));
             }
         }
 
@@ -215,12 +215,12 @@ private:
 					dndv = (-du2 * dn1 + du1 * dn2) * invdet;
 				}
 				//////////////////////////////////////////////////////////////////////////
-				
-                dgShading =  ShapeTraits<SHAPE>::differential_geometry(dg.point,ss,ts,
+
+                dgShading =  typename ShapeTraits<SHAPE>::differential_geometry(dg.point,ss,ts,
                 dndu,dndv,dg.u,dg.v,&s);
-				dgShading.dudx = dg.dudx;  dgShading.dvdx = dg.dvdx; 
+				dgShading.dudx = dg.dudx;  dgShading.dvdx = dg.dvdx;
 				dgShading.dudy = dg.dudy;  dgShading.dvdy = dg.dvdy;
-				dgShading.dpdx = dg.dpdx;  dgShading.dpdy = dg.dpdy; 
+				dgShading.dpdx = dg.dpdx;  dgShading.dpdy = dg.dpdy;
         }
 
         template<typename SHAPE>
@@ -232,7 +232,7 @@ private:
             const point_t& p1 = s.mesh_->pointArray()[v[1]];
             const point_t& p2 = s.mesh_->pointArray()[v[2]];
 
-            return length(cross(p2 - p1,p3-p1)) * 0.5f;
+            return length(cross(p1 - p0,p2-p0)) * 0.5f;
         }
 		template<typename SHAPE>
         static typename ShapeTraits<SHAPE>::BBox worldBound(const SHAPE& s)
@@ -255,7 +255,7 @@ private:
 		typedef self_type shape_type;
         typedef CFG Configure;
         friend class Shape<MATriangle<CFG>,CFG>;
-        friend class CFG;
+        //friend class CFG;
 
         static const int uv_dimension = CFG::uv_dimension;
         typedef typename parent_type::normal_t NormalType;
@@ -264,9 +264,8 @@ private:
 		typedef typename parent_type::normal_t normal_t;
         typedef typename parent_type::transform_t transform_t;
 		typedef Point<vector_t> point_t;
-	
+
         typedef Point<VectorType> PointType;
-		typedef Point<vector_t> point_t; 
         typedef Ray<VectorType> ray;
 		typedef ray ray_t;
         typedef typename parent_type::ScalarType ScalarType;
@@ -300,10 +299,10 @@ private:
             const PointType& p0 = mesh_->pointArray()[v_[0]];
             const PointType& p1 = mesh_->pointArray()[v_[1]];
             const PointType& p2 = mesh_->pointArray()[v_[2]];
-            return space_union(space_union(world_to_obj_* p0,world_to_obj_ * p1),world_to_obj_ * p2);
+            return space_union(space_union(parent_type::world_to_obj_* p0,parent_type::world_to_obj_ * p1),parent_type::world_to_obj_ * p2);
         }
         bool intersectImpl(const ray& r, ScalarType& tHit,
-                           differential_geometry& dg)const
+                           typename parent_type::differential_geometry& dg)const
         {
             const PointType& p0 = mesh_->pointArray()[v_[0]];
             const PointType& p1 = mesh_->pointArray()[v_[1]];
@@ -354,7 +353,7 @@ private:
             ScalarType b0 = 1- b1 - b2;
             ScalarType tu = b0*uvs[0][0] + b1*uvs[1][0] + b2*uvs[2][0];
             ScalarType tv = b0*uvs[0][1] + b1 * uvs[1][1]+ b2*uvs[2][1];
-            dg = differential_geometry(r(t), dpdu,dpdv,VectorType(0,0,0),
+            dg = typename parent_type::differential_geometry(r(t), dpdu,dpdv,VectorType(0,0,0),
                                        VectorType(0,0,0),tu,tv,this);
 			tHit = t;
 			return true;
@@ -388,7 +387,7 @@ private:
 			scalar_t t = dot(e2, s2) * invDivisor;
 			if (t < r.mint || t > r.maxt)
 				return false;
- 
+
 			return true;
 		}
 public:

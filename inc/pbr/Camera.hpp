@@ -16,14 +16,14 @@ namespace ma{
 
 	Camera(const transform_t &world2cam,scalar_t hither,scalar_t yon,
 		scalar_t sopen,scalar_t sclose,film_ptr film):world_to_camera(world2cam),
-		camera_to_world(force_move(world2cam.inverse())),
+		camera_to_world(ma::force_move(world2cam.inverse())),
 		clip_hither(hither),
 		clip_yon(yon),
 		shutter_open(sopen),
 		shutter_close(sclose),
 		film_(film)
 	{}
-	
+
 	~Camera(){delete_ptr(film_);}
 	CRTP_CONST_METHOD(scalar_t,generateRay,2,
 		(IN(const sample_t&,sample),IN(ray_t&,r)));
@@ -46,6 +46,7 @@ protected:
 		ADD_SAME_TYPEDEF(Conf,vector_t)
 		ADD_SAME_TYPEDEF(Conf,scalar_t)
 		ADD_SAME_TYPEDEF(Conf,film_ptr)
+		typedef Camera<Derived,Conf> parent_type;
 	public:
 		// ProjectiveCamera Public Methods
 		ProjectiveCamera(const transform_t &world2cam,
@@ -53,7 +54,7 @@ protected:
 			scalar_t hither, scalar_t yon,
 			scalar_t sopen, scalar_t sclose,
 			scalar_t lensr, scalar_t focald, film_ptr film)
-			: Camera(world2cam, hither, yon, sopen, sclose, film) {
+			: parent_type(world2cam, hither, yon, sopen, sclose, film) {
 				// Initialize depth of field parameters
 				LensRadius = lensr;
 				FocalDistance = focald;
@@ -62,7 +63,7 @@ protected:
 				WorldToScreen = CameraToScreen * world2cam;
 				// Compute projective camera screen transformations
 				ScreenToRaster.identity();
-				 
+
 				ScreenToRaster.scale(vector_t((scalar_t)film->xResolution(),scalar_t(film->yResolution()), 1.f)).scale
 					(vector_t(1.f / (Screen[1] - Screen[0]),1.f / (Screen[2] - Screen[3]), 1.f)).translate
 					(vector_t(-Screen[0], -Screen[3], 0.f));

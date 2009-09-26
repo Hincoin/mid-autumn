@@ -1,0 +1,36 @@
+
+
+BUILD_FLAG:=Release
+EXTERN_INC_DIR:=extern
+BIN_DIR:=bin
+CORE_INC_DIR:=inc/core
+PBR_INC_DIR:=inc/pbr
+PIPELINE_INC_DIR:=inc/pipeline
+
+#MSG
+MSG_COPY:=Copying file...
+MSG_COMPILE:=Compiling 
+MSG_CLEAN:=Cleaning ...
+
+
+CC:=g++
+CC_FLAGS:=-D__x86__ -Wall -ggdb -pipe -O2 -march=pentium4 -msse2 -mfpmath=sse -fpermissive -Wno-deprecated
+MAKE:=make
+AR:=ar crs
+ECHO:=echo
+CP:=cp
+MV:=mv
+RM:=rm
+LIB_PTHREAD:=-lpthread
+
+
+.PHONY:clean all
+.DEFAULT:all
+
+%.o:%.cpp
+	@$(ECHO) $(MSG_COMPILE) $<
+	@$(CC) -c $(CC_FLAGS) $< $(INCLUDE)
+
+all:
+
+DEPENDENCIES = $(subst ../,, $(MODULES))

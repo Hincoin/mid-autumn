@@ -29,8 +29,8 @@ namespace ma{
 	// Mitchell Filter Method Definitions
 		template<typename Conf>
 		typename Conf::scalar_t MitchellFilter<Conf>::evaluateImpl(scalar_t x, scalar_t y) const {
-		return Mitchell1D(x * invXWidth) *
-			Mitchell1D(y * invYWidth);
+		return Mitchell1D(x * parent_type::invXWidth) *
+			Mitchell1D(y * parent_type::invYWidth);
 	}
 }
 

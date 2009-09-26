@@ -20,7 +20,7 @@ namespace ma
 
 public:
 	Light(const transform_t& l2w,int ns=1):num_samples(std::max(1,ns)),
-		light_to_world(l2w),world_to_light(force_move(l2w.inverse())){}
+		light_to_world(l2w),world_to_light(ma::force_move(l2w.inverse())){}
 
 	CRTP_CONST_METHOD(spectrum_t,sample_l,3,(IN(const point_t&,p),IN(vector_t&,wi),IN(visibility_tester_t&,vis)));
 	CRTP_CONST_METHOD(spectrum_t,power,1,(IN(const scene_ptr,s)));
@@ -72,7 +72,7 @@ template<typename Conf>
 			r = ray_t(p1, p2-p1, ray_t::epsilon, 1.f -  ray_t::epsilon);
 		}
 		void setRay(const point_t &p, const vector_t &w) {
-			r = ray_t(p, w, RAY_EPSILON);
+			r = ray_t(p, w, ray_t::epsilon);
 		}
 		bool unOccluded(const scene_ptr scene) const
 		{
