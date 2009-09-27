@@ -177,11 +177,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\bunny_data.cpp"
+				RelativePath="..\..\src\pbr\bunny_data.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\bunny_test.cpp"
+				RelativePath="..\..\src\pbr\bunny_test.cpp"
 				>
 			</File>
 			<File
@@ -193,7 +193,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\pbr.cpp"
+				RelativePath="..\..\src\pbr\pbr.cpp"
 				>
 			</File>
 			<File

@@ -219,11 +219,47 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\core\MAny_test.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\core\matrix_test.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\core\memory_pool_test.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\core\MemoryMgr.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\vector_test.cpp"
+				RelativePath="..\..\src\core\move_test.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\core\policy_based_class_composer_test.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\core\ptr_var_test.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\core\transform_test.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\core\type_conversion_test.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\core\vector_test.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\core\virtual_interface_crtp_test.cpp"
 				>
 			</File>
 		</Filter>
@@ -397,11 +433,27 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\inc\core\pool.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\inc\core\pool_test.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\inc\core\ptr_var.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\inc\core\PtrTraits.hpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\inc\core\ScalarType.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\inc\core\SharedPointer.hpp"
 				>
 			</File>
 			<File
