@@ -768,7 +768,7 @@ namespace ma{
 #endif
 				}
 //#ifdef MULTITHREADED
-				Mutex& get_lock() /*const*/ {return *this;}
+				Mutex& get_lock() const {return const_cast<bucket&>(*this);}
 //#endif
 				unsigned marker() const {return mMarker;}
 				const page* page_list_begin() const {return mPageList.begin();}
