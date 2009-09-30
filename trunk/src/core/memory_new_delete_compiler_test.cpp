@@ -709,7 +709,7 @@ void RunTests( void )
 
 // ----------------------------------------------------------------------------
 
-int main( unsigned int argc, const char * const argv[] )
+int main_( unsigned int argc, const char * const argv[] )
 {
 
 	bool caught = false;
@@ -758,4 +758,16 @@ int main( unsigned int argc, const char * const argv[] )
 	return 0;
 }
 
+
+#include "simple_test_framework.hpp"
+
+bool compiler_new_delete_test();
+
+
+//REGISTER_TEST_FUNC(compiler_new_delete,compiler_new_delete_test)
+
+
+bool compiler_new_delete_test(){
+	return main_(0,0) == 0;
+}
 // ----------------------------------------------------------------------------

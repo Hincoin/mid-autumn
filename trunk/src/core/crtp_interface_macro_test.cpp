@@ -48,9 +48,10 @@ class Impl:public test_class<Impl<CFG>,CFG>
 	}
 };
 #include <boost/preprocessor/stringize.hpp>
-void crtp_test()
+bool crtp_test()
 {
 	Impl<void> some_case;
+	printf("-------------------------------\n");
 	float a0=rand()/2.f;
 	float a1=rand()/2.f;
 	float a2=rand()/2.f;
@@ -66,6 +67,9 @@ void crtp_test()
 	some_case.template_2(1,2.3f);
 	some_case.template_3<char,int,float>('a',1);
 	some_case.template_4<char,short,int,double>('a',255,0);
-
-
+	printf("-------------------------------\n");
+	return true;
 }
+#include "simple_test_framework.hpp"
+
+REGISTER_TEST_FUNC(crtp,crtp_test)

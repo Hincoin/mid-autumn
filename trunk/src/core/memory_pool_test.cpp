@@ -1,0 +1,298 @@
+#include "simple_test_framework.hpp"
+
+bool pool_test();
+
+
+REGISTER_TEST_FUNC(POOL,pool_test)
+
+
+
+
+#include <stdlib.h>
+#include<algorithm>
+#include <vector>
+#include <set>
+//#define SET_POOL
+#ifdef SET_POOL
+#include "memory_pool_set.hpp"
+#else
+#include "pool.hpp"
+#endif
+
+#include "pool.hpp"
+
+#include <Windows.h>
+//#include "hpha.h"
+void test_compare();
+
+struct single_thread{};
+using namespace ma;
+using namespace ma::core;
+using namespace std;
+typedef big_memory_pool<details::null_mutex> pool_t;
+
+#define REALLOCATE_TEST
+
+
+#include <vector>
+#include <ctime>
+unsigned big_memory_size()
+{
+	return	( rand()%(1024*1024)+256);
+}
+unsigned small_memory_size()
+{
+	return	( rand()%(512)+128);
+}
+#define MEMORY_SIZE (rand()%2 ? small_memory_size():big_memory_size())
+
+bool checkMemory(const vector<void*>& m)
+{
+	vector<void*> cp(m);
+	std::sort(cp.begin(),cp.end());
+	for (;!cp.empty();)
+	{
+		void* m = cp.back();
+		cp.pop_back();
+		if (std::binary_search(cp.begin(),cp.end(),m))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+
+
+template<typename PoolT>
+void test_pool_alloc(vector<void*>& m,size_t N,PoolT& my_pool)
+{
+	for(size_t i = 0 ;i < N;i ++)
+	{
+		if (i == 226)
+		{
+			int a_break = 0;
+		}
+		unsigned sz = MEMORY_SIZE;
+		if(sz > MEMORY_SIZE && ! m.empty())
+		{
+#ifdef REALLOCATE_TEST
+			m.back() = my_pool.realloc(m.back(),MEMORY_SIZE);
+#endif
+			//my_pool.free(m.back());m.pop_back();
+		}
+		else 
+			m.push_back(my_pool.alloc(MEMORY_SIZE));
+		assert(checkMemory(m));
+	}
+}
+template<typename PoolT>
+void test_pool_free(vector<void*>& m,PoolT& my_pool)
+{
+	for(size_t i = 0;i < m.size(); ++i)
+	{
+		if(i == 8)
+			int a_break = 0;
+		my_pool.free(m[i]);
+	}
+}
+
+void test_comp_alloc(vector<void*>& m,size_t N)
+{
+	for (size_t i = 0;i < N; ++i)
+	{
+		unsigned sz = MEMORY_SIZE;
+		if(sz > MEMORY_SIZE && ! m.empty())
+		{
+#ifdef REALLOCATE_TEST
+			m.back() = realloc(m.back(),MEMORY_SIZE);
+#endif
+		}
+		else m.push_back(::malloc(MEMORY_SIZE));
+	}
+}
+void test_comp_free(vector<void*>& m)
+{
+	for(size_t i = 0;i < m.size();++i)
+		::free(m[i]);
+}
+void test_no_pool(unsigned N,unsigned M)
+{
+	clock_t t;
+
+	srand(0);
+	t = clock();
+	while(M--)
+	{
+		vector<void*> m;
+		test_comp_alloc(m,N);
+		test_comp_free(m);
+	}
+
+	printf("no pool: %ld \n",clock() - t);
+
+}
+bool test_my_pool(unsigned N,unsigned M)
+{
+	clock_t t;
+
+	srand(0);
+	size_t alloc_insert_count = 0;
+	memory_pool<details::null_mutex> my_pool;
+	t = clock();
+	while(M--)
+	{
+		vector<void* > m;
+		size_t tmp = my_pool.big_memory_allocator_.debug_insert_count;
+		test_pool_alloc(m,N,my_pool);
+		alloc_insert_count += (my_pool.big_memory_allocator_.debug_insert_count - tmp);
+		test_pool_free(m,my_pool);
+	}my_pool.release_memory();
+	printf("pool: %ld \n",clock()-t);
+	printf("pool malloc size and found/find count: %d , %d, %d/%d found rate:%.6f\n",my_pool.big_memory_allocator_.debug_allocated_size,
+		my_pool.big_memory_allocator_.debug_total_size,my_pool.big_memory_allocator_.debug_found_count,my_pool.big_memory_allocator_.debug_find_count,
+		float(my_pool.big_memory_allocator_.debug_found_count)/my_pool.big_memory_allocator_.debug_find_count);
+	printf("pool malloc insert count: %d\n",my_pool.big_memory_allocator_.debug_insert_count);
+	printf("my pool malloc insert count in alloc and free :%d, %d \n",alloc_insert_count,my_pool.big_memory_allocator_.debug_insert_count-alloc_insert_count);
+
+	return true;
+}
+
+void test_fixed_pool(unsigned N,unsigned M)
+{
+	clock_t t;
+	fixed_pool<> pool(N);
+	srand(0);
+	size_t alloc_insert_count = 0;
+	t = clock();
+	while(M--)
+	{
+		vector<void*> m;
+	}
+	printf("pool: %ld \n",clock()-t);
+}
+
+
+int xxxxmain()
+{
+
+#ifndef _DEBUG
+	const size_t N = 1024*64; //for big
+	//const size_t N = 1024 * 1024 *8;//for small
+	const size_t M = 256;// 
+#else
+	const size_t N = 512;
+	const size_t M = 4;
+#endif
+
+
+	//test_compare();
+	//compute total size we should malloc
+	srand(0);
+
+#ifndef _DEBUG
+	//test_hpha(N,M);
+	//::Sleep(5000);
+#endif
+	//test_my_pool(N,M);
+	//::Sleep(2000);
+	//test_no_pool(N,M);
+	//::Sleep(2000);
+
+
+
+	return 0;
+}
+
+struct A_TEST{
+	MA_DECLARE_POOL_NEW_DELETE(A_TEST)
+
+	char t[10];
+	virtual ~A_TEST(){}
+};
+struct B_TEST:A_TEST{
+	MA_DECLARE_POOL_NEW_DELETE_MT(B_TEST)
+
+	char b[20];
+};
+bool fixed_pool_test()
+{
+	//
+	bool result = true;
+	const int N = 10000;
+	std::vector<A_TEST*> a;
+	for (int i = 0;i < N;i++)
+	{
+		a.push_back(new B_TEST);
+	}
+	for (int i = 0;i < N;i++)
+	{
+		delete a[i];
+	}
+
+	a.clear();
+	for (int i = 0;i < N;i++)
+	{
+		a.push_back(new B_TEST[3]);
+	}
+	for (int i = 0;i < N;i++)
+	{
+		delete [] a[i];
+	}
+	return A_TEST::release_memory() && B_TEST::release_memory();
+}
+bool generic_pool_test()
+{
+	bool result = true;
+#ifndef _DEBUG
+	const size_t N = 1024*64; //for big
+	//const size_t N = 1024 * 1024 *8;//for small
+	const size_t M = 256;// 
+#else
+	const size_t N = 512;
+	const size_t M = 4;
+#endif
+
+
+	//test_compare();
+	//compute total size we should malloc
+	try
+	{
+		srand(0);
+		result = test_my_pool(N,M);
+
+		{
+			std::vector<int,pool_allocator<int,details::mutex_t> > v;
+			std::set<int,std::less<int>,pool_allocator<int,details::mutex_t> > s;
+			int n = N*N;
+			while (n--)
+			{
+				v.push_back(n);
+				s.insert(n);
+			}
+		}
+	}
+	catch (...)
+	{
+		result = false;
+	}
+
+
+	return result;
+}
+
+bool mt_singleton_pool_test()
+{
+	bool result = true;
+
+	result = result && fixed_pool_test();//using different threads
+
+	return result;
+}
+
+bool pool_test(){
+	printf("-----------------------------------------\n");
+	return fixed_pool_test() && generic_pool_test() 
+		&&  mt_singleton_pool_test();
+	printf("-----------------------------------------\n");
+}
