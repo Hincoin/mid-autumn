@@ -1,6 +1,6 @@
 #include "Vector.hpp"
 #include "Transform.hpp"
-#include "../inc/pbr/Ray.hpp"
+#include "../../inc/pbr/Ray.hpp"
 #include "Point.hpp"
 
 using namespace ma;
@@ -14,7 +14,7 @@ struct B{
 };
 using namespace Eigen;
 struct C:B{};
-void test(){
+bool test(){
 	vector_t a,b;
 	vector_t c = a-b;
 	point_t p(1,1,1);
@@ -32,4 +32,7 @@ void test(){
 	transform_t t0;
 	t0.identity();
 	t0 = t0 * t;
+	return true;
 }
+#include "simple_test_framework.hpp"
+REGISTER_TEST_FUNC(vector3,test)

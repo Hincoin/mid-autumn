@@ -4,6 +4,7 @@
 #include "Vector.hpp"
 
 #include <iostream>
+#include "simple_test_framework.hpp"
 
 //
 //
@@ -87,8 +88,10 @@ namespace ma_test{}
 extern void crtp_test();
 int main()
 {
+	run_test();
+	return 0;
     using namespace ma_test;
-	crtp_test();
+	//crtp_test();
 #ifdef MEMPOOL_TEST
 	const static unsigned int MAX_MEM = 0x7fffffff;
 	unsigned int MAX_ARRAY_SIZE = 128;
