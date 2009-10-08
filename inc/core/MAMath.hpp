@@ -323,9 +323,9 @@ inline T reciprocal(const T v)
 #ifdef MA_FAST_MATH
 #ifdef feclearexcept
         feclearexcept(FE_ALL_EXCEPT);
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) /*&& defined(__x86__)*/
         __asm fnclex;
-#elif defined(__GNUC__) && defined(__x86__)
+#elif defined(__GNUC__) /*&& defined(__x86__)*/
         __asm__ __volatile__ ("fclex \n\t");
 #else
 #warn clearFPUException not supported.

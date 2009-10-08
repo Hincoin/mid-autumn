@@ -308,12 +308,21 @@ struct cast_types{
 		typename biggest_type<type>::type>::type stored_type;
 
 	BOOST_STATIC_ASSERT(( boost::mpl::size<type>::value >0 ));
+	template<typename TO_U>
+	static const void* static_cast_func_impl(const stored_type* const x,const boost::true_type&){
+		BOOST_STATIC_ASSERT((boost::is_convertible<stored_type,TO_U&>::value));
+		return (void*)& (static_cast<const TO_U&>(*x));
+	} 
+	template<typename TO_U>
+	static const void* static_cast_func_impl(const stored_type* const x,const boost::false_type&){
+		return x;
+	} 
 private:
 	typedef const void* (*SafeCastFunc)(const stored_type* const);
 
 	template<typename TO_U>
 	static const void* static_cast_func(const stored_type* const x){
-		return (void*)&static_cast<const TO_U&>(*x);
+		return static_cast_func_impl<TO_U>(x,boost::is_convertible<stored_type,TO_U&>() );
 	}
 
 	typedef AssocVector<TypeInfo,SafeCastFunc> TypeCastFuncMap;
@@ -355,11 +364,14 @@ public:
 		return it == casted_types_info.end()? 0: (*(it->second))(reinterpret_cast<const stored_type* const>(x));
 	}
 	template<typename TO_U>
-	static const TO_U& cast_to(const void* const x)
+	static typename boost::mpl::if_<boost::is_convertible<stored_type,TO_U&>,const TO_U&,TO_U>::type
+	cast_to(const void* const x)
 	{
-		SafeCastFunc fun_ptr = &static_cast_func<TO_U>;
-		const void * r = (*fun_ptr)((stored_type*)x);
-		return *(const TO_U*)(r);
+		typedef typename boost::mpl::if_<boost::is_convertible<stored_type,TO_U&>,const TO_U&,TO_U>::type result_type;
+		return static_cast<result_type>(*(stored_type*)x);
+		//SafeCastFunc fun_ptr = &static_cast_func<TO_U>;
+		//const void * r = (*fun_ptr)((stored_type*)x);
+		//return *(const TO_U*)(r);
 	}
 };
 template<typename T>

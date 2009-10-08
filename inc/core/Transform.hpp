@@ -46,8 +46,8 @@ namespace ma{
 		Transform& operator*=(const Transform& other)
 		{self() = self() * other.self(); return *this;}
 
-		operator Impl&(){return static_cast<Impl&>(*this);}
-		operator const Impl&()const{return static_cast<const Impl&>(*this);}
+		//operator Impl&(){return static_cast<Impl&>(*this);}
+		//operator const Impl&()const{return static_cast<const Impl&>(*this);}
 	private:
 		Impl& self(){return *this;}
 		const Impl& self()const{return *this;}

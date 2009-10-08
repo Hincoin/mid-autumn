@@ -2,9 +2,13 @@
 #define _MA_INCLUDE_MAAPI_HPP_
 
 // api.h*
-#include "MAConfig.hpp"
+
 #include <string>
+#include "MAConfig.hpp"
 #include "ParamSet.hpp"
+
+
+
 
 // API Function Declarations
 extern COREDLL void maIdentity();

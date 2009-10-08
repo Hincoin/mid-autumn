@@ -2,7 +2,7 @@
 #define _INCLUDED_POOL_ALLOCATOR_HPP_
 
 #include <limits>
-#include "memory_pool.hpp"
+
 #include "singleton_pool.hpp"
 
 //std allocator based on memory pool

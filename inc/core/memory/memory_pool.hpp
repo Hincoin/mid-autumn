@@ -3,6 +3,8 @@
 
 //#include <boost/intrusive/set.hpp>
 #include <functional>
+#include <limits>
+#include <cstring>
 #ifdef _DEBUG
 #include <algorithm>
 #endif // _DEBUG
@@ -16,6 +18,13 @@
 //todo: 
 //mutex multi-thread support
 //more-secure small allocation condition
+
+#ifdef _MSC_VER
+	//msvc compiler
+#pragma warning(push)
+#pragma warning( disable : 4267)
+#endif
+
 namespace ma{
 	namespace core{
 
@@ -62,33 +71,34 @@ namespace ma{
 			small_free_node* small_free_block(){assert(!used && size > sizeof(small_free_node));return ((small_free_node*)(this+1));}
 
 			MemBlock* prev;
-			size_t size:sizeof(size_t)*8-1;
-			bool used:1;
+			size_t size:sizeof(std::size_t)*8-1;
+			size_t used:1;
+			typedef size_t size_type;//:sizeof(std::size_t)*8-1;
 		};
 
-		const MemBlock* small_free_node::getMemBlock()const
+		inline const MemBlock* small_free_node::getMemBlock()const
 		{
 			return (MemBlock*)((const char*)(this)-sizeof(MemBlock));
 		}
-		MemBlock* small_free_node::getMemBlock()
+		inline MemBlock* small_free_node::getMemBlock()
 		{
 			return (MemBlock*)((char*)(this)-sizeof(MemBlock));
 		}
-		const MemBlock* FreeBlock::getMemBlock()const
+		inline const MemBlock* FreeBlock::getMemBlock()const
 		{
 			return (MemBlock*)((const char*)(this)-sizeof(MemBlock));
 		}
-		MemBlock* FreeBlock::getMemBlock()
+		inline MemBlock* FreeBlock::getMemBlock()
 		{
 			return (MemBlock*)((char*)(this)-sizeof(MemBlock));
 		}
-		bool FreeBlock::operator<(size_t sz)const{
+		inline bool FreeBlock::operator<(size_t sz)const{
 			return getMemBlock()->size < sz;
 		}
-		bool FreeBlock::operator>(size_t sz)const{
+		inline bool FreeBlock::operator>(size_t sz)const{
 			return getMemBlock()->size > sz;
 		}
-		bool comp_mem_block::operator ()(const MemBlock* lhs,const MemBlock* rhs)const
+		inline bool comp_mem_block::operator ()(const MemBlock* lhs,const MemBlock* rhs)const
 		{
 			return lhs->size < rhs->size /*|| 
 				!(rhs->size < lhs->size) && lhs < rhs*/;
@@ -251,11 +261,11 @@ namespace ma{
 				{
 					MemBlock* next = (MemBlock*)((char*)(m+1) + sz);
 					next->prev = m;
-					next->size = m->size- (sz + sizeof(MemBlock)); 
+					next->size = m->size- MemBlock::size_type(sz + sizeof(MemBlock)); 
 					MemBlock* m_next = m->next();//reinterpret_cast<MemBlock*>(reinterpret_cast<char*>(m+1) + m->size);
 					m_next->prev = next;
 
-					m->size = sz;
+					m->size = MemBlock::size_type(sz);
 					return next;
 				}
 				return 0;
@@ -418,16 +428,15 @@ namespace ma{
 
 		};
 		template<typename Mutex>
-		void* big_memory_pool<Mutex>::alloc(size_t sz)
+		inline void* big_memory_pool<Mutex>::alloc(size_t sz)
 		{
 			return tree_alloc(sz);
 		}
 		template<typename Mutex>
-		void* big_memory_pool<Mutex>::tree_alloc(size_t sz)//0
+		inline void* big_memory_pool<Mutex>::tree_alloc(size_t sz)//0
 		{
 			//
 			scope_lock_t lock(mutex_);
-			lock;
 			debug_allocated_size += sz;
 			assert(checkAllBlocks());
 			if(sz < sizeof(FreeBlock)) sz = sizeof(FreeBlock);
@@ -514,15 +523,15 @@ namespace ma{
 				if( !block) return 0;
 			}
 			block->prev = 0;
-			block->size = malloc_size - 2 * sizeof(MemBlock);
+			block->size = MemBlock::size_type(malloc_size - 2 * sizeof(MemBlock));
 			block->used = true;//return this block
 			//split this block if possible
 			if(malloc_size > (sz+sizeof(MemBlock) * 3 + sizeof(FreeBlock)))
 			{
 				MemBlock* next = (MemBlock*)((char*)(block + 1) + sz);
 				next->prev = block;
-				next->size = malloc_size-sz-3*sizeof(MemBlock) - sizeof(FreeBlock);
-				block->size = sz;
+				next->size = MemBlock::size_type(malloc_size-sz-3*sizeof(MemBlock) - sizeof(FreeBlock));
+				block->size = MemBlock::size_type(sz);
 				//block_set_.insert(next);
 
 				//add tail
@@ -544,12 +553,11 @@ namespace ma{
 			return block+1;
 		}
 		template<typename Mutex>
-		void big_memory_pool<Mutex>::tree_free(void* p)
+		inline void big_memory_pool<Mutex>::tree_free(void* p)
 		{
 			//if(p)
 			{
 				scope_lock_t lock(mutex_);
-				lock;
 				MemBlock* cur = static_cast<MemBlock*>(p) - 1;
 
 				add_free_block_from_free(cur);
@@ -557,9 +565,8 @@ namespace ma{
 			assert(checkAllBlocks());
 		}
 		template<typename Mutex>
-		void* big_memory_pool<Mutex>::tree_realloc(void* ptr,size_t sz){
+		inline void* big_memory_pool<Mutex>::tree_realloc(void* ptr,size_t sz){
 			scope_lock_t lock(mutex_);
-			lock;
 
 			sz = details::round_up(sz,sizeof(MemBlock));
 			MemBlock* cur = static_cast<MemBlock*>(ptr) - 1;
@@ -621,7 +628,7 @@ namespace ma{
 				}
 
 				next->next()->prev = prev;
-				prev->size = prev->size + cur->size + sizeof(MemBlock) + next_merged_size;
+				prev->size = prev->size + cur->size + MemBlock::size_type(sizeof(MemBlock) + next_merged_size);
 				::memmove(prev+1,cur+1,cur->size);
 				prev->used = true;
 				add_free_block(split_block(prev,sz));
@@ -642,11 +649,10 @@ namespace ma{
 			return 0;
 		}
 		template<typename Mutex>
-		bool big_memory_pool<Mutex>::tree_recycle(size_t mem_size)
+		inline bool big_memory_pool<Mutex>::tree_recycle(size_t mem_size)
 		{
 			//clean unused memory from the free blocks
 			scope_lock_t lock(mutex_);
-			lock;
 			MemBlock* cached_free_block = reorganize_freeblock(cached_block_);
 			if(cached_free_block) {insert_free_block(cached_free_block);cached_block_ = 0;}
 
@@ -664,14 +670,14 @@ namespace ma{
 					{				
 						void* mem = free_block;
 						block_set_.erase(bsb_it++);
-						details::virtual_free((char* )mem);
+						details::virtual_free((char* )mem,free_block->size);
 						return true;
 					}
 					mem_size -= free_block->size;
 
 					void* mem = free_block;
 					block_set_.erase(bsb_it++);
-					details::virtual_free((char* )mem);
+					details::virtual_free((char* )mem,mem_size);
 					ret=true;
 				}
 				else
@@ -699,8 +705,8 @@ namespace ma{
 
 			//// page size controls the size of pages we get from the OS
 			//// virtual memory is not necessary, on Win32 it's just convenient
-			//static const size_t PAGE_SIZE_LOG2  = VIRTUAL_PAGE_SIZE_LOG2;
-			//static const size_t PAGE_SIZE  = 1UL << PAGE_SIZE_LOG2;
+			static const size_t PAGE_SIZE_LOG2  = details::VIRTUAL_PAGE_SIZE_LOG2;
+			static const size_t PAGE_SIZE  = 1UL << PAGE_SIZE_LOG2;
 
 			static const size_t NUM_BUCKETS  = (MAX_SMALL_ALLOCATION / MIN_ALLOCATION);
 
@@ -822,16 +828,12 @@ namespace ma{
 			}
 			void bucket_system_free(void* ptr){
 				assert(ptr);
-#ifdef _WIN32
-				details::virtual_free(ptr);
-#else
-				virtual_free(ptr, PAGE_SIZE);
-#endif
+				details::virtual_free(ptr,PAGE_SIZE);
 			}
 			page* bucket_grow(size_t elemSize, unsigned marker)
 			{
 				// make sure mUseCount won't overflow
-				assert((details::PAGE_SIZE-sizeof(page))/elemSize <= USHRT_MAX);
+				assert((details::PAGE_SIZE-sizeof(page))/elemSize <= std::numeric_limits<unsigned short>::max());
 				if (void* mem = bucket_system_alloc()) {
 					// build the free list inside the new page
 					// the page info sits at the end of the page
@@ -1033,7 +1035,7 @@ namespace ma{
 		core::small_memory_pool<Mutex> small_memory_allocator_;
 	};
 	template<typename Mutex>
-	void* memory_pool<Mutex>::alloc(size_t sz)
+	inline void* memory_pool<Mutex>::alloc(size_t sz)
 	{
 		if (!sz )return 0;
 
@@ -1044,7 +1046,7 @@ namespace ma{
 		return big_memory_allocator_.alloc(sz);
 	}
 	template<typename Mutex>
-	void* memory_pool<Mutex>::calloc(size_t sz)
+	inline void* memory_pool<Mutex>::calloc(size_t sz)
 	{
 		void *p = alloc(sz);
 		if (p)
@@ -1054,7 +1056,7 @@ namespace ma{
 		return p;
 	}
 	template<typename Mutex>
-	void* memory_pool<Mutex>::realloc(void* ptr,size_t size)
+	inline void* memory_pool<Mutex>::realloc(void* ptr,size_t size)
 	{
 		if(! ptr)return alloc(size);
 		if(! size){ free(ptr); return 0;}
@@ -1075,7 +1077,7 @@ namespace ma{
 		return big_memory_allocator_.realloc(ptr,size);
 	}
 	template<typename Mutex>
-	void memory_pool<Mutex>::free(void *p)
+	inline void memory_pool<Mutex>::free(void *p)
 	{
 		if (p)
 		{
@@ -1086,5 +1088,8 @@ namespace ma{
 	}
 }
 
-
+#ifdef _MSC_VER
+//msvc compiler
+#pragma warning(pop)
+#endif
 #endif
