@@ -1,8 +1,9 @@
 
 
-BUILD_FLAG:=Release
+BUILD_FLAG:=release
 EXTERN_INC_DIR:=extern
-BIN_DIR:=bin
+TBB_INC_DIR:=$(EXTERN_INC_DIR)/tbb/include
+BIN_DIR:=build/bin
 CORE_INC_DIR:=inc/core
 PBR_INC_DIR:=inc/pbr
 PIPELINE_INC_DIR:=inc/pipeline
@@ -14,14 +15,23 @@ MSG_CLEAN:=Cleaning ...
 
 
 CC:=g++
-CC_FLAGS:=-D__x86__ -Wall -ggdb -pipe -O2 -march=pentium4 -msse2 -mfpmath=sse -fpermissive -Wno-deprecated
+ifeq ($(BUILD_FLAG),release)
+CC_FLAGS:=-D__x86__ -DNDEBUG -Wall -pipe -O2 -fpermissive -Wno-deprecated #-mfpmath=sse -msse2 -march=pentium4
+else
+CC_FLAGS:=-D__x86__ -D_DEBUG -Wall -ggdb -pipe -O0 -fpermissive -Wno-deprecated
+endif
 MAKE:=make
 AR:=ar crs
 ECHO:=echo
 CP:=cp
 MV:=mv
 RM:=rm
-LIB_PTHREAD:=-lpthread
+ifeq ($(BUILD_FLAG),release)
+LINK_LIBS:=-lpthread -ltbb
+
+else
+	LINK_LIBS:=-lpthread -ltbb_debug
+endif
 
 
 .PHONY:clean all
