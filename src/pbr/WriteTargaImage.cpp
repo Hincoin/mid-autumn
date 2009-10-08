@@ -8,13 +8,13 @@ namespace ma{
 
 	unsigned char ReadByte(FILE *file) {  
 		unsigned char b;
-		int success = fread((void*)&b,sizeof(unsigned char),1,file);
+		size_t success = fread((void*)&b,sizeof(unsigned char),1,file);
 		assert (success == 1);
 		return b;
 	}
 
 	void WriteByte(FILE *file, unsigned char b) {
-		int success = fwrite((void*)&b,sizeof(unsigned char),1,file);
+		size_t success = fwrite((void*)&b,sizeof(unsigned char),1,file);
 		assert (success == 1);
 	}
 
@@ -37,7 +37,7 @@ namespace ma{
 		int height = y_pixel_count;
 		// misc header information
 		for (int i = 0; i < 18; i++) {
-			unsigned char tmp;
+			//unsigned char tmp;
 			if (i == 2) WriteByte(file,2);
 			else if (i == 12) WriteByte(file,width%256);
 			else if (i == 13) WriteByte(file,width/256);

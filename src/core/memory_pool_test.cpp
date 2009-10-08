@@ -7,7 +7,7 @@ REGISTER_TEST_FUNC(POOL,pool_test)
 
 
 
-
+#include <stdio.h>
 #include <stdlib.h>
 #include<algorithm>
 #include <vector>
@@ -21,7 +21,6 @@ REGISTER_TEST_FUNC(POOL,pool_test)
 
 #include "pool.hpp"
 
-#include <Windows.h>
 //#include "hpha.h"
 void test_compare();
 
@@ -33,7 +32,7 @@ typedef big_memory_pool<details::null_mutex> pool_t;
 
 #define REALLOCATE_TEST
 
-
+BOOST_STATIC_ASSERT(sizeof(MemBlock) == (sizeof(size_t)+sizeof(void*)) );
 #include <vector>
 #include <ctime>
 unsigned big_memory_size()
@@ -218,8 +217,16 @@ struct B_TEST:A_TEST{
 bool fixed_pool_test()
 {
 	//
-	bool result = true;
 	const int N = 10000;
+	//boost::pool<> p(sizeof(B_TEST));
+	//std::vector<void*> boost_pool;
+	//for(int i = 0;i < N; i ++)
+	//	boost_pool.push_back(p.malloc());
+	//for(int i = 0;i < N; i++)
+	//	p.free(boost_pool[i]);
+	//bool r = p.purge_memory();
+	bool result = true;
+	
 	std::vector<A_TEST*> a;
 	for (int i = 0;i < N;i++)
 	{
@@ -229,27 +236,28 @@ bool fixed_pool_test()
 	{
 		delete a[i];
 	}
-
 	a.clear();
+	bool b = ma::core::fixed_singleton_pool<B_TEST,sizeof(B_TEST),ma::core::details::mutex_t>::release_memory();
 	for (int i = 0;i < N;i++)
 	{
 		a.push_back(new B_TEST[3]);
 	}
 	for (int i = 0;i < N;i++)
 	{
-		delete [] a[i];
+		delete [] ((B_TEST*) a[i]);
 	}
-	return A_TEST::release_memory() && B_TEST::release_memory();
+	 result =  A_TEST::release_memory() || B_TEST::release_memory();
+	return result;
 }
 bool generic_pool_test()
 {
 	bool result = true;
-#ifndef _DEBUG
-	const size_t N = 1024*64; //for big
+#ifdef ENABLE_PERFORMANCE_TEST
+	const size_t N = 1024*32; //for big
 	//const size_t N = 1024 * 1024 *8;//for small
 	const size_t M = 256;// 
 #else
-	const size_t N = 512;
+	const size_t N = 64;
 	const size_t M = 4;
 #endif
 
@@ -264,7 +272,7 @@ bool generic_pool_test()
 		{
 			std::vector<int,pool_allocator<int,details::mutex_t> > v;
 			std::set<int,std::less<int>,pool_allocator<int,details::mutex_t> > s;
-			int n = N*N;
+			int n = int(N*N);
 			while (n--)
 			{
 				v.push_back(n);
@@ -292,7 +300,13 @@ bool mt_singleton_pool_test()
 
 bool pool_test(){
 	printf("-----------------------------------------\n");
-	return fixed_pool_test() && generic_pool_test() 
-		&&  mt_singleton_pool_test();
+	//assert(fixed_pool_test());
+	//assert(generic_pool_test());
+	//assert(mt_singleton_pool_test());
+	bool result = true;
+	result = result && fixed_pool_test();
+	result = result && generic_pool_test();
+	result = result && mt_singleton_pool_test();
+	return result ;
 	printf("-----------------------------------------\n");
 }

@@ -1,3 +1,4 @@
+#include "MAConfig.hpp"
 
 #include "Primitive.hpp"
 
@@ -8,7 +9,7 @@
 #include "DefaultConfigurations.hpp"
 #include "TypeDefs.hpp"
 #include "KdTree.hpp"
-
+#include "parallel_compute.hpp"
 
 #if !defined(__APPLE__) && !defined(__OpenBSD__)
 #include <malloc.h> // for _alloca, memalign
@@ -94,7 +95,8 @@ namespace ma
         for (uint32 i = 0; i < p.size(); ++i)
             ma::fullyRefine(p[i],prims);
         // Initialize mailboxes for _KdTreeAccel_
-        curMailboxId = 0;
+        //curMailboxId = 0;
+		::memset(curMailboxId,0,sizeof(curMailboxId));
         nMailboxes = prims.size();
         mailboxPrims = (MailboxPrim *)AllocAligned(nMailboxes *
                        sizeof(MailboxPrim));
@@ -278,7 +280,7 @@ retrySplit:
         // Compute initial parametric range of ray inside kd-tree extent
 
         const BBox& bounds = self(x).bounds;
-        int& curMailboxId = self(x).curMailboxId;
+        int& curMailboxId = self(x).curMailboxId[get_thread_logic_id()];
 
         const KdAccelNode *nodes = self(x).nodes;
 
@@ -346,9 +348,9 @@ retrySplit:
                 {
                     MailboxPrim *mp = node->onePrimitive;
                     // Check one primitive inside leaf node
-                    if (mp->lastMailboxId != rayId)
+                    if (mp->lastMailboxId[get_thread_logic_id()] != rayId)
                     {
-                        mp->lastMailboxId = rayId;
+                        mp->lastMailboxId[get_thread_logic_id()] = rayId;
                         if (mp->primitive->intersect(ray, isect))
                             hit = true;
                     }
@@ -360,9 +362,9 @@ retrySplit:
                     {
                         MailboxPrim *mp = prims[i];
                         // Check one primitive inside leaf node
-                        if (mp->lastMailboxId != rayId)
+                        if (mp->lastMailboxId[get_thread_logic_id()] != rayId)
                         {
-                            mp->lastMailboxId = rayId;
+                            mp->lastMailboxId[get_thread_logic_id()] = rayId;
                             if (mp->primitive->intersect(ray, isect))
                                 hit = true;
                         }
@@ -386,7 +388,7 @@ retrySplit:
     {
         // Compute initial parametric range of ray inside kd-tree extent
         const BBox& bounds = self(x).bounds;
-        int& curMailboxId = self(x).curMailboxId;
+        int& curMailboxId = self(x).curMailboxId[get_thread_logic_id()];
         const KdAccelNode *nodes = self(x).nodes;
 
         float tmin, tmax;
@@ -413,9 +415,9 @@ retrySplit:
                 if (nPrimitives == 1)
                 {
                     MailboxPrim *mp = node->onePrimitive;
-                    if (mp->lastMailboxId != rayId)
+                    if (mp->lastMailboxId[get_thread_logic_id()] != rayId)
                     {
-                        mp->lastMailboxId = rayId;
+                        mp->lastMailboxId[get_thread_logic_id()] = rayId;
                         if (mp->primitive->intersectP(ray))
                             return true;
                     }
@@ -426,9 +428,9 @@ retrySplit:
                     for (uint32 i = 0; i < nPrimitives; ++i)
                     {
                         MailboxPrim *mp = prims[i];
-                        if (mp->lastMailboxId != rayId)
+                        if (mp->lastMailboxId[get_thread_logic_id()] != rayId)
                         {
-                            mp->lastMailboxId = rayId;
+                            mp->lastMailboxId[get_thread_logic_id()] = rayId;
                             if (mp->primitive->intersectP(ray))
                                 return true;
                         }

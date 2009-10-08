@@ -1,8 +1,9 @@
 #define CORE_SOURCE
 
+
 #include "MAAPI.hpp"
 
-#include "Color.hpp"
+
 
 #include "Scene.hpp"
 #include "Dynload.hpp"
@@ -10,7 +11,7 @@
 #include "Vector.hpp"
 #include "Transform.hpp"
 #include "Light.hpp"
-
+#include "Color.hpp"
 #include "DefaultConfigurations.hpp"
 //test
 #include "KdTree.hpp"
@@ -26,6 +27,7 @@ typedef transform3f transform_t;
 struct RenderOptions{
 	RenderOptions();
 	scene_ptr makeScene()const;
+	~RenderOptions(){lights.clear();primitives.clear();}
 	//
 	string filter_name;
 	ParamSet filter_params;
@@ -195,7 +197,7 @@ COREDLL void maTransform(float transform[4][4])
 	 {
 		 current_transform = named_coordinate_sys[name];
 	 }
-	 
+
  }
  COREDLL void maPixelFilter(const std::string &name, const ParamSet &params){
 	 verify_options("PixelFilter");
@@ -282,7 +284,7 @@ COREDLL void maTransformEnd(){
 	}
 	current_transform = transform_stack.back();
 	transform_stack.pop_back();
-	
+
 }
  COREDLL void maTexture(const std::string &name, const std::string &type,
 	 const std::string &texname, const ParamSet &params){
@@ -388,6 +390,8 @@ COREDLL void maTransformEnd(){
 		scene->render();
 	}
 	delete scene;
+	render_options->primitives.clear();
+	render_options->lights.clear();
 	current_state = STATE_OPTIONS_BLOCK;
 	current_transform = transform_t();
 	named_coordinate_sys.clear();
@@ -445,7 +449,7 @@ COREDLL void maTransformEnd(){
 
 
 	 //////////////////////////////////////////////////////////////////////////
-	 //test 
+	 //test
 	 typedef ImageFilm<film_config<basic_config_t> > image_film_t;
 	 typedef PointLight<light_config<basic_config_t> > light_t;
 	 typedef PerspectiveCamera<camera_config<basic_config_t> > camera_t;
@@ -461,15 +465,20 @@ COREDLL void maTransformEnd(){
 	//create film
 	 std::string filename =  "pbrt.tga";
 	 bool premultiplyAlpha =  true;
-
+#ifdef NDEBUG
+	 int xres = 800;
+	 int yres = 600;
+#else
 	 int xres = 80;
 	 int yres = 60;
+#endif
+
 	 float crop[4] = { 0, 1, 0, 1 };
-		 
+
 	 int write_frequency = -1;
 	 image_film_t* film = new image_film_t(xres,yres,filter,crop,filename,premultiplyAlpha,write_frequency);
 	 //////////////////////////////////////////////////////////////////////////
-	 // Extract common camera parameters 
+	 // Extract common camera parameters
 	 float hither = 1e-3f;
 	 float yon =  1e30f;
 	 float shutteropen =  0.f;
@@ -499,7 +508,7 @@ COREDLL void maTransformEnd(){
 	 // Initialize common sampler parameters
 	 int xstart, xend, ystart, yend;
 	 film->getSampleExtent(xstart, xend, ystart, yend);
-	 int nsamp = 1;
+	 int nsamp = 4;
 	 sampler_t* sampler = new sampler_t(xstart, xend, ystart, yend, nsamp);
 
 	 //////////////////////////////////////////////////////////////////////////
@@ -510,6 +519,7 @@ COREDLL void maTransformEnd(){
 	 int maxDepth = -1;
 	 primitive_t* accel = new KdTreeAccel(primitives, isectCost, travCost,
 		 emptyBonus, maxPrims, maxDepth);
+	 
 	 ////////////////////////////////////////////////////////////////////////////
 	 surface_integrator_t* surface_integrator = new surface_integrator_t(5);
 

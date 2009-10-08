@@ -81,8 +81,11 @@ void bunny_test()
 	maLightSource("point",light_param(1,-2,-1));
 	maLightSource("point",light_param(10,-20,-10));
 	maAttributeEnd();
+	maRotate(3.14f/4.f,0,0,1);
+
 	maMaterial("matte",material_param());
 	maShape("trianglemesh",shape_param());
+	
 	maWorldEnd();
 	maCleanUp();
 
@@ -119,7 +122,7 @@ ParamSet shape_param()
 	//ParamSet shape_p;
 
 	//return shape_p;
-	return parseObjTriangleMesh("bunny_200.obj");
+	return parseObjTriangleMesh("bunny_1k.obj");
 }
 ParamSet material_param()
 {

@@ -49,8 +49,8 @@ inline bool many_test(){
 	using namespace ma;
 	Base3 b3;
 	MAny a0(b3) ;
-	a0.template cast<Base3>().a = 10;
-	int c = a0.template cast<Base3>().a;
+	a0.cast<Base3>().a = 10;
+	int c = a0.cast<Base3>().a;
 
 	bool result = true;
 	result = c == 10;
@@ -58,8 +58,8 @@ inline bool many_test(){
 	//more test code here
 	D1 d1;
 	MAny a1(d1);
-	a1.template cast<Base1>().a = 10;
-	int _10 = a1.template cast<Base3>().a;
+	a1.cast<Base1>().a = 10;
+	int _10 = a1.cast<Base3>().a;
 	result = result && (_10 == 10);
 	assert(result);
 
@@ -106,6 +106,16 @@ inline bool many_test(){
 		(d_ptr->b == b2_ptr->b && b2_ptr->b == 11);
 	assert(result);
 	delete d_ptr;
+
+	//basic type conversion
+	MAny builtin(0.4);
+	float x = builtin.cast<float&>();
+	x = 3.5f;
+	int cx = builtin.cast<int&>();
+	cx = 5;
+	char ccx = builtin.cast<char&>();
+	ccx = 6;
+
 	return result;
 }
 
