@@ -15,18 +15,18 @@ namespace ma{
 	ADD_CRTP_INTERFACE_TYPEDEF(spectrum_t)
 
 	Camera(const transform_t &world2cam,scalar_t hither,scalar_t yon,
-		scalar_t sopen,scalar_t sclose,film_ptr film):world_to_camera(world2cam),
+		scalar_t sopen,scalar_t sclose,film_ptr film):film_(film),world_to_camera(world2cam),
 		camera_to_world(ma::force_move(world2cam.inverse())),
 		clip_hither(hither),
 		clip_yon(yon),
 		shutter_open(sopen),
-		shutter_close(sclose),
-		film_(film)
+		shutter_close(sclose)
+
 	{}
 
 	~Camera(){delete_ptr(film_);}
 	CRTP_CONST_METHOD(scalar_t,generateRay,2,
-		(IN(const sample_t&,sample),IN(ray_t&,r)));
+		( I_(const sample_t&,sample), I_(ray_t&,r)));
 
 	void addSample(const sample_t& s,const ray_t& r,const spectrum_t& l,scalar_t alpha)
 	{return film_->addSample(s,r,l,alpha);}

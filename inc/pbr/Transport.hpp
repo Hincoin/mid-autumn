@@ -12,10 +12,10 @@ namespace ma{
 		ADD_CRTP_INTERFACE_TYPEDEF(sample_t);
 
 		CRTP_CONST_METHOD(spectrum_t,li,4,
-			(IN(const scene_ptr,scene),IN(const ray_differential_t&,r),IN(const sample_ptr,sample),IN(scalar_t&,alpha)));
+			( I_(const scene_ptr,scene), I_(const ray_differential_t&,r), I_(const sample_ptr,sample), I_(scalar_t&,alpha)));
 
-		CRTP_METHOD(void,preprocess,1,(IN(const scene_ptr,s)));
-		CRTP_METHOD(void,requestSamples,2,(IN(sample_t&,s),IN(const scene_ptr,scene)));
+		CRTP_METHOD(void,preprocess,1,( I_(const scene_ptr,s)));
+		CRTP_METHOD(void,requestSamples,2,( I_(sample_t&,s), I_(const scene_ptr,scene)));
 		END_CRTP_INTERFACE
 }
 #endif

@@ -38,7 +38,7 @@ namespace ma{
 		typedef parent_type::interface_type interface_type;
 		typedef parent_type::ray_type Ray;
 		typedef parent_type::intersection_t intersection_t;
-		typedef parent_type::VectorType Vector;
+		typedef parent_type::vector_t Vector;
 		typedef parent_type::shared_primitive shared_primitive;
 
 		static Vector vreciprocal(const Vector& v)
@@ -50,10 +50,11 @@ namespace ma{
 		{
 			MailboxPrim(shared_primitive p):primitive(p)
 			{
-				lastMailboxId = -1;
+				//lastMailboxId = -1;
+				::memset(lastMailboxId,0xFFFFFFFF,sizeof(lastMailboxId));
 			}
 			const shared_primitive primitive;
-			int lastMailboxId;
+			int lastMailboxId[MAX_PARALLEL];
 		};
 		struct KdAccelNode
 		{
@@ -197,7 +198,7 @@ namespace ma{
 		float emptyBonus;
 		size_t nMailboxes;
 		MailboxPrim *mailboxPrims;
-		mutable int curMailboxId;
+		mutable int curMailboxId[MAX_PARALLEL];
 		KdAccelNode *nodes;
 		int nAllocedNodes, nextFreeNode;
 		BBox bounds;

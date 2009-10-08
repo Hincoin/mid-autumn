@@ -59,15 +59,15 @@ namespace ma{
 			//	bsdf->add(BSDF_ALLOC(oren_nayar_t)(r, sig));
 			//return bsdf;
 
-			//memory leak here
-			bsdf_ptr bsdf = new bsdf_t(dgs, dgGeom.normal);
+			//memory leak here change to be a smart-ptr
+			bsdf_ptr bsdf(new bsdf_t(dgs, dgGeom.normal));
 			// Evaluate textures for _Matte_ material and allocate BRDF
 			spectrum_t r = Kd->evaluate(dgs).Clamp();
 			scalar_t sig = ma::clamp(sigma->evaluate(dgs), scalar_t(0), scalar_t(90));
 			if (sig == scalar_t(0))
 				bsdf->add(new lambertian_t(r));
-			//else
-			//	bsdf->add(new oren_nayar_t(r, sig));
+			else
+				bsdf->add(new oren_nayar_t(r, sig));//change to ptr_var
 			return bsdf;
 	}
 }

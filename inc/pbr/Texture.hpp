@@ -8,9 +8,9 @@ namespace ma{
 	ADD_CRTP_INTERFACE_TYPEDEF(scalar_t)
 
 	CRTP_CONST_VOID_METHOD(mapping,7,
-	(IN(const differential_geometry_t&,dg),
-	IN(scalar_t&,s),IN(scalar_t&,t),IN(scalar_t&,dsdx),IN(scalar_t&,dtdx),
-	IN(scalar_t&,dsdy),IN(scalar_t&,dtdy)
+	( I_(const differential_geometry_t&,dg),
+	 I_(scalar_t&,s), I_(scalar_t&,t), I_(scalar_t&,dsdx), I_(scalar_t&,dtdx),
+	 I_(scalar_t&,dsdy), I_(scalar_t&,dtdy)
 	))
 	END_CRTP_INTERFACE
 
@@ -20,8 +20,8 @@ namespace ma{
 	ADD_CRTP_INTERFACE_TYPEDEF(vector_t)
 
 	CRTP_CONST_VOID_METHOD(mapping,3,
-	(IN(const differential_geometry_t&,dg),
-	IN(vector_t&,dpdx),IN(vector_t&,dpdy)
+	( I_(const differential_geometry_t&,dg),
+	 I_(vector_t&,dpdx), I_(vector_t&,dpdy)
 	))
 		END_CRTP_INTERFACE
 	//////////////////////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@ namespace ma{
 	ADD_CRTP_INTERFACE_TYPEDEF(scalar_t)
 	ADD_CRTP_INTERFACE_TYPEDEF(differential_geometry_t)
 public:
-	CRTP_CONST_METHOD(scalar_t,evaluate,1,(IN(const differential_geometry_t&,dg)))
+	CRTP_CONST_METHOD(scalar_t,evaluate,1,( I_(const differential_geometry_t&,dg)))
 	END_CRTP_INTERFACE
 
 	// ConstantTexture Declarations

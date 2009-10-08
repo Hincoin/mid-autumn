@@ -109,13 +109,13 @@ namespace ma{
 	template<typename B>
 	struct film_config:B{
 
-		typedef Sample<sample_config<B> > sample_t;
+		typedef CameraSample<sample_config<B> > sample_t;
 
 		typedef MitchellFilter<filter_config<B> >* filter_ptr;
 	};
 	template<typename B>
 	struct camera_config:B{
-		typedef Sample<sample_config<B> > sample_t;
+		typedef CameraSample<sample_config<B> > sample_t;
 		typedef ImageFilm<film_config<B> >* film_ptr;
 		//ADD_CRTP_INTERFACE_TYPEDEF(film_ptr);
 	};
@@ -124,11 +124,11 @@ namespace ma{
 		typedef Scene<scene_config<B> >* scene_ptr;
 		typedef Sample<sample_config<B> >* sample_ptr;
 		typedef RayDifferential<typename B::vector_t> ray_differential_t;
-		typedef Sample<sample_config<B> > sample_t;
+		typedef IntegratorSample<sample_config<B> > sample_t;
 		typedef Intersection<intersection_config<B> > intersection_t;
 
 
-		typedef BSDF<bsdf_config<B> >* bsdf_ptr;
+		typedef boost::shared_ptr<BSDF<bsdf_config<B> > > bsdf_ptr;
 		typedef VisibilityTester<visibility_tester_config<B> > visibility_tester_t;
 	};
 	template<typename B>
@@ -152,7 +152,7 @@ namespace ma{
 	};
 	template<typename B>
 	struct material_config:public B{
-	typedef BSDF<bsdf_config<B> >* bsdf_ptr;
+		typedef boost::shared_ptr<BSDF<bsdf_config<B> > > bsdf_ptr;
 
 	typedef ConstantTexture<texture_config<B,typename B::spectrum_t> > texture_spectrum_t;
 	typedef ConstantTexture<texture_config<B,typename B::scalar_t> > texture_scalar_t;
@@ -177,7 +177,7 @@ namespace ma{
 
 		//////////////////////////////////////////////////////////////////////////
 		typedef Intersection<intersection_config<B> > intersection_t;
-		typedef BSDF<bsdf_config<B> >* bsdf_ptr;
+		typedef boost::shared_ptr<BSDF<bsdf_config<B> > > bsdf_ptr;
 		typedef DifferentialGeometry<typename B::scalar_t,B::dimension> differential_geometry_t;
 	};
 	template<typename B>
@@ -236,14 +236,15 @@ namespace ma{
 	template<typename B>
 	struct bsdf_config:public B{
 		typedef DifferentialGeometry<typename B::scalar_t,B::dimension> differential_geometry_t;
-		typedef Lambertian<bxdf_config<B> >* BxDF_ptr;
+		//typedef Lambertian<bxdf_config<B> >* BxDF_ptr;
+		typedef ptr_var<Lambertian<bxdf_config<B> >,OrenNayar<bxdf_config<B> > > BxDF_ptr;
 	};
 	template<typename B>
 	struct intersection_config:B{
 		typedef const MAPrimitive< primitive_interface_config<B> >* primitive_ptr;
 		typedef RayDifferential<typename B::vector_t> ray_differential_t;
 		typedef DifferentialGeometry<typename B::scalar_t,B::dimension> differential_geometry_t;
-		typedef BSDF<bsdf_config<B> >* bsdf_ptr;
+		typedef boost::shared_ptr<BSDF<bsdf_config<B> > > bsdf_ptr;
 	};
 template<typename B>
 struct scene_config:B{

@@ -11,7 +11,7 @@ public:
 	ADD_CRTP_INTERFACE_TYPEDEF(transform_t)
 public:
 	CRTP_CONST_METHOD(bsdf_ptr,getBSDF,2,
-		(IN(const differential_geometry_t&,dgGeom),IN(const differential_geometry_t&,dgShading)));
+		( I_(const differential_geometry_t&,dgGeom), I_(const differential_geometry_t&,dgShading)));
 	static void bump(texture_scalar_t_ref d,const differential_geometry_t& dgGeom,
 		const differential_geometry_t& dgShading,differential_geometry_t& dgBump)
 	{

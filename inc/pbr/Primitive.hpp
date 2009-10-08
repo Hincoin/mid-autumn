@@ -44,10 +44,10 @@ class Primitive{
 public:
             typedef typename Conf::ScalarType ScalarType;
             static const int Dimension = Conf::Dimension;
-            typedef typename vector_type<ScalarType,Dimension>::type VectorType;
-            typedef SpaceSegment<VectorType> BBox;
-            typedef  Point<VectorType> point_type;
-            typedef Ray<VectorType> ray_type;
+            typedef typename vector_type<ScalarType,Dimension>::type vector_t;
+            typedef SpaceSegment<vector_t> BBox;
+            typedef  Point<vector_t> point_type;
+            typedef Ray<vector_t> ray_type;
 			typedef typename Conf::intersection_t intersection_t;
             typedef MAPrimitive<Conf>  interface_type;
             typedef typename shared_pointer<interface_type>::type shared_primitive;
@@ -202,6 +202,7 @@ private:
         static void refine(const interface_type& x,shared_primitive_array& refined)
         {
             //typedef typename refined_primitive_type::shape_type refined_shape_type;
+			//change smart-ptr to be raw ptr and manage it properly
             std::vector<refined_shape_ref_t> refined_shapes;
             refine_shape(*self(x).shape_,refined_shapes);
 			for (size_t i = 0;i < refined_shapes.size();++i)

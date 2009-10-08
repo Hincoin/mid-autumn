@@ -30,14 +30,14 @@ namespace ma
         static const int uv_dimension = Cfg::uv_dimension;
         typedef Shape<MATriangleMesh<Cfg>,Cfg> parent_type;
         typedef typename parent_type::normal_t NormalType;
-        typedef typename parent_type::VectorType VectorType;
-		typedef typename parent_type::VectorType vector_t;
+        //typedef typename parent_type::vector_t vector_t;
+		typedef typename parent_type::vector_t vector_t;
 		typedef typename parent_type::transform_t transform_t;
 		typedef Point<vector_t> point_t;
-		typedef Ray<VectorType>  ray_t;
+		typedef Ray<vector_t>  ray_t;
 		typedef typename parent_type::ScalarType scalar_t;
 
-        typedef Point<VectorType> PointType;
+        typedef Point<vector_t> PointType;
         typedef typename parent_type::ScalarType ScalarType;
         typedef typename parent_type::BBox BBox;
         typedef ScalarType uv_type;
@@ -47,7 +47,7 @@ namespace ma
 
         MATriangleMesh(const transform_t& obj2world,bool reverse_normal,
                        const index_array& indices,const point_array& p,
-                       const NormalType* normals,const VectorType* tangent,
+                       const NormalType* normals,const vector_t* tangent,
                        const uv_type* uv):parent_type(obj2world,reverse_normal),
                 vertex_indices_(indices),normals_(0),tangents_(0),uvs_(0)
         {
@@ -63,8 +63,8 @@ namespace ma
             }
             if (tangent)
             {
-                tangents_  = new VectorType[points_.size()];
-                memcpy(tangents_,tangent,sizeof(VectorType) * points_.size());
+                tangents_  = new vector_t[points_.size()];
+                memcpy(tangents_,tangent,sizeof(vector_t) * points_.size());
             }
             if (uv)
             {
@@ -122,7 +122,7 @@ namespace ma
             return uvs_;
         }
         const NormalType* normals()const{return normals_;}
-        const VectorType* tangents()const{return tangents_;}
+        const vector_t* tangents()const{return tangents_;}
 private:
         BBox objectBoundImpl()const
         {
@@ -141,6 +141,7 @@ private:
             size_t nTris = vertex_indices_.size()/3;
             for (size_t i = 0;i < nTris; ++i)
             {
+				//todo : Tri_Ref should be a raw ptr
                 refined.push_back(Tri_Ref(new Tri(parent_type::obj_to_world_,parent_type::reverse_normal_,*this,i)));
             }
         }
@@ -150,7 +151,7 @@ private:
         index_array vertex_indices_;
         point_array points_;
         NormalType* normals_;//one per vertex
-        VectorType* tangents_;
+        vector_t* tangents_;
         uv_type* uvs_;
 
     };
@@ -165,7 +166,7 @@ private:
         {
             const MeshType* mesh = s.mesh_;
             const typename SHAPE::index_type* v = s.v_;
-			typedef typename SHAPE::VectorType VectorType;
+			typedef typename SHAPE::vector_t vector_t;
 			typedef typename SHAPE::NormalType NormalType;
 			typedef ScalarType scalar_t;
             if (!mesh->normals() && !mesh->tangents()){
@@ -182,7 +183,7 @@ private:
                 b=B[0]=B[1] = ScalarType(1)/ScalarType(3);
                 else B = A.inverse() * C;
                 NormalType ns;
-                VectorType ss,ts;
+                vector_t ss,ts;
                 if (mesh->normals()) ns = (b * mesh->normals()[v[0]] +
                                                 B[0] * mesh->normals()[v[1]] +
                                                 B[1] * mesh->normals()[v[2]]).normalized();
@@ -195,7 +196,7 @@ private:
                 ts = (obj2world * ts).normalized();
                 ss = (obj2world * ss).normalized();
 //////////////////////////////////////////////////////////////////////////
-				VectorType dndu, dndv;
+				vector_t dndu, dndv;
 				// Compute \dndu and \dndv for triangle shading geometry
 				scalar_t uvs[3][2];
 				s.getUVs(uvs);
@@ -204,11 +205,11 @@ private:
 				scalar_t du2 = uvs[1][0] - uvs[2][0];
 				scalar_t dv1 = uvs[0][1] - uvs[2][1];
 				scalar_t dv2 = uvs[1][1] - uvs[2][1];
-				VectorType dn1 = VectorType(mesh->normals()[v[0]] - mesh->normals()[v[2]]);
-				VectorType dn2 = VectorType(mesh->normals()[v[1]] - mesh->normals()[v[2]]);
+				vector_t dn1 = vector_t(mesh->normals()[v[0]] - mesh->normals()[v[2]]);
+				vector_t dn2 = vector_t(mesh->normals()[v[1]] - mesh->normals()[v[2]]);
 				scalar_t determinant = du1 * dv2 - dv1 * du2;
 				if (determinant == 0)
-					dndu = dndv = VectorType(0,0,0);
+					dndu = dndv = vector_t(0,0,0);
 				else {
 					scalar_t invdet = reciprocal( determinant );
 					dndu = ( dv2 * dn1 - dv1 * dn2) * invdet;
@@ -259,14 +260,13 @@ private:
 
         static const int uv_dimension = CFG::uv_dimension;
         typedef typename parent_type::normal_t NormalType;
-        typedef typename parent_type::VectorType VectorType;
-		typedef typename parent_type::VectorType vector_t;
+		typedef typename parent_type::vector_t vector_t;
 		typedef typename parent_type::normal_t normal_t;
         typedef typename parent_type::transform_t transform_t;
 		typedef Point<vector_t> point_t;
 
-        typedef Point<VectorType> PointType;
-        typedef Ray<VectorType> ray;
+        typedef Point<vector_t> PointType;
+        typedef Ray<vector_t> ray;
 		typedef ray ray_t;
         typedef typename parent_type::ScalarType ScalarType;
         typedef typename parent_type::BBox BBox;
@@ -307,18 +307,18 @@ private:
             const PointType& p0 = mesh_->pointArray()[v_[0]];
             const PointType& p1 = mesh_->pointArray()[v_[1]];
             const PointType& p2 = mesh_->pointArray()[v_[2]];
-            VectorType e0 = p1 - p0;
-            VectorType e1 = p2 - p0;
-            VectorType s1 = cross(r.dir,e1);
+            vector_t e0 = p1 - p0;
+            vector_t e1 = p2 - p0;
+            vector_t s1 = cross(r.dir,e1);
             ScalarType divisor = dot(s1,e0);
             if (divisor == 0)return false;
             ScalarType inv_divisor = reciprocal(divisor);
 
-            VectorType d = r.o - p0;
+            vector_t d = r.o - p0;
             ScalarType b1 = dot(d,s1) * inv_divisor;
             if (b1 < 0 || b1 > 1) return false;
 
-            VectorType s2 = cross(d,e0);
+            vector_t s2 = cross(d,e0);
             ScalarType b2 = dot(r.dir, s2) * inv_divisor;
             if (b2 < 0 || b1 + b2 > 1) return false;
 
@@ -326,7 +326,7 @@ private:
             if (t < r.mint || t > r.maxt)return false;
 
 /// compute partial derivatives
-            VectorType dpdu,dpdv;
+            vector_t dpdu,dpdv;
             ScalarType uvs[3][2];
             getUVs(uvs);
 
@@ -335,12 +335,12 @@ private:
             ScalarType du2 = uvs[1][0] - uvs[2][0];
             ScalarType dv1 = uvs[0][1] - uvs[2][1];
             ScalarType dv2 = uvs[1][1] - uvs[2][1];
-            VectorType dp1 = p0 - p2,dp2 = p1 - p2;
+            vector_t dp1 = p0 - p2,dp2 = p1 - p2;
 
             ScalarType det = du1 * dv2 - dv1 * du2;
             if (det == 0)
             {
-                coordinate_system<VectorType>((cross(e1,e0).normalized()),dpdu,dpdv);
+                coordinate_system<vector_t>((cross(e1,e0).normalized()),dpdu,dpdv);
 
             }
             else
@@ -353,8 +353,8 @@ private:
             ScalarType b0 = 1- b1 - b2;
             ScalarType tu = b0*uvs[0][0] + b1*uvs[1][0] + b2*uvs[2][0];
             ScalarType tv = b0*uvs[0][1] + b1 * uvs[1][1]+ b2*uvs[2][1];
-            dg = typename parent_type::differential_geometry(r(t), dpdu,dpdv,VectorType(0,0,0),
-                                       VectorType(0,0,0),tu,tv,this);
+            dg = typename parent_type::differential_geometry(r(t), dpdu,dpdv,vector_t(0,0,0),
+                                       vector_t(0,0,0),tu,tv,this);
 			tHit = t;
 			return true;
         }
