@@ -1,6 +1,10 @@
 #ifndef _INCLUDED_FIXED_POOL_HPP_
 #define _INCLUDED_FIXED_POOL_HPP_
+
+
 #include <boost/pool/pool.hpp>
+
+
 namespace ma{
 	namespace core{
 		template<typename UserAllocator = boost::default_user_allocator_malloc_free>
@@ -20,7 +24,7 @@ namespace ma{
 			}
 			void* calloc()
 			{
-				return memset(malloc(),0,pool_impl_.get_requested_size());
+				return memset(alloc(),0,pool_impl_.get_requested_size());
 			}
 			bool release_memory()
 			{

@@ -73,7 +73,7 @@ namespace ma{
 	typename convert_void< BOOST_PP_CAT(T,N) >::type
 
 				// [...so that the specified types can be passed to mpl::list...]
-				typedef typename boost::mpl::list< 
+				typedef typename boost::mpl::list<
 					BOOST_PP_ENUM(
 					POINTER_VARIANT_LIMIT_TYPES
 					, POINTER_VARIANT_AUX_CONVERT_VOID
@@ -153,19 +153,18 @@ namespace ma{
 	template<typename T0 ,
 		POINTER_VARIANT_ENUM_SHIFTED_PARAMS(typename T) >
 	class ptr_var{
-		typedef typename 
+		typedef typename
 			boost::mpl::if_<details::ptr_var::is_over_sequence<T0>,
 			T0,
 			typename details::ptr_var::make_variant_list<
 			POINTER_VARIANT_ENUM_PARAMS(T)
 			> >::type seq_type_wrapper;
 		typedef typename seq_type_wrapper::type seq_type;
-
-		int which;
 		void* ptr;
+		int which;
 		//char aligned_storage[ boost::alignment_of<char[sizeof(void*) + sizeof(char)]>::value ];
 	public:
-		typedef ptr_var class_type;
+		typedef ptr_var<POINTER_VARIANT_ENUM_PARAMS(T)> class_type;
 		//////////////////////////////////////////////////////////////////////////
 		template<typename U>
 		ptr_var(U* x):ptr(x){
@@ -250,7 +249,7 @@ namespace ma{
 		//////////////////////////////////////////////////////////////////////////
 		template<typename Visitor>
 		typename Visitor::result_type
-			apply_visitor(const Visitor& v){
+			apply_visitor(Visitor& v)const{
 				// Typedef apply_visitor_unrolled steps and associated types...
 
 				typedef typename boost::mpl::begin<seq_type>::type first_iter;
@@ -293,6 +292,7 @@ namespace ma{
 				assert(false);
 				return forced_return<result_type>();
 		}
+
 		template<typename Visitor>
 		typename Visitor::result_type
 			apply_visitor(Visitor& v){
@@ -343,7 +343,7 @@ namespace ma{
 	private:
 		//
 		template<typename R,typename Visitor,typename T>
-		R invoke_visitor(Visitor& v,T* x)
+		static R invoke_visitor(Visitor& v,T* x)
 		{
 			typedef typename boost::mpl::find_if<
 				seq_type
@@ -363,31 +363,33 @@ namespace ma{
 				is_foreign_variant());
 		}
 		template<typename R,typename Visitor,typename T>
-		R invoke_impl(Visitor& v,T* x,const boost::false_type&){
+		static R invoke_impl(Visitor& v,T* x,const boost::false_type&){
 			return v(x);
 		};
 		template<typename R,typename Visitor,typename T>
-		R invoke_impl(Visitor& v,T* x,const boost::true_type&){
+		static R invoke_impl(Visitor& v,T* x,const boost::true_type&){
 			return forced_return<R>();
 		};
 
-
-		// not optimized implementation
 		template <typename T>
-		inline T forced_return(  )
+		inline static T forced_return_impl(const boost::true_type&)
 		{
-			// logical error: should never be here! (see above)
+				BOOST_STATIC_ASSERT((boost::is_void<T>::value));
+		}
+		template <typename T>
+		inline static T forced_return_impl(const boost::false_type&)
+		{
 			assert(false);
 			typedef typename boost::remove_reference<T>::type basic_type;
 			basic_type* dummy = 0;
-			return *static_cast< basic_type* >(dummy);
+			return *(static_cast< basic_type* >(dummy));
 		}
-
-		template <>
-		inline void forced_return<void>(  )
+		// not optimized implementation
+		template <typename T>
+		inline static T forced_return(  )
 		{
 			// logical error: should never be here! (see above)
-			BOOST_ASSERT(false);
+			return forced_return_impl<T>(boost::is_void<T>());
 		}
 	public:
 		//////////////////////////////////////////////////////////////////////////
@@ -427,14 +429,14 @@ namespace ma{
 		{
 			return lhs != rhs.ptr;
 		}
-		template<POINTER_VARIANT_ENUM_PARAMS(typename T)>
-		bool operator==(const ptr_var<POINTER_VARIANT_ENUM_PARAMS(T)>& rhs)const
+		template<POINTER_VARIANT_ENUM_PARAMS(typename U)>
+		bool operator==(const ptr_var<POINTER_VARIANT_ENUM_PARAMS(U)>& rhs)const
 		{
 			return ptr == rhs.ptr;
 		}
 
-		template<POINTER_VARIANT_ENUM_PARAMS(typename T)>
-		bool operator!=(const ptr_var<POINTER_VARIANT_ENUM_PARAMS(T)>& rhs)const
+		template<POINTER_VARIANT_ENUM_PARAMS(typename U)>
+		bool operator!=(const ptr_var<POINTER_VARIANT_ENUM_PARAMS(U)>& rhs)const
 		{
 			return ptr != rhs.ptr;
 		}
@@ -493,7 +495,8 @@ namespace ma{
 	template<POINTER_VARIANT_ENUM_PARAMS(typename T)>
 	void inline delete_ptr(ptr_var<POINTER_VARIANT_ENUM_PARAMS(T)>& p)
 	{
-		return p.apply_visitor(details::ptr_var::ptr_var_deleter());
+	    details::ptr_var::ptr_var_deleter ptr_var_deleter;
+		return p.apply_visitor(ptr_var_deleter);
 	}
 	template<POINTER_VARIANT_ENUM_PARAMS(typename T)>
 	void inline delete_array(ptr_var<POINTER_VARIANT_ENUM_PARAMS(T)>& p)
@@ -531,7 +534,7 @@ namespace ma{
 				typename boost::remove_const<T>::type,
 				typename boost::remove_const<typename boost::add_reference<T>::type>::type
 			>::type ref_result_type;
-			typedef 
+			typedef
 				typename boost::mpl::if_<boost::is_pointer<T>,
 				typename boost::add_const<T>::type,
 				typename boost::add_const<typename boost::add_reference<T>::type>::type
@@ -566,7 +569,7 @@ namespace ma{
 		typename boost::remove_const<T>::type,
 		typename boost::remove_const<typename boost::add_reference<T>::type>::type
 		>::type
-		get(U& x){		
+		get(U& x){
 			return details::type_getter<T,U>()(x);
 	}
 
@@ -597,7 +600,7 @@ namespace ma{
 	inline typename boost::mpl::if_<
 		is_ptr_variant< TypeTag >,
 		boost::apply_visitor_delayed_t<Visitor>,
-		Visitor&>::type  
+		Visitor&>::type
 		apply_visitor(Visitor& visitor)
 	{
 		return details::apply_visitor_impl<TypeTag>(visitor,is_ptr_variant<TypeTag>());
@@ -607,7 +610,7 @@ namespace ma{
 	inline typename boost::mpl::if_<
 		is_ptr_variant< TypeTag >,
 		boost::apply_visitor_delayed_t<Visitor>,
-		const Visitor&>::type  
+		const Visitor&>::type
 		apply_visitor(const Visitor& visitor)
 	{
 		return details::apply_visitor_impl<TypeTag>(visitor,is_ptr_variant<TypeTag>());
@@ -637,7 +640,7 @@ namespace ma{
 
 		//all are reference types
 #define MAKE_DECL(z,n,P) P##n p##n;
-#define MAKE_CONS_ASSIGN(z,n,pp) BOOST_PP_COMMA_IF(n) p##n(pp##n) 
+#define MAKE_CONS_ASSIGN(z,n,pp) BOOST_PP_COMMA_IF(n) p##n(pp##n)
 #define MAKE_CONST_REF_PARAM(z,n,pp) BOOST_PP_COMMA_IF(n) const P##n& pp##n
 #define MAKE_REF_PARAM(z,n,pp) BOOST_PP_COMMA_IF(n) P##n& pp##n
 #define MAKE_REF_TYPE(z,n,P) BOOST_PP_COMMA_IF(n) P##n&
@@ -671,18 +674,19 @@ namespace ma{
 	inline R call_##FN##_visitor_ref_impl(VarT var BOOST_PP_COMMA_IF(AN) BOOST_PP_REPEAT(AN, MAKE_CONST_REF_PARAM,pp) ,const boost::true_type&)\
 	{\
 	typedef FN##_visitor##AN<R BOOST_PP_COMMA_IF(AN) PP_ENUM_REF_PARAM(AN,P) > visitor_type;\
-	typedef typename boost::remove_reference<typename boost::remove_all_extents<VarT>::type>::type type_tag;\
-	return apply_visitor<type_tag >((visitor_type&)make_##FN##_visitor_ref<R>(BOOST_PP_ENUM_PARAMS(AN,pp)))(var);\
+	typedef typename boost::remove_reference<typename boost::remove_all_extents<VarT>::type>::type type_tag_tmp;\
+	typedef typename boost::remove_const<type_tag_tmp>::type type_tag;\
+	return apply_visitor<type_tag >(/*(visitor_type&)*/make_##FN##_visitor_ref<R>(BOOST_PP_ENUM_PARAMS(AN,pp)))(var);\
 	}\
 	template<typename R,typename VarT BOOST_PP_COMMA_IF(AN) BOOST_PP_ENUM_PARAMS(AN,typename P)>\
 	inline R call_##FN##_visitor_ref_impl_call_convention(VarT var BOOST_PP_COMMA_IF(AN) BOOST_PP_REPEAT(AN,MAKE_CONST_REF_PARAM,pp) ,const boost::true_type&)\
 	{\
-	return var->##FN (PP_CAST_TO_REF(AN,P));\
+	return var->FN (PP_CAST_TO_REF(AN,P));\
 	}\
 	template<typename R,typename VarT BOOST_PP_COMMA_IF(AN) BOOST_PP_ENUM_PARAMS(AN,typename P)>\
 	inline R call_##FN##_visitor_ref_impl_call_convention(VarT var BOOST_PP_COMMA_IF(AN) BOOST_PP_REPEAT(AN,MAKE_CONST_REF_PARAM,pp) ,const boost::false_type&)\
 	{\
-	return var.##FN (PP_CAST_TO_REF(AN,P));\
+	return var.FN (PP_CAST_TO_REF(AN,P));\
 	}\
 	template<typename R,typename VarT BOOST_PP_COMMA_IF(AN) BOOST_PP_ENUM_PARAMS(AN,typename P)>\
 	inline R call_##FN##_visitor_ref_impl(VarT var BOOST_PP_COMMA_IF(AN) BOOST_PP_REPEAT(AN,MAKE_CONST_REF_PARAM,pp) ,const boost::false_type&)\
@@ -717,18 +721,19 @@ namespace ma{
 	inline typename functor_traits<Func>::result_type call_##FN##_visitor_impl(ObjT obj BOOST_PP_COMMA_IF(AN) BOOST_PP_REPEAT(AN, MAKE_FUNC_PARAM, pp) ,const boost::true_type& )\
 	{\
 	typedef FN##_visitor##AN<typename functor_traits<Func>::result_type BOOST_PP_COMMA_IF(AN) BOOST_PP_ENUM_PARAMS(AN,typename functor_traits<Func>::parameter_type) > visitor_type;\
-	typedef typename boost::remove_reference<typename boost::remove_all_extents<ObjT>::type>::type type_tag;\
-	return apply_visitor<type_tag>((visitor_type&)make_##FN##_visitor<Func>( BOOST_PP_ENUM_PARAMS(AN,pp) ))(obj);\
+	typedef typename boost::remove_reference<typename boost::remove_all_extents<ObjT>::type>::type type_tag_tmp;\
+	typedef typename boost::remove_const<type_tag_tmp>::type type_tag;\
+	return apply_visitor<type_tag>(/*(visitor_type&)*/make_##FN##_visitor<Func>( BOOST_PP_ENUM_PARAMS(AN,pp) ))(obj);\
 	}\
 	template<typename Func, typename ObjT >\
 	inline typename functor_traits<Func>::result_type call_##FN##_visitor_impl_call_convention(ObjT obj BOOST_PP_COMMA_IF(AN) BOOST_PP_REPEAT(AN, MAKE_FUNC_PARAM, pp) ,const boost::true_type& )\
 	{\
-	return obj->##FN(BOOST_PP_ENUM_PARAMS(AN,pp));\
+	return obj->FN(BOOST_PP_ENUM_PARAMS(AN,pp));\
 	}\
 	template<typename Func, typename ObjT >\
 	inline typename functor_traits<Func>::result_type call_##FN##_visitor_impl_call_convention(ObjT obj BOOST_PP_COMMA_IF(AN) BOOST_PP_REPEAT(AN, MAKE_FUNC_PARAM, pp) ,const boost::false_type& )\
 	{\
-	return obj.##FN(BOOST_PP_ENUM_PARAMS(AN,pp));\
+	return obj.FN(BOOST_PP_ENUM_PARAMS(AN,pp));\
 	}\
 	template<typename Func, typename ObjT >\
 	inline typename functor_traits<Func>::result_type call_##FN##_visitor_impl(ObjT obj BOOST_PP_COMMA_IF(AN) BOOST_PP_REPEAT(AN, MAKE_FUNC_PARAM, pp) ,const boost::false_type& )\
@@ -763,10 +768,27 @@ namespace ma{
 	}\
 	template<typename T>\
 	result_type invoke_impl(T obj,const boost::true_type&)\
-	{return obj->##FN(BOOST_PP_ENUM_PARAMS(AN,p));}\
+	{return obj->FN(BOOST_PP_ENUM_PARAMS(AN,p));}\
 	template<typename T>\
 	result_type invoke_impl(T obj,const boost::false_type&)\
-	{return obj.##FN(BOOST_PP_ENUM_PARAMS(AN,p));}\
+	{return obj.FN(BOOST_PP_ENUM_PARAMS(AN,p));}\
+	\
+	template<typename T>\
+	result_type operator()(T& obj)const\
+	{\
+	return invoke_impl<T&>(obj,is_ptr_semantic<T>());\
+	}\
+	template<typename T>\
+	result_type operator()(const T& obj)const\
+	{\
+	return invoke_impl<const T&>(obj,is_ptr_semantic<T>());\
+	}\
+	template<typename T>\
+	result_type invoke_impl(T obj,const boost::true_type&)const\
+	{return obj->FN(BOOST_PP_ENUM_PARAMS(AN,p));}\
+	template<typename T>\
+	result_type invoke_impl(T obj,const boost::false_type&)const\
+	{return obj.FN(BOOST_PP_ENUM_PARAMS(AN,p));}\
 	\
 	};\
 	DEF_CALL_MEM_FUNC_REF(FN,AN)\

@@ -11,10 +11,20 @@
 #define _WIN32_WINNT WINVER
 #endif
 #include <windows.h>
+
+#ifdef min
+#undef min
+#endif 
+
+#ifdef max
+#undef max
+#endif 
+
 #else
 #include <pthread.h>
 #include <sys/mman.h>
-static pthread_mutex_t m_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+//static pthread_mutex_t m_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+
 #endif
 
 
@@ -40,7 +50,7 @@ namespace ma{
 				return VirtualAlloc(NULL, size, MEM_COMMIT, PAGE_READWRITE);
 				//return ::malloc(size);
 			}
-			inline void virtual_free(void* addr) {
+			inline void virtual_free(void* addr,size_t) {
 				//return ::free(addr);
 				BOOL ret = VirtualFree(addr, 0, MEM_RELEASE);
 				assert(ret);

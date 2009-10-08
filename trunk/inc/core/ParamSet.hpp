@@ -1,9 +1,12 @@
 #ifndef MA_INCLUDE_PARAMSET_HPP
 #define MA_INCLUDE_PARAMSET_HPP
 
-#include "MAny.hpp"
-#include "AssocVector.hpp"
 #include <string>
+
+#include "MAny.hpp"
+
+#include "AssocVector.hpp"
+
 
 class ParamSet
 {

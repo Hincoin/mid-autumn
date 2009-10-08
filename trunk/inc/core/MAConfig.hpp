@@ -38,4 +38,18 @@
 #endif
 
 
+#define TBB_PARALLEL
+//#define OMP_PARALLEL
+
+//define max number of threads 
+#ifdef TBB_PARALLEL
+#define MAX_PARALLEL 4
+#else
+#define MAX_PARALLEL 1
+#endif
+
+#ifdef TBB_PARALLEL
+#include <tbb/tbb.h>
+#endif
+
 #endif

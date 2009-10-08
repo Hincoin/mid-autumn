@@ -55,7 +55,7 @@ namespace ma{
 
 		template<typename C,typename T>
 		struct add_config_meta_func{
-			typedef typename T::apply_derived<C>::type type;
+			typedef typename T::template apply_derived<C>::type type;
 		};
 
 		template<TEMPLATE_TEMPLATE_PARAMETER_ENUM_PARAMETERS(template<typename> class T) >

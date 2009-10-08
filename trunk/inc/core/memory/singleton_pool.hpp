@@ -112,7 +112,7 @@ namespace ma{
 	static bool release_memory()\
 	{\
 	return ma::core::fixed_singleton_pool<Class,sizeof(Class)>::release_memory() \
-			&& ma::core::generic_singleton_pool<Class>::release_memory();\
+			|| ma::core::generic_singleton_pool<Class>::release_memory();\
 	}\
 	void* operator new(size_t )\
 	{\
@@ -137,7 +137,7 @@ namespace ma{
 	static bool release_memory()\
 	{\
 	return ma::core::fixed_singleton_pool<Class,sizeof(Class),ma::core::details::mutex_t>::release_memory() \
-		&& ma::core::generic_singleton_pool<Class,ma::core::details::mutex_t>::release_memory();\
+		|| ma::core::generic_singleton_pool<Class,ma::core::details::mutex_t>::release_memory();\
 	}\
 	void* operator new(size_t sz)\
 	{\

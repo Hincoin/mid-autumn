@@ -13,7 +13,9 @@ class _CLASS_NAME{\
 	const Derived& derived()const{return static_cast<const Derived& >(*this);}\
 protected:\
 	/*~_CLASS_NAME (){}\*/\
-public:
+public:\
+	typedef _CLASS_NAME<Derived,ClassConfig> class_type;\
+
 
 #define ADD_SAME_TYPEDEF(_CONF_,_TYPE_)\
 	typedef typename _CONF_::_TYPE_ _TYPE_;\
@@ -58,7 +60,7 @@ public:
 
 #include <boost/preprocessor/tuple/to_seq.hpp>
 	//sample usage: CRTP_CONST_VOID_METHOD(double,compute,0,())
-	//sample usage: CRTP_CONST_VOID_METHOD(int,ret_int_func,2,(IN(const char*,some_str),IN(some_type&,some_name))
+	//sample usage: CRTP_CONST_VOID_METHOD(int,ret_int_func,2,((const char*,some_str),(some_type&,some_name))
 	
 #define DECLARE_METHOD(RT,FN,AN,AL,CONSTNESS)\
 	RT FN(__CRTP_PROCESS_ARGS(DECL_,BOOST_PP_TUPLE_TO_SEQ(AN,AL)))CONSTNESS;
@@ -104,9 +106,9 @@ __CRTP_TEMPLATE_FUNCTION_EXPANDED(TARGN,RET,FN,BOOST_PP_TUPLE_TO_SEQ(ARGN,ARGS),
 #define CRTP_CONST_VOID_TEMPLATE_METHOD(TARGN,FN,ARGN,ARGV)\
 	__CRTP_TEMPLATE_FUNCTION(TARGN,void,FN,ARGN,ARGV,)
 
-#define __CRTP_DECL_IN(TYPE,NAME)TYPE NAME
+#define __CRTP_DECL_I_(TYPE,NAME) TYPE NAME
 
-#define __CRTP_CALL_IN(TYPE,NAME) NAME
+#define __CRTP_CALL_I_(TYPE,NAME) NAME
 
 #define END_CRTP_INTERFACE };
 

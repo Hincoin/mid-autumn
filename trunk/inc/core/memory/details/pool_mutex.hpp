@@ -1,11 +1,13 @@
 #ifndef _INCLUDED_POOL_MUTEX_HPP_
 #define _INCLUDED_POOL_MUTEX_HPP_
 
-#ifdef WIN32
-#  include <windows.h>
-#else
-#  include <pthread.h>
-#endif
+//#ifdef WIN32
+//#  include <windows.h>
+//#else
+//#  include <pthread.h>
+//#endif
+#include "common_functions.hpp"
+
 namespace ma{
 	namespace core{
 		namespace details{
@@ -54,7 +56,7 @@ namespace ma{
 				void unlock()
 				{ pthread_mutex_unlock(&mtx); }
 			};
-			typedef win32_mutex mutex_t;
+			typedef pthread_mutex mutex_t;
 #endif
 			class null_mutex
 			{

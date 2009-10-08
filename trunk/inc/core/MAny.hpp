@@ -29,8 +29,10 @@
 //add move semantic
 #include "Move.hpp"
 #include "ParameterType.hpp"
+
 #include "TypeConversion.hpp"
-#include "FixedAllocator.hpp"
+
+#include "pool.hpp"
 
 namespace ma{
 namespace details{
@@ -153,7 +155,7 @@ namespace details{
 		typedef many_interface interface_type;
 		struct stored_object;
 
-		typedef ma::ma_fixed_allocator<stored_object> allocator_type;
+		typedef ma::core::pool_allocator<stored_object> allocator_type;
 		struct stored_object:boost::noncopyable{
 			allocator_type object_allocator;
 			T data;
@@ -264,6 +266,8 @@ namespace details{
 	};
 }
 
+//never return reference to non-class type
+//non-class type only cast to be a copy of other type
 class MAny{
 	typedef details::many_interface interface_type;
 	typedef double storage_type[2];
