@@ -1,6 +1,7 @@
 // $Id:   $
 
 //#define __SSE2__
+#include "MAConfig.hpp"
 #include "Vector.hpp"
 
 #include <iostream>
@@ -86,8 +87,12 @@ namespace ma_test{}
 //#define WIN32_LEAN_AND_MEAN
 //#include <windows.h>
 extern void crtp_test();
+
 int main()
 {
+//#ifdef TBB_PARALLEL
+//	tbb::task_scheduler_init init(2);
+//#endif
 	run_test();
 	return 0;
     using namespace ma_test;

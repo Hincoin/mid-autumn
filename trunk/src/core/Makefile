@@ -6,13 +6,13 @@ include $(ROOT_DIR)/Makefile.include
 
 FILES=$(wildcard *.cpp)
 MODULES:=$(FILES:%.cpp=%.o)
-INCLUDE:=-I$(ROOT_DIR)/$(EXTERN_INC_DIR) -I$(ROOT_DIR)/$(CORE_INC_DIR) 
+INCLUDE:=-I$(ROOT_DIR)/$(EXTERN_INC_DIR) -I$(ROOT_DIR)/$(CORE_INC_DIR) -I$(ROOT_DIR)/$(TBB_INC_DIR)
 
 TARGET:=core_test
 
 #all: $(DEPENDENCIES)
 all: $(MODULES)
-	@$(CC) $(CC_FLAGS) -o $(TARGET) *.o -L$(ROOT_DIR)/$(BIN_DIR)/$(BUILD_FLAG)
+	@$(CC) $(CC_FLAGS) -o $(TARGET) *.o -L$(ROOT_DIR)/$(BIN_DIR)/$(BUILD_FLAG) $(LINK_LIBS)
 	@$(ECHO) $(MSG_COPY)
 	@$(CP) $(TARGET) $(ROOT_DIR)/$(BIN_DIR)/$(BUILD_FLAG)
 

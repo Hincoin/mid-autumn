@@ -81,6 +81,10 @@ inline int* null_func()
 {
 	int a[100];
 	a[0] = 100;
+	double tmp = 10 ;
+	//BOOST_STATIC_ASSERT((boost::is_convertible<double,unsigned&>::value));
+	//unsigned long k = (static_cast<const unsigned long&>(tmp));
+	//unsigned long* k = &((unsigned long&)(*tmp));
 	return a;
 }
 inline bool promote_test(){
@@ -108,8 +112,8 @@ inline bool promote_test(){
 	double d = 10.1;
 	//char d = 10;
 
-	const char* cc = &cast_types<char>::cast_to<char>(&d);
-	result = *cc == char(d);
+	const char cc = cast_types<char>::cast_to<char>(&d);
+	result = cc == char(d);
 	assert(result);
 	int *a=null_func();
 

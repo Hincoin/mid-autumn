@@ -5,6 +5,7 @@
 
 #include "Vector.hpp"
 #include "Point.hpp"
+#include "ErrorReporter.hpp"
 namespace ma{
 
 ParamSet parseObjTriangleMesh(const std::string& file_name)
@@ -15,6 +16,10 @@ ParamSet parseObjTriangleMesh(const std::string& file_name)
 
 	FILE *file = fopen(file_name.c_str(),"r");
 	assert (file != NULL);
+	if (!file)
+	{
+		report_error("file not exists: %s \n",file_name.c_str());
+	}
 	int vcount = 0; int fcount = 0;
 	while (1) {
 		int c = fgetc(file);

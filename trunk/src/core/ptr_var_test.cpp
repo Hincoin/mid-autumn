@@ -33,6 +33,7 @@ int cost_fun(int n)
 namespace ma{
 
 	MAKE_VISITOR(t0,0)
+		MAKE_VISITOR(matchesFlags,1)
 		MAKE_VISITOR(t0,1)
 		MAKE_VISITOR(t,1)
 		MAKE_VISITOR(tt,2)
@@ -51,6 +52,7 @@ namespace ma{
 		int a[1];
 	public:
 		//test_obj(){}
+		bool matchesFlags(int flags)const{ return true;}
 		void t0()const{ cost_fun(10);}
 		int t(int n)const{return cost_fun(n);}
 		float tt(float& d1,float d2){
@@ -76,6 +78,7 @@ namespace ma{
 	struct v_test_obj1:v_test_obj{
 		int a[1];
 	public:
+		bool matchesFlags(int flags)const{ return true;}
 		virtual void t0()const{ cost_fun(10);}
 		virtual int t(int n)const{return cost_fun(n);}
 		virtual float tt(float& d1,float d2){
@@ -100,13 +103,13 @@ struct vi{
 	}
 };
 using namespace std;
-inline int t0_test_impl(const vector<v_test_obj*>& v)
+inline size_t t0_test_impl(const vector<v_test_obj*>& v)
 {
-	for (int i = 0;i < v.size();++i)v[i]->t0();
-	for (int i = 0;i < v.size();++i)delete v[i];
+	for (size_t i = 0;i < v.size();++i)v[i]->t0();
+	for (size_t i = 0;i < v.size();++i)delete v[i];
 	return v.size();
 }
-int t0_test(int n)
+size_t t0_test(int n)
 {
 	vector<v_test_obj*> v;
 	while( n-- > 0)v.push_back(new v_test_obj1);
@@ -114,7 +117,7 @@ int t0_test(int n)
 
 }
 template<typename P>
-int t0_test(int n)
+size_t t0_test(int n)
 {
 	vector<P> v;
 	while (n-- > 0)
@@ -123,11 +126,11 @@ int t0_test(int n)
 	}
 	//std::for_each(v.begin(),v.end(),apply_visitor<P>(make_t0_visitor_ref<void>()));
 	//t0_ref<void>(*v.begin());
-	for (int i = 0;i < v.size();++i)t0_ref<void>(v[i]);
+	for (size_t i = 0;i < v.size();++i)t0_ref<void>(v[i]);
 	//for (int i = 0;i < v.size();++i)delete_ptr(v[i]);
 	//free up
 	//std::for_each(v.begin(),v.end(),apply_visitor<P>(ptr_deleter<P>()));
-	for (vector<P>::iterator it = v.begin();it != v.end(); ++it)
+	for (typename vector<P>::iterator it = v.begin();it != v.end(); ++it)
 	{
 		//delete get<test_obj1*>(*it);
 		delete_ptr(*it);
@@ -169,7 +172,7 @@ bool func_test()
 	ttt_ref<void>(test_ptr,get<const test_obj&>(d));
 	//std::cout<<t<int(int)>(d,2)<<std::endl;
 	result = result && t<int(int)>(d,2) == t<int(int)>(test_ptr,2);
-	result = result && t<int(int)>(d,2) == test_ptr->t(2);
+	result = result && t<int(int)>(d,2) == test_ptr->t(2) && matchesFlags_ref<bool>(d,1);
 
 	ttt<void(const test_obj&)>(d,get<const test_obj&>(d));
 	ttt<void(const test_obj&)>(d,get<test_obj&>(d));
@@ -182,8 +185,13 @@ bool func_test()
  
 	std::set<var_t> v_set;
 
+#ifdef	ENABLE_PERFORMANCE_TEST
 	const int N = 1024*256 * 128;
 	const int M = 1;
+#else
+	const int N = 128;
+	const int M = 1;
+#endif
 	int i = 0;
 	clock_t s = clock();
 	while(i++ < N)
