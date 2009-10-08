@@ -17,7 +17,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="..\..\build\bin\$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/wd4819"
 				Optimization="0"
-				AdditionalIncludeDirectories="./;../../inc/core;../../extern"
+				AdditionalIncludeDirectories="./;../../inc/core;../../extern;../../extern/tbb/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				GeneratePreprocessedFile="0"
 				MinimalRebuild="true"
@@ -67,6 +67,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="$(OutDir)"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -99,7 +100,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="..\..\build\bin\$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
@@ -127,7 +128,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="./;../../inc/core;../../extern"
+				AdditionalIncludeDirectories="./;../../inc/core;../../extern;../../extern/tbb/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				GeneratePreprocessedFile="0"
 				StringPooling="true"
@@ -157,7 +158,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="tbb.lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="$(OutDir)"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -211,6 +214,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\src\core\duffs_device_test.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\core\main_test.cpp"
 				>
 			</File>
@@ -227,6 +234,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\core\memory_new_delete_compiler_test.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\core\memory_pool_test.cpp"
 				>
 			</File>
@@ -239,11 +250,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\core\parallel_compute_test.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\core\policy_based_class_composer_test.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\core\ptr_var_test.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\core\simple_test_framework.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\core\simple_test_framework.hpp"
 				>
 			</File>
 			<File
@@ -281,15 +304,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\inc\core\crtp_interface_macro_test.hpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\inc\core\CRTPInterfaceMacro.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\inc\core\duffs_device_test.hpp"
 				>
 			</File>
 			<File
@@ -309,31 +324,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\inc\core\FixedAllocator.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\inc\core\FSBAllocator.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\inc\core\FSBSingletonPool.hpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\inc\core\HasMember.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\inc\core\ma_any_test.hpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\inc\core\MAAPI.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\inc\core\MABigPool.hpp"
 				>
 			</File>
 			<File
@@ -345,39 +340,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\inc\core\MAMemoryPool.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\inc\core\MAMemoryPool_test.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\inc\core\MAMemPoolSized.hpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\inc\core\MAny.hpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\inc\core\Matrix.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\inc\core\Memory_Test.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\inc\core\MemoryMgr.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\inc\core\MemoryPolicy.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\inc\core\MemoryPool.hpp"
 				>
 			</File>
 			<File
@@ -389,10 +356,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\inc\core\move_test.hpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\inc\core\Mutex.hpp"
 				>
 			</File>
@@ -401,19 +364,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\inc\core\ObjectMemoryPool.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\inc\core\ObjectMemSingletonPool.hpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\inc\core\OrderedTypeInfo.hpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\inc\core\OwnPtr.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\inc\core\parallel_compute.hpp"
 				>
 			</File>
 			<File
@@ -434,10 +393,6 @@
 			</File>
 			<File
 				RelativePath="..\..\inc\core\pool.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\inc\core\pool_test.cpp"
 				>
 			</File>
 			<File
@@ -470,10 +425,6 @@
 			</File>
 			<File
 				RelativePath="..\..\inc\core\Transform.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\inc\core\type_conversion_test.hpp"
 				>
 			</File>
 			<File

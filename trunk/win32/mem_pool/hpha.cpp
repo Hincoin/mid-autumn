@@ -207,7 +207,7 @@ void HPHAllocator::bucket_system_free(void* ptr) {
 
 HPHAllocator::page* HPHAllocator::bucket_grow(size_t elemSize, unsigned marker) {
 	// make sure mUseCount won't overflow
-	assert((PAGE_SIZE-sizeof(page))/elemSize <= USHRT_MAX);
+	assert((PAGE_SIZE-sizeof(page))/elemSize <= std::numeric_limits<unsigned short>::max());
 	if (void* mem = bucket_system_alloc()) {
 		// build the free list inside the new page
 		// the page info sits at the end of the page
