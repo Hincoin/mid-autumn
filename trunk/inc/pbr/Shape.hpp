@@ -34,10 +34,10 @@ namespace ma
 		
 		static const int Dimension = Configure::Dimension ;
 		static const bool CanIntersect = Configure::CanIntersect;
-		typedef typename vector_type<ScalarType,Dimension>::type VectorType;
+		typedef typename vector_type<ScalarType,Dimension>::type vector_t;
 		typedef typename transform_type<ScalarType,Dimension>::type transform_t;
-		typedef SpaceSegment<VectorType> BBox;
-		typedef Ray<VectorType> ray_t; 
+		typedef SpaceSegment<vector_t> BBox;
+		typedef Ray<vector_t> ray_t; 
 		typedef typename normal_type<ScalarType,Dimension>::type normal_t;
 
 		typedef DifferentialGeometry<ScalarType,Dimension> differential_geometry;
@@ -97,11 +97,11 @@ namespace ma
 		static const int Dimension =  S::Dimension ;
 		static const bool CanIntersect =  S::CanIntersect;
 
-typedef typename S::index_type index_type;
-typedef typename vector_type<ScalarType,Dimension>::type VectorType;
+		typedef typename S::index_type index_type;
+		typedef typename vector_type<ScalarType,Dimension>::type vector_t;
 		typedef typename transform_type<ScalarType,Dimension>::type transform_t;
-		typedef SpaceSegment<VectorType> BBox;
-		typedef Ray<VectorType> ray_t;
+		typedef SpaceSegment<vector_t> BBox;
+		typedef Ray<vector_t> ray_t;
 		typedef DifferentialGeometry<ScalarType,Dimension> differential_geometry;
         };
     struct base_shape_configure{

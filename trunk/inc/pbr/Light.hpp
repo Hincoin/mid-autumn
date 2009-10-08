@@ -2,7 +2,7 @@
 #define _MA_INCLUDED_LIGHT_HPP_
 
 #include "CRTPInterfaceMacro.hpp"
-#include "Move.hpp"
+//#include "Move.hpp"
 namespace ma
 {
 	BEGIN_CRTP_INTERFACE(Light)
@@ -22,28 +22,28 @@ public:
 	Light(const transform_t& l2w,int ns=1):num_samples(std::max(1,ns)),
 		light_to_world(l2w),world_to_light(ma::force_move(l2w.inverse())){}
 
-	CRTP_CONST_METHOD(spectrum_t,sample_l,3,(IN(const point_t&,p),IN(vector_t&,wi),IN(visibility_tester_t&,vis)));
-	CRTP_CONST_METHOD(spectrum_t,power,1,(IN(const scene_ptr,s)));
+	CRTP_CONST_METHOD(spectrum_t,sample_l,3,( I_(const point_t&,p), I_(vector_t&,wi), I_(visibility_tester_t&,vis)));
+	CRTP_CONST_METHOD(spectrum_t,power,1,( I_(const scene_ptr,s)));
 	CRTP_CONST_METHOD(bool,isDeltaLight,0,());
-	//CRTP_CONST_METHOD(spectrum_t,le,1,(IN(const ray_differential_t&,r)));
+	//CRTP_CONST_METHOD(spectrum_t,le,1,( (const ray_differential_t&,r)));
 	spectrum_t le(const ray_differential_t& r)const{return spectrum_t();}
 	CRTP_CONST_METHOD(spectrum_t,sample_l,6,
-		(IN(const point_t&,p),
-		IN(scalar_t,u1),
-		IN(scalar_t,u2),
-		IN(vector_t&,wi),
-		IN(scalar_t&,pdf),
-		IN(visibility_tester_t&,vis)
+		( I_(const point_t&,p),
+		 I_(scalar_t,u1),
+		 I_(scalar_t,u2),
+		 I_(vector_t&,wi),
+		 I_(scalar_t&,pdf),
+		 I_(visibility_tester_t&,vis)
 		));
-	CRTP_CONST_METHOD(scalar_t,pdf,2,(IN(const point_t&,p),IN(const vector_t&,wi)));
+	CRTP_CONST_METHOD(scalar_t,pdf,2,( I_(const point_t&,p), I_(const vector_t&,wi)));
 	CRTP_CONST_METHOD(spectrum_t,sample_l,7,(
-		IN(const scene_ptr,s),
-		IN(scalar_t,u1),
-		IN(scalar_t,u2),
-		IN(scalar_t,u3),
-		IN(scalar_t,u4),
-		IN(ray_t&,r),
-		IN(scalar_t&,pdf)
+		 I_(const scene_ptr,s),
+		 I_(scalar_t,u1),
+		 I_(scalar_t,u2),
+		 I_(scalar_t,u3),
+		 I_(scalar_t,u4),
+		 I_(ray_t&,r),
+		 I_(scalar_t&,pdf)
 		));
 
 	spectrum_t sample_l(const point_t& p,const normal_t& ,

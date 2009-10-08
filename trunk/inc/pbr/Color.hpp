@@ -9,6 +9,7 @@ namespace ma{
 	// Spectrum Declarations
 	template<typename S = float,int C_S = 3>
 	class Spectrum {
+		typedef Spectrum<S,C_S> class_type;
 	public:
 		static const int COLOR_SAMPLES = C_S;
 	
@@ -30,13 +31,13 @@ namespace ma{
 		// move operation
 		//////////////////////////////////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////
-		friend std::ostream &operator<<(std::ostream &, const Spectrum &);
-		Spectrum &operator+=(const Spectrum &s2) {
+		friend std::ostream &operator<<(std::ostream &, const class_type &);
+		Spectrum &operator+=(const class_type &s2) {
 			for (int i = 0; i < COLOR_SAMPLES; ++i)
 				c[i] += s2.c[i];
 			return *this;
 		}
-		Spectrum operator+(const Spectrum &s2) const {
+		Spectrum operator+(const class_type &s2) const {
 			Spectrum ret = *this;
 			for (int i = 0; i < COLOR_SAMPLES; ++i)
 				ret.c[i] += s2.c[i];
@@ -173,7 +174,7 @@ namespace ma{
 		static float XWeight[COLOR_SAMPLES];
 		static float YWeight[COLOR_SAMPLES];
 		static float ZWeight[COLOR_SAMPLES];
-		friend Spectrum FromXYZ(sample_type x, sample_type y, sample_type z);
+		friend class_type FromXYZ(sample_type x, sample_type y, sample_type z);
 	};
 
 }

@@ -6,8 +6,8 @@
 
 #include "VectorType.hpp"
 
-
-
+#include "ptr_var.hpp"
+#include "pool.hpp"
 namespace ma{
 
 	// BSDF Inline Functions
@@ -35,6 +35,17 @@ namespace ma{
 			return w.z() * wp.z() > 0.f;
 	}
 
+	namespace bxdf
+	{
+		MAKE_VISITOR(type,0);
+		MAKE_VISITOR(matchesFlags,1)
+		MAKE_VISITOR(f,2)
+		MAKE_VISITOR(sample_f,5)
+		MAKE_VISITOR(rho,3)
+		MAKE_VISITOR(rho,2)
+		MAKE_VISITOR(pdf,2)
+	}
+
 
 enum BxDFType{BSDF_REFLECTION = 1<<0,
 BSDF_TRANSMISSION = 1<<1,
@@ -48,7 +59,7 @@ BSDF_ALL = BSDF_ALL_REFLECTION | BSDF_ALL_TRANSMISSION};
 
 template<typename Conf>
 class BSDF{
-
+	typedef BSDF<Conf> class_type;
 	public:
 		ADD_SAME_TYPEDEF(Conf,spectrum_t)
 		ADD_SAME_TYPEDEF(Conf,vector_t)
@@ -74,7 +85,7 @@ class BSDF{
 		int numComponents(BxDFType flags)const{
 			int num = 0;
 			for (int i = 0; i < nBxDFs; ++i)
-				if (bxdfs[i]->matchesFlags(flags)) ++num;
+				if (bxdf::matchesFlags_ref<bool>(bxdfs[i],flags)) ++num;
 			return num;}
 		bool hasShadingGeometry()const{return (nn.x() != ng.x() || nn.y() != ng.y() || nn.z() != ng.z());}
 		vector_t worldToLocal(const vector_t& v)const{return vector_t(dot(v, sn), dot(v, tn), dot(v, nn));}
@@ -89,8 +100,12 @@ class BSDF{
 				BxDFType flags = BSDF_ALL)const;
 		const differential_geometry_t dg_shading;
 		const scalar_t eta;
+
+		~BSDF(){
+			while(nBxDFs--)delete_ptr(bxdfs[nBxDFs]);
+		}
 	private:
-		~BSDF(){}
+
 		friend class NoClass;
 		normal_t nn,ng;
 		vector_t sn,tn;
@@ -98,7 +113,7 @@ class BSDF{
 		static const int MAX_BxDFS = 8;
 		BxDF_ptr bxdfs[MAX_BxDFS];
 
-
+	MA_DECLARE_POOL_NEW_DELETE_MT(class_type)
 };
 
 
@@ -124,34 +139,35 @@ typename Conf::spectrum_t BSDF<Conf>::sample_f(const vector_t &woW, vector_t &wi
 							}
 							int which = std::min(floor32(u3 * matchingComps),
 								matchingComps-1);
-							BxDF_ptr bxdf = NULL;
+							BxDF_ptr bxdf_;
 							int count = which;
 							for (int i = 0; i < nBxDFs; ++i)
-								if (bxdfs[i]->matchesFlags(flags))
+								if (bxdf::matchesFlags_ref<bool>(bxdfs[i],flags)/*bxdfs[i]->matchesFlags(flags)*/)
 									if (count-- == 0) {
-										bxdf = bxdfs[i];
+										bxdf_ = bxdfs[i];
 										break;
 									}
-									assert(bxdf); // NOBOOK
+									assert(bxdf_); // NOBOOK
 									// Sample chosen _BxDF_
 									vector_t wi;
 									vector_t wo = worldToLocal(woW);
 									pdf = 0.f;
-									spectrum_t f = bxdf->sample_f(wo, wi, u1, u2, pdf);
+									spectrum_t f = bxdf::sample_f_ref<spectrum_t>(bxdf_,wo, wi, u1, u2, pdf); //bxdf->sample_f(wo, wi, u1, u2, pdf);
 									if (pdf == 0.f) return 0.f;
-									if (sampledType) *sampledType = bxdf->type;
+									if (sampledType) *sampledType = bxdf::type_ref<BxDFType>(bxdf_);//bxdf->type;
 									wiW = localToWorld(wi);
 									// Compute overall PDF with all matching _BxDF_s
-									if (!(bxdf->type & BSDF_SPECULAR) && matchingComps > 1) {
+									if (!(bxdf::type_ref<BxDFType>(bxdf_) /*bxdf->type*/ & BSDF_SPECULAR) && matchingComps > 1) {
 										for (int i = 0; i < nBxDFs; ++i) {
-											if (bxdfs[i] != bxdf &&
-												bxdfs[i]->matchesFlags(flags))
-												pdf += bxdfs[i]->pdf(wo, wi);
+											if (bxdfs[i] != bxdf_ &&
+												bxdf::matchesFlags_ref<bool>(bxdfs[i],flags)
+												/*bxdfs[i]->matchesFlags(flags)*/)
+												pdf += bxdf::pdf_ref<scalar_t>(bxdfs[i],wo,wi);//bxdfs[i]->pdf(wo, wi);
 										}
 									}
 									if (matchingComps > 1) pdf /= matchingComps;
 									// Compute value of BSDF for sampled direction
-									if (!(bxdf->type & BSDF_SPECULAR)) {
+									if (!(bxdf::type_ref<BxDFType>(bxdf_) /*bxdf->type*/ & BSDF_SPECULAR)) {
 										f = 0.;
 										if (dot(wiW, ng) * dot(woW, ng) > 0)
 											// ignore BTDFs
@@ -160,8 +176,8 @@ typename Conf::spectrum_t BSDF<Conf>::sample_f(const vector_t &woW, vector_t &wi
 											// ignore BRDFs
 											flags = BxDFType(flags & ~BSDF_REFLECTION);
 										for (int i = 0; i < nBxDFs; ++i)
-											if (bxdfs[i]->matchesFlags(flags))
-												f += bxdfs[i]->f(wo, wi);
+											if (bxdf::matchesFlags_ref<bool>(bxdfs[i],flags)/*bxdfs[i]->matchesFlags(flags)*/)
+												f += bxdf::f_ref<spectrum_t>(bxdfs[i],wo,wi);//bxdfs[i]->f(wo, wi);
 									}
 									return f;
 }
@@ -171,12 +187,12 @@ typename Conf::scalar_t BSDF<Conf>::pdf(const vector_t &woW, const vector_t &wiW
 				BxDFType flags) const {
 					if (nBxDFs == 0.) return 0.;
 					vector_t wo = WorldToLocal(woW), wi = WorldToLocal(wiW);
-					scalar_t pdf = 0.f;
+					scalar_t pdf = scalar_t();
 					int matchingComps = 0;
 					for (int i = 0; i < nBxDFs; ++i)
-						if (bxdfs[i]->MatchesFlags(flags)) {
+						if (bxdf::matchesFlags_ref<bool>(bxdfs[i],flags)/*bxdfs[i]->MatchesFlags(flags)*/) {
 							++matchingComps;
-							pdf += bxdfs[i]->pdf(wo, wi);
+							pdf += bxdf::pdf_ref<scalar_t>(bxdfs[i],wo,wi);//bxdfs[i]->pdf(wo, wi);
 						}
 						return matchingComps > 0 ? pdf / matchingComps : 0.f;
 }
@@ -203,24 +219,24 @@ typename Conf::spectrum_t BSDF<Conf>::f(const vector_t &woW,
 						 flags = BxDFType(flags & ~BSDF_REFLECTION);
 					 spectrum_t f = 0.;
 					 for (int i = 0; i < nBxDFs; ++i)
-						 if (bxdfs[i]->matchesFlags(flags))
-							 f += bxdfs[i]->f(wo, wi);
+						 if (bxdf::matchesFlags_ref<bool>(bxdfs[i],flags) /*bxdfs[i]->matchesFlags(flags)*/)
+							 f += bxdf::f_ref<spectrum_t>(bxdfs[i],wo,wi);//bxdfs[i]->f(wo, wi);
 					 return f;
 }
 template<typename Conf>
 typename Conf::spectrum_t BSDF<Conf>::rho(BxDFType flags) const {
 	spectrum_t ret(0.);
 	for (int i = 0; i < nBxDFs; ++i)
-		if (bxdfs[i]->MatchesFlags(flags))
-			ret += bxdfs[i]->rho();
+		if (bxdf::matchesFlags_ref<bool>(bxdfs[i],flags)/*bxdfs[i]->MatchesFlags(flags)*/)
+			ret += bxdf::rho_ref<spectrum_t>(bxdfs[i]);//bxdfs[i]->rho();
 	return ret;
 }
 template<typename Conf>
 typename Conf::spectrum_t BSDF<Conf>::rho(const vector_t &wo, BxDFType flags) const {
 	spectrum_t ret(0.);
 	for (int i = 0; i < nBxDFs; ++i)
-		if (bxdfs[i]->MatchesFlags(flags))
-			ret += bxdfs[i]->rho(wo);
+		if (bxdf::matchesFlags_ref<bool>(bxdfs[i],flags) /*bxdfs[i]->MatchesFlags(flags)*/)
+			ret += bxdf::rho_ref<spectrum_t>(bxdfs[i],wo);//bxdfs[i]->rho(wo);
 	return ret;
 }
 //////////////////////////////////////////////////////////////////////////
@@ -231,23 +247,26 @@ ADD_CRTP_INTERFACE_TYPEDEF(spectrum_t)
 ADD_CRTP_INTERFACE_TYPEDEF(vector_t)
 ADD_CRTP_INTERFACE_TYPEDEF(scalar_t);
 public:
-BxDF(BxDFType t):type(t){}
-bool matchesFlags(BxDFType flags)const{return (type& flags) == type;}
+BxDF(BxDFType t):type_(t){}
+bool matchesFlags(BxDFType flags)const{return (type_ & flags) == type_;}
 
-CRTP_CONST_METHOD(spectrum_t,f,2,(IN(const vector_t& , wo),IN(const vector_t& ,wi)));
-DECLARE_CONST_METHOD(spectrum_t,sample_f,5,(IN(const vector_t&,wo),
-				  IN(vector_t&, wi),
-				  IN(scalar_t,u1),IN(scalar_t,u2),IN(scalar_t&,pdf)));
-DECLARE_CONST_METHOD(spectrum_t,rho,3,(IN(const vector_t&,wo),
-				  IN(int , nSamples),IN(scalar_t&,samples)));
-DECLARE_CONST_METHOD(spectrum_t,rho,2,(IN(int , nSamples),IN(scalar_t& ,samples)))
+CRTP_CONST_METHOD(spectrum_t,f,2,( I_(const vector_t& , wo), I_(const vector_t& ,wi)));
+DECLARE_CONST_METHOD(spectrum_t,sample_f,5,( I_(const vector_t&,wo),
+				   I_(vector_t&, wi),
+				   I_(scalar_t,u1), I_(scalar_t,u2), I_(scalar_t&,pdf)));
+DECLARE_CONST_METHOD(spectrum_t,rho,3,( I_(const vector_t&,wo),
+				   I_(int , nSamples), I_(scalar_t&,samples)));
+DECLARE_CONST_METHOD(spectrum_t,rho,2,( I_(int , nSamples), I_(scalar_t& ,samples)))
 
-DECLARE_CONST_METHOD(scalar_t,pdf,2,(IN(const vector_t& ,wi),IN(const vector_t&,wo)))
+DECLARE_CONST_METHOD(scalar_t,pdf,2,( I_(const vector_t& ,wi), I_(const vector_t&,wo)))
 
+BxDFType type()const{return type_;}
 private:
-BxDFType type;
+
+	BxDFType type_;
 template<typename Conf> friend  class BSDF;
 END_CRTP_INTERFACE
+
 
 template<typename D,typename Conf>
 typename Conf::spectrum_t BxDF<D,Conf>::sample_f(const typename Conf::vector_t &wo, typename Conf::vector_t &wi,
@@ -312,26 +331,27 @@ BEGIN_CRTP_INTERFACE(Fresnel)
 ADD_CRTP_INTERFACE_TYPEDEF(spectrum_t)
 ADD_CRTP_INTERFACE_TYPEDEF(scalar_t)
 public:
-	CRTP_CONST_METHOD(spectrum_t,evaluate,1,(IN(scalar_t,cosi)))
+	CRTP_CONST_METHOD(spectrum_t,evaluate,1,( I_(scalar_t,cosi)))
 END_CRTP_INTERFACE
 
 BEGIN_CRTP_INTERFACE(MicrofacetDistribution)
 	ADD_CRTP_INTERFACE_TYPEDEF(vector_t)
 	ADD_CRTP_INTERFACE_TYPEDEF(scalar_t)
 public:
-CRTP_CONST_METHOD(scalar_t,d,1,(IN(const vector_t&,wh)))
+CRTP_CONST_METHOD(scalar_t,d,1,( I_(const vector_t&,wh)))
 CRTP_CONST_VOID_METHOD(sample_f,5,(
-					   IN(const vector_t&,wo),
-					   IN(vector_t&,wi),
-					   IN(scalar_t,u1),
-					   IN(scalar_t,u2),
-					   IN(scalar_t&,pdf)))
-CRTP_CONST_METHOD(scalar_t,pdf,2,(IN(const vector_t&,wo),IN(const vector_t&,wi)))
+					    I_(const vector_t&,wo),
+					    I_(vector_t&,wi),
+					    I_(scalar_t,u1),
+					    I_(scalar_t,u2),
+					    I_(scalar_t&,pdf)))
+CRTP_CONST_METHOD(scalar_t,pdf,2,( I_(const vector_t&,wo), I_(const vector_t&,wi)))
 END_CRTP_INTERFACE
 
 
 template<typename Conf>
 class Lambertian : public BxDF<Lambertian<Conf>,Conf> {
+	typedef Lambertian<Conf> class_type;
 public:
 	ADD_SAME_TYPEDEF(Conf,vector_t);
 	ADD_SAME_TYPEDEF(Conf,scalar_t);
@@ -351,6 +371,7 @@ public:
 private:
 	// Lambertian Private Data
 	spectrum_t R, RoverPI;
+	MA_DECLARE_POOL_NEW_DELETE_MT(class_type)
 };
 template<typename Conf>
 class OrenNayar : public BxDF<OrenNayar<Conf>,Conf> {
@@ -358,9 +379,10 @@ class OrenNayar : public BxDF<OrenNayar<Conf>,Conf> {
 	ADD_SAME_TYPEDEF(Conf,scalar_t);
 	ADD_SAME_TYPEDEF(Conf,spectrum_t);
 	typedef BxDF<OrenNayar<Conf>,Conf> parent_type;
+	typedef OrenNayar<Conf> class_type;
 public:
 	// OrenNayar Public Methods
-	spectrum_t f(const vector_t &wo, const vector_t &wi) const;
+	spectrum_t fImpl(const vector_t &wo, const vector_t &wi) const;
 	OrenNayar(const spectrum_t &reflectance, scalar_t sig)
 		: parent_type(BxDFType(BSDF_REFLECTION | BSDF_DIFFUSE)),
 		R(reflectance) {
@@ -373,9 +395,10 @@ private:
 	// OrenNayar Private Data
 	spectrum_t R;
 	scalar_t A, B;
+	MA_DECLARE_POOL_NEW_DELETE_MT(class_type)
 };
 template<typename Conf>
-typename Conf::spectrum_t OrenNayar<Conf>::f(const vector_t &wo,
+typename Conf::spectrum_t OrenNayar<Conf>::fImpl(const vector_t &wo,
 											 const vector_t &wi) const {
 	 scalar_t sinthetai = SinTheta(wi);
 	 scalar_t sinthetao = SinTheta(wo);
@@ -383,7 +406,7 @@ typename Conf::spectrum_t OrenNayar<Conf>::f(const vector_t &wo,
 	 scalar_t sinphii = SinPhi(wi), cosphii = CosPhi(wi);
 	 scalar_t sinphio = SinPhi(wo), cosphio = CosPhi(wo);
 	 scalar_t dcos = cosphii * cosphio + sinphii * sinphio;
-	 scalar_t maxcos = max(0.f, dcos);
+	 scalar_t maxcos = std::max(0.f, dcos);
 	 // Compute sine and tangent terms of Oren--Nayar model
 	 scalar_t sinalpha, tanbeta;
 	 if (std::abs(CosTheta(wi)) > std::abs(CosTheta(wo))) {

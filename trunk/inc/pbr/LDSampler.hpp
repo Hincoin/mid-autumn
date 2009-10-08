@@ -15,6 +15,7 @@ namespace ma{
 	class LDSampler : public Sampler<LDSampler<Conf>,Conf> {
 		friend class Sampler<LDSampler<Conf>,Conf>;
 		typedef Sampler<LDSampler<Conf>,Conf> parent_type;
+		typedef LDSampler<Conf> class_type;
 	public:
 		ADD_SAME_TYPEDEF(Conf,sample_t);
 		ADD_SAME_TYPEDEF(sample_t,scalar_t);
@@ -25,6 +26,10 @@ namespace ma{
 			int nsamp);
 		~LDSampler() {
 			delete[] imageSamples;
+			for (size_t i = 0 ;i < n1D;++i)
+				delete [] oneDSamples[i];
+			for (size_t i = 0;i < n2D; ++i)
+				delete [] twoDSamples[i];
 			delete[] oneDSamples;
 			delete[] twoDSamples;
 		}
@@ -33,12 +38,14 @@ namespace ma{
 			return RoundUpPow2(size);
 		}
 		bool getNextSampleImpl(sample_t &sample);
+		class_type* subdivideImpl(int count);
 	private:
 		// LDSampler Private Data
 		int xPos, yPos, pixelSamples;
 		int samplePos;
 		scalar_t *imageSamples, *lensSamples, *timeSamples;
 		scalar_t **oneDSamples, **twoDSamples;
+		size_t n1D,n2D;
 	};
 	// LDSampler Method Definitions
 	template<typename Conf>
@@ -56,6 +63,7 @@ namespace ma{
 				pixelSamples = ps;
 			samplePos = pixelSamples;
 			oneDSamples = twoDSamples = NULL;
+			n1D = n2D = 0;
 			imageSamples = new scalar_t[5*pixelSamples];
 			lensSamples = imageSamples + 2*pixelSamples;
 			timeSamples = imageSamples + 4*pixelSamples;
@@ -65,9 +73,11 @@ namespace ma{
 		if (!oneDSamples) {
 			// Allocate space for pixel's low-discrepancy sample tables
 			oneDSamples = new scalar_t *[sample.n1D.size()];
+			n1D = sample.n1D.size();
 			for (unsigned i = 0; i < sample.n1D.size(); ++i)
 				oneDSamples[i] = new scalar_t[sample.n1D[i] *	pixelSamples];
 			twoDSamples = new scalar_t *[sample.n2D.size()];
+			n2D = sample.n2D.size();
 			for (unsigned i = 0; i < sample.n2D.size(); ++i)
 				twoDSamples[i] = new scalar_t[2 * sample.n2D[i] *
 				pixelSamples];
@@ -112,6 +122,11 @@ namespace ma{
 		return true;
 	}
 
+	template<typename Conf>
+	typename LDSampler<Conf>::class_type* 
+		LDSampler<Conf>::subdivideImpl(int count)
+	{
 
+	}
 }
 #endif

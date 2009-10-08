@@ -13,64 +13,91 @@ public:
 		Sampler(int xs,int xe,int ys,int ye,int spp)
 			:x_pixel_start(xs),x_pixel_end(xe),
 			y_pixel_start(ys),y_pixel_end(ye),samples_per_pixel(spp){}
-		CRTP_METHOD(bool,getNextSample,1,(IN(sample_t&,s)));
+		CRTP_METHOD(bool,getNextSample,1,( I_(sample_t&,s)));
 		int totalSamples()const{return samples_per_pixel * (x_pixel_end-x_pixel_start) * (y_pixel_end - y_pixel_start);}
-		CRTP_CONST_METHOD(int,roundSize,1,(IN(int ,size)));
+		CRTP_CONST_METHOD(int,roundSize,1,( I_(int ,size)));
+		CRTP_METHOD(class_type*,subdivide,1(I_(int,count)));
 	END_CRTP_INTERFACE
 
 	template<typename Conf>
-	struct Sample{
-		ADD_SAME_TYPEDEF(Conf,surface_integrator_ptr);
-		ADD_SAME_TYPEDEF(Conf,volume_integrator_ptr);
-		ADD_SAME_TYPEDEF(Conf,scene_ptr);
+	struct CameraSample{
 		ADD_SAME_TYPEDEF(Conf,scalar_t);
-	public:
-		Sample(surface_integrator_ptr surf,volume_integrator_ptr vol,const scene_ptr s)
-		{
-			surf->requestSamples(*this, s);
-			//vol->requestSamples(this, s);
-			// Allocate storage for sample pointers
-			size_t nPtrs = n1D.size() + n2D.size();
-			if (!nPtrs) {
-				oneD = twoD = 0;
-				return;
-			}
-			oneD = (scalar_t **)malloc(nPtrs * sizeof(scalar_t *));
-			twoD = oneD + n1D.size();
-			// Compute total number of sample values needed
-			size_t totSamples = 0;
-			for (size_t i = 0; i < n1D.size(); ++i)
-				totSamples += n1D[i];
-			for (size_t i = 0; i < n2D.size(); ++i)
-				totSamples += 2 * n2D[i];
-			// Allocate storage for sample values
-			scalar_t *mem = (scalar_t *)malloc(totSamples *
-				sizeof(scalar_t));
-			for (unsigned i = 0; i < n1D.size(); ++i) {
-				oneD[i] = mem;
-				mem += n1D[i];
-			}
-			for (unsigned i = 0; i < n2D.size(); ++i) {
-				twoD[i] = mem;
-				mem += 2 * n2D[i];
-			}
+		typedef CameraSample<Conf> class_type;
+		scalar_t image_x,image_y;
+		scalar_t lens_u,lens_v;
+		scalar_t time;
+	};
+	template<typename Conf>
+	struct IntegratorSample{
+		ADD_SAME_TYPEDEF(Conf,scalar_t);
 
-		}
+		std::vector<unsigned> n1D,n2D;
+		scalar_t **oneD,**twoD;
+
 		unsigned add1D(unsigned n){n1D.push_back(n);return n1D.size()-1;}
 		unsigned add2D(unsigned n){n2D.push_back(n);return n2D.size()-1;}
-		~Sample(){
+		~IntegratorSample(){
 			if (oneD)
 			{
 				::free(oneD[0]);
 				::free(oneD);
 			}
 		}
+
+	};
+	template<typename Conf>
+	struct Sample:CameraSample<Conf>,IntegratorSample<Conf>{
+		ADD_SAME_TYPEDEF(Conf,scalar_t);
+		typedef Sample<Conf> class_type;
+		typedef CameraSample<Conf> camera_sample_t;
+		typedef IntegratorSample<Conf> integrator_sample_t;
+	private:
+		Sample(const Sample<Conf>&);
+		Sample<Conf>& operator=(const Sample<Conf>&);
+		Sample()
+		{}
+	public:
+		template<typename SIPtr,typename VIPtr,typename SPtr>
+		static class_type* make_sample(SIPtr surf,VIPtr vol,const SPtr s)
+		{
+			class_type* sample = new class_type;
+			surf->requestSamples(*sample, s);
+			//vol->requestSamples(this, s);
+			// Allocate storage for sample pointers
+			size_t nPtrs = sample->n1D.size() + sample->n2D.size();
+			if (!nPtrs) {
+				sample->oneD = sample->twoD = 0;
+				return sample;
+			}
+			sample->oneD = (scalar_t **)malloc(nPtrs * sizeof(scalar_t *));
+			sample->twoD = sample->oneD + sample->n1D.size();
+			// Compute total number of sample values needed
+			size_t totSamples = 0;
+			for (size_t i = 0; i < sample->n1D.size(); ++i)
+				totSamples += sample->n1D[i];
+			for (size_t i = 0; i < sample->n2D.size(); ++i)
+				totSamples += 2 * sample->n2D[i];
+			// Allocate storage for sample values
+			scalar_t *mem = (scalar_t *)malloc(totSamples *
+				sizeof(scalar_t));
+			for (unsigned i = 0; i < sample->n1D.size(); ++i) {
+				sample->oneD[i] = mem;
+				mem += sample->n1D[i];
+			}
+			for (unsigned i = 0; i < sample->n2D.size(); ++i) {
+				sample->twoD[i] = mem;
+				mem += 2 * sample->n2D[i];
+			}
+			return sample;
+		}
+		camera_sample_t cameraSample()const{
+			return *this;
+		}
+		const integrator_sample_t* integratorSample()const{
+			return this;
+		}
 		//private:
-		scalar_t image_x,image_y;
-		scalar_t lens_u,lens_v;
-		scalar_t time;
-		std::vector<unsigned> n1D,n2D;
-		scalar_t **oneD,**twoD;
+
 	};
 	BEGIN_CRTP_INTERFACE(Filter)
 		ADD_CRTP_INTERFACE_TYPEDEF(scalar_t)
@@ -80,7 +107,7 @@ public:
 			: xWidth(xw), yWidth(yw), invXWidth(reciprocal(xw)),
 			invYWidth(reciprocal(yw)) {
 		}
-		CRTP_CONST_METHOD(scalar_t,evaluate,2,(IN(scalar_t,x),IN(scalar_t , y)));
+		CRTP_CONST_METHOD(scalar_t,evaluate,2,( I_(scalar_t,x), I_(scalar_t , y)));
 		// Filter Public Data
 		const scalar_t xWidth, yWidth;
 		const scalar_t invXWidth, invYWidth;

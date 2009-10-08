@@ -66,7 +66,7 @@ namespace ma{
 		ray.mint = 0.;
 		ray.maxt = (parent_type::clip_yon - parent_type::clip_hither) / ray.dir.z();
 
-		ray = parent_type::camera_to_world * ray;
+		ray=(parent_type::camera_to_world * ray) ;
 
 		return scalar_t(1);
 	}

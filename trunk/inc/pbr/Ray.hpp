@@ -13,6 +13,7 @@ struct Ray{
 	typedef V vector_type;
 	typedef typename scalar_type<V>::type ScalarType;
 	static const ScalarType epsilon;
+	typedef Ray<V> class_type;
 	Ray(){}
 	Ray(const point_type& p,const vector_type& v,
 	ScalarType s=epsilon,
@@ -24,6 +25,12 @@ struct Ray{
     vector_type& direction(){return dir;}
     const vector_type& direction()const{return dir;}
 
+	void swap(class_type& other){
+		o.swap(other.o);
+		dir.swap(other.dir);
+		std::swap(mint,other.mint);
+		std::swap(maxt,other.maxt);
+	}
 
 	point_type o;
 	vector_type dir;
@@ -41,12 +48,26 @@ struct RayDifferential:public Ray<V>{
 	Ray<V> rx,ry;
 	typedef Point<V> point_t;
 	typedef V vector_t;
+	typedef RayDifferential<V> class_type;
+	typedef Ray<V> parent_type;
+private:
 public:
+	class_type& operator=(class_type other)
+	{
+		swap(other);
+		return *this;
+	}
 	RayDifferential(){has_differential= false;}
-	RayDifferential(const point_t& org,const vector_t& dir):
-	Ray<V>(org,dir){has_differential=false;}
+	RayDifferential(const point_t& org,const vector_t& dir)
+		:Ray<V>(org,dir){has_differential=false;}
 	explicit RayDifferential(const Ray<V>& r):Ray<V>(r){
 		has_differential = false;
+	}
+	void swap(class_type& other){
+		parent_type::swap(other);
+		std::swap(has_differential,other.has_differential);
+		rx.swap(other.rx);
+		ry.swap(other.ry);
 	}
 };
 
