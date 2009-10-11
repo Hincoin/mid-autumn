@@ -135,10 +135,21 @@ namespace ma{
 				int x1 = floor32(dImageX + filter->xWidth);
 				int y0 = ceil32 (dImageY - filter->yWidth);
 				int y1 = floor32(dImageY + filter->yWidth);
+
+				x0 = std::min(x0,x1);
+				x1 = std::max(x0,x1);
 				x0 = std::max(x0, xPixelStart);
 				x1 = std::min(x1, xPixelStart + xPixelCount - 1);
+				x0 = std::min(x0, xPixelStart + xPixelCount - 1);
+				x1 = std::max(x1, xPixelStart);
+
+				y0 = std::min(y0,y1);
+				y1 = std::max(y0,y1);
 				y0 = std::max(y0, yPixelStart);
 				y1 = std::min(y1, yPixelStart + yPixelCount - 1);
+				y1 = std::max(y1, yPixelStart);
+				y0 = std::min(y0, yPixelStart + yPixelCount - 1);
+
 				// Loop over filter support and add sample to pixel arrays
 				// Precompute $x$ and $y$ filter table offsets
 				int *ifx = (int *)alloca((x1-x0+1) * sizeof(int));
