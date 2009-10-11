@@ -15,6 +15,8 @@ protected:\
 	/*~_CLASS_NAME (){}\*/\
 public:\
 	typedef _CLASS_NAME<Derived,ClassConfig> class_type;\
+	typedef Derived derived_type;\
+
 
 
 #define ADD_SAME_TYPEDEF(_CONF_,_TYPE_)\

@@ -43,7 +43,7 @@
 
 //define max number of threads 
 #ifdef TBB_PARALLEL
-#define MAX_PARALLEL 4
+#define MAX_PARALLEL 64
 #else
 #define MAX_PARALLEL 1
 #endif

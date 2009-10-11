@@ -22,11 +22,12 @@ struct new_test_functor:public parallel_range_processor<new_test_functor>{
 
 	new_test_functor(const vector<int>& i,vector<A_S*>& o):input_ref(i),output(o){}
 	const vector<int>& input()const{return input_ref;}
-	void run(size_t i)const{
+	bool run(size_t i)const{
 		printf("%d,%d \n",i,get_thread_logic_id());
 		assert(i<output.size());
 		assert(i<input_ref.size());
 		output.at(i) = new A_S(input_ref.at(i));
+		return true;
 	}
 };
 
@@ -34,8 +35,9 @@ struct delete_test_functor:public parallel_range_processor<delete_test_functor>{
 	vector<A_S*>& input_ref;
 	delete_test_functor(vector<A_S*>& i):input_ref(i){}
 	const vector<A_S*>& input()const{return input_ref;}
-	void run(size_t i)const{
+	bool run(size_t i)const{
 		delete input_ref[i];
+		return true;
 	} 
 };
 

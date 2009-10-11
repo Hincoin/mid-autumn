@@ -129,7 +129,8 @@ namespace ma{
 		unsigned get_hardware_concurrency()const{return hardware_concurrency_;}
 		unsigned get_thread_logic_id(){
 #ifdef TBB_PARALLEL
-			return (*id).id;
+			assert((*id).id < MAX_PARALLEL);
+			return std::min<unsigned>((*id).id,MAX_PARALLEL-1);
 #else
 			return 0;
 #endif
@@ -191,10 +192,7 @@ namespace ma{
 		void operator()(
 			const RangeT& r
 			)const{
-			for(typename RangeT::const_iterator i = r.begin();i != r.end(); ++i)
-			{
-				derived().run(i);
-			}
+			for(typename RangeT::const_iterator i = r.begin();i != r.end() && derived().run(i); ++i);
 			return;
 		}
 	};

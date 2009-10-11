@@ -32,6 +32,15 @@ namespace ma{
 				delete [] twoDSamples[i];
 			delete[] oneDSamples;
 			delete[] twoDSamples;
+			if (subdivided_)
+			{
+				for(int i = 0 ;i < subdivide_count_; ++i)
+				{
+					(static_cast<class_type*>(subdivided_)+i)->~class_type();
+				}
+				subdivide_count_ = 0;
+				::free(subdivided_);
+			}
 		}
 	private:
 		int roundSizeImpl(int size) const {
@@ -46,12 +55,16 @@ namespace ma{
 		scalar_t *imageSamples, *lensSamples, *timeSamples;
 		scalar_t **oneDSamples, **twoDSamples;
 		size_t n1D,n2D;
+
+		void* subdivided_;
+		int subdivide_count_;
 	};
 	// LDSampler Method Definitions
 	template<typename Conf>
 	LDSampler<Conf>::LDSampler(int xstart, int xend,
 		int ystart, int yend, int ps)
-		: parent_type(xstart, xend, ystart, yend, RoundUpPow2(ps)) {
+		: parent_type(xstart, xend, ystart, yend, RoundUpPow2(ps))
+		,subdivided_(0),subdivide_count_(0) {
 			xPos = parent_type::x_pixel_start - 1;
 			yPos = parent_type::y_pixel_start;
 			if (!isPowerOf2(ps)) {
@@ -102,6 +115,11 @@ namespace ma{
 				LDShuffleScrambled2D(sample.n2D[i], pixelSamples,
 				twoDSamples[i]);
 		}
+		if (yPos < 28 && yPos > 25)
+		{
+			int abreak =0;
+		}
+		
 		// Copy low-discrepancy samples from tables
 		sample.image_x = xPos + imageSamples[2*samplePos];
 		sample.image_y = yPos + imageSamples[2*samplePos+1];
@@ -126,7 +144,28 @@ namespace ma{
 	typename LDSampler<Conf>::class_type* 
 		LDSampler<Conf>::subdivideImpl(int count)
 	{
-
+		//free up first
+		if (subdivided_)
+		{
+			for(int i = 0 ;i < subdivide_count_; ++i)
+			{
+				(static_cast<class_type*>(subdivided_)+i)->~class_type();
+			}
+			::free(subdivided_);
+			subdivided_ = 0;
+			subdivide_count_ = 0;
+		}
+		int y_step = (y_pixel_end - y_pixel_start + count-1)/count;
+		int y_s = y_pixel_start;
+		subdivide_count_ = count;
+		subdivided_ = ::malloc(subdivide_count_ * sizeof(class_type));
+		int i = 0;
+		for(;y_s < y_pixel_end; y_s += y_step)
+		{
+			new ((static_cast<class_type*>(subdivided_)+(i++))) 
+				class_type(x_pixel_start,x_pixel_end,y_s,y_s+y_step,samples_per_pixel) ;
+		}
+		return (class_type*)subdivided_;
 	}
 }
 #endif
