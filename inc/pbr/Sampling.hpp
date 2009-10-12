@@ -16,7 +16,7 @@ public:
 		CRTP_METHOD(bool,getNextSample,1,( I_(sample_t&,s)));
 		int totalSamples()const{return samples_per_pixel * (x_pixel_end-x_pixel_start) * (y_pixel_end - y_pixel_start);}
 		CRTP_CONST_METHOD(int,roundSize,1,( I_(int ,size)));
-		CRTP_METHOD(derived_type*,subdivide,1,(I_(int,count)));
+		CRTP_METHOD(derived_type*,subdivide,1,(I_(unsigned&,count)));
 	END_CRTP_INTERFACE
 
 	template<typename Conf>

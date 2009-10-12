@@ -26,6 +26,8 @@ namespace ma
 		ADD_SAME_TYPEDEF(Conf,sample_t)
 		ADD_SAME_TYPEDEF(Conf,scalar_t)
 		typedef Scene<Conf> class_type;
+
+		static const int default_sample_grain_size = 256;
 	public:
 		void render();
 		Scene(camera_ptr c,surface_integrator_ptr in,
@@ -63,6 +65,8 @@ namespace ma
 		volume_integrator_ptr volume_integrator;
 		sampler_ptr sampler;
 		bbox_t bound;
+
+		
 	};
 }
 
@@ -76,83 +80,16 @@ namespace ma
 namespace ma{
 
 	namespace parallel{
-
-		//while(range.next()) do something with range.cur();
-		template<typename SceneT,unsigned MIN_PARTITION=256>
-		struct sample_range{
-			typedef sample_range<SceneT> class_type;
-			ADD_SAME_TYPEDEF(SceneT,sampler_ptr)
-			ADD_SAME_TYPEDEF(SceneT,sample_ptr)
-			ADD_SAME_TYPEDEF(SceneT,surface_integrator_ptr)
-			ADD_SAME_TYPEDEF(SceneT,volume_integrator_ptr)
-			ADD_SAME_TYPEDEF(SceneT,sample_t)
-
-			struct iterator{
-				class_type* range_;
-				sample_ptr cur_;
-				typedef sample_ptr value_type;
-				int i;
-				iterator& operator++(){
-					++i;
-					if (i < range_->upper && range_->sampler_->getNextSample(*cur_)  )
-						return *this;
-					return range_->end_;
-				}
-				value_type operator*(){return cur_;}
-				iterator():range_(0),i(0){}
-				iterator(class_type* r,sample_ptr c):range_(r),cur_(c){}
-				bool operator==(const iterator& other)
-				{return other.range_ == range_ && cur_ == other.cur_ && i == other.i;}
-				int pos()const{return i;}
-			};
-			typedef const iterator const_iterator;
-			bool empty()const{return !(lower < upper);};
-			size_t size()const{return upper-lower;}
-			bool is_divisible()const{return !empty() && size() > MIN_PARTITION; }
-			sample_range(sample_range& sr,tbb::split)
-			{
-				
-			}
-			sample_range(int start,int ends,sampler_ptr smp,surface_integrator_ptr surf,volume_integrator_ptr v,
-				SceneT* s)
-			{
-				lower=start;upper = ends;sampler_ = smp;
-				surface_integrator = surf;
-				volume_integrator = v;
-				scene = s;
-				cur_ = iterator(this,sample_t::make_sample(surface_integrator,volume_integrator,s));
-			}
-			~sample_range()
-			{
-				delete_ptr(sampler_);
-				delete_ptr(cur_.cur_);
-			}
-			const_iterator cur()const{return cur_;}
-			bool next(){
-				++cur_;
-				return cur_ == iterator();
-			}
-			iterator cur_;
-			sampler_ptr sampler_;
-			int lower;
-			int upper;
-
-
-			surface_integrator_ptr surface_integrator;
-			volume_integrator_ptr volume_integrator;
-			SceneT* scene;
-
-		};
-		template<typename SceneT>
+		template<typename SceneT,int MAX_GRAIN_SIZE = 256>
 		struct input_sample{
 			//typename SceneT::scalar_t ray_weight;
-			typename SceneT::sampler_ptr samplers[MAX_PARALLEL]; //these are managed by the scene sampler_ptr
-			typename SceneT::sample_ptr samples[MAX_PARALLEL];
+			typename SceneT::sampler_ptr samplers[MAX_GRAIN_SIZE]; //these are managed by the scene sampler_ptr
+			typename SceneT::sample_ptr samples[MAX_GRAIN_SIZE];
 			input_sample(){
 				::memset(samples,0,sizeof(samples));
 			}
 			~input_sample(){
-				for (size_t i = 0;i < MAX_PARALLEL; ++i)
+				for (size_t i = 0;i < MAX_GRAIN_SIZE; ++i)
 				{
 					delete_ptr(samples[i]);
 				}
@@ -178,7 +115,7 @@ namespace ma{
 			ADD_SAME_TYPEDEF(S,camera_ptr)
 			ADD_SAME_TYPEDEF(S,scalar_t)
 
-			typedef input_sample<S> input_sample_t;
+			typedef input_sample<S,S::default_sample_grain_size> input_sample_t;
 			typedef output_info<S> output_info_t;
 			//typedef const std::vector<input_ray_t>& input_seq_t;
 			//typedef std::vector<output_info_t>& output_seq_t;
@@ -188,29 +125,33 @@ namespace ma{
 			input_seq_t input_;
 			output_seq_t output_;
 			const S* scene;
-			const camera_ptr camera;
+			/*const*/ camera_ptr camera;
+			const size_t* sizes_array;
 
 			ray_tracing(
 				input_seq_t in,output_seq_t out,
-				const S* s,const camera_ptr c):input_(in),output_(out),scene(s),camera(c){}
+				const S* s,/*const*/ camera_ptr c,size_t* sizes)
+				:input_(in),output_(out),scene(s),camera(c),sizes_array(sizes){}
 
 			input_seq_t input()const{return input_;}
 			bool run(size_t i )const //return bool to decide continue or break
 			{
-				int thread_id = get_thread_logic_id();
-				sample_ptr sample = input_.samples[thread_id];
-				if(input_.samplers[thread_id]->getNextSample(*sample))
+				sample_ptr sample = input_.samples[i];
+				size_t base_offset = sizes_array[i];
+				while(base_offset < sizes_array[i+1] && input_.samplers[i]->getNextSample(*sample))
 				{
-					output_info_t& o = output_[i];
+					output_info_t& o = output_[base_offset];
 					assert(!o.processed);
 					scalar_t ray_weight = camera->generateRay(*sample,o.ray);
 					o.camera_sample = *sample;
 					if (ray_weight > 0)
 						o.ls = ray_weight * scene->li(o.ray, sample,o.alpha);
+					camera->addSample( o.camera_sample,o.ray,o.ls,o.alpha);
+
 					o.processed = true;
-					return true;
+					base_offset++;
 				}
-				return false;
+				return true;
 			}
 		};
 	}
@@ -220,7 +161,8 @@ void Scene<Conf>::render()
 	clock_t tick = clock();
 #ifdef TBB_PARALLEL
 	thread_observer task_observer;
-	tbb::task_scheduler_init init;
+	tbb::task_scheduler_init init(std::min(hardware_concurrency(),
+		std::min<unsigned>(MAX_PARALLEL,default_sample_grain_size)));
 #endif
 
 	
@@ -228,18 +170,24 @@ void Scene<Conf>::render()
 	//while(getNextSample(sampler,sample))
 	//parallel this
 #ifdef TBB_PARALLEL
-	size_t reserved_size = 256;
-	typedef parallel::input_sample<class_type> input_sample_t;
+	 //what if the size is > the height of the image
+	const int extra_room = 8;
+	size_t reserved_size = 0;
+	size_t base_offsets [default_sample_grain_size+1] = {0};
+
+	typedef parallel::input_sample<class_type,default_sample_grain_size> input_sample_t;
 	input_sample_t sampled_rays;
-	MA_ASSERT( MAX_PARALLEL >= hardware_concurrency());
-	unsigned concurrency = std::min<unsigned>(MAX_PARALLEL,hardware_concurrency());
+	MA_ASSERT( default_sample_grain_size >= hardware_concurrency());
+	unsigned concurrency = default_sample_grain_size;//std::min<unsigned>(default_grain_size,hardware_concurrency());
 	sampler_ptr sampler_divided = sampler->subdivide(concurrency);
 	for (unsigned i = 0;i < concurrency; ++i)
 	{
 		sampled_rays.samples[i] = sample_t::make_sample(surface_integrator,volume_integrator,this);
 		sampled_rays.samplers[i] = sampler_divided+i;
-		reserved_size += sampled_rays.samplers[i]->totalSamples();
+		base_offsets[i] = reserved_size;
+		reserved_size += sampled_rays.samplers[i]->totalSamples() + extra_room;
 	}
+	base_offsets [concurrency] = reserved_size;
 	
 
 	surface_integrator->preprocess(this);
@@ -247,31 +195,23 @@ void Scene<Conf>::render()
 	typedef parallel::output_info<class_type> output_info_t;
 	output_info_t* outputs = new output_info_t[reserved_size];
 	size_t sample_count = reserved_size;
-	//while(sampler->getNextSample(*sample) && sample_count < reserved_size)
-	//{
-	//	sampled_rays[sample_count].ray_weight = camera->generateRay(*sample,outputs[sample_count].ray);
-	//	outputs[sample_count].camera_sample = sample->cameraSample();
-	//	sample_count++;
-	//}
 #endif
 
 	//exit(0);
 	clock_t before_parallel = clock()-tick;
+	clock_t after_parallel = 0;
 #ifdef TBB_PARALLEL
 	//do compute
 	typedef parallel::ray_tracing<class_type> ray_tracing_func_t;
-	ray_tracing_func_t tracing_f(sampled_rays,outputs,this,camera);
-	parallel_for::run(tracing_f,sample_count);
-
-	for (size_t i = 0;i < sample_count; ++i)
-	{
-		if(outputs[i].processed)
-			camera->addSample( outputs[i].camera_sample,outputs[i].ray,outputs[i].ls,outputs[i].alpha);
-		if (outputs[i].camera_sample.image_y > 25 && outputs[i].camera_sample.image_y < 28)
-		{
-			printf("%f \n",outputs[i].alpha);
-		}
-	}
+	ray_tracing_func_t tracing_f(sampled_rays,outputs,this,camera ,base_offsets);
+	parallel_for::run(tracing_f,default_sample_grain_size);
+	after_parallel = clock();
+	//for (size_t i = 0;i < sample_count; ++i)
+	//{
+	//	if(outputs[i].processed)
+	//		camera->addSample( outputs[i].camera_sample,outputs[i].ray,outputs[i].ls,outputs[i].alpha);
+	//}
+	after_parallel = clock() - after_parallel;
 	delete []outputs;
 #else
 	sample_ptr sample = sample_t::make_sample(surface_integrator,volume_integrator,this);
@@ -299,7 +239,8 @@ void Scene<Conf>::render()
 	delete_ptr(sample);
 #endif
 
-	printf("render time before li:%ld do li:%ld clocks \n",before_parallel,(long)(clock()-tick));
+	printf("render time before li:%ld do li:%ld clocks ; after parallel: %ld \n",
+		before_parallel,(long)(clock()-tick),(long)after_parallel);
 	camera->writeImage();
 }
 template<typename Conf>

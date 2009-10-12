@@ -136,11 +136,18 @@ namespace ma{
 #endif
 		}
 		void on_thread_entry(){
+#ifdef TBB_PARALLEL
 			tls_worker_id_t& worker_id = *id;
 			worker_id.id = worker_count;
 			++worker_count;
+#endif
+
 		}
-		void on_thread_exit(){--worker_count;}
+		void on_thread_exit(){
+#ifdef TBB_PARALLEL
+			--worker_count;
+#endif
+		}
 	};
 #ifdef TBB_PARALLEL
 	struct thread_observer:public tbb::task_scheduler_observer{
