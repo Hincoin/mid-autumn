@@ -7,9 +7,9 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT WINVER
-#endif
+//#ifndef _WIN32_WINNT
+//#define _WIN32_WINNT WINVER
+//#endif
 #include <windows.h>
 
 #ifdef min

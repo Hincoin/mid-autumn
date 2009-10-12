@@ -151,15 +151,15 @@ namespace ma{
 			subdivided_ = 0;
 			subdivide_count_ = 0;
 		}
-		int y_step = (y_pixel_end - y_pixel_start + count-1)/count;
-		int y_s = y_pixel_start;
+		int y_step = (parent_type::y_pixel_end - parent_type::y_pixel_start + count-1)/count;
+		int y_s = parent_type::y_pixel_start;
 		subdivide_count_ = count;
 		subdivided_ = ::malloc(subdivide_count_ * sizeof(class_type));
 		int i = 0;
-		for(;y_s < y_pixel_end; y_s += y_step)
+		for(;y_s < parent_type::y_pixel_end; y_s += y_step)
 		{
 			new ((static_cast<class_type*>(subdivided_)+(i++))) 
-				class_type(x_pixel_start,x_pixel_end,y_s,y_s+y_step,samples_per_pixel) ;
+				class_type(parent_type::x_pixel_start,parent_type::x_pixel_end,y_s,y_s+y_step,parent_type::samples_per_pixel) ;
 		}
 		count=i;
 		subdivide_count_ = count;
