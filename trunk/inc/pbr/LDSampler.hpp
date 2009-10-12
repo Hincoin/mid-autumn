@@ -47,7 +47,7 @@ namespace ma{
 			return RoundUpPow2(size);
 		}
 		bool getNextSampleImpl(sample_t &sample);
-		class_type* subdivideImpl(int count);
+		class_type* subdivideImpl(unsigned& count);
 	private:
 		// LDSampler Private Data
 		int xPos, yPos, pixelSamples;
@@ -115,10 +115,6 @@ namespace ma{
 				LDShuffleScrambled2D(sample.n2D[i], pixelSamples,
 				twoDSamples[i]);
 		}
-		if (yPos < 28 && yPos > 25)
-		{
-			int abreak =0;
-		}
 		
 		// Copy low-discrepancy samples from tables
 		sample.image_x = xPos + imageSamples[2*samplePos];
@@ -142,7 +138,7 @@ namespace ma{
 
 	template<typename Conf>
 	typename LDSampler<Conf>::class_type* 
-		LDSampler<Conf>::subdivideImpl(int count)
+		LDSampler<Conf>::subdivideImpl(unsigned& count)
 	{
 		//free up first
 		if (subdivided_)
@@ -165,6 +161,8 @@ namespace ma{
 			new ((static_cast<class_type*>(subdivided_)+(i++))) 
 				class_type(x_pixel_start,x_pixel_end,y_s,y_s+y_step,samples_per_pixel) ;
 		}
+		count=i;
+		subdivide_count_ = count;
 		return (class_type*)subdivided_;
 	}
 }
