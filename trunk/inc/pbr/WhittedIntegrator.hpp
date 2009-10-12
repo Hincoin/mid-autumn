@@ -2,7 +2,7 @@
 #define _MA_INCLUDED_WHITTEDINTEGRATOR_HPP_
 
 #include "Transport.hpp"
-
+#include "parallel_compute.hpp"
 namespace ma{
 
 	// WhittedIntegrator Declarations
@@ -29,12 +29,13 @@ namespace ma{
 			const sample_ptr sample, scalar_t &alpha) const;
 		WhittedIntegrator(int md) {
 			maxDepth = md;
-			rayDepth = 0;
+			//rayDepth = 0;
+			::memset(rayDepth,0,sizeof(rayDepth));
 		}
 	private:
 		// WhittedIntegrator Private Data
 		int maxDepth;
-		mutable int rayDepth;
+		mutable int rayDepth[MAX_PARALLEL];
 	};
 	// WhittedIntegrator Method Definitions
 	template<typename Conf>
@@ -74,7 +75,7 @@ namespace ma{
 					if (!f.black() && visibility.unOccluded(scene))
 						L += f * Li * std::abs(wi.dot(n) ) * visibility.transmittance(scene);
 				}
-				if (rayDepth++ < maxDepth) {
+				if (rayDepth[get_thread_logic_id()]++ < maxDepth) {
 					// Trace rays for specular reflection and refraction
 					spectrum_t f = bsdf->sample_f(wo, wi,
 						BxDFType(BSDF_REFLECTION | BSDF_SPECULAR));
@@ -129,7 +130,7 @@ namespace ma{
 						L += scene->li(rd, sample) * f * std::abs(wi.dot(n) );
 					}
 				}
-				--rayDepth;
+				--rayDepth[get_thread_logic_id()];
 			}
 			return L;
 	}

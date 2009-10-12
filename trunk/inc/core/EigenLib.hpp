@@ -13,6 +13,7 @@
 #undef max
 #endif
 
+#include "MAConfig.hpp"
 
 #include <Eigen/Core>
 #include <Eigen/LU>

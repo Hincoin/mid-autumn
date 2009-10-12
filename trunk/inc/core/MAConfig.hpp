@@ -52,4 +52,10 @@
 #include <tbb/tbb.h>
 #endif
 
+#if defined(_MSC_VER)
+//config eigen
+
+#define __SSE2__
+#endif
+
 #endif

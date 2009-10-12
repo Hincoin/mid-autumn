@@ -115,41 +115,45 @@ namespace ma{
 			ADD_SAME_TYPEDEF(S,camera_ptr)
 			ADD_SAME_TYPEDEF(S,scalar_t)
 
+			ADD_SAME_TYPEDEF(S,ray_differential_t);
+			ADD_SAME_TYPEDEF(S,sample_t)
+			ADD_SAME_TYPEDEF(S,spectrum_t)
+
 			typedef input_sample<S,S::default_sample_grain_size> input_sample_t;
-			typedef output_info<S> output_info_t;
+			//typedef output_info<S> output_info_t;
 			//typedef const std::vector<input_ray_t>& input_seq_t;
 			//typedef std::vector<output_info_t>& output_seq_t;
 			typedef input_sample_t& input_seq_t;
-			typedef output_info_t* output_seq_t;
+			//typedef output_info_t* output_seq_t;
 
 			input_seq_t input_;
-			output_seq_t output_;
+			//output_seq_t output_;
 			const S* scene;
 			/*const*/ camera_ptr camera;
 			const size_t* sizes_array;
 
 			ray_tracing(
-				input_seq_t in,output_seq_t out,
-				const S* s,/*const*/ camera_ptr c,size_t* sizes)
-				:input_(in),output_(out),scene(s),camera(c),sizes_array(sizes){}
+				input_seq_t in,
+				const S* s,/*const*/ camera_ptr c)
+				:input_(in),scene(s),camera(c){}
 
 			input_seq_t input()const{return input_;}
 			bool run(size_t i )const //return bool to decide continue or break
 			{
 				sample_ptr sample = input_.samples[i];
-				size_t base_offset = sizes_array[i];
-				while(base_offset < sizes_array[i+1] && input_.samplers[i]->getNextSample(*sample))
+				while( input_.samplers[i]->getNextSample(*sample))
 				{
-					output_info_t& o = output_[base_offset];
-					assert(!o.processed);
-					scalar_t ray_weight = camera->generateRay(*sample,o.ray);
-					o.camera_sample = *sample;
-					if (ray_weight > 0)
-						o.ls = ray_weight * scene->li(o.ray, sample,o.alpha);
-					camera->addSample( o.camera_sample,o.ray,o.ls,o.alpha);
+					ray_differential_t ray;
+					spectrum_t ls;
+					scalar_t alpha = 0;
+					typename sample_t::camera_sample_t camera_sample;
 
-					o.processed = true;
-					base_offset++;
+					scalar_t ray_weight = camera->generateRay(*sample,ray);
+					camera_sample = *sample;
+					if (ray_weight > 0)
+						ls = ray_weight * scene->li(ray, sample,alpha);
+					//this is thread-safe because the image space is divided into different sections
+					camera->addSample(  camera_sample, ray, ls, alpha);
 				}
 				return true;
 			}
@@ -172,8 +176,8 @@ void Scene<Conf>::render()
 #ifdef TBB_PARALLEL
 	 //what if the size is > the height of the image
 	const int extra_room = 8;
-	size_t reserved_size = 0;
-	size_t base_offsets [default_sample_grain_size+1] = {0};
+	//size_t reserved_size = 0;
+	//size_t base_offsets [default_sample_grain_size+1] = {0};
 
 	typedef parallel::input_sample<class_type,default_sample_grain_size> input_sample_t;
 	input_sample_t sampled_rays;
@@ -184,17 +188,17 @@ void Scene<Conf>::render()
 	{
 		sampled_rays.samples[i] = sample_t::make_sample(surface_integrator,volume_integrator,this);
 		sampled_rays.samplers[i] = sampler_divided+i;
-		base_offsets[i] = reserved_size;
-		reserved_size += sampled_rays.samplers[i]->totalSamples() + extra_room;
+		//base_offsets[i] = reserved_size;
+		//reserved_size += sampled_rays.samplers[i]->totalSamples() + extra_room;
 	}
-	base_offsets [concurrency] = reserved_size;
+	//base_offsets [concurrency] = reserved_size;
 	
 
 	surface_integrator->preprocess(this);
 
-	typedef parallel::output_info<class_type> output_info_t;
-	output_info_t* outputs = new output_info_t[reserved_size];
-	size_t sample_count = reserved_size;
+	//typedef parallel::output_info<class_type> output_info_t;
+	//output_info_t* outputs = new output_info_t[reserved_size];
+	//size_t sample_count = reserved_size;
 #endif
 
 	//exit(0);
@@ -203,8 +207,8 @@ void Scene<Conf>::render()
 #ifdef TBB_PARALLEL
 	//do compute
 	typedef parallel::ray_tracing<class_type> ray_tracing_func_t;
-	ray_tracing_func_t tracing_f(sampled_rays,outputs,this,camera ,base_offsets);
-	parallel_for::run(tracing_f,default_sample_grain_size);
+	ray_tracing_func_t tracing_f(sampled_rays,this,camera );
+	parallel_for::run(tracing_f,concurrency);
 	after_parallel = clock();
 	//for (size_t i = 0;i < sample_count; ++i)
 	//{
@@ -212,7 +216,6 @@ void Scene<Conf>::render()
 	//		camera->addSample( outputs[i].camera_sample,outputs[i].ray,outputs[i].ls,outputs[i].alpha);
 	//}
 	after_parallel = clock() - after_parallel;
-	delete []outputs;
 #else
 	sample_ptr sample = sample_t::make_sample(surface_integrator,volume_integrator,this);
 
