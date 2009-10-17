@@ -10,6 +10,10 @@
 #if USE_PTHREAD
 #include <pthread.h>
 #else /* assume USE_WINTHREAD */
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
 

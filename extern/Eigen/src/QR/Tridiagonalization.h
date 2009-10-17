@@ -26,6 +26,7 @@
 #define EIGEN_TRIDIAGONALIZATION_H
 
 /** \ingroup QR_Module
+  * \nonstableyet
   *
   * \class Tridiagonalization
   *
@@ -163,11 +164,11 @@ Tridiagonalization<MatrixType>::matrixT(void) const
   // and fill it ? (to avoid temporaries)
   int n = m_matrix.rows();
   MatrixType matT = m_matrix;
-  matT.corner(TopRight,n-1, n-1).diagonal() = subDiagonal().conjugate();
+  matT.corner(TopRight,n-1, n-1).diagonal() = subDiagonal().template cast<Scalar>().conjugate();
   if (n>2)
   {
-    matT.corner(TopRight,n-2, n-2).template part<Upper>().setZero();
-    matT.corner(BottomLeft,n-2, n-2).template part<Lower>().setZero();
+    matT.corner(TopRight,n-2, n-2).template part<UpperTriangular>().setZero();
+    matT.corner(BottomLeft,n-2, n-2).template part<LowerTriangular>().setZero();
   }
   return matT;
 }
@@ -198,8 +199,9 @@ void Tridiagonalization<MatrixType>::_compute(MatrixType& matA, CoeffVectorType&
 
     // start of the householder transformation
     // squared norm of the vector v skipping the first element
-    RealScalar v1norm2 = matA.col(i).end(n-(i+2)).norm2();
+    RealScalar v1norm2 = matA.col(i).end(n-(i+2)).squaredNorm();
 
+    // FIXME comparing against 1
     if (ei_isMuchSmallerThan(v1norm2,static_cast<Scalar>(1)))
     {
       hCoeffs.coeffRef(i) = 0.;
@@ -219,20 +221,20 @@ void Tridiagonalization<MatrixType>::_compute(MatrixType& matA, CoeffVectorType&
       // i.e., A = H' A H where H = I - h v v' and v = matA.col(i).end(n-i-1)
 
       matA.col(i).coeffRef(i+1) = 1;
-      
+
       /* This is the initial algorithm which minimize operation counts and maximize
        * the use of Eigen's expression. Unfortunately, the first matrix-vector product
-       * using Part<Lower|Selfadjoint>  is very very slow */
+       * using Part<LowerTriangular|Selfadjoint>  is very very slow */
       #ifdef EIGEN_NEVER_DEFINED
       // matrix - vector product
-      hCoeffs.end(n-i-1) = (matA.corner(BottomRight,n-i-1,n-i-1).template part<Lower|SelfAdjoint>()
+      hCoeffs.end(n-i-1) = (matA.corner(BottomRight,n-i-1,n-i-1).template part<LowerTriangular|SelfAdjoint>()
                                 * (h * matA.col(i).end(n-i-1))).lazy();
       // simple axpy
       hCoeffs.end(n-i-1) += (h * Scalar(-0.5) * matA.col(i).end(n-i-1).dot(hCoeffs.end(n-i-1)))
                             * matA.col(i).end(n-i-1);
       // rank-2 update
       //Block<MatrixType,Dynamic,1> B(matA,i+1,i,n-i-1,1);
-      matA.corner(BottomRight,n-i-1,n-i-1).template part<Lower>() -=
+      matA.corner(BottomRight,n-i-1,n-i-1).template part<LowerTriangular>() -=
             (matA.col(i).end(n-i-1) * hCoeffs.end(n-i-1).adjoint()).lazy()
           + (hCoeffs.end(n-i-1) * matA.col(i).end(n-i-1).adjoint()).lazy();
       #endif
@@ -255,7 +257,7 @@ void Tridiagonalization<MatrixType>::_compute(MatrixType& matA, CoeffVectorType&
             Block<MatrixType,Dynamic,4>(matA,b+4,b,n-b-4,4).adjoint() * Block<MatrixType,Dynamic,1>(matA,b+4,i,n-b-4,1);
         // the 4x4 block diagonal:
         Block<CoeffVectorType,4,1>(hCoeffs, b, 0, 4,1) +=
-            (Block<MatrixType,4,4>(matA,b,b,4,4).template part<Lower|SelfAdjoint>()
+            (Block<MatrixType,4,4>(matA,b,b,4,4).template part<LowerTriangular|SelfAdjoint>()
              * (h * Block<MatrixType,4,1>(matA,b,i,4,1))).lazy();
       }
       #endif
@@ -267,7 +269,7 @@ void Tridiagonalization<MatrixType>::_compute(MatrixType& matA, CoeffVectorType&
        * if we remove the specialization of Block for Matrix then it is even worse, much worse ! */
       #ifdef EIGEN_NEVER_DEFINED
       for (int j1=i+1; j1<n; ++j1)
-      for (int i1=j1;  i1<n; i1++)
+      for (int i1=j1;  i1<n; ++i1)
         matA.coeffRef(i1,j1) -= matA.coeff(i1,i)*ei_conj(hCoeffs.coeff(j1-1))
                               + hCoeffs.coeff(i1-1)*ei_conj(matA.coeff(j1,i));
       #endif
@@ -284,7 +286,7 @@ void Tridiagonalization<MatrixType>::_compute(MatrixType& matA, CoeffVectorType&
 
       hCoeffs.end(n-i-1) += (h * Scalar(-0.5) * matA.col(i).end(n-i-1).dot(hCoeffs.end(n-i-1)))
                             * matA.col(i).end(n-i-1);
-      
+
       const Scalar* EIGEN_RESTRICT pb = &matA.coeffRef(0,i);
       const Scalar* EIGEN_RESTRICT pa = (&hCoeffs.coeffRef(0)) - 1;
       for (int j1=i+1; j1<n; ++j1)
@@ -295,11 +297,11 @@ void Tridiagonalization<MatrixType>::_compute(MatrixType& matA, CoeffVectorType&
         {
           int alignedStart = (starti) + ei_alignmentOffset(&matA.coeffRef(starti,j1), n-starti);
           alignedEnd = alignedStart + ((n-alignedStart)/PacketSize)*PacketSize;
-          
+
           for (int i1=starti; i1<alignedStart; ++i1)
             matA.coeffRef(i1,j1) -= matA.coeff(i1,i)*ei_conj(hCoeffs.coeff(j1-1))
                                   + hCoeffs.coeff(i1-1)*ei_conj(matA.coeff(j1,i));
-          
+
           Packet tmp0 = ei_pset1(hCoeffs.coeff(j1-1));
           Packet tmp1 = ei_pset1(matA.coeff(j1,i));
           Scalar* pc = &matA.coeffRef(0,j1);
@@ -330,7 +332,8 @@ void Tridiagonalization<MatrixType>::_compute(MatrixType& matA, CoeffVectorType&
     if (ei_real(v0)>=0.)
       beta = -beta;
     matA.col(i).coeffRef(i+1) = beta;
-    hCoeffs.coeffRef(i) = (beta - v0) / beta;
+    if(ei_isMuchSmallerThan(beta, Scalar(1))) hCoeffs.coeffRef(i) = Scalar(0);
+    else hCoeffs.coeffRef(i) = (beta - v0) / beta;
   }
   else
   {

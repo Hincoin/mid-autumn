@@ -1,19 +1,33 @@
 #ifndef EIGEN_CORE_H
 #define EIGEN_CORE_H
 
+// first thing Eigen does: prevent MSVC from committing suicide
+#include "src/Core/util/DisableMSVCWarnings.h"
+
 #ifdef _MSC_VER
-#pragma   warning(push) 
-#pragma warning( disable : 4181 4244 4127)
+  #include <malloc.h> // for _aligned_malloc -- need it regardless of whether vectorization is enabled
+  #if (_MSC_VER >= 1500) // 2008 or later
+    // Remember that usage of defined() in a #define is undefined by the standard.
+    // a user reported that in 64-bit mode, MSVC doesn't care to define _M_IX86_FP.
+    #if (defined(_M_IX86_FP) && (_M_IX86_FP >= 2)) || defined(_M_X64)
+      #define EIGEN_SSE2_ON_MSVC_2008_OR_LATER
+    #endif   
+  #endif
 #endif
 
 #ifdef __GNUC__
-#define EIGEN_GNUC_AT_LEAST(x,y) ((__GNUC__>=x && __GNUC_MINOR__>=y) || __GNUC__>x)
+  #define EIGEN_GNUC_AT_LEAST(x,y) ((__GNUC__>=x && __GNUC_MINOR__>=y) || __GNUC__>x)
 #else
-#define EIGEN_GNUC_AT_LEAST(x,y) 0
+  #define EIGEN_GNUC_AT_LEAST(x,y) 0
+#endif
+
+// Remember that usage of defined() in a #define is undefined by the standard
+#if (defined __SSE2__) && ( (!defined __GNUC__) || EIGEN_GNUC_AT_LEAST(4,2) )
+  #define EIGEN_SSE2_BUT_NOT_OLD_GCC
 #endif
 
 #ifndef EIGEN_DONT_VECTORIZE
-  #if (defined __SSE2__) && ( (!defined __GNUC__) || EIGEN_GNUC_AT_LEAST(4,2) )
+  #if defined (EIGEN_SSE2_BUT_NOT_OLD_GCC) || defined(EIGEN_SSE2_ON_MSVC_2008_OR_LATER)
     #define EIGEN_VECTORIZE
     #define EIGEN_VECTORIZE_SSE
     #include <emmintrin.h>
@@ -24,11 +38,11 @@
     #ifdef __SSSE3__
       #include <tmmintrin.h>
     #endif
-  #elif (defined __ALTIVEC__)
+  #elif defined __ALTIVEC__
     #define EIGEN_VECTORIZE
     #define EIGEN_VECTORIZE_ALTIVEC
     #include <altivec.h>
-    // We _need_ to #undef all these ugly tokens defined in <altivec.h>
+    // We need to #undef all these ugly tokens defined in <altivec.h>
     // => use __vector instead of vector
     #undef bool
     #undef vector
@@ -44,14 +58,23 @@
 #include <iostream>
 #include <cstring>
 #include <string>
+#include <limits>
 
-#ifdef min
-#undef min
+#if (defined(_CPPUNWIND) || defined(__EXCEPTIONS)) && !defined(EIGEN_NO_EXCEPTIONS)
+  #define EIGEN_EXCEPTIONS
 #endif
 
-#ifdef max
-#undef max
+#ifdef EIGEN_EXCEPTIONS
+  #include <new>
 #endif
+
+// this needs to be done after all possible windows C header includes and before any Eigen source includes
+// (system C++ includes are supposed to be able to deal with this already):
+// windows.h defines min and max macros which would make Eigen fail to compile.
+#if defined(min) || defined(max)
+#error The preprocessor symbols 'min' or 'max' are defined. If you are compiling on Windows, do #define NOMINMAX to prevent windows.h from defining these symbols.
+#endif
+
 namespace Eigen {
 
 /** \defgroup Core_Module Core module
@@ -77,9 +100,9 @@ namespace Eigen {
 #include "src/Core/GenericPacketMath.h"
 
 #if defined EIGEN_VECTORIZE_SSE
-#include "src/Core/arch/SSE/PacketMath.h"
+  #include "src/Core/arch/SSE/PacketMath.h"
 #elif defined EIGEN_VECTORIZE_ALTIVEC
-#include "src/Core/arch/AltiVec/PacketMath.h"
+  #include "src/Core/arch/AltiVec/PacketMath.h"
 #endif
 
 #ifndef EIGEN_CACHEFRIENDLY_PRODUCT_THRESHOLD
@@ -89,10 +112,12 @@ namespace Eigen {
 #include "src/Core/Functors.h"
 #include "src/Core/MatrixBase.h"
 #include "src/Core/Coeffs.h"
+
 #ifndef EIGEN_PARSED_BY_DOXYGEN // work around Doxygen bug triggered by Assign.h r814874
                                 // at least confirmed with Doxygen 1.5.5 and 1.5.6
-#include "src/Core/Assign.h"
+  #include "src/Core/Assign.h"
 #endif
+
 #include "src/Core/MatrixStorage.h"
 #include "src/Core/NestByValue.h"
 #include "src/Core/Flagged.h"
@@ -124,8 +149,6 @@ namespace Eigen {
 
 } // namespace Eigen
 
-#ifdef _MSC_VER
-#pragma   warning(pop) 
-#endif
+#include "src/Core/util/EnableMSVCWarnings.h"
 
 #endif // EIGEN_CORE_H

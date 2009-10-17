@@ -2,7 +2,7 @@
 // for linear algebra. Eigen itself is part of the KDE project.
 //
 // Copyright (C) 2008 Gael Guennebaud <g.gael@free.fr>
-// Copyright (C) 2006-2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -65,12 +65,13 @@ struct ei_redux_impl<BinaryOp, Derived, Start, Dynamic>
   typedef typename ei_result_of<BinaryOp(typename Derived::Scalar)>::type Scalar;
   static Scalar run(const Derived& mat, const BinaryOp& func)
   {
+    ei_assert(mat.rows()>0 && mat.cols()>0 && "you are using a non initialized matrix");
     Scalar res;
     res = mat.coeff(0,0);
-    for(int i = 1; i < mat.rows(); i++)
+    for(int i = 1; i < mat.rows(); ++i)
       res = func(res, mat.coeff(i, 0));
-    for(int j = 1; j < mat.cols(); j++)
-      for(int i = 0; i < mat.rows(); i++)
+    for(int j = 1; j < mat.cols(); ++j)
+      for(int i = 0; i < mat.rows(); ++i)
         res = func(res, mat.coeff(i, j));
     return res;
   }

@@ -25,7 +25,7 @@
 #ifndef EIGEN_ROTATION2D_H
 #define EIGEN_ROTATION2D_H
 
-/** \geometry_module \ingroup GeometryModule
+/** \geometry_module \ingroup Geometry_Module
   *
   * \class Rotation2D
   *
@@ -85,7 +85,7 @@ public:
 
   /** Concatenates two rotations */
   inline Rotation2D& operator*=(const Rotation2D& other)
-  { return m_angle += other.m_angle; }
+  { return m_angle += other.m_angle; return *this; }
 
   /** Applies the rotation to a 2D vector */
   Vector2 operator* (const Vector2& vec) const
@@ -100,12 +100,35 @@ public:
     */
   inline Rotation2D slerp(Scalar t, const Rotation2D& other) const
   { return m_angle * (1-t) + other.angle() * t; }
+
+  /** \returns \c *this with scalar type casted to \a NewScalarType
+    *
+    * Note that if \a NewScalarType is equal to the current scalar type of \c *this
+    * then this function smartly returns a const reference to \c *this.
+    */
+  template<typename NewScalarType>
+  inline typename ei_cast_return_type<Rotation2D,Rotation2D<NewScalarType> >::type cast() const
+  { return typename ei_cast_return_type<Rotation2D,Rotation2D<NewScalarType> >::type(*this); }
+
+  /** Copy constructor with scalar type conversion */
+  template<typename OtherScalarType>
+  inline explicit Rotation2D(const Rotation2D<OtherScalarType>& other)
+  {
+    m_angle = Scalar(other.angle());
+  }
+
+  /** \returns \c true if \c *this is approximately equal to \a other, within the precision
+    * determined by \a prec.
+    *
+    * \sa MatrixBase::isApprox() */
+  bool isApprox(const Rotation2D& other, typename NumTraits<Scalar>::Real prec = precision<Scalar>()) const
+  { return ei_isApprox(m_angle,other.m_angle, prec); }
 };
 
-/** \ingroup GeometryModule
+/** \ingroup Geometry_Module
   * single precision 2D rotation type */
 typedef Rotation2D<float> Rotation2Df;
-/** \ingroup GeometryModule
+/** \ingroup Geometry_Module
   * double precision 2D rotation type */
 typedef Rotation2D<double> Rotation2Dd;
 
@@ -117,7 +140,7 @@ template<typename Scalar>
 template<typename Derived>
 Rotation2D<Scalar>& Rotation2D<Scalar>::fromRotationMatrix(const MatrixBase<Derived>& mat)
 {
-  EIGEN_STATIC_ASSERT(Derived::RowsAtCompileTime==2 && Derived::ColsAtCompileTime==2,you_did_a_programming_error);
+  EIGEN_STATIC_ASSERT(Derived::RowsAtCompileTime==2 && Derived::ColsAtCompileTime==2,YOU_MADE_A_PROGRAMMING_MISTAKE)
   m_angle = ei_atan2(mat.coeff(1,0), mat.coeff(0,0));
   return *this;
 }

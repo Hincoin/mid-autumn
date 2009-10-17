@@ -1,7 +1,7 @@
 // This file is part of Eigen, a lightweight C++ template library
 // for linear algebra. Eigen itself is part of the KDE project.
 //
-// Copyright (C) 2006-2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -28,7 +28,8 @@
 template<typename T> struct ei_traits;
 template<typename T> struct NumTraits;
 
-template<typename _Scalar, int _Rows, int _Cols, int _StorageOrder = ColMajor,
+template<typename _Scalar, int _Rows, int _Cols,
+         int _Options = EIGEN_DEFAULT_MATRIX_STORAGE_ORDER_OPTION | AutoAlign,
          int _MaxRows = _Rows, int _MaxCols = _Cols> class Matrix;
 
 template<typename ExpressionType, unsigned int Added, unsigned int Removed> class Flagged;
@@ -64,6 +65,7 @@ template<typename Scalar> struct ei_scalar_quotient_op;
 template<typename Scalar> struct ei_scalar_opposite_op;
 template<typename Scalar> struct ei_scalar_conjugate_op;
 template<typename Scalar> struct ei_scalar_real_op;
+template<typename Scalar> struct ei_scalar_imag_op;
 template<typename Scalar> struct ei_scalar_abs_op;
 template<typename Scalar> struct ei_scalar_abs2_op;
 template<typename Scalar> struct ei_scalar_sqrt_op;
@@ -102,8 +104,8 @@ template<typename ExpressionType, int Direction> class PartialRedux;
 template<typename MatrixType> class LU;
 template<typename MatrixType> class QR;
 template<typename MatrixType> class SVD;
-template<typename MatrixType> class Cholesky;
-template<typename MatrixType> class CholeskyWithoutSquareRoot;
+template<typename MatrixType> class LLT;
+template<typename MatrixType> class LDLT;
 
 // Geometry module:
 template<typename Derived, int _Dim> class RotationBase;
@@ -116,5 +118,8 @@ template <typename _Scalar, int _AmbientDim> class ParametrizedLine;
 template <typename _Scalar, int _AmbientDim> class Hyperplane;
 template<typename Scalar,int Dim> class Translation;
 template<typename Scalar,int Dim> class Scaling;
+
+// Sparse module:
+template<typename Lhs, typename Rhs, int ProductMode> class SparseProduct;
 
 #endif // EIGEN_FORWARDDECLARATIONS_H

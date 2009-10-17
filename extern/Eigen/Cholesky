@@ -3,6 +3,8 @@
 
 #include "Core"
 
+#include "src/Core/util/DisableMSVCWarnings.h"
+
 // Note that EIGEN_HIDE_HEAVY_CODE has to be defined per module
 #if (defined EIGEN_EXTERN_INSTANTIATIONS) && (EIGEN_EXTERN_INSTANTIATIONS>=2)
   #ifndef EIGEN_HIDE_HEAVY_CODE
@@ -15,10 +17,13 @@
 namespace Eigen {
 
 /** \defgroup Cholesky_Module Cholesky module
+  *
+  * \nonstableyet
+  *
   * This module provides two variants of the Cholesky decomposition for selfadjoint (hermitian) matrices.
   * Those decompositions are accessible via the following MatrixBase methods:
-  *  - MatrixBase::cholesky(),
-  *  - MatrixBase::choleskyNoSqrt()
+  *  - MatrixBase::llt(),
+  *  - MatrixBase::ldlt()
   *
   * \code
   * #include <Eigen/Cholesky>
@@ -27,14 +32,14 @@ namespace Eigen {
 
 #include "src/Array/CwiseOperators.h"
 #include "src/Array/Functors.h"
-#include "src/Cholesky/Cholesky.h"
-#include "src/Cholesky/CholeskyWithoutSquareRoot.h"
+#include "src/Cholesky/LLT.h"
+#include "src/Cholesky/LDLT.h"
 
 } // namespace Eigen
 
 #define EIGEN_CHOLESKY_MODULE_INSTANTIATE_TYPE(MATRIXTYPE,PREFIX) \
-  PREFIX template class Cholesky<MATRIXTYPE>; \
-  PREFIX template class CholeskyWithoutSquareRoot<MATRIXTYPE>
+  PREFIX template class LLT<MATRIXTYPE>; \
+  PREFIX template class LDLT<MATRIXTYPE>
 
 #define EIGEN_CHOLESKY_MODULE_INSTANTIATE(PREFIX) \
   EIGEN_CHOLESKY_MODULE_INSTANTIATE_TYPE(Matrix2f,PREFIX); \
@@ -54,5 +59,7 @@ namespace Eigen {
   EIGEN_CHOLESKY_MODULE_INSTANTIATE(extern);
 } // namespace Eigen
 #endif
+
+#include "src/Core/util/EnableMSVCWarnings.h"
 
 #endif // EIGEN_CHOLESKY_MODULE_H

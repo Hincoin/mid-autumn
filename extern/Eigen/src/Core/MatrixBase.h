@@ -1,7 +1,8 @@
 // This file is part of Eigen, a lightweight C++ template library
 // for linear algebra. Eigen itself is part of the KDE project.
 //
-// Copyright (C) 2006-2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
+// Copyright (C) 2008 Gael Guennebaud <g.gael@free.fr>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -55,10 +56,12 @@ template<typename Derived> class MatrixBase
 {
   public:
 
+#ifndef EIGEN_PARSED_BY_DOXYGEN
     class InnerIterator;
 
     typedef typename ei_traits<Derived>::Scalar Scalar;
     typedef typename ei_packet_traits<Scalar>::type PacketScalar;
+#endif // not EIGEN_PARSED_BY_DOXYGEN
 
     enum {
 
@@ -139,6 +142,7 @@ template<typename Derived> class MatrixBase
       ei_assert(ei_are_flags_consistent<Flags>::ret);
     }
 
+#ifndef EIGEN_PARSED_BY_DOXYGEN
     /** This is the "real scalar" type; if the \a Scalar type is already real numbers
       * (e.g. int, float or double) then \a RealScalar is just the same as \a Scalar. If
       * \a Scalar is \a std::complex<T> then RealScalar is \a T.
@@ -150,6 +154,7 @@ template<typename Derived> class MatrixBase
     /** type of the equivalent square matrix */
     typedef Matrix<Scalar,EIGEN_ENUM_MAX(RowsAtCompileTime,ColsAtCompileTime),
                           EIGEN_ENUM_MAX(RowsAtCompileTime,ColsAtCompileTime)> SquareMatrixType;
+#endif // not EIGEN_PARSED_BY_DOXYGEN
 
     /** \returns the number of rows. \sa cols(), RowsAtCompileTime */
     inline int rows() const { return derived().rows(); }
@@ -173,9 +178,21 @@ template<typename Derived> class MatrixBase
       * i.e., the number of rows for a columns major matrix, and the number of cols otherwise */
     int innerSize() const { return (int(Flags)&RowMajorBit) ? this->cols() : this->rows(); }
 
-    /** \internal the type to which the expression gets evaluated (needed by MSVC) */
-    typedef typename ei_eval<Derived>::type EvalType;
-    /** \internal Represents a constant matrix */
+#ifndef EIGEN_PARSED_BY_DOXYGEN
+    /** \internal the plain matrix type corresponding to this expression. Note that is not necessarily
+      * exactly the return type of eval(): in the case of plain matrices, the return type of eval() is a const
+      * reference to a matrix, not a matrix! It guaranteed however, that the return type of eval() is either
+      * PlainMatrixType or const PlainMatrixType&.
+      */
+    typedef typename ei_plain_matrix_type<Derived>::type PlainMatrixType;
+    /** \internal the column-major plain matrix type corresponding to this expression. Note that is not necessarily
+      * exactly the return type of eval(): in the case of plain matrices, the return type of eval() is a const
+      * reference to a matrix, not a matrix!
+      * The only difference from PlainMatrixType is that PlainMatrixType_ColMajor is guaranteed to be column-major.
+      */
+    typedef typename ei_plain_matrix_type<Derived>::type PlainMatrixType_ColMajor;
+
+    /** \internal Represents a matrix with all coefficients equal to one another*/
     typedef CwiseNullaryOp<ei_scalar_constant_op<Scalar>,Derived> ConstantReturnType;
     /** \internal Represents a scalar multiple of a matrix */
     typedef CwiseUnaryOp<ei_scalar_multiple_op<Scalar>, Derived> ScalarMultipleReturnType;
@@ -188,8 +205,10 @@ template<typename Derived> class MatrixBase
                      >::ret ConjugateReturnType;
     /** \internal the return type of MatrixBase::real() */
     typedef CwiseUnaryOp<ei_scalar_real_op<Scalar>, Derived> RealReturnType;
+    /** \internal the return type of MatrixBase::imag() */
+    typedef CwiseUnaryOp<ei_scalar_imag_op<Scalar>, Derived> ImagReturnType;
     /** \internal the return type of MatrixBase::adjoint() */
-    typedef Transpose<NestByValue<typename ei_cleantype<ConjugateReturnType>::type> >
+    typedef Eigen::Transpose<NestByValue<typename ei_cleantype<ConjugateReturnType>::type> >
             AdjointReturnType;
     /** \internal the return type of MatrixBase::eigenvalues() */
     typedef Matrix<typename NumTraits<typename ei_traits<Derived>::Scalar>::Real, ei_traits<Derived>::ColsAtCompileTime, 1> EigenvaluesReturnType;
@@ -203,15 +222,12 @@ template<typename Derived> class MatrixBase
     typedef Block<CwiseNullaryOp<ei_scalar_identity_op<Scalar>, SquareMatrixType>,
                   ei_traits<Derived>::RowsAtCompileTime,
                   ei_traits<Derived>::ColsAtCompileTime> BasisReturnType;
+#endif // not EIGEN_PARSED_BY_DOXYGEN
 
 
     /** Copies \a other into *this. \returns a reference to *this. */
     template<typename OtherDerived>
     Derived& operator=(const MatrixBase<OtherDerived>& other);
-
-    /** Copies \a other into *this without evaluating other. \returns a reference to *this. */
-    template<typename OtherDerived>
-    Derived& lazyAssign(const MatrixBase<OtherDerived>& other);
 
     /** Special case of the template operator=, in order to prevent the compiler
       * from generating a default operator= (issue hit with g++ 4.1)
@@ -221,6 +237,11 @@ template<typename Derived> class MatrixBase
       return this->operator=<Derived>(other);
     }
 
+#ifndef EIGEN_PARSED_BY_DOXYGEN
+    /** Copies \a other into *this without evaluating other. \returns a reference to *this. */
+    template<typename OtherDerived>
+    Derived& lazyAssign(const MatrixBase<OtherDerived>& other);
+
     /** Overloaded for cache friendly product evaluation */
     template<typename Lhs, typename Rhs>
     Derived& lazyAssign(const Product<Lhs,Rhs,CacheFriendlyProduct>& product);
@@ -229,10 +250,7 @@ template<typename Derived> class MatrixBase
     template<typename OtherDerived>
     Derived& lazyAssign(const Flagged<OtherDerived, 0, EvalBeforeNestingBit | EvalBeforeAssigningBit>& other)
     { return lazyAssign(other._expression()); }
-
-    /** Overloaded for sparse product evaluation */
-    template<typename Derived1, typename Derived2>
-    Derived& lazyAssign(const Product<Derived1,Derived2,SparseProduct>& product);
+#endif // not EIGEN_PARSED_BY_DOXYGEN
 
     CommaInitializer<Derived> operator<< (const Scalar& s);
 
@@ -253,6 +271,7 @@ template<typename Derived> class MatrixBase
     Scalar& operator[](int index);
     Scalar& operator()(int index);
 
+#ifndef EIGEN_PARSED_BY_DOXYGEN
     template<typename OtherDerived>
     void copyCoeff(int row, int col, const MatrixBase<OtherDerived>& other);
     template<typename OtherDerived>
@@ -261,6 +280,7 @@ template<typename Derived> class MatrixBase
     void copyPacket(int row, int col, const MatrixBase<OtherDerived>& other);
     template<typename OtherDerived, int StoreMode, int LoadMode>
     void copyPacket(int index, const MatrixBase<OtherDerived>& other);
+#endif // not EIGEN_PARSED_BY_DOXYGEN
 
     template<int LoadMode>
     PacketScalar packet(int row, int col) const;
@@ -320,21 +340,23 @@ template<typename Derived> class MatrixBase
     Derived& operator*=(const MatrixBase<OtherDerived>& other);
 
     template<typename OtherDerived>
-    typename OtherDerived::Eval solveTriangular(const MatrixBase<OtherDerived>& other) const;
+    typename ei_plain_matrix_type_column_major<OtherDerived>::type
+		solveTriangular(const MatrixBase<OtherDerived>& other) const;
 
     template<typename OtherDerived>
-    void solveTriangularInPlace(MatrixBase<OtherDerived>& other) const;
+    void solveTriangularInPlace(const MatrixBase<OtherDerived>& other) const;
 
 
     template<typename OtherDerived>
     Scalar dot(const MatrixBase<OtherDerived>& other) const;
-    RealScalar norm2() const;
+    RealScalar squaredNorm() const;
     RealScalar norm()  const;
-    const EvalType normalized() const;
+    const PlainMatrixType normalized() const;
     void normalize();
 
-    Transpose<Derived> transpose();
-    const Transpose<Derived> transpose() const;
+    Eigen::Transpose<Derived> transpose();
+    const Eigen::Transpose<Derived> transpose() const;
+    void transposeInPlace();
     const AdjointReturnType adjoint() const;
 
 
@@ -423,6 +445,7 @@ template<typename Derived> class MatrixBase
 
     const DiagonalMatrix<Derived> asDiagonal() const;
 
+    void fill(const Scalar& value);
     Derived& setConstant(const Scalar& value);
     Derived& setZero();
     Derived& setOnes();
@@ -440,13 +463,14 @@ template<typename Derived> class MatrixBase
                            RealScalar prec = precision<Scalar>()) const;
 
     bool isApproxToConstant(const Scalar& value, RealScalar prec = precision<Scalar>()) const;
+    bool isConstant(const Scalar& value, RealScalar prec = precision<Scalar>()) const;
     bool isZero(RealScalar prec = precision<Scalar>()) const;
     bool isOnes(RealScalar prec = precision<Scalar>()) const;
     bool isIdentity(RealScalar prec = precision<Scalar>()) const;
     bool isDiagonal(RealScalar prec = precision<Scalar>()) const;
 
-    bool isUpper(RealScalar prec = precision<Scalar>()) const;
-    bool isLower(RealScalar prec = precision<Scalar>()) const;
+    bool isUpperTriangular(RealScalar prec = precision<Scalar>()) const;
+    bool isLowerTriangular(RealScalar prec = precision<Scalar>()) const;
 
     template<typename OtherDerived>
     bool isOrthogonal(const MatrixBase<OtherDerived>& other,
@@ -467,11 +491,11 @@ template<typename Derived> class MatrixBase
 
     /** \returns the matrix or vector obtained by evaluating this expression.
       *
+      * Notice that in the case of a plain matrix or vector (not an expression) this function just returns
+      * a const reference, in order to avoid a useless copy.
       */
-    EIGEN_ALWAYS_INLINE const typename ei_eval<Derived>::type eval() const
-    {
-      return typename ei_eval<Derived>::type(derived());
-    }
+    EIGEN_STRONG_INLINE const typename ei_eval<Derived>::type eval() const
+    { return typename ei_eval<Derived>::type(derived()); }
 
     template<typename OtherDerived>
     void swap(const MatrixBase<OtherDerived>& other);
@@ -492,6 +516,7 @@ template<typename Derived> class MatrixBase
 
     ConjugateReturnType conjugate() const;
     const RealReturnType real() const;
+    const ImagReturnType imag() const;
 
     template<typename CustomUnaryOp>
     const CwiseUnaryOp<CustomUnaryOp, Derived> unaryExpr(const CustomUnaryOp& func = CustomUnaryOp()) const;
@@ -507,8 +532,11 @@ template<typename Derived> class MatrixBase
     typename ei_traits<Derived>::Scalar minCoeff() const;
     typename ei_traits<Derived>::Scalar maxCoeff() const;
 
-    typename ei_traits<Derived>::Scalar minCoeff(int* row, int* col = 0) const;
-    typename ei_traits<Derived>::Scalar maxCoeff(int* row, int* col = 0) const;
+    typename ei_traits<Derived>::Scalar minCoeff(int* row, int* col) const;
+    typename ei_traits<Derived>::Scalar maxCoeff(int* row, int* col) const;
+
+    typename ei_traits<Derived>::Scalar minCoeff(int* index) const;
+    typename ei_traits<Derived>::Scalar maxCoeff(int* index) const;
 
     template<typename BinaryOp>
     typename ei_result_of<BinaryOp(typename ei_traits<Derived>::Scalar)>::type
@@ -517,11 +545,12 @@ template<typename Derived> class MatrixBase
     template<typename Visitor>
     void visit(Visitor& func) const;
 
-
+#ifndef EIGEN_PARSED_BY_DOXYGEN
     inline const Derived& derived() const { return *static_cast<const Derived*>(this); }
     inline Derived& derived() { return *static_cast<Derived*>(this); }
     inline Derived& const_cast_derived() const
     { return *static_cast<Derived*>(const_cast<MatrixBase*>(this)); }
+#endif // not EIGEN_PARSED_BY_DOXYGEN
 
     const Cwise<Derived> cwise() const;
     Cwise<Derived> cwise();
@@ -532,6 +561,7 @@ template<typename Derived> class MatrixBase
 
     bool all(void) const;
     bool any(void) const;
+    int count() const;
 
     const PartialRedux<Derived,Horizontal> rowwise() const;
     const PartialRedux<Derived,Vertical> colwise() const;
@@ -544,44 +574,56 @@ template<typename Derived> class MatrixBase
     const Select<Derived,ThenDerived,ElseDerived>
     select(const MatrixBase<ThenDerived>& thenMatrix,
            const MatrixBase<ElseDerived>& elseMatrix) const;
-   
+
     template<typename ThenDerived>
     inline const Select<Derived,ThenDerived, NestByValue<typename ThenDerived::ConstantReturnType> >
     select(const MatrixBase<ThenDerived>& thenMatrix, typename ThenDerived::Scalar elseScalar) const;
-    
+
     template<typename ElseDerived>
     inline const Select<Derived, NestByValue<typename ElseDerived::ConstantReturnType>, ElseDerived >
     select(typename ElseDerived::Scalar thenScalar, const MatrixBase<ElseDerived>& elseMatrix) const;
 
+    template<int p> RealScalar lpNorm() const;
+
 /////////// LU module ///////////
 
-    const LU<EvalType> lu() const;
-    const EvalType inverse() const;
-    void computeInverse(EvalType *result) const;
+    const LU<PlainMatrixType> lu() const;
+    const PlainMatrixType inverse() const;
+    void computeInverse(PlainMatrixType *result) const;
     Scalar determinant() const;
 
 /////////// Cholesky module ///////////
 
-    const Cholesky<EvalType> cholesky() const;
-    const CholeskyWithoutSquareRoot<EvalType> choleskyNoSqrt() const;
+    const LLT<PlainMatrixType>  llt() const;
+    const LDLT<PlainMatrixType> ldlt() const;
 
 /////////// QR module ///////////
 
-    const QR<EvalType> qr() const;
+    const QR<PlainMatrixType> qr() const;
 
     EigenvaluesReturnType eigenvalues() const;
     RealScalar operatorNorm() const;
 
 /////////// SVD module ///////////
 
-    SVD<EvalType> svd() const;
+    SVD<PlainMatrixType> svd() const;
 
 /////////// Geometry module ///////////
 
     template<typename OtherDerived>
-    EvalType cross(const MatrixBase<OtherDerived>& other) const;
-    EvalType unitOrthogonal(void) const;
-    
+    PlainMatrixType cross(const MatrixBase<OtherDerived>& other) const;
+    PlainMatrixType unitOrthogonal(void) const;
+    Matrix<Scalar,3,1> eulerAngles(int a0, int a1, int a2) const;
+
+/////////// Sparse module ///////////
+
+    // dense = spasre * dense
+    template<typename Derived1, typename Derived2>
+    Derived& lazyAssign(const SparseProduct<Derived1,Derived2,SparseTimeDenseProduct>& product);
+    // dense = dense * spasre
+    template<typename Derived1, typename Derived2>
+    Derived& lazyAssign(const SparseProduct<Derived1,Derived2,DenseTimeSparseProduct>& product);
+
     #ifdef EIGEN_MATRIXBASE_PLUGIN
     #include EIGEN_MATRIXBASE_PLUGIN
     #endif

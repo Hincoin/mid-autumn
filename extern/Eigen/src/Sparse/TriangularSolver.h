@@ -25,19 +25,9 @@
 #ifndef EIGEN_SPARSETRIANGULARSOLVER_H
 #define EIGEN_SPARSETRIANGULARSOLVER_H
 
-// template<typename Lhs, typename Rhs,
-//   int TriangularPart = (int(Lhs::Flags) & LowerTriangularBit)
-//                      ? Lower
-//                      : (int(Lhs::Flags) & UpperTriangularBit)
-//                      ? Upper
-//                      : -1,
-//   int StorageOrder = int(Lhs::Flags) & RowMajorBit ? RowMajor : ColMajor
-//   >
-// struct ei_sparse_trisolve_selector;
-
 // forward substitution, row-major
 template<typename Lhs, typename Rhs>
-struct ei_solve_triangular_selector<Lhs,Rhs,Lower,RowMajor|IsSparse>
+struct ei_solve_triangular_selector<Lhs,Rhs,LowerTriangular,RowMajor|IsSparse>
 {
   typedef typename Rhs::Scalar Scalar;
   static void run(const Lhs& lhs, Rhs& other)
@@ -69,7 +59,7 @@ struct ei_solve_triangular_selector<Lhs,Rhs,Lower,RowMajor|IsSparse>
 
 // backward substitution, row-major
 template<typename Lhs, typename Rhs>
-struct ei_solve_triangular_selector<Lhs,Rhs,Upper,RowMajor|IsSparse>
+struct ei_solve_triangular_selector<Lhs,Rhs,UpperTriangular,RowMajor|IsSparse>
 {
   typedef typename Rhs::Scalar Scalar;
   static void run(const Lhs& lhs, Rhs& other)
@@ -80,7 +70,9 @@ struct ei_solve_triangular_selector<Lhs,Rhs,Upper,RowMajor|IsSparse>
       {
         Scalar tmp = other.coeff(i,col);
         typename Lhs::InnerIterator it(lhs, i);
-        for(++it; it; ++it)
+        if (it.index() == i)
+          ++it;
+        for(; it; ++it)
         {
           tmp -= it.value() * other.coeff(it.index(),col);
         }
@@ -100,7 +92,7 @@ struct ei_solve_triangular_selector<Lhs,Rhs,Upper,RowMajor|IsSparse>
 
 // forward substitution, col-major
 template<typename Lhs, typename Rhs>
-struct ei_solve_triangular_selector<Lhs,Rhs,Lower,ColMajor|IsSparse>
+struct ei_solve_triangular_selector<Lhs,Rhs,LowerTriangular,ColMajor|IsSparse>
 {
   typedef typename Rhs::Scalar Scalar;
   static void run(const Lhs& lhs, Rhs& other)
@@ -112,12 +104,14 @@ struct ei_solve_triangular_selector<Lhs,Rhs,Lower,ColMajor|IsSparse>
         typename Lhs::InnerIterator it(lhs, i);
         if(!(Lhs::Flags & UnitDiagBit))
         {
-          std::cerr << it.value() << " ; " << it.index() << " == " << i << "\n";
+          // std::cerr << it.value() << " ; " << it.index() << " == " << i << "\n";
           ei_assert(it.index()==i);
           other.coeffRef(i,col) /= it.value();
         }
         Scalar tmp = other.coeffRef(i,col);
-        for(++it; it; ++it)
+        if (it.index()==i)
+          ++it;
+        for(; it; ++it)
           other.coeffRef(it.index(), col) -= tmp * it.value();
       }
     }
@@ -126,7 +120,7 @@ struct ei_solve_triangular_selector<Lhs,Rhs,Lower,ColMajor|IsSparse>
 
 // backward substitution, col-major
 template<typename Lhs, typename Rhs>
-struct ei_solve_triangular_selector<Lhs,Rhs,Upper,ColMajor|IsSparse>
+struct ei_solve_triangular_selector<Lhs,Rhs,UpperTriangular,ColMajor|IsSparse>
 {
   typedef typename Rhs::Scalar Scalar;
   static void run(const Lhs& lhs, Rhs& other)
@@ -149,5 +143,36 @@ struct ei_solve_triangular_selector<Lhs,Rhs,Upper,ColMajor|IsSparse>
     }
   }
 };
+
+template<typename Derived>
+template<typename OtherDerived>
+void SparseMatrixBase<Derived>::solveTriangularInPlace(MatrixBase<OtherDerived>& other) const
+{
+  ei_assert(derived().cols() == derived().rows());
+  ei_assert(derived().cols() == other.rows());
+  ei_assert(!(Flags & ZeroDiagBit));
+  ei_assert(Flags & (UpperTriangularBit|LowerTriangularBit));
+
+  enum { copy = ei_traits<OtherDerived>::Flags & RowMajorBit };
+
+  typedef typename ei_meta_if<copy,
+    typename ei_plain_matrix_type_column_major<OtherDerived>::type, OtherDerived&>::ret OtherCopy;
+  OtherCopy otherCopy(other.derived());
+
+  ei_solve_triangular_selector<Derived, typename ei_unref<OtherCopy>::type>::run(derived(), otherCopy);
+
+  if (copy)
+    other = otherCopy;
+}
+
+template<typename Derived>
+template<typename OtherDerived>
+typename ei_plain_matrix_type_column_major<OtherDerived>::type
+SparseMatrixBase<Derived>::solveTriangular(const MatrixBase<OtherDerived>& other) const
+{
+  typename ei_plain_matrix_type_column_major<OtherDerived>::type res(other);
+  solveTriangularInPlace(res);
+  return res;
+}
 
 #endif // EIGEN_SPARSETRIANGULARSOLVER_H

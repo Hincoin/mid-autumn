@@ -2,7 +2,7 @@
 // for linear algebra. Eigen itself is part of the KDE project.
 //
 // Copyright (C) 2008 Gael Guennebaud <g.gael@free.fr>
-// Copyright (C) 2006-2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -26,12 +26,31 @@
 #ifndef EIGEN_DIAGONALPRODUCT_H
 #define EIGEN_DIAGONALPRODUCT_H
 
+/** \internal Specialization of ei_nested for DiagonalMatrix.
+ *  Unlike ei_nested, if the argument is a DiagonalMatrix and if it must be evaluated,
+ *  then it evaluated to a DiagonalMatrix having its own argument evaluated.
+ */
+template<typename T, int N> struct ei_nested_diagonal : ei_nested<T,N> {};
+template<typename T, int N> struct ei_nested_diagonal<DiagonalMatrix<T>,N >
+ : ei_nested<DiagonalMatrix<T>, N, DiagonalMatrix<NestByValue<typename ei_plain_matrix_type<T>::type> > >
+{};
+
+// specialization of ProductReturnType
+template<typename Lhs, typename Rhs>
+struct ProductReturnType<Lhs,Rhs,DiagonalProduct>
+{
+  typedef typename ei_nested_diagonal<Lhs,Rhs::ColsAtCompileTime>::type LhsNested;
+  typedef typename ei_nested_diagonal<Rhs,Lhs::RowsAtCompileTime>::type RhsNested;
+
+  typedef Product<LhsNested, RhsNested, DiagonalProduct> Type;
+};
+
 template<typename LhsNested, typename RhsNested>
 struct ei_traits<Product<LhsNested, RhsNested, DiagonalProduct> >
 {
   // clean the nested types:
-  typedef typename ei_unconst<typename ei_unref<LhsNested>::type>::type _LhsNested;
-  typedef typename ei_unconst<typename ei_unref<RhsNested>::type>::type _RhsNested;
+  typedef typename ei_cleantype<LhsNested>::type _LhsNested;
+  typedef typename ei_cleantype<RhsNested>::type _RhsNested;
   typedef typename _LhsNested::Scalar Scalar;
 
   enum {
@@ -54,7 +73,7 @@ struct ei_traits<Product<LhsNested, RhsNested, DiagonalProduct> >
     RemovedBits = ~((RhsFlags & RowMajorBit) && (!CanVectorizeLhs) ? 0 : RowMajorBit),
 
     Flags = ((unsigned int)(LhsFlags | RhsFlags) & HereditaryBits & RemovedBits)
-          | (CanVectorizeLhs || CanVectorizeRhs ? PacketAccessBit : 0),
+          | (((CanVectorizeLhs&&RhsIsDiagonal) || (CanVectorizeRhs&&LhsIsDiagonal)) ? PacketAccessBit : 0),
 
     CoeffReadCost = NumTraits<Scalar>::MulCost + _LhsNested::CoeffReadCost + _RhsNested::CoeffReadCost
   };
@@ -95,12 +114,10 @@ template<typename LhsNested, typename RhsNested> class Product<LhsNested, RhsNes
     {
       if (RhsIsDiagonal)
       {
-        ei_assert((_LhsNested::Flags&RowMajorBit)==0);
         return ei_pmul(m_lhs.template packet<LoadMode>(row, col), ei_pset1(m_rhs.coeff(col, col)));
       }
       else
       {
-        ei_assert(_RhsNested::Flags&RowMajorBit);
         return ei_pmul(ei_pset1(m_lhs.coeff(row, row)), m_rhs.template packet<LoadMode>(row, col));
       }
     }

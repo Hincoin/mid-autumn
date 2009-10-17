@@ -2,7 +2,7 @@
 // for linear algebra. Eigen itself is part of the KDE project.
 //
 // Copyright (C) 2008 Gael Guennebaud <g.gael@free.fr>
-// Copyright (C) 2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -42,7 +42,6 @@ public:
   enum {
     Vectorization = (int(Derived::Flags)&ActualPacketAccessBit)
                  && (int(Derived::Flags)&LinearAccessBit)
-                 && (int(Derived::SizeAtCompileTime)>2*PacketSize)
                   ? LinearVectorization
                   : NoVectorization
   };
@@ -101,18 +100,13 @@ struct ei_sum_novec_unroller<Derived, Start, 1>
 };
 
 /*** vectorization ***/
-
-template<typename Derived, int Index, int Stop,
-         bool LastPacket = (Stop-Index == ei_packet_traits<typename Derived::Scalar>::size)>
+  
+template<typename Derived, int Start, int Length>
 struct ei_sum_vec_unroller
 {
   enum {
-    row = int(Derived::Flags)&RowMajorBit
-        ? Index / int(Derived::ColsAtCompileTime)
-        : Index % Derived::RowsAtCompileTime,
-    col = int(Derived::Flags)&RowMajorBit
-        ? Index % int(Derived::ColsAtCompileTime)
-        : Index / Derived::RowsAtCompileTime
+    PacketSize = ei_packet_traits<typename Derived::Scalar>::size,
+    HalfLength = Length/2
   };
 
   typedef typename Derived::Scalar Scalar;
@@ -121,22 +115,22 @@ struct ei_sum_vec_unroller
   inline static PacketScalar run(const Derived &mat)
   {
     return ei_padd(
-      mat.template packet<Aligned>(row, col),
-      ei_sum_vec_unroller<Derived, Index+ei_packet_traits<typename Derived::Scalar>::size, Stop>::run(mat)
-    );
+            ei_sum_vec_unroller<Derived, Start, HalfLength>::run(mat),
+            ei_sum_vec_unroller<Derived, Start+HalfLength, Length-HalfLength>::run(mat) );
   }
 };
 
-template<typename Derived, int Index, int Stop>
-struct ei_sum_vec_unroller<Derived, Index, Stop, true>
+template<typename Derived, int Start>
+struct ei_sum_vec_unroller<Derived, Start, 1>
 {
   enum {
+    index = Start * ei_packet_traits<typename Derived::Scalar>::size,
     row = int(Derived::Flags)&RowMajorBit
-        ? Index / int(Derived::ColsAtCompileTime)
-        : Index % Derived::RowsAtCompileTime,
+        ? index / int(Derived::ColsAtCompileTime)
+        : index % Derived::RowsAtCompileTime,
     col = int(Derived::Flags)&RowMajorBit
-        ? Index % int(Derived::ColsAtCompileTime)
-        : Index / Derived::RowsAtCompileTime,
+        ? index % int(Derived::ColsAtCompileTime)
+        : index / Derived::RowsAtCompileTime,
     alignment = (Derived::Flags & AlignedBit) ? Aligned : Unaligned
   };
 
@@ -165,12 +159,13 @@ struct ei_sum_impl<Derived, NoVectorization, NoUnrolling>
   typedef typename Derived::Scalar Scalar;
   static Scalar run(const Derived& mat)
   {
+    ei_assert(mat.rows()>0 && mat.cols()>0 && "you are using a non initialized matrix");
     Scalar res;
     res = mat.coeff(0, 0);
-    for(int i = 1; i < mat.rows(); i++)
+    for(int i = 1; i < mat.rows(); ++i)
       res += mat.coeff(i, 0);
-    for(int j = 1; j < mat.cols(); j++)
-      for(int i = 0; i < mat.rows(); i++)
+    for(int j = 1; j < mat.cols(); ++j)
+      for(int i = 0; i < mat.rows(); ++i)
         res += mat.coeff(i, j);
     return res;
   }
@@ -216,10 +211,10 @@ struct ei_sum_impl<Derived, LinearVectorization, NoUnrolling>
       res = Scalar(0);
     }
 
-    for(int index = 0; index < alignedStart; index++)
+    for(int index = 0; index < alignedStart; ++index)
       res += mat.coeff(index);
 
-    for(int index = alignedEnd; index < size; index++)
+    for(int index = alignedEnd; index < size; ++index)
       res += mat.coeff(index);
 
     return res;
@@ -230,11 +225,18 @@ template<typename Derived>
 struct ei_sum_impl<Derived, LinearVectorization, CompleteUnrolling>
 {
   typedef typename Derived::Scalar Scalar;
+  typedef typename ei_packet_traits<Scalar>::type PacketScalar;
+  enum {
+    PacketSize = ei_packet_traits<Scalar>::size,
+    Size = Derived::SizeAtCompileTime,
+    VectorizationSize = (Size / PacketSize) * PacketSize
+  };
   static Scalar run(const Derived& mat)
   {
-    return ei_predux(
-      ei_sum_vec_unroller<Derived, 0, Derived::SizeAtCompileTime>::run(mat)
-    );
+    Scalar res = ei_predux(ei_sum_vec_unroller<Derived, 0, Size / PacketSize>::run(mat));
+    if (VectorizationSize != Size)
+      res += ei_sum_novec_unroller<Derived, VectorizationSize, Size-VectorizationSize>::run(mat);
+    return res;
   }
 };
 

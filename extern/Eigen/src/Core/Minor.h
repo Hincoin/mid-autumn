@@ -1,7 +1,7 @@
 // This file is part of Eigen, a lightweight C++ template library
 // for linear algebra. Eigen itself is part of the KDE project.
 //
-// Copyright (C) 2006-2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -25,7 +25,8 @@
 #ifndef EIGEN_MINOR_H
 #define EIGEN_MINOR_H
 
-/** \class Minor
+/** \nonstableyet 
+  * \class Minor
   *
   * \brief Expression of a minor
   *
@@ -92,7 +93,8 @@ template<typename MatrixType> class Minor
     const int m_row, m_col;
 };
 
-/** \return an expression of the (\a row, \a col)-minor of *this,
+/** \nonstableyet 
+  * \return an expression of the (\a row, \a col)-minor of *this,
   * i.e. an expression constructed from *this by removing the specified
   * row and column.
   *
@@ -108,7 +110,8 @@ MatrixBase<Derived>::minor(int row, int col)
   return Minor<Derived>(derived(), row, col);
 }
 
-/** This is the const version of minor(). */
+/** \nonstableyet 
+  * This is the const version of minor(). */
 template<typename Derived>
 inline const Minor<Derived>
 MatrixBase<Derived>::minor(int row, int col) const

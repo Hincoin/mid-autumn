@@ -122,10 +122,14 @@ namespace ma{
 	template<typename B>
 	struct surface_integrator_config:B{
 		typedef Scene<scene_config<B> >* scene_ptr;
-		typedef Sample<sample_config<B> >* sample_ptr;
-		typedef RayDifferential<typename B::vector_t> ray_differential_t;
+		//typedef Sample<sample_config<B> >* sample_ptr;
+		typedef typename scene_config<B>::sample_ptr sample_ptr;
+		//typedef RayDifferential<typename B::vector_t> ray_differential_t;
+		typedef typename scene_config<B>::ray_differential_t ray_differential_t;
+
 		typedef IntegratorSample<sample_config<B> > sample_t;
-		typedef Intersection<intersection_config<B> > intersection_t;
+		//typedef Intersection<intersection_config<B> > intersection_t;
+		typedef typename scene_config<B>::intersection_t intersection_t;
 
 
 		typedef boost::shared_ptr<BSDF<bsdf_config<B> > > bsdf_ptr;
@@ -135,15 +139,16 @@ namespace ma{
 	struct volume_integrator_config:B{};
 	template<typename B>
 	struct sampler_config:B{
-		typedef Sample<sample_config<B> > sample_t;
+		//typedef Sample<sample_config<B> > sample_t;
+		typedef typename scene_config<B>::sample_t sample_t;
 	};
 	template<typename B>
 	struct sample_config:B{
-		typedef Scene<scene_config<B> >* scene_ptr;
-		typedef WhittedIntegrator<surface_integrator_config<B> >* surface_integrator_ptr;
+		//typedef Scene<scene_config<B> >* scene_ptr;
+		//typedef WhittedIntegrator<surface_integrator_config<B> >* surface_integrator_ptr;
 		//ADD_SAME_TYPEDEF(Conf,surface_integrator_ptr);
 		//ADD_SAME_TYPEDEF(Conf,volume_integrator_ptr);
-		typedef void* volume_integrator_ptr;
+		//typedef void* volume_integrator_ptr;
 	};
 	template<typename B,typename S>
 	struct texture_config {
@@ -176,7 +181,8 @@ namespace ma{
 
 
 		//////////////////////////////////////////////////////////////////////////
-		typedef Intersection<intersection_config<B> > intersection_t;
+		//typedef Intersection<intersection_config<B> > intersection_t;
+		typedef typename scene_config<B>::intersection_t intersection_t;
 		typedef boost::shared_ptr<BSDF<bsdf_config<B> > > bsdf_ptr;
 		typedef DifferentialGeometry<typename B::scalar_t,B::dimension> differential_geometry_t;
 	};
@@ -224,7 +230,8 @@ namespace ma{
 	struct light_config:public B{
 		typedef Scene<scene_config<B> >* scene_ptr;
 		typedef VisibilityTester<visibility_tester_config<B> > visibility_tester_t;
-		typedef RayDifferential<typename B::vector_t> ray_differential_t;
+		//typedef RayDifferential<typename B::vector_t> ray_differential_t;
+		typedef typename scene_config<B>::ray_differential_t ray_differential_t;
 	};
 	template<typename B>
 	struct volume_region_config:B{};
@@ -241,15 +248,20 @@ namespace ma{
 	};
 	template<typename B>
 	struct intersection_config:B{
-		typedef const MAPrimitive< primitive_interface_config<B> >* primitive_ptr;
-		typedef RayDifferential<typename B::vector_t> ray_differential_t;
+		//typedef const MAPrimitive< primitive_interface_config<B> >* primitive_ptr;
+		typedef typename pointer_to_const<typename scene_config<B>::primitive_ptr>::type primitive_ptr;
+		//typedef RayDifferential<typename B::vector_t> ray_differential_t;
+		typedef typename scene_config<B>::ray_differential_t ray_differential_t;
 		typedef DifferentialGeometry<typename B::scalar_t,B::dimension> differential_geometry_t;
 		typedef boost::shared_ptr<BSDF<bsdf_config<B> > > bsdf_ptr;
 	};
+
+	//light , camera, surface_integrator, sampler, primitive, 
+	//volume_integrator 
 template<typename B>
 struct scene_config:B{
 	typedef PointLight<light_config<B> > light_t;
-	typedef light_t* light_ptr;
+	typedef light_t* light_ptr; //ptr var
 	typedef PerspectiveCamera<camera_config<B> >* camera_ptr;
 	typedef WhittedIntegrator<surface_integrator_config<B> >* surface_integrator_ptr;
 	typedef LDSampler<sampler_config<B> >* sampler_ptr;
@@ -257,7 +269,8 @@ struct scene_config:B{
 	typedef sample_t* sample_ptr;
 	typedef MAPrimitive<primitive_interface_config<B> >* primitive_ptr;
 	typedef Intersection<intersection_config<B> > intersection_t;
-	typedef typename intersection_t::ray_differential_t ray_differential_t;
+	//typedef typename intersection_config<B>::ray_differential_t ray_differential_t;
+	typedef RayDifferential<typename B::vector_t> ray_differential_t;
 	typedef void* volume_integrator_ptr;
 	typedef void* volume_region_ptr;
 

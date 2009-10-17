@@ -17,7 +17,7 @@ bool run_test();
 	}
 
 #ifdef NDEBUG
-#define ENABLE_PERFORMANCE_TEST
+//#define ENABLE_PERFORMANCE_TEST
 #endif
 
 #endif

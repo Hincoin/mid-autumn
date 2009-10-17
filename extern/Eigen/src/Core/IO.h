@@ -1,16 +1,17 @@
 // This file is part of Eigen, a lightweight C++ template library
 // for linear algebra. Eigen itself is part of the KDE project.
 //
-// Copyright (C) 2006-2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
+// Copyright (C) 2008 Gael Guennebaud <g.gael@free.fr>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
+// License as published by the Free Software Foundation; either
 // version 3 of the License, or (at your option) any later version.
 //
 // Alternatively, you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
-// published by the Free Software Foundation; either version 2 of 
+// published by the Free Software Foundation; either version 2 of
 // the License, or (at your option) any later version.
 //
 // Eigen is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -18,7 +19,7 @@
 // FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License or the
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU Lesser General Public 
+// You should have received a copy of the GNU Lesser General Public
 // License and a copy of the GNU General Public License along with
 // Eigen. If not, see <http://www.gnu.org/licenses/>.
 
@@ -57,7 +58,7 @@ struct IOFormat
     coeffSeparator(_coeffSeparator), precision(_precision), flags(_flags)
   {
     rowSpacer = "";
-	int i= static_cast<int>(matSuffix.length())-1;
+    int i = int(matSuffix.length())-1;
     while (i>=0 && matSuffix[i]!='\n')
     {
       rowSpacer += ' ';
@@ -80,7 +81,7 @@ struct IOFormat
   * This class represents an expression with stream operators controlled by a given IOFormat.
   * It is the return type of MatrixBase::format()
   * and most of the time this is the only way it is used.
-  * 
+  *
   * See class IOFormat for some examples.
   *
   * \sa MatrixBase::format(), class IOFormat
@@ -121,33 +122,33 @@ MatrixBase<Derived>::format(const IOFormat& fmt) const
 /** \internal
   * print the matrix \a _m to the output stream \a s using the output format \a fmt */
 template<typename Derived>
-std::ostream & ei_print_matrix(std::ostream & s, const MatrixBase<Derived> & _m,
-                               const IOFormat& fmt = IOFormat())
+std::ostream & ei_print_matrix(std::ostream & s, const Derived& _m, const IOFormat& fmt)
 {
   const typename Derived::Nested m = _m;
+
   int width = 0;
   if (fmt.flags & AlignCols)
   {
     // compute the largest width
-    for(int j = 1; j < m.cols(); j++)
-      for(int i = 0; i < m.rows(); i++)
+    for(int j = 1; j < m.cols(); ++j)
+      for(int i = 0; i < m.rows(); ++i)
       {
         std::stringstream sstr;
         sstr.precision(fmt.precision);
         sstr << m.coeff(i,j);
-        width = std::max<int>(width, sstr.str().length());
+        width = std::max<int>(width, int(sstr.str().length()));
       }
   }
   s.precision(fmt.precision);
   s << fmt.matPrefix;
-  for(int i = 0; i < m.rows(); i++)
+  for(int i = 0; i < m.rows(); ++i)
   {
     if (i)
       s << fmt.rowSpacer;
     s << fmt.rowPrefix;
     if(width) s.width(width);
     s << m.coeff(i, 0);
-    for(int j = 1; j < m.cols(); j++)
+    for(int j = 1; j < m.cols(); ++j)
     {
       s << fmt.coeffSeparator;
       if (width) s.width(width);
@@ -163,8 +164,12 @@ std::ostream & ei_print_matrix(std::ostream & s, const MatrixBase<Derived> & _m,
 
 /** \relates MatrixBase
   *
-  * Outputs the matrix, laid out as an array as usual, to the given stream.
-  * You can control the way the matrix is printed using MatrixBase::format().
+  * Outputs the matrix, to the given stream.
+  *
+  * If you wish to print the matrix with a format different than the default, use MatrixBase::format().
+  *
+  * It is also possible to change the default format by defining EIGEN_DEFAULT_IO_FORMAT before including Eigen headers.
+  * If not defined, this will automatically be defined to Eigen::IOFormat(), that is the Eigen::IOFormat with default parameters.
   *
   * \sa MatrixBase::format()
   */
@@ -173,7 +178,7 @@ std::ostream & operator <<
 (std::ostream & s,
  const MatrixBase<Derived> & m)
 {
-  return ei_print_matrix(s, m.eval());
+  return ei_print_matrix(s, m.eval(), EIGEN_DEFAULT_IO_FORMAT);
 }
 
 #endif // EIGEN_IO_H

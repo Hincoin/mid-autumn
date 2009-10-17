@@ -1,7 +1,7 @@
 // This file is part of Eigen, a lightweight C++ template library
 // for linear algebra. Eigen itself is part of the KDE project.
 //
-// Copyright (C) 2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -40,18 +40,9 @@
   * \sa MatrixBase::flagged()
   */
 template<typename ExpressionType, unsigned int Added, unsigned int Removed>
-struct ei_traits<Flagged<ExpressionType, Added, Removed> >
+struct ei_traits<Flagged<ExpressionType, Added, Removed> > : ei_traits<ExpressionType>
 {
-  typedef typename ExpressionType::Scalar Scalar;
-
-  enum {
-    RowsAtCompileTime = ExpressionType::RowsAtCompileTime,
-    ColsAtCompileTime = ExpressionType::ColsAtCompileTime,
-    MaxRowsAtCompileTime = ExpressionType::MaxRowsAtCompileTime,
-    MaxColsAtCompileTime = ExpressionType::MaxColsAtCompileTime,
-    Flags = (ExpressionType::Flags | Added) & ~Removed,
-    CoeffReadCost = ExpressionType::CoeffReadCost
-  };
+  enum { Flags = (ExpressionType::Flags | Added) & ~Removed };
 };
 
 template<typename ExpressionType, unsigned int Added, unsigned int Removed> class Flagged

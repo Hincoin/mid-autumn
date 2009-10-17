@@ -256,7 +256,7 @@ DECLARE_CONST_METHOD(spectrum_t,sample_f,5,( I_(const vector_t&,wo),
 				   I_(scalar_t,u1), I_(scalar_t,u2), I_(scalar_t&,pdf)));
 DECLARE_CONST_METHOD(spectrum_t,rho,3,( I_(const vector_t&,wo),
 				   I_(int , nSamples), I_(scalar_t&,samples)));
-DECLARE_CONST_METHOD(spectrum_t,rho,2,( I_(int , nSamples), I_(scalar_t& ,samples)))
+DECLARE_CONST_METHOD(spectrum_t,rho,2,( I_(int , nSamples), I_(scalar_t* ,samples)))
 
 DECLARE_CONST_METHOD(scalar_t,pdf,2,( I_(const vector_t& ,wi), I_(const vector_t&,wo)))
 
@@ -304,7 +304,7 @@ typename Conf::spectrum_t BxDF<D,Conf>::rho(const typename Conf::vector_t &w, in
 					   return r / (M_PI * nSamples);
 }
 template<typename D,typename Conf>
-typename Conf::spectrum_t BxDF<D,Conf>::rho(int nSamples, scalar_t &samples) const {
+typename Conf::spectrum_t BxDF<D,Conf>::rho(int nSamples, scalar_t *samples) const {
 	if (!samples) {
 		samples =
 			(scalar_t *)alloca(4 * nSamples * sizeof(scalar_t));

@@ -1,7 +1,7 @@
 // This file is part of Eigen, a lightweight C++ template library
 // for linear algebra. Eigen itself is part of the KDE project.
 //
-// Copyright (C) 2006-2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -49,19 +49,6 @@
 template<typename T> struct NumTraits;
 
 template<> struct NumTraits<int>
-{
-  typedef int Real;
-  typedef double FloatingPoint;
-  enum {
-    IsComplex = 0,
-    HasFloatingPoint = 0,
-    ReadCost = 1,
-    AddCost = 1,
-    MulCost = 1
-  };
-};
-//added by lzy
-template<> struct NumTraits<unsigned int>
 {
   typedef int Real;
   typedef double FloatingPoint;

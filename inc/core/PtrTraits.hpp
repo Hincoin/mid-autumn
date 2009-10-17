@@ -177,5 +177,22 @@ namespace ma
 		boost::false_type
 	>::type{};
 
+	template<typename T>
+	struct pointer_to_const
+	{
+		typedef const T* type;
+	};
+	template<typename T>
+	struct pointer_to_const<T*>{
+		typedef const T* type;
+	};
+	template<typename T>
+	struct pointer_to_const<const T*>
+	{
+		typedef const T* type;
+	};
+	template<typename T>
+	struct const_pointer;//T* const
+
 }
 #endif

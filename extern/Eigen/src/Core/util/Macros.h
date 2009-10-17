@@ -2,7 +2,7 @@
 // for linear algebra. Eigen itself is part of the KDE project.
 //
 // Copyright (C) 2008 Gael Guennebaud <g.gael@free.fr>
-// Copyright (C) 2006-2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -28,15 +28,76 @@
 
 #undef minor
 
-/** \internal  Defines the maximal loop size to enable meta unrolling of loops */
+#define EIGEN_WORLD_VERSION 2
+#define EIGEN_MAJOR_VERSION 0
+#define EIGEN_MINOR_VERSION 6
+
+#define EIGEN_VERSION_AT_LEAST(x,y,z) (EIGEN_WORLD_VERSION>x || (EIGEN_WORLD_VERSION>=x && \
+                                      (EIGEN_MAJOR_VERSION>y || (EIGEN_MAJOR_VERSION>=y && \
+                                                                 EIGEN_MINOR_VERSION>=z))))
+
+// 16 byte alignment is only useful for vectorization. Since it affects the ABI, we need to enable 16 byte alignment on all
+// platforms where vectorization might be enabled. In theory we could always enable alignment, but it can be a cause of problems
+// on some platforms, so we just disable it in certain common platform (compiler+architecture combinations) to avoid these problems.
+#if defined(__GNUC__) && !(defined(__i386__) || defined(__x86_64__) || defined(__powerpc__) || defined(__ia64__))
+#define EIGEN_GCC_AND_ARCH_DOESNT_WANT_ALIGNMENT 1
+#else
+#define EIGEN_GCC_AND_ARCH_DOESNT_WANT_ALIGNMENT 0
+#endif
+
+#if defined(__GNUC__) && (__GNUC__ <= 3)
+#define EIGEN_GCC3_OR_OLDER 1
+#else
+#define EIGEN_GCC3_OR_OLDER 0
+#endif
+
+// FIXME vectorization + alignment is completely disabled with sun studio
+#if !EIGEN_GCC_AND_ARCH_DOESNT_WANT_ALIGNMENT && !EIGEN_GCC3_OR_OLDER && !defined(__SUNPRO_CC)
+  #define EIGEN_ARCH_WANTS_ALIGNMENT 1
+#else
+  #define EIGEN_ARCH_WANTS_ALIGNMENT 0
+#endif
+
+// EIGEN_ALIGN is the true test whether we want to align or not. It takes into account both the user choice to explicitly disable
+// alignment (EIGEN_DONT_ALIGN) and the architecture config (EIGEN_ARCH_WANTS_ALIGNMENT). Henceforth, only EIGEN_ALIGN should be used.
+#if EIGEN_ARCH_WANTS_ALIGNMENT && !defined(EIGEN_DONT_ALIGN)
+  #define EIGEN_ALIGN 1
+#else
+  #define EIGEN_ALIGN 0
+  #ifdef EIGEN_VECTORIZE
+    #error "Vectorization enabled, but our platform checks say that we don't do 16 byte alignment on this platform. If you added vectorization for another architecture, you also need to edit this platform check."
+  #endif
+  #ifndef EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT
+    #define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT
+  #endif
+#endif
+
+#ifdef EIGEN_DEFAULT_TO_ROW_MAJOR
+#define EIGEN_DEFAULT_MATRIX_STORAGE_ORDER_OPTION RowMajor
+#else
+#define EIGEN_DEFAULT_MATRIX_STORAGE_ORDER_OPTION ColMajor
+#endif
+
+/** \internal  Defines the maximal loop size to enable meta unrolling of loops.
+  *            Note that the value here is expressed in Eigen's own notion of "number of FLOPS",
+  *            it does not correspond to the number of iterations or the number of instructions
+  */
 #ifndef EIGEN_UNROLLING_LIMIT
 #define EIGEN_UNROLLING_LIMIT 100
 #endif
 
-/** \internal Define the maximal size in Bytes of L2 blocks.
-  * The current value is set to generate blocks of 256x256 for float */
-#ifndef EIGEN_TUNE_FOR_L2_CACHE_SIZE
-#define EIGEN_TUNE_FOR_L2_CACHE_SIZE (1024*256)
+/** \internal Define the maximal size in Bytes of blocks fitting in CPU cache.
+  * The current value is set to generate blocks of 256x256 for float
+  *
+  * Typically for a single-threaded application you would set that to 25% of the size of your CPU caches in bytes
+  */
+#ifndef EIGEN_TUNE_FOR_CPU_CACHE_SIZE
+#define EIGEN_TUNE_FOR_CPU_CACHE_SIZE (sizeof(float)*256*256)
+#endif
+
+// FIXME this should go away quickly
+#ifdef EIGEN_TUNE_FOR_L2_CACHE_SIZE
+#error EIGEN_TUNE_FOR_L2_CACHE_SIZE is now called EIGEN_TUNE_FOR_CPU_CACHE_SIZE.
 #endif
 
 #define USING_PART_OF_NAMESPACE_EIGEN \
@@ -70,7 +131,7 @@ using Eigen::ei_cos;
 #endif
 
 #ifdef EIGEN_INTERNAL_DEBUGGING
-#define ei_internal_assert(x) ei_assert(x);
+#define ei_internal_assert(x) ei_assert(x)
 #else
 #define ei_internal_assert(x)
 #endif
@@ -81,46 +142,92 @@ using Eigen::ei_cos;
 #define EIGEN_ONLY_USED_FOR_DEBUG(x)
 #endif
 
+// EIGEN_ALWAYS_INLINE_ATTRIB should be use in the declaration of function
+// which should be inlined even in debug mode.
 // FIXME with the always_inline attribute,
 // gcc 3.4.x reports the following compilation error:
 //   Eval.h:91: sorry, unimplemented: inlining failed in call to 'const Eigen::Eval<Derived> Eigen::MatrixBase<Scalar, Derived>::eval() const'
 //    : function body not available
 #if EIGEN_GNUC_AT_LEAST(4,0)
-#define EIGEN_ALWAYS_INLINE __attribute__((always_inline)) inline
+#define EIGEN_ALWAYS_INLINE_ATTRIB __attribute__((always_inline))
 #else
-#define EIGEN_ALWAYS_INLINE inline
+#define EIGEN_ALWAYS_INLINE_ATTRIB
+#endif
+
+// EIGEN_FORCE_INLINE means "inline as much as possible"
+#if (defined _MSC_VER)
+#define EIGEN_STRONG_INLINE __forceinline
+#else
+#define EIGEN_STRONG_INLINE inline
 #endif
 
 #if (defined __GNUC__)
 #define EIGEN_DONT_INLINE __attribute__((noinline))
+#elif (defined _MSC_VER)
+#define EIGEN_DONT_INLINE __declspec(noinline)
 #else
 #define EIGEN_DONT_INLINE
 #endif
 
 #if (defined __GNUC__)
-#define EIGEN_ALIGN_128 __attribute__ ((aligned(16)))
+#define EIGEN_DEPRECATED __attribute__((deprecated))
+#elif (defined _MSC_VER)
+#define EIGEN_DEPRECATED __declspec(deprecated)
 #else
-#define EIGEN_ALIGN_128
+#define EIGEN_DEPRECATED
 #endif
 
-#define EIGEN_RESTRICT __restrict
+/* EIGEN_ALIGN_128 forces data to be 16-byte aligned, EVEN if vectorization (EIGEN_VECTORIZE) is disabled,
+ * so that vectorization doesn't affect binary compatibility.
+ *
+ * If we made alignment depend on whether or not EIGEN_VECTORIZE is defined, it would be impossible to link
+ * vectorized and non-vectorized code.
+ */
+#if !EIGEN_ALIGN
+#define EIGEN_ALIGN_128
+#elif (defined __GNUC__)
+#define EIGEN_ALIGN_128 __attribute__((aligned(16)))
+#elif (defined _MSC_VER)
+#define EIGEN_ALIGN_128 __declspec(align(16))
+#else
+#error Please tell me what is the equivalent of __attribute__((aligned(16))) for your compiler
+#endif
+
+#ifdef EIGEN_DONT_USE_RESTRICT_KEYWORD
+  #define EIGEN_RESTRICT
+#endif
+#ifndef EIGEN_RESTRICT
+  #define EIGEN_RESTRICT __restrict
+#endif
+
+#ifndef EIGEN_STACK_ALLOCATION_LIMIT
+#define EIGEN_STACK_ALLOCATION_LIMIT 1000000
+#endif
+
+#ifndef EIGEN_DEFAULT_IO_FORMAT
+#define EIGEN_DEFAULT_IO_FORMAT Eigen::IOFormat()
+#endif
+
+// format used in Eigen's documentation
+// needed to define it here as escaping characters in CMake add_definition's argument seems very problematic.
+#define EIGEN_DOCS_IO_FORMAT IOFormat(3, AlignCols, " ", "\n", "", "")
 
 #define EIGEN_INHERIT_ASSIGNMENT_OPERATOR(Derived, Op) \
 template<typename OtherDerived> \
-Derived& operator Op(const MatrixBase<OtherDerived>& other) \
+EIGEN_STRONG_INLINE Derived& operator Op(const Eigen::MatrixBase<OtherDerived>& other) \
 { \
-  return Eigen::MatrixBase<Derived>::operator Op(other.derived()); \
+  return Base::operator Op(other.derived()); \
 } \
-Derived& operator Op(const Derived& other) \
+EIGEN_STRONG_INLINE Derived& operator Op(const Derived& other) \
 { \
-  return Eigen::MatrixBase<Derived>::operator Op(other); \
+  return Base::operator Op(other); \
 }
 
 #define EIGEN_INHERIT_SCALAR_ASSIGNMENT_OPERATOR(Derived, Op) \
 template<typename Other> \
-Derived& operator Op(const Other& scalar) \
+EIGEN_STRONG_INLINE Derived& operator Op(const Other& scalar) \
 { \
-  return Eigen::MatrixBase<Derived>::operator Op(scalar); \
+  return Base::operator Op(scalar); \
 }
 
 #define EIGEN_INHERIT_ASSIGNMENT_OPERATORS(Derived) \
@@ -136,7 +243,6 @@ typedef typename Eigen::ei_traits<Derived>::Scalar Scalar; \
 typedef typename Eigen::NumTraits<Scalar>::Real RealScalar; \
 typedef typename Base::PacketScalar PacketScalar; \
 typedef typename Eigen::ei_nested<Derived>::type Nested; \
-typedef typename Eigen::ei_eval<Derived>::type Eval; \
 enum { RowsAtCompileTime = Eigen::ei_traits<Derived>::RowsAtCompileTime, \
        ColsAtCompileTime = Eigen::ei_traits<Derived>::ColsAtCompileTime, \
        MaxRowsAtCompileTime = Eigen::ei_traits<Derived>::MaxRowsAtCompileTime, \
@@ -152,5 +258,16 @@ _EIGEN_GENERIC_PUBLIC_INTERFACE(Derived, Eigen::MatrixBase<Derived>)
 
 #define EIGEN_ENUM_MIN(a,b) (((int)a <= (int)b) ? (int)a : (int)b)
 #define EIGEN_ENUM_MAX(a,b) (((int)a >= (int)b) ? (int)a : (int)b)
+
+// just an empty macro !
+#define EIGEN_EMPTY
+
+// concatenate two tokens
+#define EIGEN_CAT2(a,b) a ## b
+#define EIGEN_CAT(a,b) EIGEN_CAT2(a,b)
+
+// convert a token to a string
+#define EIGEN_MAKESTRING2(a) #a
+#define EIGEN_MAKESTRING(a) EIGEN_MAKESTRING2(a)
 
 #endif // EIGEN_MACROS_H

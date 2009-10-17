@@ -53,7 +53,7 @@ namespace ma{
 			wi = (light_pos - p);
 			wi.normalize();
 			visibility.setSegment(p, light_pos);
-			return intensity /  (light_pos - p).norm2();
+			return intensity /  (light_pos - p).squaredNorm();
 	}
 	template<typename Conf>
 	typename Conf::spectrum_t PointLight<Conf>::sample_lImpl(const point_t &p, scalar_t u1,
