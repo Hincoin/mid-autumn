@@ -1,7 +1,7 @@
 // This file is part of Eigen, a lightweight C++ template library
 // for linear algebra. Eigen itself is part of the KDE project.
 //
-// Copyright (C) 2006-2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 // Copyright (C) 2008 Gael Guennebaud <g.gael@free.fr>
 //
 // Eigen is free software; you can redistribute it and/or
@@ -40,9 +40,9 @@
   * It can be used to let Eigen interface without any overhead with non-Eigen data structures,
   * such as plain C arrays or structures from other libraries.
   *
-  * This class is the return type of Matrix::map() but can also be used directly.
+  * This class is the return type of Matrix::Map() but can also be used directly.
   *
-  * \sa Matrix::map()
+  * \sa Matrix::Map()
   */
 template<typename MatrixType, int _PacketAccess>
 struct ei_traits<Map<MatrixType, _PacketAccess> > : public ei_traits<MatrixType>
@@ -66,12 +66,9 @@ template<typename MatrixType, int PacketAccess> class Map
 
     inline int stride() const { return this->innerSize(); }
 
-    AlignedDerivedType forceAligned()
+    AlignedDerivedType _convertToForceAligned()
     {
-      if (PacketAccess==ForceAligned)
-        return *this;
-      else
-        return Map<MatrixType,ForceAligned>(Base::m_data, Base::m_rows.value(), Base::m_cols.value());
+      return Map<MatrixType,ForceAligned>(Base::m_data, Base::m_rows.value(), Base::m_cols.value());
     }
 
     inline Map(const Scalar* data) : Base(data) {}
@@ -85,12 +82,12 @@ template<typename MatrixType, int PacketAccess> class Map
       EIGEN_ONLY_USED_FOR_DEBUG(rows);
       EIGEN_ONLY_USED_FOR_DEBUG(cols);
       ei_assert(rows == this->rows());
-      ei_assert(rows == this->cols());
+      ei_assert(cols == this->cols());
     }
 
     inline void resize(int size)
     {
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatrixType);
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatrixType)
       EIGEN_ONLY_USED_FOR_DEBUG(size);
       ei_assert(size == this->size());
     }
@@ -102,17 +99,13 @@ template<typename MatrixType, int PacketAccess> class Map
   * Only for fixed-size matrices and vectors.
   * \param data The array of data to copy
   *
-  * For dynamic-size matrices and vectors, see the variants taking additional int parameters
-  * for the dimensions.
-  *
-  * \sa Matrix(const Scalar *, int), Matrix(const Scalar *, int, int),
-  * Matrix::map(const Scalar *)
+  * \sa Matrix::Map(const Scalar *)
   */
 template<typename _Scalar, int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols>
 inline Matrix<_Scalar, _Rows, _Cols, _StorageOrder, _MaxRows, _MaxCols>
   ::Matrix(const Scalar *data)
 {
-  *this = Map<Matrix>(data);
+  _set_noalias(Eigen::Map<Matrix>(data));
 }
 
 #endif // EIGEN_MAP_H

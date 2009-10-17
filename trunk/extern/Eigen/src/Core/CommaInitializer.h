@@ -2,7 +2,7 @@
 // for linear algebra. Eigen itself is part of the KDE project.
 //
 // Copyright (C) 2008 Gael Guennebaud <g.gael@free.fr>
-// Copyright (C) 2006-2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -27,13 +27,13 @@
 #define EIGEN_COMMAINITIALIZER_H
 
 /** \class CommaInitializer
-  * 
+  *
   * \brief Helper class used by the comma initializer operator
   *
   * This class is internally used to implement the comma initializer feature. It is
   * the return type of MatrixBase::operator<<, and most of the time this is the only
   * way it is used.
-  * 
+  *
   * \sa \ref MatrixBaseCommaInitRef "MatrixBase::operator<<", CommaInitializer::finished()
   */
 template<typename MatrixType>
@@ -128,7 +128,7 @@ struct CommaInitializer
   *
   * Example: \include MatrixBase_set.cpp
   * Output: \verbinclude MatrixBase_set.out
-  * 
+  *
   * \sa CommaInitializer::finished(), class CommaInitializer
   */
 template<typename Derived>

@@ -1,7 +1,7 @@
 // This file is part of Eigen, a lightweight C++ template library
 // for linear algebra. Eigen itself is part of the KDE project.
 //
-// Copyright (C) 2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -92,7 +92,7 @@ bool ei_compute_inverse_in_size4_case_helper(const MatrixType& matrix, MatrixTyp
     * R' = -S' * (R*P_inverse)
     */
   typedef Block<MatrixType,2,2> XprBlock22;
-  typedef typename XprBlock22::Eval Block22;
+  typedef typename MatrixBase<XprBlock22>::PlainMatrixType Block22;
   Block22 P_inverse;
   if(ei_compute_inverse_in_size2_case_with_check(matrix.template block<2,2>(0,0), &P_inverse))
   {
@@ -132,21 +132,31 @@ void ei_compute_inverse_in_size4_case(const MatrixType& matrix, MatrixType* resu
     // since this is a rare case, we don't need to optimize it. We just want to handle it with little
     // additional code.
     MatrixType m(matrix);
-    m.row(1).swap(m.row(2));
+    m.row(0).swap(m.row(2));
+    m.row(1).swap(m.row(3));
     if(ei_compute_inverse_in_size4_case_helper(m, result))
     {
-      // good, the topleft 2x2 block of m is invertible. Since m is different from matrix in that two
+      // good, the topleft 2x2 block of m is invertible. Since m is different from matrix in that some
       // rows were permuted, the actual inverse of matrix is derived from the inverse of m by permuting
       // the corresponding columns.
-      result->col(1).swap(result->col(2));
+      result->col(0).swap(result->col(2));
+      result->col(1).swap(result->col(3));
     }
     else
     {
       // last possible case. Since matrix is assumed to be invertible, this last case has to work.
-      m.row(1).swap(m.row(2));
+      // first, undo the swaps previously made
+      m.row(0).swap(m.row(2));
       m.row(1).swap(m.row(3));
+      // swap row 0 with the the row among 0 and 1 that has the biggest 2 first coeffs
+      int swap0with = ei_abs(m.coeff(0,0))+ei_abs(m.coeff(0,1))>ei_abs(m.coeff(1,0))+ei_abs(m.coeff(1,1)) ? 0 : 1;
+      m.row(0).swap(m.row(swap0with));
+      // swap row 1 with the the row among 2 and 3 that has the biggest 2 first coeffs
+      int swap1with = ei_abs(m.coeff(2,0))+ei_abs(m.coeff(2,1))>ei_abs(m.coeff(3,0))+ei_abs(m.coeff(3,1)) ? 2 : 3;
+      m.row(1).swap(m.row(swap1with));
       ei_compute_inverse_in_size4_case_helper(m, result);
-      result->col(1).swap(result->col(3));
+      result->col(1).swap(result->col(swap1with));
+      result->col(0).swap(result->col(swap0with));
     }
   }
 }
@@ -216,12 +226,11 @@ struct ei_compute_inverse<MatrixType, 4>
   * \sa inverse()
   */
 template<typename Derived>
-inline void MatrixBase<Derived>::computeInverse(EvalType *result) const
+inline void MatrixBase<Derived>::computeInverse(PlainMatrixType *result) const
 {
-  typedef typename ei_eval<Derived>::type MatrixType;
   ei_assert(rows() == cols());
-  EIGEN_STATIC_ASSERT(NumTraits<Scalar>::HasFloatingPoint,scalar_type_must_be_floating_point);
-  ei_compute_inverse<MatrixType>::run(eval(), result);
+  EIGEN_STATIC_ASSERT(NumTraits<Scalar>::HasFloatingPoint,NUMERIC_TYPE_MUST_BE_FLOATING_POINT)
+  ei_compute_inverse<PlainMatrixType>::run(eval(), result);
 }
 
 /** \lu_module
@@ -239,9 +248,9 @@ inline void MatrixBase<Derived>::computeInverse(EvalType *result) const
   * \sa computeInverse()
   */
 template<typename Derived>
-inline const typename MatrixBase<Derived>::EvalType MatrixBase<Derived>::inverse() const
+inline const typename MatrixBase<Derived>::PlainMatrixType MatrixBase<Derived>::inverse() const
 {
-  EvalType result(rows(), cols());
+  PlainMatrixType result(rows(), cols());
   computeInverse(&result);
   return result;
 }

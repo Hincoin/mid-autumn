@@ -1,7 +1,7 @@
 // This file is part of Eigen, a lightweight C++ template library
 // for linear algebra. Eigen itself is part of the KDE project.
 //
-// Copyright (C) 2006-2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -153,9 +153,10 @@ struct ei_dot_impl<Derived1, Derived2, NoVectorization, NoUnrolling>
   typedef typename Derived1::Scalar Scalar;
   static Scalar run(const Derived1& v1, const Derived2& v2)
   {
+    ei_assert(v1.size()>0 && "you are using a non initialized vector");
     Scalar res;
     res = v1.coeff(0) * ei_conj(v2.coeff(0));
-    for(int i = 1; i < v1.size(); i++)
+    for(int i = 1; i < v1.size(); ++i)
       res += v1.coeff(i) * ei_conj(v2.coeff(i));
     return res;
   }
@@ -210,7 +211,7 @@ struct ei_dot_impl<Derived1, Derived2, LinearVectorization, NoUnrolling>
     }
 
     // do the remainder of the vector
-    for(int index = alignedSize; index < size; index++)
+    for(int index = alignedSize; index < size; ++index)
     {
       res += v1.coeff(index) * v2.coeff(index);
     }
@@ -247,51 +248,45 @@ struct ei_dot_impl<Derived1, Derived2, LinearVectorization, CompleteUnrolling>
   * \only_for_vectors
   *
   * \note If the scalar type is complex numbers, then this function returns the hermitian
-  * (sesquilinear) dot product, linear in the first variable and anti-linear in the
+  * (sesquilinear) dot product, linear in the first variable and conjugate-linear in the
   * second variable.
   *
-  * \sa norm2(), norm()
+  * \sa squaredNorm(), norm()
   */
 template<typename Derived>
 template<typename OtherDerived>
 typename ei_traits<Derived>::Scalar
 MatrixBase<Derived>::dot(const MatrixBase<OtherDerived>& other) const
 {
-  typedef typename Derived::Nested Nested;
-  typedef typename OtherDerived::Nested OtherNested;
-  typedef typename ei_unref<Nested>::type _Nested;
-  typedef typename ei_unref<OtherNested>::type _OtherNested;
+  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived)
+  EIGEN_STATIC_ASSERT_VECTOR_ONLY(OtherDerived)
+  EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Derived,OtherDerived)
+  EIGEN_STATIC_ASSERT((ei_is_same_type<Scalar, typename OtherDerived::Scalar>::ret),
+    YOU_MIXED_DIFFERENT_NUMERIC_TYPES__YOU_NEED_TO_USE_THE_CAST_METHOD_OF_MATRIXBASE_TO_CAST_NUMERIC_TYPES_EXPLICITLY)
 
-  EIGEN_STATIC_ASSERT_VECTOR_ONLY(_Nested);
-  EIGEN_STATIC_ASSERT_VECTOR_ONLY(_OtherNested);
-  EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(_Nested,_OtherNested);
   ei_assert(size() == other.size());
 
-  return ei_dot_impl<_Nested, _OtherNested>::run(derived(), other.derived());
+  return ei_dot_impl<Derived, OtherDerived>::run(derived(), other.derived());
 }
 
-/** \returns the squared norm of *this, i.e. the dot product of *this with itself.
-  *
-  * \only_for_vectors
+/** \returns the squared \em l2 norm of *this, i.e., for vectors, the dot product of *this with itself.
   *
   * \sa dot(), norm()
   */
 template<typename Derived>
-inline typename NumTraits<typename ei_traits<Derived>::Scalar>::Real MatrixBase<Derived>::norm2() const
+inline typename NumTraits<typename ei_traits<Derived>::Scalar>::Real MatrixBase<Derived>::squaredNorm() const
 {
-  return ei_real(dot(*this));
+  return ei_real((*this).cwise().abs2().sum());
 }
 
-/** \returns the norm of *this, i.e. the square root of the dot product of *this with itself.
+/** \returns the \em l2 norm of *this, i.e., for vectors, the square root of the dot product of *this with itself.
   *
-  * \only_for_vectors
-  *
-  * \sa dot(), norm2()
+  * \sa dot(), squaredNorm()
   */
 template<typename Derived>
 inline typename NumTraits<typename ei_traits<Derived>::Scalar>::Real MatrixBase<Derived>::norm() const
 {
-  return ei_sqrt(norm2());
+  return ei_sqrt(squaredNorm());
 }
 
 /** \returns an expression of the quotient of *this by its own norm.
@@ -301,7 +296,7 @@ inline typename NumTraits<typename ei_traits<Derived>::Scalar>::Real MatrixBase<
   * \sa norm(), normalize()
   */
 template<typename Derived>
-inline const typename MatrixBase<Derived>::EvalType
+inline const typename MatrixBase<Derived>::PlainMatrixType
 MatrixBase<Derived>::normalized() const
 {
   typedef typename ei_nested<Derived>::type Nested;
@@ -335,7 +330,7 @@ bool MatrixBase<Derived>::isOrthogonal
 {
   typename ei_nested<Derived,2>::type nested(derived());
   typename ei_nested<OtherDerived,2>::type otherNested(other.derived());
-  return ei_abs2(nested.dot(otherNested)) <= prec * prec * nested.norm2() * otherNested.norm2();
+  return ei_abs2(nested.dot(otherNested)) <= prec * prec * nested.squaredNorm() * otherNested.squaredNorm();
 }
 
 /** \returns true if *this is approximately an unitary matrix,
@@ -353,11 +348,11 @@ template<typename Derived>
 bool MatrixBase<Derived>::isUnitary(RealScalar prec) const
 {
   typename Derived::Nested nested(derived());
-  for(int i = 0; i < cols(); i++)
+  for(int i = 0; i < cols(); ++i)
   {
-    if(!ei_isApprox(nested.col(i).norm2(), static_cast<Scalar>(1), prec))
+    if(!ei_isApprox(nested.col(i).squaredNorm(), static_cast<Scalar>(1), prec))
       return false;
-    for(int j = 0; j < i; j++)
+    for(int j = 0; j < i; ++j)
       if(!ei_isMuchSmallerThan(nested.col(i).dot(nested.col(j)), static_cast<Scalar>(1), prec))
         return false;
   }

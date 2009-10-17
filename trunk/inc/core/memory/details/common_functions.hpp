@@ -10,15 +10,10 @@
 //#ifndef _WIN32_WINNT
 //#define _WIN32_WINNT WINVER
 //#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <windows.h>
-
-#ifdef min
-#undef min
-#endif 
-
-#ifdef max
-#undef max
-#endif 
 
 #else
 #include <pthread.h>

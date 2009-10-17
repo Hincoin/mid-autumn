@@ -2,7 +2,7 @@
 // for linear algebra. Eigen itself is part of the KDE project.
 //
 // Copyright (C) 2008 Gael Guennebaud <g.gael@free.fr>
-// Copyright (C) 2006-2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -46,6 +46,8 @@
 template<typename BinaryOp, typename Lhs, typename Rhs>
 struct ei_traits<CwiseBinaryOp<BinaryOp, Lhs, Rhs> >
 {
+  // even though we require Lhs and Rhs to have the same scalar type (see CwiseBinaryOp constructor),
+  // we still want to handle the case when the result type is different.
   typedef typename ei_result_of<
                      BinaryOp(
                        typename Lhs::Scalar,
@@ -84,35 +86,46 @@ class CwiseBinaryOp : ei_no_assignment_operator,
     typedef typename ei_traits<CwiseBinaryOp>::LhsNested LhsNested;
     typedef typename ei_traits<CwiseBinaryOp>::RhsNested RhsNested;
 
-    class InnerIterator;
-
-    inline CwiseBinaryOp(const Lhs& lhs, const Rhs& rhs, const BinaryOp& func = BinaryOp())
+    EIGEN_STRONG_INLINE CwiseBinaryOp(const Lhs& lhs, const Rhs& rhs, const BinaryOp& func = BinaryOp())
       : m_lhs(lhs), m_rhs(rhs), m_functor(func)
     {
+      // we require Lhs and Rhs to have the same scalar type. Currently there is no example of a binary functor
+      // that would take two operands of different types. If there were such an example, then this check should be
+      // moved to the BinaryOp functors, on a per-case basis. This would however require a change in the BinaryOp functors, as
+      // currently they take only one typename Scalar template parameter.
+      // It is tempting to always allow mixing different types but remember that this is often impossible in the vectorized paths.
+      // So allowing mixing different types gives very unexpected errors when enabling vectorization, when the user tries to
+      // add together a float matrix and a double matrix.
+      EIGEN_STATIC_ASSERT((ei_functor_allows_mixing_real_and_complex<BinaryOp>::ret
+                           ? int(ei_is_same_type<typename Lhs::RealScalar, typename Rhs::RealScalar>::ret)
+                           : int(ei_is_same_type<typename Lhs::Scalar, typename Rhs::Scalar>::ret)),
+        YOU_MIXED_DIFFERENT_NUMERIC_TYPES__YOU_NEED_TO_USE_THE_CAST_METHOD_OF_MATRIXBASE_TO_CAST_NUMERIC_TYPES_EXPLICITLY)
+      // require the sizes to match
+      EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Lhs, Rhs)
       ei_assert(lhs.rows() == rhs.rows() && lhs.cols() == rhs.cols());
     }
 
-    inline int rows() const { return m_lhs.rows(); }
-    inline int cols() const { return m_lhs.cols(); }
+    EIGEN_STRONG_INLINE int rows() const { return m_lhs.rows(); }
+    EIGEN_STRONG_INLINE int cols() const { return m_lhs.cols(); }
 
-    inline const Scalar coeff(int row, int col) const
+    EIGEN_STRONG_INLINE const Scalar coeff(int row, int col) const
     {
       return m_functor(m_lhs.coeff(row, col), m_rhs.coeff(row, col));
     }
 
     template<int LoadMode>
-    inline PacketScalar packet(int row, int col) const
+    EIGEN_STRONG_INLINE PacketScalar packet(int row, int col) const
     {
       return m_functor.packetOp(m_lhs.template packet<LoadMode>(row, col), m_rhs.template packet<LoadMode>(row, col));
     }
 
-    inline const Scalar coeff(int index) const
+    EIGEN_STRONG_INLINE const Scalar coeff(int index) const
     {
       return m_functor(m_lhs.coeff(index), m_rhs.coeff(index));
     }
 
     template<int LoadMode>
-    inline PacketScalar packet(int index) const
+    EIGEN_STRONG_INLINE PacketScalar packet(int index) const
     {
       return m_functor.packetOp(m_lhs.template packet<LoadMode>(index), m_rhs.template packet<LoadMode>(index));
     }
@@ -131,7 +144,7 @@ class CwiseBinaryOp : ei_no_assignment_operator,
   */
 template<typename Derived>
 template<typename OtherDerived>
-inline const CwiseBinaryOp<ei_scalar_difference_op<typename ei_traits<Derived>::Scalar>,
+EIGEN_STRONG_INLINE const CwiseBinaryOp<ei_scalar_difference_op<typename ei_traits<Derived>::Scalar>,
                                  Derived, OtherDerived>
 MatrixBase<Derived>::operator-(const MatrixBase<OtherDerived> &other) const
 {
@@ -145,7 +158,7 @@ MatrixBase<Derived>::operator-(const MatrixBase<OtherDerived> &other) const
   */
 template<typename Derived>
 template<typename OtherDerived>
-inline Derived &
+EIGEN_STRONG_INLINE Derived &
 MatrixBase<Derived>::operator-=(const MatrixBase<OtherDerived> &other)
 {
   return *this = *this - other;
@@ -161,7 +174,7 @@ MatrixBase<Derived>::operator-=(const MatrixBase<OtherDerived> &other)
   */
 template<typename Derived>
 template<typename OtherDerived>
-inline const CwiseBinaryOp<ei_scalar_sum_op<typename ei_traits<Derived>::Scalar>, Derived, OtherDerived>
+EIGEN_STRONG_INLINE const CwiseBinaryOp<ei_scalar_sum_op<typename ei_traits<Derived>::Scalar>, Derived, OtherDerived>
 MatrixBase<Derived>::operator+(const MatrixBase<OtherDerived> &other) const
 {
   return CwiseBinaryOp<ei_scalar_sum_op<Scalar>, Derived, OtherDerived>(derived(), other.derived());
@@ -173,7 +186,7 @@ MatrixBase<Derived>::operator+(const MatrixBase<OtherDerived> &other) const
   */
 template<typename Derived>
 template<typename OtherDerived>
-inline Derived &
+EIGEN_STRONG_INLINE Derived &
 MatrixBase<Derived>::operator+=(const MatrixBase<OtherDerived>& other)
 {
   return *this = *this + other;
@@ -188,10 +201,10 @@ MatrixBase<Derived>::operator+=(const MatrixBase<OtherDerived>& other)
   */
 template<typename ExpressionType>
 template<typename OtherDerived>
-inline const EIGEN_CWISE_BINOP_RETURN_TYPE(ei_scalar_product_op)
+EIGEN_STRONG_INLINE const EIGEN_CWISE_PRODUCT_RETURN_TYPE
 Cwise<ExpressionType>::operator*(const MatrixBase<OtherDerived> &other) const
 {
-  return EIGEN_CWISE_BINOP_RETURN_TYPE(ei_scalar_product_op)(_expression(), other.derived());
+  return EIGEN_CWISE_PRODUCT_RETURN_TYPE(_expression(), other.derived());
 }
 
 /** \returns an expression of the coefficient-wise quotient of *this and \a other
@@ -203,10 +216,38 @@ Cwise<ExpressionType>::operator*(const MatrixBase<OtherDerived> &other) const
   */
 template<typename ExpressionType>
 template<typename OtherDerived>
-inline const EIGEN_CWISE_BINOP_RETURN_TYPE(ei_scalar_quotient_op)
+EIGEN_STRONG_INLINE const EIGEN_CWISE_BINOP_RETURN_TYPE(ei_scalar_quotient_op)
 Cwise<ExpressionType>::operator/(const MatrixBase<OtherDerived> &other) const
 {
   return EIGEN_CWISE_BINOP_RETURN_TYPE(ei_scalar_quotient_op)(_expression(), other.derived());
+}
+
+/** Replaces this expression by its coefficient-wise product with \a other.
+  *
+  * Example: \include Cwise_times_equal.cpp
+  * Output: \verbinclude Cwise_times_equal.out
+  *
+  * \sa operator*(), operator/=()
+  */
+template<typename ExpressionType>
+template<typename OtherDerived>
+inline ExpressionType& Cwise<ExpressionType>::operator*=(const MatrixBase<OtherDerived> &other)
+{
+  return m_matrix.const_cast_derived() = *this * other;
+}
+
+/** Replaces this expression by its coefficient-wise quotient by \a other.
+  *
+  * Example: \include Cwise_slash_equal.cpp
+  * Output: \verbinclude Cwise_slash_equal.out
+  *
+  * \sa operator/(), operator*=()
+  */
+template<typename ExpressionType>
+template<typename OtherDerived>
+inline ExpressionType& Cwise<ExpressionType>::operator/=(const MatrixBase<OtherDerived> &other)
+{
+  return m_matrix.const_cast_derived() = *this / other;
 }
 
 /** \returns an expression of the coefficient-wise min of *this and \a other
@@ -218,7 +259,7 @@ Cwise<ExpressionType>::operator/(const MatrixBase<OtherDerived> &other) const
   */
 template<typename ExpressionType>
 template<typename OtherDerived>
-inline const EIGEN_CWISE_BINOP_RETURN_TYPE(ei_scalar_min_op)
+EIGEN_STRONG_INLINE const EIGEN_CWISE_BINOP_RETURN_TYPE(ei_scalar_min_op)
 Cwise<ExpressionType>::min(const MatrixBase<OtherDerived> &other) const
 {
   return EIGEN_CWISE_BINOP_RETURN_TYPE(ei_scalar_min_op)(_expression(), other.derived());
@@ -233,7 +274,7 @@ Cwise<ExpressionType>::min(const MatrixBase<OtherDerived> &other) const
   */
 template<typename ExpressionType>
 template<typename OtherDerived>
-inline const EIGEN_CWISE_BINOP_RETURN_TYPE(ei_scalar_max_op)
+EIGEN_STRONG_INLINE const EIGEN_CWISE_BINOP_RETURN_TYPE(ei_scalar_max_op)
 Cwise<ExpressionType>::max(const MatrixBase<OtherDerived> &other) const
 {
   return EIGEN_CWISE_BINOP_RETURN_TYPE(ei_scalar_max_op)(_expression(), other.derived());
@@ -254,7 +295,7 @@ Cwise<ExpressionType>::max(const MatrixBase<OtherDerived> &other) const
   */
 template<typename Derived>
 template<typename CustomBinaryOp, typename OtherDerived>
-inline const CwiseBinaryOp<CustomBinaryOp, Derived, OtherDerived>
+EIGEN_STRONG_INLINE const CwiseBinaryOp<CustomBinaryOp, Derived, OtherDerived>
 MatrixBase<Derived>::binaryExpr(const MatrixBase<OtherDerived> &other, const CustomBinaryOp& func) const
 {
   return CwiseBinaryOp<CustomBinaryOp, Derived, OtherDerived>(derived(), other.derived(), func);

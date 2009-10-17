@@ -2,7 +2,7 @@
 // for linear algebra. Eigen itself is part of the KDE project.
 //
 // Copyright (C) 2008 Gael Guennebaud <g.gael@free.fr>
-// Copyright (C) 2006-2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -61,7 +61,11 @@ struct ei_traits<PartialReduxExpr<MatrixType, MemberOp, Direction> >
     Flags = (unsigned int)_MatrixTypeNested::Flags & HereditaryBits,
     TraversalSize = Direction==Vertical ? RowsAtCompileTime : ColsAtCompileTime
   };
+  #if EIGEN_GNUC_AT_LEAST(3,4)
   typedef typename MemberOp::template Cost<InputScalar,int(TraversalSize)> CostOpType;
+  #else
+  typedef typename MemberOp::template Cost<InputScalar,TraversalSize> CostOpType;
+  #endif
   enum {
     CoeffReadCost = TraversalSize * ei_traits<_MatrixTypeNested>::CoeffReadCost + int(CostOpType::value)
   };
@@ -104,16 +108,17 @@ class PartialReduxExpr : ei_no_assignment_operator,
     { enum { value = COST }; };                                     \
     template<typename Derived>                                      \
     inline ResultType operator()(const MatrixBase<Derived>& mat) const     \
-    { return mat.MEMBER(); }                                        \
+    { return mat.MEMBER(); } \
   }
 
-EIGEN_MEMBER_FUNCTOR(norm2, Size * NumTraits<Scalar>::MulCost + (Size-1)*NumTraits<Scalar>::AddCost);
+EIGEN_MEMBER_FUNCTOR(squaredNorm, Size * NumTraits<Scalar>::MulCost + (Size-1)*NumTraits<Scalar>::AddCost);
 EIGEN_MEMBER_FUNCTOR(norm, (Size+5) * NumTraits<Scalar>::MulCost + (Size-1)*NumTraits<Scalar>::AddCost);
 EIGEN_MEMBER_FUNCTOR(sum, (Size-1)*NumTraits<Scalar>::AddCost);
 EIGEN_MEMBER_FUNCTOR(minCoeff, (Size-1)*NumTraits<Scalar>::AddCost);
 EIGEN_MEMBER_FUNCTOR(maxCoeff, (Size-1)*NumTraits<Scalar>::AddCost);
 EIGEN_MEMBER_FUNCTOR(all, (Size-1)*NumTraits<Scalar>::AddCost);
 EIGEN_MEMBER_FUNCTOR(any, (Size-1)*NumTraits<Scalar>::AddCost);
+EIGEN_MEMBER_FUNCTOR(count, (Size-1)*NumTraits<Scalar>::AddCost);
 
 /** \internal */
 template <typename BinaryOp, typename Scalar>
@@ -172,6 +177,8 @@ template<typename ExpressionType, int Direction> class PartialRedux
                               > Type;
     };
 
+    typedef typename ExpressionType::PlainMatrixType CrossReturnType;
+    
     inline PartialRedux(const ExpressionType& matrix) : m_matrix(matrix) {}
 
     /** \internal */
@@ -204,11 +211,11 @@ template<typename ExpressionType, int Direction> class PartialRedux
     /** \returns a row (or column) vector expression of the squared norm
       * of each column (or row) of the referenced expression.
       *
-      * Example: \include PartialRedux_norm2.cpp
-      * Output: \verbinclude PartialRedux_norm2.out
+      * Example: \include PartialRedux_squaredNorm.cpp
+      * Output: \verbinclude PartialRedux_squaredNorm.out
       *
-      * \sa MatrixBase::norm2() */
-    const typename ReturnType<ei_member_norm2>::Type norm2() const
+      * \sa MatrixBase::squaredNorm() */
+    const typename ReturnType<ei_member_squaredNorm>::Type squaredNorm() const
     { return _expression(); }
 
     /** \returns a row (or column) vector expression of the norm
@@ -244,6 +251,42 @@ template<typename ExpressionType, int Direction> class PartialRedux
       * \sa MatrixBase::any() */
     const typename ReturnType<ei_member_any>::Type any() const
     { return _expression(); }
+    
+    /** \returns a row (or column) vector expression representing
+      * the number of \c true coefficients of each respective column (or row).
+      *
+      * Example: \include PartialRedux_count.cpp
+      * Output: \verbinclude PartialRedux_count.out
+      *
+      * \sa MatrixBase::count() */
+    const PartialReduxExpr<ExpressionType, ei_member_count<int>, Direction> count() const
+    { return _expression(); }
+
+    /** \returns a 3x3 matrix expression of the cross product
+      * of each column or row of the referenced expression with the \a other vector.
+      *
+      * \geometry_module
+      *
+      * \sa MatrixBase::cross() */
+    template<typename OtherDerived>
+    const CrossReturnType cross(const MatrixBase<OtherDerived>& other) const
+    {
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(CrossReturnType,3,3)
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(OtherDerived,3)
+      EIGEN_STATIC_ASSERT((ei_is_same_type<Scalar, typename OtherDerived::Scalar>::ret),
+        YOU_MIXED_DIFFERENT_NUMERIC_TYPES__YOU_NEED_TO_USE_THE_CAST_METHOD_OF_MATRIXBASE_TO_CAST_NUMERIC_TYPES_EXPLICITLY)
+
+      if(Direction==Vertical)
+        return (CrossReturnType()
+                                 << _expression().col(0).cross(other),
+                                    _expression().col(1).cross(other),
+                                    _expression().col(2).cross(other)).finished();
+      else
+        return (CrossReturnType() 
+                                 << _expression().row(0).cross(other),
+                                    _expression().row(1).cross(other),
+                                    _expression().row(2).cross(other)).finished();
+    }
 
   protected:
     ExpressionTypeNested m_matrix;

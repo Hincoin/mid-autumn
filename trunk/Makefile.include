@@ -18,7 +18,7 @@ MSG_CLEAN:=Cleaning ...
 
 CC:=g++
 ifeq ($(BUILD_FLAG),release)
-CC_FLAGS:=-D__x86__ -DNDEBUG $(COMMON_DEF) -Wall -pipe -O2 -fpermissive -Wno-deprecated #-mfpmath=sse -msse2 -march=pentium4
+CC_FLAGS:=-D__x86__ -DNDEBUG $(COMMON_DEF) -Wall -pipe -O2 -fpermissive -Wno-deprecated -mfpmath=sse -msse2 -march=pentium4
 else
 CC_FLAGS:=-D__x86__ -D_DEBUG $(COMMON_DEF) -Wall -ggdb -pipe -O0 -fpermissive -Wno-deprecated
 endif

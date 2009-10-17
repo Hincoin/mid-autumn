@@ -8,43 +8,60 @@
 
 namespace ma{
 	//adaptor
-	template<typename T,int Row,int Col,typename Impl = Eigen::Matrix<T,Row,Col> >
-	class Matrix:public Impl{
-	public:
-		typedef T ScalarType;
-		typedef Impl BaseType;
-		Matrix(){}
-		Matrix(const Matrix& other):BaseType(other.self()){}
-		Matrix(move_from<Matrix> other){swap(other.source.self());};
-		Matrix(T m_[Row][Col]):BaseType(m_){};
-		//Matrix(T t[Row*Col]):BaseType(t){}
-		Matrix(const Impl& im):BaseType(im){}
-		Matrix(move_from<Impl> im){self().swap(im.source);}
-		template<typename OtherImpl>
-		Matrix(const OtherImpl& other):BaseType(other){}
-		template<typename OtherImpl>
-		Matrix(move_from<OtherImpl> o){self().swap(o.source);}
-
-		void swap(Matrix& other){self().swap(other.self());}
-		
-		Matrix& operator=(Matrix rhs){this->swap(rhs);}
-		Impl& self(){return *this;}
-		const Impl& self()const{return *this;}
-
-		//operator Impl& (){return static_cast<Impl&>(*this);}
-		//operator const Impl& ()const{return static_cast<const Impl&>(*this);}
-
-};
+//	template<typename T,int Row,int Col,typename Impl = Eigen::Matrix<T,Row,Col> >
+//	class Matrix:public Impl{
+//	public:
+//		typedef T ScalarType;
+//		typedef Impl BaseType;
+//		Matrix(){}
+//		Matrix(const Matrix& other):BaseType(other.self()){}
+//		Matrix(move_from<Matrix> other){swap(other.source.self());};
+//		Matrix(T m_[Row][Col]) {
+//			for(size_t i = 0;i < Row;++i)
+//				for(size_t j = 0;j < Col; ++j)
+//					(*this)(i,j) = m_[i][j];
+//		};
+//		//Matrix(T t[Row*Col]):BaseType(t){}
+//		Matrix(const Impl& im):BaseType(im){}
+//		Matrix(move_from<Impl> im){self().swap(im.source);}
+//		template<typename OtherImpl>
+//		Matrix(const OtherImpl& other):BaseType(other){}
+//		template<typename OtherImpl>
+//		Matrix(move_from<OtherImpl> o){self().swap(o.source);}
+//
+//		void swap(Matrix& other){self().swap(other.self());}
+//		
+//		Matrix& operator=(Matrix rhs){this->swap(rhs);}
+//		Impl& self(){return *this;}
+//		const Impl& self()const{return *this;}
+//
+//		//operator Impl& (){return static_cast<Impl&>(*this);}
+//		//operator const Impl& ()const{return static_cast<const Impl&>(*this);}
+//
+//};
 }
 
 
 namespace ma{
 	template<typename T,int Row,int Col=Row>
 	struct matrix_type{
-		typedef Matrix<T,Row,Col>  type;
+		//typedef Matrix<T,Row,Col>  type;
+		typedef Eigen::Matrix<T,Row,Col> type;
 		static const int row = Row;
 		static const int col = Col;
 	};
+	namespace matrix{
+		template<typename T,int Row,int Col/*=Row*/>
+		inline void
+			load_matrix(T x[Row][Col] ,typename matrix_type<T,Row,Col>::type& loaded){
+			for (int i = 0;i < Row;++i)
+				for(int j = 0;j < Col;++j)
+			{
+				loaded(i,j) = x[i][j];
+			}
+		}
+
+	}
 
 	typedef matrix_type<int,2,2>::type matrix22i;
 	typedef matrix_type<int,3,3>::type matrix33i;

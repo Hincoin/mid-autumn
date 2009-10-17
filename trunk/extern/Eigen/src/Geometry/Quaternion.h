@@ -30,7 +30,7 @@ template<typename Other,
          int OtherCols=Other::ColsAtCompileTime>
 struct ei_quaternion_assign_impl;
 
-/** \geometry_module \ingroup GeometryModule
+/** \geometry_module \ingroup Geometry_Module
   *
   * \class Quaternion
   *
@@ -59,21 +59,19 @@ template<typename _Scalar> struct ei_traits<Quaternion<_Scalar> >
 
 template<typename _Scalar>
 class Quaternion : public RotationBase<Quaternion<_Scalar>,3>
-  #ifdef EIGEN_VECTORIZE
-  , public ei_with_aligned_operator_new<_Scalar,4>
-  #endif
 {
   typedef RotationBase<Quaternion<_Scalar>,3> Base;
-  typedef Matrix<_Scalar, 4, 1> Coefficients;
-  Coefficients m_coeffs;
 
 public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF_VECTORIZABLE_FIXED_SIZE(_Scalar,4)
 
   using Base::operator*;
 
   /** the scalar type of the coefficients */
   typedef _Scalar Scalar;
 
+  /** the type of the Coefficients 4-vector */
+  typedef Matrix<Scalar, 4, 1> Coefficients;
   /** the type of a 3D vector */
   typedef Matrix<Scalar,3,1> Vector3;
   /** the equivalent rotation matrix type */
@@ -111,13 +109,12 @@ public:
   /** \returns a vector expression of the coefficients (x,y,z,w) */
   inline Coefficients& coeffs() { return m_coeffs; }
 
-  /** Default constructor and initializing an identity quaternion. */
-  inline Quaternion()
-  { m_coeffs << 0, 0, 0, 1; }
+  /** Default constructor leaving the quaternion uninitialized. */
+  inline Quaternion() {}
 
   /** Constructs and initializes the quaternion \f$ w+xi+yj+zk \f$ from
     * its four coefficients \a w, \a x, \a y and \a z.
-    * 
+    *
     * \warning Note the order of the arguments: the real \a w coefficient first,
     * while internally the coefficients are stored in the following order:
     * [\c x, \c y, \c z, \c w]
@@ -151,24 +148,24 @@ public:
 
   /** \sa Quaternion::Identity(), MatrixBase::setIdentity()
     */
-  inline Quaternion& setIdentity() { m_coeffs << 1, 0, 0, 0; return *this; }
+  inline Quaternion& setIdentity() { m_coeffs << 0, 0, 0, 1; return *this; }
 
   /** \returns the squared norm of the quaternion's coefficients
-    * \sa Quaternion::norm(), MatrixBase::norm2()
+    * \sa Quaternion::norm(), MatrixBase::squaredNorm()
     */
-  inline Scalar norm2() const { return m_coeffs.norm2(); }
+  inline Scalar squaredNorm() const { return m_coeffs.squaredNorm(); }
 
   /** \returns the norm of the quaternion's coefficients
-    * \sa Quaternion::norm2(), MatrixBase::norm()
+    * \sa Quaternion::squaredNorm(), MatrixBase::norm()
     */
   inline Scalar norm() const { return m_coeffs.norm(); }
-  
-  /** Normalizes the quaternion \c *this 
+
+  /** Normalizes the quaternion \c *this
     * \sa normalized(), MatrixBase::normalize() */
-  inline void normalize() { m_coeffs.normalize(); } 
+  inline void normalize() { m_coeffs.normalize(); }
   /** \returns a normalized version of \c *this
     * \sa normalize(), MatrixBase::normalized() */
-  inline Quaternion normalized() const { Quaternion(m_coeffs.normalized()); } 
+  inline Quaternion normalized() const { return Quaternion(m_coeffs.normalized()); }
 
   /** \returns the dot product of \c *this and \a other
     * Geometrically speaking, the dot product of two unit quaternions
@@ -195,26 +192,77 @@ public:
   template<typename Derived>
   Vector3 operator* (const MatrixBase<Derived>& vec) const;
 
+  /** \returns \c *this with scalar type casted to \a NewScalarType
+    *
+    * Note that if \a NewScalarType is equal to the current scalar type of \c *this
+    * then this function smartly returns a const reference to \c *this.
+    */
+  template<typename NewScalarType>
+  inline typename ei_cast_return_type<Quaternion,Quaternion<NewScalarType> >::type cast() const
+  { return typename ei_cast_return_type<Quaternion,Quaternion<NewScalarType> >::type(*this); }
+
+  /** Copy constructor with scalar type conversion */
+  template<typename OtherScalarType>
+  inline explicit Quaternion(const Quaternion<OtherScalarType>& other)
+  { m_coeffs = other.coeffs().template cast<Scalar>(); }
+
+  /** \returns \c true if \c *this is approximately equal to \a other, within the precision
+    * determined by \a prec.
+    *
+    * \sa MatrixBase::isApprox() */
+  bool isApprox(const Quaternion& other, typename NumTraits<Scalar>::Real prec = precision<Scalar>()) const
+  { return m_coeffs.isApprox(other.m_coeffs, prec); }
+
+protected:
+  Coefficients m_coeffs;
 };
 
-/** \ingroup GeometryModule
+/** \ingroup Geometry_Module
   * single precision quaternion type */
 typedef Quaternion<float> Quaternionf;
-/** \ingroup GeometryModule
+/** \ingroup Geometry_Module
   * double precision quaternion type */
 typedef Quaternion<double> Quaterniond;
+
+// Generic Quaternion * Quaternion product
+template<int Arch,typename Scalar> inline Quaternion<Scalar>
+ei_quaternion_product(const Quaternion<Scalar>& a, const Quaternion<Scalar>& b)
+{
+  return Quaternion<Scalar>
+  (
+    a.w() * b.w() - a.x() * b.x() - a.y() * b.y() - a.z() * b.z(),
+    a.w() * b.x() + a.x() * b.w() + a.y() * b.z() - a.z() * b.y(),
+    a.w() * b.y() + a.y() * b.w() + a.z() * b.x() - a.x() * b.z(),
+    a.w() * b.z() + a.z() * b.w() + a.x() * b.y() - a.y() * b.x()
+  );
+}
+
+#ifdef EIGEN_VECTORIZE_SSE
+template<> inline Quaternion<float>
+ei_quaternion_product<EiArch_SSE,float>(const Quaternion<float>& _a, const Quaternion<float>& _b)
+{
+  const __m128 mask = _mm_castsi128_ps(_mm_setr_epi32(0,0,0,0x80000000));
+  Quaternion<float> res;
+  __m128 a = _a.coeffs().packet<Aligned>(0);
+  __m128 b = _b.coeffs().packet<Aligned>(0);
+  __m128 flip1 = _mm_xor_ps(_mm_mul_ps(ei_vec4f_swizzle1(a,1,2,0,2),
+                                       ei_vec4f_swizzle1(b,2,0,1,2)),mask);
+  __m128 flip2 = _mm_xor_ps(_mm_mul_ps(ei_vec4f_swizzle1(a,3,3,3,1),
+                                       ei_vec4f_swizzle1(b,0,1,2,1)),mask);
+  ei_pstore(&res.x(),
+            _mm_add_ps(_mm_sub_ps(_mm_mul_ps(a,ei_vec4f_swizzle1(b,3,3,3,3)),
+                                  _mm_mul_ps(ei_vec4f_swizzle1(a,2,0,1,0),
+                                             ei_vec4f_swizzle1(b,1,2,0,0))),
+                       _mm_add_ps(flip1,flip2)));
+  return res;
+}
+#endif
 
 /** \returns the concatenation of two rotations as a quaternion-quaternion product */
 template <typename Scalar>
 inline Quaternion<Scalar> Quaternion<Scalar>::operator* (const Quaternion& other) const
 {
-  return Quaternion
-  (
-    this->w() * other.w() - this->x() * other.x() - this->y() * other.y() - this->z() * other.z(),
-    this->w() * other.x() + this->x() * other.w() + this->y() * other.z() - this->z() * other.y(),
-    this->w() * other.y() + this->y() * other.w() + this->z() * other.x() - this->x() * other.z(),
-    this->w() * other.z() + this->z() * other.w() + this->x() * other.y() - this->y() * other.x()
-  );
+  return ei_quaternion_product<EiArch>(*this,other);
 }
 
 /** \sa operator*(Quaternion) */
@@ -258,7 +306,7 @@ inline Quaternion<Scalar>& Quaternion<Scalar>::operator=(const Quaternion& other
 template<typename Scalar>
 inline Quaternion<Scalar>& Quaternion<Scalar>::operator=(const AngleAxisType& aa)
 {
-  Scalar ha = 0.5*aa.angle();
+  Scalar ha = Scalar(0.5)*aa.angle(); // Scalar(0.5) to suppress precision loss warnings
   this->w() = ei_cos(ha);
   this->vec() = ei_sin(ha) * aa.axis();
   return *this;
@@ -288,18 +336,18 @@ Quaternion<Scalar>::toRotationMatrix(void) const
   // it has to be inlined, and so the return by value is not an issue
   Matrix3 res;
 
-  Scalar tx  = 2*this->x();
-  Scalar ty  = 2*this->y();
-  Scalar tz  = 2*this->z();
-  Scalar twx = tx*this->w();
-  Scalar twy = ty*this->w();
-  Scalar twz = tz*this->w();
-  Scalar txx = tx*this->x();
-  Scalar txy = ty*this->x();
-  Scalar txz = tz*this->x();
-  Scalar tyy = ty*this->y();
-  Scalar tyz = tz*this->y();
-  Scalar tzz = tz*this->z();
+  const Scalar tx  = 2*this->x();
+  const Scalar ty  = 2*this->y();
+  const Scalar tz  = 2*this->z();
+  const Scalar twx = tx*this->w();
+  const Scalar twy = ty*this->w();
+  const Scalar twz = tz*this->w();
+  const Scalar txx = tx*this->x();
+  const Scalar txy = ty*this->x();
+  const Scalar txz = tz*this->x();
+  const Scalar tyy = ty*this->y();
+  const Scalar tyz = tz*this->y();
+  const Scalar tzz = tz*this->z();
 
   res.coeffRef(0,0) = 1-(tyy+tzz);
   res.coeffRef(0,1) = txy-twz;
@@ -314,9 +362,11 @@ Quaternion<Scalar>::toRotationMatrix(void) const
   return res;
 }
 
-/** Makes a quaternion representing the rotation between two vectors \a a and \a b.
-  * \returns a reference to the actual quaternion
-  * Note that the two input vectors have \b not to be normalized.
+/** Sets *this to be a quaternion representing a rotation sending the vector \a a to the vector \a b.
+  *
+  * \returns a reference to *this.
+  *
+  * Note that the two input vectors do \b not have to be normalized.
   */
 template<typename Scalar>
 template<typename Derived1, typename Derived2>
@@ -324,7 +374,6 @@ inline Quaternion<Scalar>& Quaternion<Scalar>::setFromTwoVectors(const MatrixBas
 {
   Vector3 v0 = a.normalized();
   Vector3 v1 = b.normalized();
-  Vector3 axis = v0.cross(v1);
   Scalar c = v0.dot(v1);
 
   // if dot == 1, vectors are the same
@@ -332,11 +381,21 @@ inline Quaternion<Scalar>& Quaternion<Scalar>::setFromTwoVectors(const MatrixBas
   {
     // set to identity
     this->w() = 1; this->vec().setZero();
+    return *this;
   }
-  Scalar s = ei_sqrt((1+c)*2);
-  Scalar invs = 1./s;
+  // if dot == -1, vectors are opposites
+  if (ei_isApprox(c,Scalar(-1)))
+  {
+    this->vec() = v0.unitOrthogonal();
+    this->w() = 0;
+    return *this;
+  }
+
+  Vector3 axis = v0.cross(v1);
+  Scalar s = ei_sqrt((Scalar(1)+c)*Scalar(2));
+  Scalar invs = Scalar(1)/s;
   this->vec() = axis * invs;
-  this->w() = s * 0.5;
+  this->w() = s * Scalar(0.5);
 
   return *this;
 }
@@ -351,7 +410,7 @@ template <typename Scalar>
 inline Quaternion<Scalar> Quaternion<Scalar>::inverse() const
 {
   // FIXME should this function be called multiplicativeInverse and conjugate() be called inverse() or opposite()  ??
-  Scalar n2 = this->norm2();
+  Scalar n2 = this->squaredNorm();
   if (n2 > 0)
     return Quaternion(conjugate().coeffs() / n2);
   else
@@ -382,7 +441,7 @@ inline Scalar Quaternion<Scalar>::angularDistance(const Quaternion& other) const
   double d = ei_abs(this->dot(other));
   if (d>=1.0)
     return 0;
-  return 2.0 * std::acos(d);
+  return Scalar(2) * std::acos(d);
 }
 
 /** \returns the spherical linear interpolation between the two quaternions
@@ -438,9 +497,9 @@ struct ei_quaternion_assign_impl<Other,3,3>
       int j = (i+1)%3;
       int k = (j+1)%3;
 
-      t = ei_sqrt(mat.coeff(i,i)-mat.coeff(j,j)-mat.coeff(k,k) + 1.0);
-      q.coeffs().coeffRef(i) = 0.5 * t;
-      t = 0.5/t;
+      t = ei_sqrt(mat.coeff(i,i)-mat.coeff(j,j)-mat.coeff(k,k) + Scalar(1.0));
+      q.coeffs().coeffRef(i) = Scalar(0.5) * t;
+      t = Scalar(0.5)/t;
       q.w() = (mat.coeff(k,j)-mat.coeff(j,k))*t;
       q.coeffs().coeffRef(j) = (mat.coeff(j,i)+mat.coeff(i,j))*t;
       q.coeffs().coeffRef(k) = (mat.coeff(k,i)+mat.coeff(i,k))*t;

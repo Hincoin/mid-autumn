@@ -26,6 +26,7 @@
 #define EIGEN_SVD_H
 
 /** \ingroup SVD_Module
+  * \nonstableyet
   *
   * \class SVD
   *
@@ -50,16 +51,16 @@ template<typename MatrixType> class SVD
       AlignmentMask = int(PacketSize)-1,
       MinSize = EIGEN_ENUM_MIN(MatrixType::RowsAtCompileTime, MatrixType::ColsAtCompileTime)
     };
-    
+
     typedef Matrix<Scalar, MatrixType::RowsAtCompileTime, 1> ColVector;
     typedef Matrix<Scalar, MatrixType::ColsAtCompileTime, 1> RowVector;
-    
+
     typedef Matrix<Scalar, MatrixType::RowsAtCompileTime, MinSize> MatrixUType;
     typedef Matrix<Scalar, MatrixType::ColsAtCompileTime, MatrixType::ColsAtCompileTime> MatrixVType;
     typedef Matrix<Scalar, MinSize, 1> SingularValuesType;
 
   public:
-  
+
     SVD(const MatrixType& matrix)
       : m_matU(matrix.rows(), std::min(matrix.rows(), matrix.cols())),
         m_matV(matrix.cols(),matrix.cols()),
@@ -69,7 +70,7 @@ template<typename MatrixType> class SVD
     }
 
     template<typename OtherDerived, typename ResultType>
-    void solve(const MatrixBase<OtherDerived> &b, ResultType* result) const;
+    bool solve(const MatrixBase<OtherDerived> &b, ResultType* result) const;
 
     const MatrixUType& matrixU() const { return m_matU; }
     const SingularValuesType& singularValues() const { return m_sigma; }
@@ -77,6 +78,15 @@ template<typename MatrixType> class SVD
 
     void compute(const MatrixType& matrix);
     SVD& sort();
+
+    template<typename UnitaryType, typename PositiveType>
+    void computeUnitaryPositive(UnitaryType *unitary, PositiveType *positive) const;
+    template<typename PositiveType, typename UnitaryType>
+    void computePositiveUnitary(PositiveType *positive, UnitaryType *unitary) const;
+    template<typename RotationType, typename ScalingType>
+    void computeRotationScaling(RotationType *unitary, ScalingType *positive) const;
+    template<typename ScalingType, typename RotationType>
+    void computeScalingRotation(ScalingType *positive, RotationType *unitary) const;
 
   protected:
     /** \internal */
@@ -97,7 +107,7 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
   const int m = matrix.rows();
   const int n = matrix.cols();
   const int nu = std::min(m,n);
-  
+
   m_matU.resize(m, nu);
   m_matU.setZero();
   m_sigma.resize(std::min(m,n));
@@ -114,7 +124,7 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
   // in s and the super-diagonal elements in e.
   int nct = std::min(m-1,n);
   int nrt = std::max(0,std::min(n-2,m));
-  for (k = 0; k < std::max(nct,nrt); k++)
+  for (k = 0; k < std::max(nct,nrt); ++k)
   {
     if (k < nct)
     {
@@ -130,8 +140,8 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
       }
       m_sigma[k] = -m_sigma[k];
     }
-    
-    for (j = k+1; j < n; j++)
+
+    for (j = k+1; j < n; ++j)
     {
       if ((k < nct) && (m_sigma[k] != 0.0))
       {
@@ -167,7 +177,7 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
       {
         // Apply the transformation.
         work.end(m-k-1) = matA.corner(BottomRight,m-k-1,n-k-1) * e.end(n-k-1);
-        for (j = k+1; j < n; j++)
+        for (j = k+1; j < n; ++j)
           matA.col(j).end(m-k-1) += (-e[j]/e[k+1]) * work.end(m-k-1);
       }
 
@@ -191,7 +201,7 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
   // If required, generate U.
   if (wantu)
   {
-    for (j = nct; j < nu; j++)
+    for (j = nct; j < nu; ++j)
     {
       m_matU.col(j).setZero();
       m_matU(j,j) = 1.0;
@@ -200,14 +210,14 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
     {
       if (m_sigma[k] != 0.0)
       {
-        for (j = k+1; j < nu; j++)
+        for (j = k+1; j < nu; ++j)
         {
           Scalar t = m_matU.col(k).end(m-k).dot(m_matU.col(j).end(m-k)); // FIXME is it really a dot product we want ?
           t = -t/m_matU(k,k);
           m_matU.col(j).end(m-k) += t * m_matU.col(k).end(m-k);
         }
         m_matU.col(k).end(m-k) = - m_matU.col(k).end(m-k);
-        m_matU(k,k) = 1.0 + m_matU(k,k);
+        m_matU(k,k) = Scalar(1) + m_matU(k,k);
         if (k-1>0)
           m_matU.col(k).start(k-1).setZero();
       }
@@ -226,7 +236,7 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
     {
       if ((k < nrt) & (e[k] != 0.0))
       {
-        for (j = k+1; j < nu; j++)
+        for (j = k+1; j < nu; ++j)
         {
           Scalar t = m_matV.col(k).end(n-k-1).dot(m_matV.col(j).end(n-k-1)); // FIXME is it really a dot product we want ?
           t = -t/m_matV(k+1,k);
@@ -241,7 +251,7 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
   // Main iteration loop for the singular values.
   int pp = p-1;
   int iter = 0;
-  Scalar eps(pow(2.0,-52.0));
+  Scalar eps = ei_pow(Scalar(2),ei_is_same_type<Scalar,float>::ret ? Scalar(-23) : Scalar(-52));
   while (p > 0)
   {
     int k=0;
@@ -259,7 +269,7 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
     //              s(k), ..., s(p) are not negligible (qr step).
     // kase = 4     if e(p-1) is negligible (convergence).
 
-    for (k = p-2; k >= -1; k--)
+    for (k = p-2; k >= -1; --k)
     {
       if (k == -1)
           break;
@@ -276,11 +286,11 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
     else
     {
       int ks;
-      for (ks = p-1; ks >= k; ks--)
+      for (ks = p-1; ks >= k; --ks)
       {
         if (ks == k)
           break;
-        Scalar t( (ks != p ? ei_abs(e[ks]) : 0.) + (ks != k+1 ? ei_abs(e[ks-1]) : 0.));
+        Scalar t = (ks != p ? ei_abs(e[ks]) : Scalar(0)) + (ks != k+1 ? ei_abs(e[ks-1]) : Scalar(0));
         if (ei_abs(m_sigma[ks]) <= eps*t)
         {
           m_sigma[ks] = 0.0;
@@ -301,7 +311,7 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
         k = ks;
       }
     }
-    k++;
+    ++k;
 
     // Perform the task indicated by kase.
     switch (kase)
@@ -312,9 +322,9 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
       {
         Scalar f(e[p-2]);
         e[p-2] = 0.0;
-        for (j = p-2; j >= k; j--)
+        for (j = p-2; j >= k; --j)
         {
-          Scalar t(hypot(m_sigma[j],f));
+          Scalar t(ei_hypot(m_sigma[j],f));
           Scalar cs(m_sigma[j]/t);
           Scalar sn(f/t);
           m_sigma[j] = t;
@@ -325,7 +335,7 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
           }
           if (wantv)
           {
-            for (i = 0; i < n; i++)
+            for (i = 0; i < n; ++i)
             {
               t = cs*m_matV(i,j) + sn*m_matV(i,p-1);
               m_matV(i,p-1) = -sn*m_matV(i,j) + cs*m_matV(i,p-1);
@@ -341,9 +351,9 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
       {
         Scalar f(e[k-1]);
         e[k-1] = 0.0;
-        for (j = k; j < p; j++)
+        for (j = k; j < p; ++j)
         {
-          Scalar t(hypot(m_sigma[j],f));
+          Scalar t(ei_hypot(m_sigma[j],f));
           Scalar cs( m_sigma[j]/t);
           Scalar sn(f/t);
           m_sigma[j] = t;
@@ -351,7 +361,7 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
           e[j] = cs*e[j];
           if (wantu)
           {
-            for (i = 0; i < m; i++)
+            for (i = 0; i < m; ++i)
             {
               t = cs*m_matU(i,j) + sn*m_matU(i,k-1);
               m_matU(i,k-1) = -sn*m_matU(i,j) + cs*m_matU(i,k-1);
@@ -374,7 +384,7 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
         Scalar epm1 = e[p-2]/scale;
         Scalar sk = m_sigma[k]/scale;
         Scalar ek = e[k]/scale;
-        Scalar b = ((spm1 + sp)*(spm1 - sp) + epm1*epm1)/2.0;
+        Scalar b = ((spm1 + sp)*(spm1 - sp) + epm1*epm1)/Scalar(2);
         Scalar c = (sp*epm1)*(sp*epm1);
         Scalar shift = 0.0;
         if ((b != 0.0) || (c != 0.0))
@@ -389,9 +399,9 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
 
         // Chase zeros.
 
-        for (j = k; j < p-1; j++)
+        for (j = k; j < p-1; ++j)
         {
-          Scalar t = hypot(f,g);
+          Scalar t = ei_hypot(f,g);
           Scalar cs = f/t;
           Scalar sn = g/t;
           if (j != k)
@@ -402,14 +412,14 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
           m_sigma[j+1] = cs*m_sigma[j+1];
           if (wantv)
           {
-            for (i = 0; i < n; i++)
+            for (i = 0; i < n; ++i)
             {
               t = cs*m_matV(i,j) + sn*m_matV(i,j+1);
               m_matV(i,j+1) = -sn*m_matV(i,j) + cs*m_matV(i,j+1);
               m_matV(i,j) = t;
             }
           }
-          t = hypot(f,g);
+          t = ei_hypot(f,g);
           cs = f/t;
           sn = g/t;
           m_sigma[j] = t;
@@ -419,7 +429,7 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
           e[j+1] = cs*e[j+1];
           if (wantu && (j < m-1))
           {
-            for (i = 0; i < m; i++)
+            for (i = 0; i < m; ++i)
             {
               t = cs*m_matU(i,j) + sn*m_matU(i,j+1);
               m_matU(i,j+1) = -sn*m_matU(i,j) + cs*m_matU(i,j+1);
@@ -438,7 +448,7 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
         // Make the singular values positive.
         if (m_sigma[k] <= 0.0)
         {
-          m_sigma[k] = (m_sigma[k] < 0.0 ? -m_sigma[k] : 0.0);
+          m_sigma[k] = m_sigma[k] < Scalar(0) ? -m_sigma[k] : Scalar(0);
           if (wantv)
             m_matV.col(k).start(pp+1) = -m_matV.col(k).start(pp+1);
         }
@@ -455,7 +465,7 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
             m_matV.col(k).swap(m_matV.col(k+1));
           if (wantu && (k < m-1))
             m_matU.col(k).swap(m_matU.col(k+1));
-          k++;
+          ++k;
         }
         iter = 0;
         p--;
@@ -468,18 +478,18 @@ void SVD<MatrixType>::compute(const MatrixType& matrix)
 template<typename MatrixType>
 SVD<MatrixType>& SVD<MatrixType>::sort()
 {
-  int mu = m_matU.rows(); 
-  int mv = m_matV.rows(); 
+  int mu = m_matU.rows();
+  int mv = m_matV.rows();
   int n  = m_matU.cols();
 
-  for (int i=0; i<n; i++)
+  for (int i=0; i<n; ++i)
   {
-    int  k = i; 
+    int  k = i;
     Scalar p = m_sigma.coeff(i);
 
-    for (int j=i+1; j<n; j++)
+    for (int j=i+1; j<n; ++j)
     {
-      if (m_sigma.coeff(j) > p) 
+      if (m_sigma.coeff(j) > p)
       {
         k = j;
         p = m_sigma.coeff(j);
@@ -505,11 +515,11 @@ SVD<MatrixType>& SVD<MatrixType>::sort()
 /** \returns the solution of \f$ A x = b \f$ using the current SVD decomposition of A.
   * The parts of the solution corresponding to zero singular values are ignored.
   *
-  * \sa MatrixBase::svd(), LU::solve(), Cholesky::solve()
+  * \sa MatrixBase::svd(), LU::solve(), LLT::solve()
   */
 template<typename MatrixType>
 template<typename OtherDerived, typename ResultType>
-void SVD<MatrixType>::solve(const MatrixBase<OtherDerived> &b, ResultType* result) const
+bool SVD<MatrixType>::solve(const MatrixBase<OtherDerived> &b, ResultType* result) const
 {
   const int rows = m_matU.rows();
   ei_assert(b.rows() == rows);
@@ -519,7 +529,7 @@ void SVD<MatrixType>::solve(const MatrixBase<OtherDerived> &b, ResultType* resul
   {
     Matrix<Scalar,MatrixUType::RowsAtCompileTime,1> aux = m_matU.transpose() * b.col(j);
 
-    for (int i = 0; i <m_matU.cols(); i++)
+    for (int i = 0; i <m_matU.cols(); ++i)
     {
       Scalar si = m_sigma.coeff(i);
       if (ei_isMuchSmallerThan(ei_abs(si),maxVal))
@@ -530,16 +540,106 @@ void SVD<MatrixType>::solve(const MatrixBase<OtherDerived> &b, ResultType* resul
 
     result->col(j) = m_matV * aux;
   }
+  return true;
 }
+
+/** Computes the polar decomposition of the matrix, as a product unitary x positive.
+  *
+  * If either pointer is zero, the corresponding computation is skipped.
+  *
+  * Only for square matrices.
+  *
+  * \sa computePositiveUnitary(), computeRotationScaling()
+  */
+template<typename MatrixType>
+template<typename UnitaryType, typename PositiveType>
+void SVD<MatrixType>::computeUnitaryPositive(UnitaryType *unitary,
+                                             PositiveType *positive) const
+{
+  ei_assert(m_matU.cols() == m_matV.cols() && "Polar decomposition is only for square matrices");
+  if(unitary) *unitary = m_matU * m_matV.adjoint();
+  if(positive) *positive = m_matV * m_sigma.asDiagonal() * m_matV.adjoint();
+}
+
+/** Computes the polar decomposition of the matrix, as a product positive x unitary.
+  *
+  * If either pointer is zero, the corresponding computation is skipped.
+  *
+  * Only for square matrices.
+  *
+  * \sa computeUnitaryPositive(), computeRotationScaling()
+  */
+template<typename MatrixType>
+template<typename UnitaryType, typename PositiveType>
+void SVD<MatrixType>::computePositiveUnitary(UnitaryType *positive,
+                                             PositiveType *unitary) const
+{
+  ei_assert(m_matU.rows() == m_matV.rows() && "Polar decomposition is only for square matrices");
+  if(unitary) *unitary = m_matU * m_matV.adjoint();
+  if(positive) *positive = m_matU * m_sigma.asDiagonal() * m_matU.adjoint();
+}
+
+/** decomposes the matrix as a product rotation x scaling, the scaling being
+  * not necessarily positive.
+  *
+  * If either pointer is zero, the corresponding computation is skipped.
+  *
+  * This method requires the Geometry module.
+  *
+  * \sa computeScalingRotation(), computeUnitaryPositive()
+  */
+template<typename MatrixType>
+template<typename RotationType, typename ScalingType>
+void SVD<MatrixType>::computeRotationScaling(RotationType *rotation, ScalingType *scaling) const
+{
+  ei_assert(m_matU.rows() == m_matV.rows() && "Polar decomposition is only for square matrices");
+  Scalar x = (m_matU * m_matV.adjoint()).determinant(); // so x has absolute value 1
+  Matrix<Scalar, MatrixType::RowsAtCompileTime, 1> sv(m_sigma);
+  sv.coeffRef(0) *= x;
+  if(scaling) scaling->lazyAssign(m_matV * sv.asDiagonal() * m_matV.adjoint());
+  if(rotation)
+  {
+    MatrixType m(m_matU);
+    m.col(0) /= x;
+    rotation->lazyAssign(m * m_matV.adjoint());
+  }
+}
+
+/** decomposes the matrix as a product scaling x rotation, the scaling being
+  * not necessarily positive.
+  *
+  * If either pointer is zero, the corresponding computation is skipped.
+  *
+  * This method requires the Geometry module.
+  *
+  * \sa computeRotationScaling(), computeUnitaryPositive()
+  */
+template<typename MatrixType>
+template<typename ScalingType, typename RotationType>
+void SVD<MatrixType>::computeScalingRotation(ScalingType *scaling, RotationType *rotation) const
+{
+  ei_assert(m_matU.rows() == m_matV.rows() && "Polar decomposition is only for square matrices");
+  Scalar x = (m_matU * m_matV.adjoint()).determinant(); // so x has absolute value 1
+  Matrix<Scalar, MatrixType::RowsAtCompileTime, 1> sv(m_sigma);
+  sv.coeffRef(0) *= x;
+  if(scaling) scaling->lazyAssign(m_matU * sv.asDiagonal() * m_matU.adjoint());
+  if(rotation)
+  {
+    MatrixType m(m_matU);
+    m.col(0) /= x;
+    rotation->lazyAssign(m * m_matV.adjoint());
+  }
+}
+
 
 /** \svd_module
   * \returns the SVD decomposition of \c *this
   */
 template<typename Derived>
-inline SVD<typename MatrixBase<Derived>::EvalType>
+inline SVD<typename MatrixBase<Derived>::PlainMatrixType>
 MatrixBase<Derived>::svd() const
 {
-  return SVD<typename ei_eval<Derived>::type>(derived());
+  return SVD<PlainMatrixType>(derived());
 }
 
 #endif // EIGEN_SVD_H

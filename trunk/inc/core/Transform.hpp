@@ -11,6 +11,7 @@ namespace ma{
 		typedef typename matrix_type<T,Dim+1,Dim+1>::type MatrixType;
 		typedef typename vector_type<T,Dim>::type VectorType;
 	public:
+
 		typedef Impl parent_type;
 		Transform(const Impl& im):Impl(im){}
 		Transform(move_from<Impl> src){self().matrix().swap(src.source.matrix());}
@@ -23,17 +24,21 @@ namespace ma{
 		Transform(move_from<Other> o){self().matrix().swap(o.source.matrix());}
 
 		explicit Transform(const MatrixType& m){
-			self().matrix() = m.self();
+			self().matrix() = m;
 		};
 		explicit Transform(move_from<MatrixType> m)
 		{
-			self().matrix().swap(m.source.self());
+			self().matrix().swap(m.source);
 		}
 
-		Transform(T m[Dim+1][Dim+1]){self().matrix().swap(MatrixType(m).self());}
+		Transform(T m[Dim+1][Dim+1]){
+			matrix::load_matrix<T,Dim+1,Dim+1>(m,this->matrix());
+		}
 		//Transform(T m[(Dim+1)*(Dim+1)]){self().matrix().swap(MatrixType(m).self());}
 
-		Transform& operator=(Transform other){this->swap(other);return *this;}
+		Transform& operator=(const Transform& other){
+			static_cast<parent_type&>(*this) = other;return *this;
+		}
 
 		void swap(Transform& other){self().matrix().swap(other.self().matrix());}
 		Transform inverse(Eigen::TransformTraits t = Eigen::Projective)const{return Transform(move_from<MatrixType>(self().inverse(t)));}

@@ -3,9 +3,14 @@
 
 #include "Core"
 
+#include "src/Core/util/DisableMSVCWarnings.h"
+
 namespace Eigen {
 
 /** \defgroup SVD_Module SVD module
+  *
+  * \nonstableyet
+  *
   * This module provides SVD decomposition for (currently) real matrices.
   * This decomposition is accessible via the following MatrixBase method:
   *  - MatrixBase::svd()
@@ -18,5 +23,7 @@ namespace Eigen {
 #include "src/SVD/SVD.h"
 
 } // namespace Eigen
+
+#include "src/Core/util/EnableMSVCWarnings.h"
 
 #endif // EIGEN_SVD_MODULE_H

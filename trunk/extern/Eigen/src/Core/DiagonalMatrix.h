@@ -1,7 +1,7 @@
 // This file is part of Eigen, a lightweight C++ template library
 // for linear algebra. Eigen itself is part of the KDE project.
 //
-// Copyright (C) 2006-2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -26,6 +26,7 @@
 #define EIGEN_DIAGONALMATRIX_H
 
 /** \class DiagonalMatrix
+  * \nonstableyet 
   *
   * \brief Expression of a diagonal matrix
   *
@@ -61,11 +62,21 @@ class DiagonalMatrix : ei_no_assignment_operator,
   public:
 
     EIGEN_GENERIC_PUBLIC_INTERFACE(DiagonalMatrix)
+    typedef CoeffsVectorType _CoeffsVectorType;
+
+    // needed to evaluate a DiagonalMatrix<Xpr> to a DiagonalMatrix<NestByValue<Vector> >
+    template<typename OtherCoeffsVectorType>
+    inline DiagonalMatrix(const DiagonalMatrix<OtherCoeffsVectorType>& other) : m_coeffs(other.diagonal())
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(CoeffsVectorType);
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(OtherCoeffsVectorType);
+      ei_assert(m_coeffs.size() > 0);
+    }
 
     inline DiagonalMatrix(const CoeffsVectorType& coeffs) : m_coeffs(coeffs)
     {
-      ei_assert(CoeffsVectorType::IsVectorAtCompileTime
-          && coeffs.size() > 0);
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(CoeffsVectorType);
+      ei_assert(coeffs.size() > 0);
     }
 
     inline int rows() const { return m_coeffs.size(); }
@@ -76,11 +87,14 @@ class DiagonalMatrix : ei_no_assignment_operator,
       return row == col ? m_coeffs.coeff(row) : static_cast<Scalar>(0);
     }
 
+    inline const CoeffsVectorType& diagonal() const { return m_coeffs; }
+
   protected:
     const typename CoeffsVectorType::Nested m_coeffs;
 };
 
-/** \returns an expression of a diagonal matrix with *this as vector of diagonal coefficients
+/** \nonstableyet 
+  * \returns an expression of a diagonal matrix with *this as vector of diagonal coefficients
   *
   * \only_for_vectors
   *
@@ -98,7 +112,8 @@ MatrixBase<Derived>::asDiagonal() const
   return derived();
 }
 
-/** \returns true if *this is approximately equal to a diagonal matrix,
+/** \nonstableyet 
+  * \returns true if *this is approximately equal to a diagonal matrix,
   *          within the precision given by \a prec.
   *
   * Example: \include MatrixBase_isDiagonal.cpp
@@ -112,13 +127,13 @@ bool MatrixBase<Derived>::isDiagonal
 {
   if(cols() != rows()) return false;
   RealScalar maxAbsOnDiagonal = static_cast<RealScalar>(-1);
-  for(int j = 0; j < cols(); j++)
+  for(int j = 0; j < cols(); ++j)
   {
     RealScalar absOnDiagonal = ei_abs(coeff(j,j));
     if(absOnDiagonal > maxAbsOnDiagonal) maxAbsOnDiagonal = absOnDiagonal;
   }
-  for(int j = 0; j < cols(); j++)
-    for(int i = 0; i < j; i++)
+  for(int j = 0; j < cols(); ++j)
+    for(int i = 0; i < j; ++i)
     {
       if(!ei_isMuchSmallerThan(coeff(i, j), maxAbsOnDiagonal, prec)) return false;
       if(!ei_isMuchSmallerThan(coeff(j, i), maxAbsOnDiagonal, prec)) return false;

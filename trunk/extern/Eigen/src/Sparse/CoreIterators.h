@@ -28,216 +28,41 @@
 /* This file contains the respective InnerIterator definition of the expressions defined in Eigen/Core
  */
 
-template<typename Derived>
-class MatrixBase<Derived>::InnerIterator
+/** \class InnerIterator
+  * \brief An InnerIterator allows to loop over the element of a sparse (or dense) matrix or expression
+  *
+  * todo
+  */
+
+// generic version for dense matrix and expressions
+template<typename Derived> class MatrixBase<Derived>::InnerIterator
 {
     typedef typename Derived::Scalar Scalar;
+    enum { IsRowMajor = (Derived::Flags&RowMajorBit)==RowMajorBit };
   public:
-    InnerIterator(const Derived& mat, int outer)
-      : m_matrix(mat), m_inner(0), m_outer(outer), m_end(mat.rows())
+    EIGEN_STRONG_INLINE InnerIterator(const Derived& expr, int outer)
+      : m_expression(expr), m_inner(0), m_outer(outer), m_end(expr.rows())
     {}
 
-    Scalar value() const
+    EIGEN_STRONG_INLINE Scalar value() const
     {
-      return (Derived::Flags&RowMajorBit) ? m_matrix.coeff(m_outer, m_inner)
-                                          : m_matrix.coeff(m_inner, m_outer);
+      return (IsRowMajor) ? m_expression.coeff(m_outer, m_inner)
+                          : m_expression.coeff(m_inner, m_outer);
     }
 
-    InnerIterator& operator++() { m_inner++; return *this; }
+    EIGEN_STRONG_INLINE InnerIterator& operator++() { m_inner++; return *this; }
 
-    int index() const { return m_inner; }
+    EIGEN_STRONG_INLINE int index() const { return m_inner; }
+    inline int row() const { return IsRowMajor ? m_outer : index(); }
+    inline int col() const { return IsRowMajor ? index() : m_outer; }
 
-    operator bool() const { return m_inner < m_end && m_inner>=0; }
+    EIGEN_STRONG_INLINE operator bool() const { return m_inner < m_end && m_inner>=0; }
 
   protected:
-    const Derived& m_matrix;
+    const Derived& m_expression;
     int m_inner;
     const int m_outer;
     const int m_end;
-};
-
-template<typename MatrixType>
-class Transpose<MatrixType>::InnerIterator : public MatrixType::InnerIterator
-{
-  public:
-
-    InnerIterator(const Transpose& trans, int outer)
-      : MatrixType::InnerIterator(trans.m_matrix, outer)
-    {}
-};
-
-template<typename MatrixType, int BlockRows, int BlockCols, int PacketAccess, int _DirectAccessStatus>
-class Block<MatrixType, BlockRows, BlockCols, PacketAccess, _DirectAccessStatus>::InnerIterator
-{
-    typedef typename Block::Scalar Scalar;
-    typedef typename ei_traits<Block>::_MatrixTypeNested _MatrixTypeNested;
-    typedef typename _MatrixTypeNested::InnerIterator MatrixTypeIterator;
-  public:
-
-    InnerIterator(const Block& block, int outer)
-      : m_iter(block.m_matrix,(Block::Flags&RowMajor) ? block.m_startRow.value() + outer : block.m_startCol.value() + outer),
-        m_start( (Block::Flags&RowMajor) ? block.m_startCol.value() : block.m_startRow.value()),
-        m_end(m_start + ((Block::Flags&RowMajor) ? block.m_blockCols.value() : block.m_blockRows.value())),
-        m_offset( (Block::Flags&RowMajor) ? block.m_startCol.value() : block.m_startRow.value())
-    {
-      while (m_iter.index()>=0 && m_iter.index()<m_start)
-        ++m_iter;
-    }
-
-    InnerIterator& operator++()
-    {
-      ++m_iter;
-      return *this;
-    }
-
-    Scalar value() const { return m_iter.value(); }
-
-    int index() const { return m_iter.index() - m_offset; }
-
-    operator bool() const { return m_iter && m_iter.index()<m_end; }
-
-  protected:
-    MatrixTypeIterator m_iter;
-    int m_start;
-    int m_end;
-    int m_offset;
-}; 
-
-template<typename MatrixType, int BlockRows, int BlockCols, int PacketAccess>
-class Block<MatrixType, BlockRows, BlockCols, PacketAccess, IsSparse>::InnerIterator
-{
-    typedef typename Block::Scalar Scalar;
-    typedef typename ei_traits<Block>::_MatrixTypeNested _MatrixTypeNested;
-    typedef typename _MatrixTypeNested::InnerIterator MatrixTypeIterator;
-  public:
-
-    InnerIterator(const Block& block, int outer)
-      : m_iter(block.m_matrix,(Block::Flags&RowMajor) ? block.m_startRow.value() + outer : block.m_startCol.value() + outer),
-        m_start( (Block::Flags&RowMajor) ? block.m_startCol.value() : block.m_startRow.value()),
-        m_end(m_start + ((Block::Flags&RowMajor) ? block.m_blockCols.value() : block.m_blockRows.value())),
-        m_offset( (Block::Flags&RowMajor) ? block.m_startCol.value() : block.m_startRow.value())
-    {
-      while (m_iter.index()>=0 && m_iter.index()<m_start)
-        ++m_iter;
-    }
-
-    InnerIterator& operator++()
-    {
-      ++m_iter;
-      return *this;
-    }
-
-    Scalar value() const { return m_iter.value(); }
-
-    int index() const { return m_iter.index() - m_offset; }
-
-    operator bool() const { return m_iter && m_iter.index()<m_end; }
-
-  protected:
-    MatrixTypeIterator m_iter;
-    int m_start;
-    int m_end;
-    int m_offset;
-};
-
-template<typename UnaryOp, typename MatrixType>
-class CwiseUnaryOp<UnaryOp,MatrixType>::InnerIterator
-{
-    typedef typename CwiseUnaryOp::Scalar Scalar;
-    typedef typename ei_traits<CwiseUnaryOp>::_MatrixTypeNested _MatrixTypeNested;
-    typedef typename _MatrixTypeNested::InnerIterator MatrixTypeIterator;
-  public:
-
-    InnerIterator(const CwiseUnaryOp& unaryOp, int outer)
-      : m_iter(unaryOp.m_matrix,outer), m_functor(unaryOp.m_functor), m_id(-1)
-    {
-      this->operator++();
-    }
-
-    InnerIterator& operator++()
-    {
-      if (m_iter)
-      {
-        m_id = m_iter.index();
-        m_value = m_functor(m_iter.value());
-        ++m_iter;
-      }
-      else
-      {
-        m_id = -1;
-      }
-      return *this;
-    }
-
-    Scalar value() const { return m_value; }
-
-    int index() const { return m_id; }
-
-    operator bool() const { return m_id>=0; }
-
-  protected:
-    MatrixTypeIterator m_iter;
-    const UnaryOp& m_functor;
-    Scalar m_value;
-    int m_id;
-};
-
-template<typename BinaryOp, typename Lhs, typename Rhs>
-class CwiseBinaryOp<BinaryOp,Lhs,Rhs>::InnerIterator
-{
-    typedef typename CwiseBinaryOp::Scalar Scalar;
-    typedef typename ei_traits<CwiseBinaryOp>::_LhsNested _LhsNested;
-    typedef typename _LhsNested::InnerIterator LhsIterator;
-    typedef typename ei_traits<CwiseBinaryOp>::_RhsNested _RhsNested;
-    typedef typename _RhsNested::InnerIterator RhsIterator;
-  public:
-
-    InnerIterator(const CwiseBinaryOp& binOp, int outer)
-      : m_lhsIter(binOp.m_lhs,outer), m_rhsIter(binOp.m_rhs,outer), m_functor(binOp.m_functor), m_id(-1)
-    {
-      this->operator++();
-    }
-
-    InnerIterator& operator++()
-    {
-      if (m_lhsIter && m_rhsIter && (m_lhsIter.index() == m_rhsIter.index()))
-      {
-        m_id = m_lhsIter.index();
-        m_value = m_functor(m_lhsIter.value(), m_rhsIter.value());
-        ++m_lhsIter;
-        ++m_rhsIter;
-      }
-      else if (m_lhsIter && (!m_rhsIter || (m_lhsIter.index() < m_rhsIter.index())))
-      {
-        m_id = m_lhsIter.index();
-        m_value = m_functor(m_lhsIter.value(), Scalar(0));
-        ++m_lhsIter;
-      }
-      else if (m_rhsIter && (!m_lhsIter || (m_lhsIter.index() > m_rhsIter.index())))
-      {
-        m_id = m_rhsIter.index();
-        m_value = m_functor(Scalar(0), m_rhsIter.value());
-        ++m_rhsIter;
-      }
-      else
-      {
-        m_id = -1;
-      }
-      return *this;
-    }
-
-    Scalar value() const { return m_value; }
-
-    int index() const { return m_id; }
-
-    operator bool() const { return m_id>=0; }
-
-  protected:
-    LhsIterator m_lhsIter;
-    RhsIterator m_rhsIter;
-    const BinaryOp& m_functor;
-    Scalar m_value;
-    int m_id;
 };
 
 #endif // EIGEN_COREITERATORS_H

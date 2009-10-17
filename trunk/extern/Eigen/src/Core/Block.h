@@ -2,7 +2,7 @@
 // for linear algebra. Eigen itself is part of the KDE project.
 //
 // Copyright (C) 2008 Gael Guennebaud <g.gael@free.fr>
-// Copyright (C) 2006-2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -61,27 +61,28 @@
   *
   * \sa MatrixBase::block(int,int,int,int), MatrixBase::block(int,int), class VectorBlock
   */
+
 template<typename MatrixType, int BlockRows, int BlockCols, int _PacketAccess, int _DirectAccessStatus>
 struct ei_traits<Block<MatrixType, BlockRows, BlockCols, _PacketAccess, _DirectAccessStatus> >
 {
-  typedef typename MatrixType::Scalar Scalar;
-  typedef typename MatrixType::Nested MatrixTypeNested;
+  typedef typename ei_traits<MatrixType>::Scalar Scalar;
+  typedef typename ei_nested<MatrixType>::type MatrixTypeNested;
   typedef typename ei_unref<MatrixTypeNested>::type _MatrixTypeNested;
   enum{
-    RowsAtCompileTime = MatrixType::RowsAtCompileTime == 1 ? 1 : BlockRows,
-    ColsAtCompileTime = MatrixType::ColsAtCompileTime == 1 ? 1 : BlockCols,
+    RowsAtCompileTime = ei_traits<MatrixType>::RowsAtCompileTime == 1 ? 1 : BlockRows,
+    ColsAtCompileTime = ei_traits<MatrixType>::ColsAtCompileTime == 1 ? 1 : BlockCols,
     MaxRowsAtCompileTime = RowsAtCompileTime == 1 ? 1
-      : (BlockRows==Dynamic ? MatrixType::MaxRowsAtCompileTime : BlockRows),
+      : (BlockRows==Dynamic ? int(ei_traits<MatrixType>::MaxRowsAtCompileTime) : BlockRows),
     MaxColsAtCompileTime = ColsAtCompileTime == 1 ? 1
-      : (BlockCols==Dynamic ? MatrixType::MaxColsAtCompileTime : BlockCols),
-    RowMajor = int(MatrixType::Flags)&RowMajorBit,
-    InnerSize = RowMajor ? ColsAtCompileTime : RowsAtCompileTime,
-    InnerMaxSize = RowMajor ? MaxColsAtCompileTime : MaxRowsAtCompileTime,
+      : (BlockCols==Dynamic ? int(ei_traits<MatrixType>::MaxColsAtCompileTime) : BlockCols),
+    RowMajor = int(ei_traits<MatrixType>::Flags)&RowMajorBit,
+    InnerSize = RowMajor ? int(ColsAtCompileTime) : int(RowsAtCompileTime),
+    InnerMaxSize = RowMajor ? int(MaxColsAtCompileTime) : int(MaxRowsAtCompileTime),
     MaskPacketAccessBit = (InnerMaxSize == Dynamic || (InnerSize >= ei_packet_traits<Scalar>::size))
                         ? PacketAccessBit : 0,
     FlagsLinearAccessBit = (RowsAtCompileTime == 1 || ColsAtCompileTime == 1) ? LinearAccessBit : 0,
-    Flags = (MatrixType::Flags & (HereditaryBits | MaskPacketAccessBit | DirectAccessBit)) | FlagsLinearAccessBit,
-    CoeffReadCost = MatrixType::CoeffReadCost,
+    Flags = (ei_traits<MatrixType>::Flags & (HereditaryBits | MaskPacketAccessBit | DirectAccessBit)) | FlagsLinearAccessBit,
+    CoeffReadCost = ei_traits<MatrixType>::CoeffReadCost,
     PacketAccess = _PacketAccess
   };
   typedef typename ei_meta_if<int(PacketAccess)==ForceAligned,
@@ -122,7 +123,7 @@ template<typename MatrixType, int BlockRows, int BlockCols, int PacketAccess, in
       : m_matrix(matrix), m_startRow(startRow), m_startCol(startCol),
         m_blockRows(matrix.rows()), m_blockCols(matrix.cols())
     {
-      EIGEN_STATIC_ASSERT(RowsAtCompileTime!=Dynamic && RowsAtCompileTime!=Dynamic,this_method_is_only_for_fixed_size);
+      EIGEN_STATIC_ASSERT(RowsAtCompileTime!=Dynamic && ColsAtCompileTime!=Dynamic,THIS_METHOD_IS_ONLY_FOR_FIXED_SIZE)
       ei_assert(startRow >= 0 && BlockRows >= 1 && startRow + BlockRows <= matrix.rows()
           && startCol >= 0 && BlockCols >= 1 && startCol + BlockCols <= matrix.cols());
     }
@@ -145,8 +146,6 @@ template<typename MatrixType, int BlockRows, int BlockCols, int PacketAccess, in
 
     inline int rows() const { return m_blockRows.value(); }
     inline int cols() const { return m_blockCols.value(); }
-
-    inline int stride(void) const { return m_matrix.stride(); }
 
     inline Scalar& coeffRef(int row, int col)
     {
@@ -223,15 +222,13 @@ class Block<MatrixType,BlockRows,BlockCols,PacketAccess,HasDirectAccess>
 
     class InnerIterator;
     typedef typename ei_traits<Block>::AlignedDerivedType AlignedDerivedType;
+    friend class Block<MatrixType,BlockRows,BlockCols,PacketAccess==AsRequested?ForceAligned:AsRequested,HasDirectAccess>;
 
     EIGEN_INHERIT_ASSIGNMENT_OPERATORS(Block)
 
-    AlignedDerivedType forceAligned()
+    AlignedDerivedType _convertToForceAligned()
     {
-      if (PacketAccess==ForceAligned)
-        return *this;
-      else
-        return Block<MatrixType,BlockRows,BlockCols,ForceAligned,HasDirectAccess>
+      return Block<MatrixType,BlockRows,BlockCols,ForceAligned,HasDirectAccess>
                     (m_matrix, Base::m_data, Base::m_rows.value(), Base::m_cols.value());
     }
 
@@ -340,7 +337,7 @@ template<typename Derived>
 inline typename BlockReturnType<Derived>::SubVectorType MatrixBase<Derived>
   ::segment(int start, int size)
 {
-  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived);
+  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived)
   return typename BlockReturnType<Derived>::SubVectorType(derived(), RowsAtCompileTime == 1 ? 0 : start,
                                    ColsAtCompileTime == 1 ? 0 : start,
                                    RowsAtCompileTime == 1 ? 1 : size,
@@ -352,7 +349,7 @@ template<typename Derived>
 inline const typename BlockReturnType<Derived>::SubVectorType
 MatrixBase<Derived>::segment(int start, int size) const
 {
-  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived);
+  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived)
   return typename BlockReturnType<Derived>::SubVectorType(derived(), RowsAtCompileTime == 1 ? 0 : start,
                                    ColsAtCompileTime == 1 ? 0 : start,
                                    RowsAtCompileTime == 1 ? 1 : size,
@@ -380,7 +377,7 @@ template<typename Derived>
 inline typename BlockReturnType<Derived,Dynamic>::SubVectorType
 MatrixBase<Derived>::start(int size)
 {
-  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived);
+  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived)
   return Block<Derived,
                RowsAtCompileTime == 1 ? 1 : Dynamic,
                ColsAtCompileTime == 1 ? 1 : Dynamic>
@@ -394,7 +391,7 @@ template<typename Derived>
 inline const typename BlockReturnType<Derived,Dynamic>::SubVectorType
 MatrixBase<Derived>::start(int size) const
 {
-  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived);
+  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived)
   return Block<Derived,
                RowsAtCompileTime == 1 ? 1 : Dynamic,
                ColsAtCompileTime == 1 ? 1 : Dynamic>
@@ -424,7 +421,7 @@ template<typename Derived>
 inline typename BlockReturnType<Derived,Dynamic>::SubVectorType
 MatrixBase<Derived>::end(int size)
 {
-  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived);
+  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived)
   return Block<Derived,
                RowsAtCompileTime == 1 ? 1 : Dynamic,
                ColsAtCompileTime == 1 ? 1 : Dynamic>
@@ -440,7 +437,7 @@ template<typename Derived>
 inline const typename BlockReturnType<Derived,Dynamic>::SubVectorType
 MatrixBase<Derived>::end(int size) const
 {
-  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived);
+  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived)
   return Block<Derived,
                RowsAtCompileTime == 1 ? 1 : Dynamic,
                ColsAtCompileTime == 1 ? 1 : Dynamic>
@@ -456,7 +453,7 @@ MatrixBase<Derived>::end(int size) const
   * \only_for_vectors
   *
   * The template parameter \a Size is the number of coefficients in the block
-  * 
+  *
   * \param start the index of the first element of the sub-vector
   *
   * Example: \include MatrixBase_template_int_segment.cpp
@@ -469,7 +466,7 @@ template<int Size>
 inline typename BlockReturnType<Derived,Size>::SubVectorType
 MatrixBase<Derived>::segment(int start)
 {
-  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived);
+  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived)
   return Block<Derived,  (RowsAtCompileTime == 1 ? 1 : Size),
                          (ColsAtCompileTime == 1 ? 1 : Size)>
               (derived(), RowsAtCompileTime == 1 ? 0 : start,
@@ -482,7 +479,7 @@ template<int Size>
 inline const typename BlockReturnType<Derived,Size>::SubVectorType
 MatrixBase<Derived>::segment(int start) const
 {
-  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived);
+  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived)
   return Block<Derived,  (RowsAtCompileTime == 1 ? 1 : Size),
                          (ColsAtCompileTime == 1 ? 1 : Size)>
               (derived(), RowsAtCompileTime == 1 ? 0 : start,
@@ -507,7 +504,7 @@ template<int Size>
 inline typename BlockReturnType<Derived,Size>::SubVectorType
 MatrixBase<Derived>::start()
 {
-  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived);
+  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived)
   return Block<Derived, (RowsAtCompileTime == 1 ? 1 : Size),
                         (ColsAtCompileTime == 1 ? 1 : Size)>(derived(), 0, 0);
 }
@@ -518,7 +515,7 @@ template<int Size>
 inline const typename BlockReturnType<Derived,Size>::SubVectorType
 MatrixBase<Derived>::start() const
 {
-  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived);
+  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived)
   return Block<Derived, (RowsAtCompileTime == 1 ? 1 : Size),
                         (ColsAtCompileTime == 1 ? 1 : Size)>(derived(), 0, 0);
 }
@@ -539,7 +536,7 @@ template<int Size>
 inline typename BlockReturnType<Derived,Size>::SubVectorType
 MatrixBase<Derived>::end()
 {
-  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived);
+  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived)
   return Block<Derived, RowsAtCompileTime == 1 ? 1 : Size,
                         ColsAtCompileTime == 1 ? 1 : Size>
            (derived(),
@@ -553,7 +550,7 @@ template<int Size>
 inline const typename BlockReturnType<Derived,Size>::SubVectorType
 MatrixBase<Derived>::end() const
 {
-  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived);
+  EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived)
   return Block<Derived, RowsAtCompileTime == 1 ? 1 : Size,
                         ColsAtCompileTime == 1 ? 1 : Size>
            (derived(),

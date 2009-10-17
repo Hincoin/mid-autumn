@@ -1,7 +1,7 @@
 // This file is part of Eigen, a lightweight C++ template library
 // for linear algebra. Eigen itself is part of the KDE project.
 //
-// Copyright (C) 2006-2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 // Copyright (C) 2008 Gael Guennebaud <g.gael@free.fr>
 //
 // Eigen is free software; you can redistribute it and/or
@@ -30,13 +30,11 @@
 *** Forward declarations ***
 ***************************/
 
-template<int VectorizationMode, int Index, typename Lhs, typename Rhs>
+template<int VectorizationMode, int Index, typename Lhs, typename Rhs, typename RetScalar>
 struct ei_product_coeff_impl;
 
 template<int StorageOrder, int Index, typename Lhs, typename Rhs, typename PacketScalar, int LoadMode>
 struct ei_product_packet_impl;
-
-template<typename T> struct ei_product_eval_to_column_major;
 
 /** \class ProductReturnType
   *
@@ -64,13 +62,14 @@ struct ProductReturnType
 };
 
 // cache friendly specialization
+// note that there is a DiagonalProduct specialization in DiagonalProduct.h
 template<typename Lhs, typename Rhs>
 struct ProductReturnType<Lhs,Rhs,CacheFriendlyProduct>
 {
   typedef typename ei_nested<Lhs,Rhs::ColsAtCompileTime>::type LhsNested;
 
   typedef typename ei_nested<Rhs,Lhs::RowsAtCompileTime,
-                             typename ei_product_eval_to_column_major<Rhs>::type
+                             typename ei_plain_matrix_type_column_major<Rhs>::type
                    >::type RhsNested;
 
   typedef Product<LhsNested, RhsNested, CacheFriendlyProduct> Type;
@@ -79,7 +78,7 @@ struct ProductReturnType<Lhs,Rhs,CacheFriendlyProduct>
 /*  Helper class to determine the type of the product, can be either:
  *    - NormalProduct
  *    - CacheFriendlyProduct
- *    - NormalProduct
+ *    - DiagonalProduct
  */
 template<typename Lhs, typename Rhs> struct ei_product_mode
 {
@@ -87,13 +86,12 @@ template<typename Lhs, typename Rhs> struct ei_product_mode
 
     value = ((Rhs::Flags&Diagonal)==Diagonal) || ((Lhs::Flags&Diagonal)==Diagonal)
           ? DiagonalProduct
-          : (Rhs::Flags & Lhs::Flags & SparseBit)
-          ? SparseProduct
-          : Lhs::MaxColsAtCompileTime >= EIGEN_CACHEFRIENDLY_PRODUCT_THRESHOLD
-            && ( Lhs::MaxRowsAtCompileTime >= EIGEN_CACHEFRIENDLY_PRODUCT_THRESHOLD
-              || Rhs::MaxColsAtCompileTime >= EIGEN_CACHEFRIENDLY_PRODUCT_THRESHOLD )
+          : Lhs::MaxColsAtCompileTime == Dynamic
+            && ( Lhs::MaxRowsAtCompileTime == Dynamic
+              || Rhs::MaxColsAtCompileTime == Dynamic )
             && (!(Rhs::IsVectorAtCompileTime && (Lhs::Flags&RowMajorBit)  && (!(Lhs::Flags&DirectAccessBit))))
             && (!(Lhs::IsVectorAtCompileTime && (!(Rhs::Flags&RowMajorBit)) && (!(Rhs::Flags&DirectAccessBit))))
+            && (ei_is_same_type<typename Lhs::Scalar, typename Rhs::Scalar>::ret)
           ? CacheFriendlyProduct
           : NormalProduct };
 };
@@ -118,9 +116,9 @@ template<typename LhsNested, typename RhsNested, int ProductMode>
 struct ei_traits<Product<LhsNested, RhsNested, ProductMode> >
 {
   // clean the nested types:
-  typedef typename ei_unconst<typename ei_unref<LhsNested>::type>::type _LhsNested;
-  typedef typename ei_unconst<typename ei_unref<RhsNested>::type>::type _RhsNested;
-  typedef typename _LhsNested::Scalar Scalar;
+  typedef typename ei_cleantype<LhsNested>::type _LhsNested;
+  typedef typename ei_cleantype<RhsNested>::type _RhsNested;
+  typedef typename ei_scalar_product_traits<typename _LhsNested::Scalar, typename _RhsNested::Scalar>::ReturnType Scalar;
 
   enum {
     LhsCoeffReadCost = _LhsNested::CoeffReadCost,
@@ -151,7 +149,8 @@ struct ei_traits<Product<LhsNested, RhsNested, ProductMode> >
     Flags = ((unsigned int)(LhsFlags | RhsFlags) & HereditaryBits & RemovedBits)
           | EvalBeforeAssigningBit
           | EvalBeforeNestingBit
-          | (CanVectorizeLhs || CanVectorizeRhs ? PacketAccessBit : 0),
+          | (CanVectorizeLhs || CanVectorizeRhs ? PacketAccessBit : 0)
+          | (LhsFlags & RhsFlags & AlignedBit),
 
     CoeffReadCost = InnerSize == Dynamic ? Dynamic
                   : InnerSize * (NumTraits<Scalar>::MulCost + LhsCoeffReadCost + RhsCoeffReadCost)
@@ -188,7 +187,7 @@ template<typename LhsNested, typename RhsNested, int ProductMode> class Product 
 
     typedef ei_product_coeff_impl<CanVectorizeInner ? InnerVectorization : NoVectorization,
                                   Unroll ? InnerSize-1 : Dynamic,
-                                  _LhsNested, _RhsNested> ScalarCoeffImpl;
+                                  _LhsNested, _RhsNested, Scalar> ScalarCoeffImpl;
 
   public:
 
@@ -196,7 +195,13 @@ template<typename LhsNested, typename RhsNested, int ProductMode> class Product 
     inline Product(const Lhs& lhs, const Rhs& rhs)
       : m_lhs(lhs), m_rhs(rhs)
     {
-      ei_assert(lhs.cols() == rhs.rows());
+      // we don't allow taking products of matrices of different real types, as that wouldn't be vectorizable.
+      // We still allow to mix T and complex<T>.
+      EIGEN_STATIC_ASSERT((ei_is_same_type<typename Lhs::RealScalar, typename Rhs::RealScalar>::ret),
+        YOU_MIXED_DIFFERENT_NUMERIC_TYPES__YOU_NEED_TO_USE_THE_CAST_METHOD_OF_MATRIXBASE_TO_CAST_NUMERIC_TYPES_EXPLICITLY)
+      ei_assert(lhs.cols() == rhs.rows()
+        && "invalid matrix product"
+        && "if you wanted a coeff-wise or a dot product use the respective explicit functions");
     }
 
     /** \internal
@@ -208,17 +213,17 @@ template<typename LhsNested, typename RhsNested, int ProductMode> class Product 
     /** \internal
       * \returns whether it is worth it to use the cache friendly product.
       */
-    inline bool _useCacheFriendlyProduct() const
+    EIGEN_STRONG_INLINE bool _useCacheFriendlyProduct() const
     {
       return  m_lhs.cols()>=EIGEN_CACHEFRIENDLY_PRODUCT_THRESHOLD
               && (  rows()>=EIGEN_CACHEFRIENDLY_PRODUCT_THRESHOLD
                  || cols()>=EIGEN_CACHEFRIENDLY_PRODUCT_THRESHOLD);
     }
 
-    inline int rows() const { return m_lhs.rows(); }
-    inline int cols() const { return m_rhs.cols(); }
+    EIGEN_STRONG_INLINE int rows() const { return m_lhs.rows(); }
+    EIGEN_STRONG_INLINE int cols() const { return m_rhs.cols(); }
 
-    const Scalar coeff(int row, int col) const
+    EIGEN_STRONG_INLINE const Scalar coeff(int row, int col) const
     {
       Scalar res;
       ScalarCoeffImpl::run(row, col, m_lhs, m_rhs, res);
@@ -228,7 +233,7 @@ template<typename LhsNested, typename RhsNested, int ProductMode> class Product 
     /* Allow index-based non-packet access. It is impossible though to allow index-based packed access,
      * which is why we don't set the LinearAccessBit.
      */
-    const Scalar coeff(int index) const
+    EIGEN_STRONG_INLINE const Scalar coeff(int index) const
     {
       Scalar res;
       const int row = RowsAtCompileTime == 1 ? 0 : index;
@@ -238,7 +243,7 @@ template<typename LhsNested, typename RhsNested, int ProductMode> class Product 
     }
 
     template<int LoadMode>
-    const PacketScalar packet(int row, int col) const
+    EIGEN_STRONG_INLINE const PacketScalar packet(int row, int col) const
     {
       PacketScalar res;
       ei_product_packet_impl<Flags&RowMajorBit ? RowMajor : ColMajor,
@@ -248,8 +253,8 @@ template<typename LhsNested, typename RhsNested, int ProductMode> class Product 
       return res;
     }
 
-    inline const _LhsNested& lhs() const { return m_lhs; }
-    inline const _RhsNested& rhs() const { return m_rhs; }
+    EIGEN_STRONG_INLINE const _LhsNested& lhs() const { return m_lhs; }
+    EIGEN_STRONG_INLINE const _RhsNested& rhs() const { return m_rhs; }
 
   protected:
     const LhsNested m_lhs;
@@ -267,6 +272,21 @@ template<typename OtherDerived>
 inline const typename ProductReturnType<Derived,OtherDerived>::Type
 MatrixBase<Derived>::operator*(const MatrixBase<OtherDerived> &other) const
 {
+  enum {
+    ProductIsValid =  Derived::ColsAtCompileTime==Dynamic
+                   || OtherDerived::RowsAtCompileTime==Dynamic
+                   || int(Derived::ColsAtCompileTime)==int(OtherDerived::RowsAtCompileTime),
+    AreVectors = Derived::IsVectorAtCompileTime && OtherDerived::IsVectorAtCompileTime,
+    SameSizes = EIGEN_PREDICATE_SAME_MATRIX_SIZE(Derived,OtherDerived)
+  };
+  // note to the lost user:
+  //    * for a dot product use: v1.dot(v2)
+  //    * for a coeff-wise product use: v1.cwise()*v2
+  EIGEN_STATIC_ASSERT(ProductIsValid || !(AreVectors && SameSizes),
+    INVALID_VECTOR_VECTOR_PRODUCT__IF_YOU_WANTED_A_DOT_OR_COEFF_WISE_PRODUCT_YOU_MUST_USE_THE_EXPLICIT_FUNCTIONS)
+  EIGEN_STATIC_ASSERT(ProductIsValid || !(SameSizes && !AreVectors),
+    INVALID_MATRIX_PRODUCT__IF_YOU_WANTED_A_COEFF_WISE_PRODUCT_YOU_MUST_USE_THE_EXPLICIT_FUNCTION)
+  EIGEN_STATIC_ASSERT(ProductIsValid || SameSizes, INVALID_MATRIX_PRODUCT)
   return typename ProductReturnType<Derived,OtherDerived>::Type(derived(), other.derived());
 }
 
@@ -279,7 +299,7 @@ template<typename OtherDerived>
 inline Derived &
 MatrixBase<Derived>::operator*=(const MatrixBase<OtherDerived> &other)
 {
-  return *this = *this * other;
+  return derived() = derived() * other.derived();
 }
 
 /***************************************************************************
@@ -290,41 +310,42 @@ MatrixBase<Derived>::operator*=(const MatrixBase<OtherDerived> &other)
 *** Scalar path  - no vectorization ***
 **************************************/
 
-template<int Index, typename Lhs, typename Rhs>
-struct ei_product_coeff_impl<NoVectorization, Index, Lhs, Rhs>
+template<int Index, typename Lhs, typename Rhs, typename RetScalar>
+struct ei_product_coeff_impl<NoVectorization, Index, Lhs, Rhs, RetScalar>
 {
-  inline static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, typename Lhs::Scalar &res)
+  EIGEN_STRONG_INLINE static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, RetScalar &res)
   {
-    ei_product_coeff_impl<NoVectorization, Index-1, Lhs, Rhs>::run(row, col, lhs, rhs, res);
+    ei_product_coeff_impl<NoVectorization, Index-1, Lhs, Rhs, RetScalar>::run(row, col, lhs, rhs, res);
     res += lhs.coeff(row, Index) * rhs.coeff(Index, col);
   }
 };
 
-template<typename Lhs, typename Rhs>
-struct ei_product_coeff_impl<NoVectorization, 0, Lhs, Rhs>
+template<typename Lhs, typename Rhs, typename RetScalar>
+struct ei_product_coeff_impl<NoVectorization, 0, Lhs, Rhs, RetScalar>
 {
-  inline static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, typename Lhs::Scalar &res)
+  EIGEN_STRONG_INLINE static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, RetScalar &res)
   {
     res = lhs.coeff(row, 0) * rhs.coeff(0, col);
   }
 };
 
-template<typename Lhs, typename Rhs>
-struct ei_product_coeff_impl<NoVectorization, Dynamic, Lhs, Rhs>
+template<typename Lhs, typename Rhs, typename RetScalar>
+struct ei_product_coeff_impl<NoVectorization, Dynamic, Lhs, Rhs, RetScalar>
 {
-  inline static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, typename Lhs::Scalar& res)
+  EIGEN_STRONG_INLINE static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, RetScalar& res)
   {
+    ei_assert(lhs.cols()>0 && "you are using a non initialized matrix");
     res = lhs.coeff(row, 0) * rhs.coeff(0, col);
-      for(int i = 1; i < lhs.cols(); i++)
+      for(int i = 1; i < lhs.cols(); ++i)
         res += lhs.coeff(row, i) * rhs.coeff(i, col);
   }
 };
 
 // prevent buggy user code from causing an infinite recursion
-template<typename Lhs, typename Rhs>
-struct ei_product_coeff_impl<NoVectorization, -1, Lhs, Rhs>
+template<typename Lhs, typename Rhs, typename RetScalar>
+struct ei_product_coeff_impl<NoVectorization, -1, Lhs, Rhs, RetScalar>
 {
-  inline static void run(int, int, const Lhs&, const Rhs&, typename Lhs::Scalar&) {}
+  EIGEN_STRONG_INLINE static void run(int, int, const Lhs&, const Rhs&, RetScalar&) {}
 };
 
 /*******************************************
@@ -335,7 +356,7 @@ template<int Index, typename Lhs, typename Rhs, typename PacketScalar>
 struct ei_product_coeff_vectorized_unroller
 {
   enum { PacketSize = ei_packet_traits<typename Lhs::Scalar>::size };
-  inline static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, typename Lhs::PacketScalar &pres)
+  EIGEN_STRONG_INLINE static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, typename Lhs::PacketScalar &pres)
   {
     ei_product_coeff_vectorized_unroller<Index-PacketSize, Lhs, Rhs, PacketScalar>::run(row, col, lhs, rhs, pres);
     pres = ei_padd(pres, ei_pmul( lhs.template packet<Aligned>(row, Index) , rhs.template packet<Aligned>(Index, col) ));
@@ -345,22 +366,22 @@ struct ei_product_coeff_vectorized_unroller
 template<typename Lhs, typename Rhs, typename PacketScalar>
 struct ei_product_coeff_vectorized_unroller<0, Lhs, Rhs, PacketScalar>
 {
-  inline static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, typename Lhs::PacketScalar &pres)
+  EIGEN_STRONG_INLINE static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, typename Lhs::PacketScalar &pres)
   {
     pres = ei_pmul(lhs.template packet<Aligned>(row, 0) , rhs.template packet<Aligned>(0, col));
   }
 };
 
-template<int Index, typename Lhs, typename Rhs>
-struct ei_product_coeff_impl<InnerVectorization, Index, Lhs, Rhs>
+template<int Index, typename Lhs, typename Rhs, typename RetScalar>
+struct ei_product_coeff_impl<InnerVectorization, Index, Lhs, Rhs, RetScalar>
 {
   typedef typename Lhs::PacketScalar PacketScalar;
   enum { PacketSize = ei_packet_traits<typename Lhs::Scalar>::size };
-  inline static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, typename Lhs::Scalar &res)
+  EIGEN_STRONG_INLINE static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, RetScalar &res)
   {
     PacketScalar pres;
     ei_product_coeff_vectorized_unroller<Index+1-PacketSize, Lhs, Rhs, PacketScalar>::run(row, col, lhs, rhs, pres);
-    ei_product_coeff_impl<NoVectorization,Index,Lhs,Rhs>::run(row, col, lhs, rhs, res);
+    ei_product_coeff_impl<NoVectorization,Index,Lhs,Rhs,RetScalar>::run(row, col, lhs, rhs, res);
     res = ei_predux(pres);
   }
 };
@@ -368,7 +389,7 @@ struct ei_product_coeff_impl<InnerVectorization, Index, Lhs, Rhs>
 template<typename Lhs, typename Rhs, int LhsRows = Lhs::RowsAtCompileTime, int RhsCols = Rhs::ColsAtCompileTime>
 struct ei_product_coeff_vectorized_dyn_selector
 {
-  inline static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, typename Lhs::Scalar &res)
+  EIGEN_STRONG_INLINE static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, typename Lhs::Scalar &res)
   {
     res = ei_dot_impl<
       Block<Lhs, 1, ei_traits<Lhs>::ColsAtCompileTime>,
@@ -382,7 +403,7 @@ struct ei_product_coeff_vectorized_dyn_selector
 template<typename Lhs, typename Rhs, int RhsCols>
 struct ei_product_coeff_vectorized_dyn_selector<Lhs,Rhs,1,RhsCols>
 {
-  inline static void run(int /*row*/, int col, const Lhs& lhs, const Rhs& rhs, typename Lhs::Scalar &res)
+  EIGEN_STRONG_INLINE static void run(int /*row*/, int col, const Lhs& lhs, const Rhs& rhs, typename Lhs::Scalar &res)
   {
     res = ei_dot_impl<
       Lhs,
@@ -394,7 +415,7 @@ struct ei_product_coeff_vectorized_dyn_selector<Lhs,Rhs,1,RhsCols>
 template<typename Lhs, typename Rhs, int LhsRows>
 struct ei_product_coeff_vectorized_dyn_selector<Lhs,Rhs,LhsRows,1>
 {
-  inline static void run(int row, int /*col*/, const Lhs& lhs, const Rhs& rhs, typename Lhs::Scalar &res)
+  EIGEN_STRONG_INLINE static void run(int row, int /*col*/, const Lhs& lhs, const Rhs& rhs, typename Lhs::Scalar &res)
   {
     res = ei_dot_impl<
       Block<Lhs, 1, ei_traits<Lhs>::ColsAtCompileTime>,
@@ -406,7 +427,7 @@ struct ei_product_coeff_vectorized_dyn_selector<Lhs,Rhs,LhsRows,1>
 template<typename Lhs, typename Rhs>
 struct ei_product_coeff_vectorized_dyn_selector<Lhs,Rhs,1,1>
 {
-  inline static void run(int /*row*/, int /*col*/, const Lhs& lhs, const Rhs& rhs, typename Lhs::Scalar &res)
+  EIGEN_STRONG_INLINE static void run(int /*row*/, int /*col*/, const Lhs& lhs, const Rhs& rhs, typename Lhs::Scalar &res)
   {
     res = ei_dot_impl<
       Lhs,
@@ -415,10 +436,10 @@ struct ei_product_coeff_vectorized_dyn_selector<Lhs,Rhs,1,1>
   }
 };
 
-template<typename Lhs, typename Rhs>
-struct ei_product_coeff_impl<InnerVectorization, Dynamic, Lhs, Rhs>
+template<typename Lhs, typename Rhs, typename RetScalar>
+struct ei_product_coeff_impl<InnerVectorization, Dynamic, Lhs, Rhs, RetScalar>
 {
-  inline static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, typename Lhs::Scalar &res)
+  EIGEN_STRONG_INLINE static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, typename Lhs::Scalar &res)
   {
     ei_product_coeff_vectorized_dyn_selector<Lhs,Rhs>::run(row, col, lhs, rhs, res);
   }
@@ -431,7 +452,7 @@ struct ei_product_coeff_impl<InnerVectorization, Dynamic, Lhs, Rhs>
 template<int Index, typename Lhs, typename Rhs, typename PacketScalar, int LoadMode>
 struct ei_product_packet_impl<RowMajor, Index, Lhs, Rhs, PacketScalar, LoadMode>
 {
-  inline static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, PacketScalar &res)
+  EIGEN_STRONG_INLINE static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, PacketScalar &res)
   {
     ei_product_packet_impl<RowMajor, Index-1, Lhs, Rhs, PacketScalar, LoadMode>::run(row, col, lhs, rhs, res);
     res =  ei_pmadd(ei_pset1(lhs.coeff(row, Index)), rhs.template packet<LoadMode>(Index, col), res);
@@ -441,7 +462,7 @@ struct ei_product_packet_impl<RowMajor, Index, Lhs, Rhs, PacketScalar, LoadMode>
 template<int Index, typename Lhs, typename Rhs, typename PacketScalar, int LoadMode>
 struct ei_product_packet_impl<ColMajor, Index, Lhs, Rhs, PacketScalar, LoadMode>
 {
-  inline static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, PacketScalar &res)
+  EIGEN_STRONG_INLINE static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, PacketScalar &res)
   {
     ei_product_packet_impl<ColMajor, Index-1, Lhs, Rhs, PacketScalar, LoadMode>::run(row, col, lhs, rhs, res);
     res =  ei_pmadd(lhs.template packet<LoadMode>(row, Index), ei_pset1(rhs.coeff(Index, col)), res);
@@ -451,7 +472,7 @@ struct ei_product_packet_impl<ColMajor, Index, Lhs, Rhs, PacketScalar, LoadMode>
 template<typename Lhs, typename Rhs, typename PacketScalar, int LoadMode>
 struct ei_product_packet_impl<RowMajor, 0, Lhs, Rhs, PacketScalar, LoadMode>
 {
-  inline static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, PacketScalar &res)
+  EIGEN_STRONG_INLINE static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, PacketScalar &res)
   {
     res = ei_pmul(ei_pset1(lhs.coeff(row, 0)),rhs.template packet<LoadMode>(0, col));
   }
@@ -460,7 +481,7 @@ struct ei_product_packet_impl<RowMajor, 0, Lhs, Rhs, PacketScalar, LoadMode>
 template<typename Lhs, typename Rhs, typename PacketScalar, int LoadMode>
 struct ei_product_packet_impl<ColMajor, 0, Lhs, Rhs, PacketScalar, LoadMode>
 {
-  inline static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, PacketScalar &res)
+  EIGEN_STRONG_INLINE static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, PacketScalar &res)
   {
     res = ei_pmul(lhs.template packet<LoadMode>(row, 0), ei_pset1(rhs.coeff(0, col)));
   }
@@ -469,10 +490,11 @@ struct ei_product_packet_impl<ColMajor, 0, Lhs, Rhs, PacketScalar, LoadMode>
 template<typename Lhs, typename Rhs, typename PacketScalar, int LoadMode>
 struct ei_product_packet_impl<RowMajor, Dynamic, Lhs, Rhs, PacketScalar, LoadMode>
 {
-  inline static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, PacketScalar& res)
+  EIGEN_STRONG_INLINE static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, PacketScalar& res)
   {
+    ei_assert(lhs.cols()>0 && "you are using a non initialized matrix");
     res = ei_pmul(ei_pset1(lhs.coeff(row, 0)),rhs.template packet<LoadMode>(0, col));
-      for(int i = 1; i < lhs.cols(); i++)
+      for(int i = 1; i < lhs.cols(); ++i)
         res =  ei_pmadd(ei_pset1(lhs.coeff(row, i)), rhs.template packet<LoadMode>(i, col), res);
   }
 };
@@ -480,10 +502,11 @@ struct ei_product_packet_impl<RowMajor, Dynamic, Lhs, Rhs, PacketScalar, LoadMod
 template<typename Lhs, typename Rhs, typename PacketScalar, int LoadMode>
 struct ei_product_packet_impl<ColMajor, Dynamic, Lhs, Rhs, PacketScalar, LoadMode>
 {
-  inline static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, PacketScalar& res)
+  EIGEN_STRONG_INLINE static void run(int row, int col, const Lhs& lhs, const Rhs& rhs, PacketScalar& res)
   {
+    ei_assert(lhs.cols()>0 && "you are using a non initialized matrix");
     res = ei_pmul(lhs.template packet<LoadMode>(row, 0), ei_pset1(rhs.coeff(0, col)));
-      for(int i = 1; i < lhs.cols(); i++)
+      for(int i = 1; i < lhs.cols(); ++i)
         res =  ei_pmadd(lhs.template packet<LoadMode>(row, i), ei_pset1(rhs.coeff(i, col)), res);
   }
 };
@@ -547,7 +570,7 @@ struct ei_cache_friendly_product_selector<ProductType,LhsRows,ColMajor,HasDirect
        _res = &res.coeffRef(0);
     else
     {
-      _res = ei_alloc_stack(Scalar,res.size());
+      _res = ei_aligned_stack_new(Scalar,res.size());
       Map<Matrix<Scalar,DestDerived::RowsAtCompileTime,1> >(_res, res.size()) = res;
     }
     ei_cache_friendly_product_colmajor_times_vector(res.size(),
@@ -557,7 +580,7 @@ struct ei_cache_friendly_product_selector<ProductType,LhsRows,ColMajor,HasDirect
     if (!EvalToRes)
     {
       res = Map<Matrix<Scalar,DestDerived::SizeAtCompileTime,1> >(_res, res.size());
-      ei_free_stack(_res, Scalar, res.size());
+      ei_aligned_stack_delete(Scalar, _res, res.size());
     }
   }
 };
@@ -593,7 +616,7 @@ struct ei_cache_friendly_product_selector<ProductType,1,LhsOrder,LhsAccess,RhsCo
        _res = &res.coeffRef(0);
     else
     {
-      _res = ei_alloc_stack(Scalar, res.size());
+      _res = ei_aligned_stack_new(Scalar, res.size());
       Map<Matrix<Scalar,DestDerived::SizeAtCompileTime,1> >(_res, res.size()) = res;
     }
     ei_cache_friendly_product_colmajor_times_vector(res.size(),
@@ -603,7 +626,7 @@ struct ei_cache_friendly_product_selector<ProductType,1,LhsOrder,LhsAccess,RhsCo
     if (!EvalToRes)
     {
       res = Map<Matrix<Scalar,DestDerived::SizeAtCompileTime,1> >(_res, res.size());
-      ei_free_stack(_res, Scalar, res.size());
+      ei_aligned_stack_delete(Scalar, _res, res.size());
     }
   }
 };
@@ -626,13 +649,13 @@ struct ei_cache_friendly_product_selector<ProductType,LhsRows,RowMajor,HasDirect
        _rhs = &product.rhs().const_cast_derived().coeffRef(0);
     else
     {
-      _rhs = ei_alloc_stack(Scalar, product.rhs().size());
+      _rhs = ei_aligned_stack_new(Scalar, product.rhs().size());
       Map<Matrix<Scalar,Rhs::SizeAtCompileTime,1> >(_rhs, product.rhs().size()) = product.rhs();
     }
     ei_cache_friendly_product_rowmajor_times_vector(&product.lhs().const_cast_derived().coeffRef(0,0), product.lhs().stride(),
                                                     _rhs, product.rhs().size(), res);
 
-    if (!UseRhsDirectly) ei_free_stack(_rhs, Scalar, product.rhs().size());
+    if (!UseRhsDirectly) ei_aligned_stack_delete(Scalar, _rhs, product.rhs().size());
   }
 };
 
@@ -654,13 +677,13 @@ struct ei_cache_friendly_product_selector<ProductType,1,LhsOrder,LhsAccess,RhsCo
        _lhs = &product.lhs().const_cast_derived().coeffRef(0);
     else
     {
-      _lhs = ei_alloc_stack(Scalar, product.lhs().size());
+      _lhs = ei_aligned_stack_new(Scalar, product.lhs().size());
       Map<Matrix<Scalar,Lhs::SizeAtCompileTime,1> >(_lhs, product.lhs().size()) = product.lhs();
     }
     ei_cache_friendly_product_rowmajor_times_vector(&product.rhs().const_cast_derived().coeffRef(0,0), product.rhs().stride(),
                                                     _lhs, product.lhs().size(), res);
 
-    if(!UseLhsDirectly) ei_free_stack(_lhs, Scalar, product.lhs().size());
+    if(!UseLhsDirectly) ei_aligned_stack_delete(Scalar, _lhs, product.lhs().size());
   }
 };
 
@@ -706,23 +729,12 @@ inline Derived& MatrixBase<Derived>::lazyAssign(const Product<Lhs,Rhs,CacheFrien
   return derived();
 }
 
-template<typename T> struct ei_product_eval_to_column_major
-{
-  typedef Matrix<typename ei_traits<T>::Scalar,
-                ei_traits<T>::RowsAtCompileTime,
-                ei_traits<T>::ColsAtCompileTime,
-                ColMajor,
-                ei_traits<T>::MaxRowsAtCompileTime,
-                ei_traits<T>::MaxColsAtCompileTime
-          > type;
-};
-
 template<typename T> struct ei_product_copy_rhs
 {
   typedef typename ei_meta_if<
          (ei_traits<T>::Flags & RowMajorBit)
       || (!(ei_traits<T>::Flags & DirectAccessBit)),
-      typename ei_product_eval_to_column_major<T>::type,
+      typename ei_plain_matrix_type_column_major<T>::type,
       const T&
     >::ret type;
 };
@@ -731,7 +743,7 @@ template<typename T> struct ei_product_copy_lhs
 {
   typedef typename ei_meta_if<
       (!(int(ei_traits<T>::Flags) & DirectAccessBit)),
-      typename ei_eval<T>::type,
+      typename ei_plain_matrix_type<T>::type,
       const T&
     >::ret type;
 };
@@ -750,7 +762,7 @@ inline void Product<Lhs,Rhs,ProductMode>::_cacheFriendlyEvalAndAdd(DestDerived& 
     rows(), cols(), lhs.cols(),
     _LhsCopy::Flags&RowMajorBit, (const Scalar*)&(lhs.const_cast_derived().coeffRef(0,0)), lhs.stride(),
     _RhsCopy::Flags&RowMajorBit, (const Scalar*)&(rhs.const_cast_derived().coeffRef(0,0)), rhs.stride(),
-    Flags&RowMajorBit, (Scalar*)&(res.coeffRef(0,0)), res.stride()
+    DestDerived::Flags&RowMajorBit, (Scalar*)&(res.coeffRef(0,0)), res.stride()
   );
 }
 

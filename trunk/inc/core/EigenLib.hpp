@@ -15,6 +15,10 @@
 
 #include "MAConfig.hpp"
 
+#if ( _MSC_VER <= 1400 ) //msvc 2005
+#define EIGEN_DONT_ALIGN
+#endif
+
 #include <Eigen/Core>
 #include <Eigen/LU>
 #include <Eigen/QR>

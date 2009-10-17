@@ -25,7 +25,7 @@
 #ifndef EIGEN_SCALING_H
 #define EIGEN_SCALING_H
 
-/** \geometry_module \ingroup GeometryModule
+/** \geometry_module \ingroup Geometry_Module
   *
   * \class Scaling
   *
@@ -35,17 +35,15 @@
   * \param _Dim the  dimension of the space, can be a compile time value or Dynamic
   *
   * \note This class is not aimed to be used to store a scaling transformation,
-  * but rather to make easier the constructions and updates of Transformation object.
+  * but rather to make easier the constructions and updates of Transform objects.
   *
   * \sa class Translation, class Transform
   */
 template<typename _Scalar, int _Dim>
 class Scaling
-  #ifdef EIGEN_VECTORIZE
-  : public ei_with_aligned_operator_new<_Scalar,_Dim>
-  #endif
 {
 public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF_VECTORIZABLE_FIXED_SIZE(_Scalar,_Dim)
   /** dimension of the space */
   enum { Dim = _Dim };
   /** the scalar type of the coefficients */
@@ -120,7 +118,7 @@ public:
 
   /** \returns the inverse scaling */
   inline Scaling inverse() const
-  { return Scaling(coeffs.cwise().inverse()); }
+  { return Scaling(coeffs().cwise().inverse()); }
 
   inline Scaling& operator=(const Scaling& other)
   {
@@ -128,9 +126,30 @@ public:
     return *this;
   }
 
+  /** \returns \c *this with scalar type casted to \a NewScalarType
+    *
+    * Note that if \a NewScalarType is equal to the current scalar type of \c *this
+    * then this function smartly returns a const reference to \c *this.
+    */
+  template<typename NewScalarType>
+  inline typename ei_cast_return_type<Scaling,Scaling<NewScalarType,Dim> >::type cast() const
+  { return typename ei_cast_return_type<Scaling,Scaling<NewScalarType,Dim> >::type(*this); }
+
+  /** Copy constructor with scalar type conversion */
+  template<typename OtherScalarType>
+  inline explicit Scaling(const Scaling<OtherScalarType,Dim>& other)
+  { m_coeffs = other.coeffs().template cast<Scalar>(); }
+
+  /** \returns \c true if \c *this is approximately equal to \a other, within the precision
+    * determined by \a prec.
+    *
+    * \sa MatrixBase::isApprox() */
+  bool isApprox(const Scaling& other, typename NumTraits<Scalar>::Real prec = precision<Scalar>()) const
+  { return m_coeffs.isApprox(other.m_coeffs, prec); }
+
 };
 
-/** \addtogroup GeometryModule */
+/** \addtogroup Geometry_Module */
 //@{
 typedef Scaling<float, 2> Scaling2f;
 typedef Scaling<double,2> Scaling2d;

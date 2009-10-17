@@ -2,7 +2,7 @@
 // for linear algebra. Eigen itself is part of the KDE project.
 //
 // Copyright (C) 2008 Gael Guennebaud <g.gael@free.fr>
-// Copyright (C) 2006-2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -41,6 +41,10 @@ class ei_no_assignment_operator
     ei_no_assignment_operator& operator=(const ei_no_assignment_operator&);
 };
 
+/** \internal If the template parameter Value is Dynamic, this class is just a wrapper around an int variable that
+  * can be accessed using value() and setValue().
+  * Otherwise, this class is an empty structure and value() just returns the template parameter Value.
+  */
 template<int Value> class ei_int_if_dynamic EIGEN_EMPTY_STRUCT
 {
   public:
@@ -81,22 +85,16 @@ template<typename T> struct ei_unpacket_traits
   enum {size=1};
 };
 
-
-template<typename Scalar, int Rows, int Cols, int StorageOrder, int MaxRows, int MaxCols>
+template<typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
 class ei_compute_matrix_flags
 {
     enum {
-      row_major_bit = (Rows != 1 && Cols != 1)  // if this is not a vector,
-                                                // then the storage order really matters,
-                                                // so let us strictly honor the user's choice.
-                    ? StorageOrder
-                    : Cols > 1 ? RowMajorBit : 0,
+      row_major_bit = Options&RowMajor ? RowMajorBit : 0,
       inner_max_size = row_major_bit ? MaxCols : MaxRows,
       is_big = inner_max_size == Dynamic,
-      is_packet_size_multiple = (Cols * Rows)%ei_packet_traits<Scalar>::size==0,
-      packet_access_bit = ei_packet_traits<Scalar>::size > 1
-                          && (is_big || is_packet_size_multiple) ? PacketAccessBit : 0,
-      aligned_bit = packet_access_bit && (is_big || is_packet_size_multiple) ? AlignedBit : 0
+      is_packet_size_multiple = (Cols*Rows) % ei_packet_traits<Scalar>::size == 0,
+      aligned_bit = ((Options&AutoAlign) && (is_big || is_packet_size_multiple)) ? AlignedBit : 0,
+      packet_access_bit = ei_packet_traits<Scalar>::size > 1 && aligned_bit ? PacketAccessBit : 0
     };
 
   public:
@@ -108,6 +106,10 @@ template<int _Rows, int _Cols> struct ei_size_at_compile_time
   enum { ret = (_Rows==Dynamic || _Cols==Dynamic) ? Dynamic : _Rows * _Cols };
 };
 
+/* ei_eval : the return type of eval(). For matrices, this is just a const reference
+ * in order to avoid a useless copy
+ */
+
 template<typename T, int Sparseness = ei_traits<T>::Flags&SparseBit> class ei_eval;
 
 template<typename T> struct ei_eval<T,IsDense>
@@ -115,7 +117,41 @@ template<typename T> struct ei_eval<T,IsDense>
   typedef Matrix<typename ei_traits<T>::Scalar,
                 ei_traits<T>::RowsAtCompileTime,
                 ei_traits<T>::ColsAtCompileTime,
-                ei_traits<T>::Flags&RowMajorBit ? RowMajor : ColMajor,
+                AutoAlign | (ei_traits<T>::Flags&RowMajorBit ? RowMajor : ColMajor),
+                ei_traits<T>::MaxRowsAtCompileTime,
+                ei_traits<T>::MaxColsAtCompileTime
+          > type;
+};
+
+// for matrices, no need to evaluate, just use a const reference to avoid a useless copy
+template<typename _Scalar, int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols>
+struct ei_eval<Matrix<_Scalar, _Rows, _Cols, _StorageOrder, _MaxRows, _MaxCols>, IsDense>
+{
+  typedef const Matrix<_Scalar, _Rows, _Cols, _StorageOrder, _MaxRows, _MaxCols>& type;
+};
+
+/* ei_plain_matrix_type : the difference from ei_eval is that ei_plain_matrix_type is always a plain matrix type,
+ * whereas ei_eval is a const reference in the case of a matrix
+ */
+template<typename T> struct ei_plain_matrix_type
+{
+  typedef Matrix<typename ei_traits<T>::Scalar,
+                ei_traits<T>::RowsAtCompileTime,
+                ei_traits<T>::ColsAtCompileTime,
+                AutoAlign | (ei_traits<T>::Flags&RowMajorBit ? RowMajor : ColMajor),
+                ei_traits<T>::MaxRowsAtCompileTime,
+                ei_traits<T>::MaxColsAtCompileTime
+          > type;
+};
+
+/* ei_plain_matrix_type_column_major : same as ei_plain_matrix_type but guaranteed to be column-major
+ */
+template<typename T> struct ei_plain_matrix_type_column_major
+{
+  typedef Matrix<typename ei_traits<T>::Scalar,
+                ei_traits<T>::RowsAtCompileTime,
+                ei_traits<T>::ColsAtCompileTime,
+                AutoAlign | ColMajor,
                 ei_traits<T>::MaxRowsAtCompileTime,
                 ei_traits<T>::MaxColsAtCompileTime
           > type;
@@ -124,7 +160,25 @@ template<typename T> struct ei_eval<T,IsDense>
 template<typename T> struct ei_must_nest_by_value { enum { ret = false }; };
 template<typename T> struct ei_must_nest_by_value<NestByValue<T> > { enum { ret = true }; };
 
-template<typename T, int n=1, typename EvalType = typename ei_eval<T>::type> struct ei_nested
+/** \internal Determines how a given expression should be nested into another one.
+  * For example, when you do a * (b+c), Eigen will determine how the expression b+c should be
+  * nested into the bigger product expression. The choice is between nesting the expression b+c as-is, or
+  * evaluating that expression b+c into a temporary variable d, and nest d so that the resulting expression is
+  * a*d. Evaluating can be beneficial for example if every coefficient access in the resulting expression causes
+  * many coefficient accesses in the nested expressions -- as is the case with matrix product for example.
+  *
+  * \param T the type of the expression being nested
+  * \param n the number of coefficient accesses in the nested expression for each coefficient access in the bigger expression.
+  *
+  * Example. Suppose that a, b, and c are of type Matrix3d. The user forms the expression a*(b+c).
+  * b+c is an expression "sum of matrices", which we will denote by S. In order to determine how to nest it,
+  * the Product expression uses: ei_nested<S, 3>::ret, which turns out to be Matrix3d because the internal logic of
+  * ei_nested determined that in this case it was better to evaluate the expression b+c into a temporary. On the other hand,
+  * since a is of type Matrix3d, the Product expression nests it as ei_nested<Matrix3d, 3>::ret, which turns out to be
+  * const Matrix3d&, because the internal logic of ei_nested determined that since a was already a matrix, there was no point
+  * in copying it into another matrix.
+  */
+template<typename T, int n=1, typename PlainMatrixType = typename ei_eval<T>::type> struct ei_nested
 {
   enum {
     CostEval   = (n+1) * int(NumTraits<typename ei_traits<T>::Scalar>::ReadCost),
@@ -136,7 +190,7 @@ template<typename T, int n=1, typename EvalType = typename ei_eval<T>::type> str
     typename ei_meta_if<
       (int(ei_traits<T>::Flags) & EvalBeforeNestingBit)
       || ( int(CostEval) <= int(CostNoEval) ),
-      EvalType,
+      PlainMatrixType,
       const T&
     >::ret
   >::ret type;
@@ -155,6 +209,11 @@ template<typename ExpressionType, int RowsOrSize=Dynamic, int Cols=Dynamic> stru
   typedef Block<ExpressionType, (ei_traits<ExpressionType>::RowsAtCompileTime == 1 ? 1 : RowsOrSize),
                                 (ei_traits<ExpressionType>::ColsAtCompileTime == 1 ? 1 : RowsOrSize)> SubVectorType;
   typedef Block<ExpressionType, RowsOrSize, Cols> Type;
+};
+
+template<typename CurrentType, typename NewType> struct ei_cast_return_type
+{
+  typedef typename ei_meta_if<ei_is_same_type<CurrentType,NewType>::ret,const CurrentType&,NewType>::ret type;
 };
 
 #endif // EIGEN_XPRHELPER_H

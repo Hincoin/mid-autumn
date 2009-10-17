@@ -49,13 +49,28 @@
 #endif
 
 #ifdef TBB_PARALLEL
+
+#if defined(WIN32) || defined(WIN64)
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#endif
+
 #include <tbb/tbb.h>
 #endif
 
 #if defined(_MSC_VER)
 //config eigen
 
-#define __SSE2__
+//#define __SSE2__
+
+
 #endif
 
 #endif

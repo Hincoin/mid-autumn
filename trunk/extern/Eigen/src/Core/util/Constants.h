@@ -2,7 +2,7 @@
 // for linear algebra. Eigen itself is part of the KDE project.
 //
 // Copyright (C) 2008 Gael Guennebaud <g.gael@free.fr>
-// Copyright (C) 2006-2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -26,7 +26,26 @@
 #ifndef EIGEN_CONSTANTS_H
 #define EIGEN_CONSTANTS_H
 
+/** This value means that a quantity is not known at compile-time, and that instead the value is
+  * stored in some runtime variable.
+  *
+  * Explanation for the choice of this value:
+  * - It should be positive and larger than any reasonable compile-time-fixed number of rows or columns.
+  *   This allows to simplify many compile-time conditions throughout Eigen.
+  * - It should be smaller than the sqrt of INT_MAX. Indeed, we often multiply a number of rows with a number
+  *   of columns in order to compute a number of coefficients. Even if we guard that with an "if" checking whether
+  *   the values are Dynamic, we still get a compiler warning "integer overflow". So the only way to get around
+  *   it would be a meta-selector. Doing this everywhere would reduce code readability and lenghten compilation times.
+  *   Also, disabling compiler warnings for integer overflow, sounds like a bad idea.
+  *
+  * If you wish to port Eigen to a platform where sizeof(int)==2, it is perfectly possible to set Dynamic to, say, 100.
+  */
 const int Dynamic = 10000;
+
+/** This value means +Infinity; it is currently used only as the p parameter to MatrixBase::lpNorm<int>().
+  * The value Infinity there means the L-infinity norm.
+  */
+const int Infinity = -1;
 
 /** \defgroup flags flags
   * \ingroup Core_Module
@@ -166,23 +185,23 @@ const unsigned int HereditaryBits = RowMajorBit
                                   | SparseBit;
 
 // Possible values for the Mode parameter of part() and of extract()
-const unsigned int Upper = UpperTriangularBit;
-const unsigned int StrictlyUpper = UpperTriangularBit | ZeroDiagBit;
-const unsigned int Lower = LowerTriangularBit;
-const unsigned int StrictlyLower = LowerTriangularBit | ZeroDiagBit;
+const unsigned int UpperTriangular = UpperTriangularBit;
+const unsigned int StrictlyUpperTriangular = UpperTriangularBit | ZeroDiagBit;
+const unsigned int LowerTriangular = LowerTriangularBit;
+const unsigned int StrictlyLowerTriangular = LowerTriangularBit | ZeroDiagBit;
 const unsigned int SelfAdjoint = SelfAdjointBit;
 
 // additional possible values for the Mode parameter of extract()
-const unsigned int UnitUpper = UpperTriangularBit | UnitDiagBit;
-const unsigned int UnitLower = LowerTriangularBit | UnitDiagBit;
-const unsigned int Diagonal = Upper | Lower;
+const unsigned int UnitUpperTriangular = UpperTriangularBit | UnitDiagBit;
+const unsigned int UnitLowerTriangular = LowerTriangularBit | UnitDiagBit;
+const unsigned int Diagonal = UpperTriangular | LowerTriangular;
 
 enum { Aligned, Unaligned };
 enum { ForceAligned, AsRequested };
 enum { ConditionalJumpCost = 5 };
 enum CornerType { TopLeft, TopRight, BottomLeft, BottomRight };
 enum DirectionType { Vertical, Horizontal };
-enum ProductEvaluationMode { NormalProduct, CacheFriendlyProduct, DiagonalProduct, SparseProduct };
+enum ProductEvaluationMode { NormalProduct, CacheFriendlyProduct, DiagonalProduct, SparseTimeSparseProduct, SparseTimeDenseProduct, DenseTimeSparseProduct };
 
 enum {
   /** \internal Equivalent to a slice vectorization for fixed-size matrices having good alignment
@@ -198,26 +217,38 @@ enum {
 };
 
 enum {
-  CompleteUnrolling,
+  NoUnrolling,
   InnerUnrolling,
-  NoUnrolling
+  CompleteUnrolling
 };
 
 enum {
   ColMajor = 0,
-  RowMajor = RowMajorBit
+  RowMajor = 0x1,  // it is only a coincidence that this is equal to RowMajorBit -- don't rely on that
+  /** \internal Don't require alignment for the matrix itself (the array of coefficients, if dynamically allocated, may still be
+                requested to be aligned) */
+  DontAlign = 0,
+  /** \internal Align the matrix itself if it is vectorizable fixed-size */
+  AutoAlign = 0x2
 };
 
 enum {
   IsDense         = 0,
+  IsSparse        = SparseBit,
   NoDirectAccess  = 0,
-  HasDirectAccess = DirectAccessBit,
-  IsSparse        = SparseBit
+  HasDirectAccess = DirectAccessBit
 };
 
-const int FullyCoherentAccessPattern  = 0x1;
-const int InnerCoherentAccessPattern  = 0x2 | FullyCoherentAccessPattern;
-const int OuterCoherentAccessPattern  = 0x4 | InnerCoherentAccessPattern;
-const int RandomAccessPattern         = 0x8 | OuterCoherentAccessPattern;
+const int EiArch_Generic = 0x0;
+const int EiArch_SSE     = 0x1;
+const int EiArch_AltiVec = 0x2;
+
+#if defined EIGEN_VECTORIZE_SSE
+  const int EiArch = EiArch_SSE;
+#elif defined EIGEN_VECTORIZE_ALTIVEC
+  const int EiArch = EiArch_AltiVec;
+#else
+  const int EiArch = EiArch_Generic;
+#endif
 
 #endif // EIGEN_CONSTANTS_H

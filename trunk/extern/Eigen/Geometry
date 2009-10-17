@@ -1,7 +1,12 @@
 #ifndef EIGEN_GEOMETRY_MODULE_H
 #define EIGEN_GEOMETRY_MODULE_H
 
+#include "Core"
+
+#include "src/Core/util/DisableMSVCWarnings.h"
+
 #include "Array"
+#include <limits>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -9,7 +14,10 @@
 
 namespace Eigen {
 
-/** \defgroup GeometryModule Geometry module
+/** \defgroup Geometry_Module Geometry module
+  *
+  * \nonstableyet
+  *
   * This module provides support for:
   *  - fixed-size homogeneous transformations
   *  - translation, scaling, 2D and 3D rotations
@@ -28,12 +36,16 @@ namespace Eigen {
 #include "src/Geometry/Rotation2D.h"
 #include "src/Geometry/Quaternion.h"
 #include "src/Geometry/AngleAxis.h"
+#include "src/Geometry/EulerAngles.h"
 #include "src/Geometry/Transform.h"
 #include "src/Geometry/Translation.h"
 #include "src/Geometry/Scaling.h"
 #include "src/Geometry/Hyperplane.h"
 #include "src/Geometry/ParametrizedLine.h"
+#include "src/Geometry/AlignedBox.h"
 
 } // namespace Eigen
+
+#include "src/Core/util/EnableMSVCWarnings.h"
 
 #endif // EIGEN_GEOMETRY_MODULE_H

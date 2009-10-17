@@ -2,7 +2,7 @@
 // for linear algebra. Eigen itself is part of the KDE project.
 //
 // Copyright (C) 2008 Gael Guennebaud <g.gael@free.fr>
-// Copyright (C) 2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -30,6 +30,18 @@
   * convenient macro to defined the return type of a cwise binary operation */
 #define EIGEN_CWISE_BINOP_RETURN_TYPE(OP) \
     CwiseBinaryOp<OP<typename ei_traits<ExpressionType>::Scalar>, ExpressionType, OtherDerived>
+
+#define EIGEN_CWISE_PRODUCT_RETURN_TYPE \
+    CwiseBinaryOp< \
+      ei_scalar_product_op< \
+        typename ei_scalar_product_traits< \
+          typename ei_traits<ExpressionType>::Scalar, \
+          typename ei_traits<OtherDerived>::Scalar \
+        >::ReturnType \
+      >, \
+      ExpressionType, \
+      OtherDerived \
+    >
 
 /** \internal
   * convenient macro to defined the return type of a cwise unary operation */
@@ -74,7 +86,7 @@ template<typename ExpressionType> class Cwise
     inline const ExpressionType& _expression() const { return m_matrix; }
 
     template<typename OtherDerived>
-    const EIGEN_CWISE_BINOP_RETURN_TYPE(ei_scalar_product_op)
+    const EIGEN_CWISE_PRODUCT_RETURN_TYPE
     operator*(const MatrixBase<OtherDerived> &other) const;
 
     template<typename OtherDerived>
@@ -116,6 +128,12 @@ template<typename ExpressionType> class Cwise
 
     ExpressionType& operator-=(const Scalar& scalar);
 
+    template<typename OtherDerived>
+    inline ExpressionType& operator*=(const MatrixBase<OtherDerived> &other);
+
+    template<typename OtherDerived>
+    inline ExpressionType& operator/=(const MatrixBase<OtherDerived> &other);
+
     template<typename OtherDerived> const EIGEN_CWISE_BINOP_RETURN_TYPE(std::less)
     operator<(const MatrixBase<OtherDerived>& other) const;
 
@@ -152,6 +170,11 @@ template<typename ExpressionType> class Cwise
 
     const EIGEN_CWISE_COMP_TO_SCALAR_RETURN_TYPE(std::not_equal_to)
     operator!=(Scalar s) const;
+
+    // allow to extend Cwise outside Eigen
+    #ifdef EIGEN_CWISE_PLUGIN
+    #include EIGEN_CWISE_PLUGIN
+    #endif
 
   protected:
     ExpressionTypeNested m_matrix;

@@ -1,7 +1,7 @@
 // This file is part of Eigen, a lightweight C++ template library
 // for linear algebra. Eigen itself is part of the KDE project.
 //
-// Copyright (C) 2006-2008 Benoit Jacob <jacob@math.jussieu.fr>
+// Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -35,23 +35,25 @@
   *
   * This class represents a LU decomposition of any matrix, with complete pivoting: the matrix A
   * is decomposed as A = PLUQ where L is unit-lower-triangular, U is upper-triangular, and P and Q
-  * are permutation matrices. This is a rank-revealing LU decomposition. The eigenvalues of U are
-  * in non-increasing order.
+  * are permutation matrices. This is a rank-revealing LU decomposition. The eigenvalues (diagonal
+  * coefficients) of U are sorted in such a way that any zeros are at the end, so that the rank
+  * of A is the index of the first zero on the diagonal of U (with indices starting at 0) if any.
   *
   * This decomposition provides the generic approach to solving systems of linear equations, computing
   * the rank, invertibility, inverse, kernel, and determinant.
   *
+  * This LU decomposition is very stable and well tested with large matrices. Even exact rank computation
+  * works at sizes larger than 1000x1000. However there are use cases where the SVD decomposition is inherently
+  * more stable when dealing with numerically damaged input. For example, computing the kernel is more stable with
+  * SVD because the SVD can determine which singular values are negligible while LU has to work at the level of matrix
+  * coefficients that are less meaningful in this respect.
+  *
   * The data of the LU decomposition can be directly accessed through the methods matrixLU(),
-  * permutationP(), permutationQ(). Convenience methods matrixL(), matrixU() are also provided.
+  * permutationP(), permutationQ().
   *
-  * As an exemple, here is how the original matrix can be retrieved, in the square case:
-  * \include class_LU_1.cpp
-  * Output: \verbinclude class_LU_1.out
-  *
-  * When the matrix is not square, matrixL() is no longer very useful: if one needs it, one has
-  * to construct the L matrix by hand, as shown in this example:
-  * \include class_LU_2.cpp
-  * Output: \verbinclude class_LU_2.out
+  * As an exemple, here is how the original matrix can be retrieved:
+  * \include class_LU.cpp
+  * Output: \verbinclude class_LU.out
   *
   * \sa MatrixBase::lu(), MatrixBase::determinant(), MatrixBase::inverse(), MatrixBase::computeInverse()
   */
@@ -71,9 +73,24 @@ template<typename MatrixType> class LU
              MatrixType::MaxRowsAtCompileTime)
     };
 
-  typedef Matrix<typename MatrixType::Scalar, MatrixType::ColsAtCompileTime, Dynamic,
-                 MatrixType::Flags&RowMajorBit,
-                 MatrixType::MaxColsAtCompileTime, MaxSmallDimAtCompileTime> KernelResultType;
+    typedef Matrix<typename MatrixType::Scalar,
+                  MatrixType::ColsAtCompileTime, // the number of rows in the "kernel matrix" is the number of cols of the original matrix
+                                                 // so that the product "matrix * kernel = zero" makes sense
+                  Dynamic,                       // we don't know at compile-time the dimension of the kernel
+                  MatrixType::Options,
+                  MatrixType::MaxColsAtCompileTime, // see explanation for 2nd template parameter
+                  MatrixType::MaxColsAtCompileTime // the kernel is a subspace of the domain space, whose dimension is the number
+                                                   // of columns of the original matrix
+    > KernelResultType;
+
+    typedef Matrix<typename MatrixType::Scalar,
+                   MatrixType::RowsAtCompileTime, // the image is a subspace of the destination space, whose dimension is the number
+                                                  // of rows of the original matrix
+                   Dynamic,                       // we don't know at compile time the dimension of the image (the rank)
+                   MatrixType::Options,
+                   MatrixType::MaxRowsAtCompileTime, // the image matrix will consist of columns from the original matrix,
+                   MatrixType::MaxColsAtCompileTime  // so it has the same number of rows and at most as many columns.
+    > ImageResultType;
 
     /** Constructor.
       *
@@ -88,28 +105,6 @@ template<typename MatrixType> class LU
       * \sa matrixL(), matrixU()
       */
     inline const MatrixType& matrixLU() const
-    {
-      return m_lu;
-    }
-
-    /** \returns an expression of the unit-lower-triangular part of the LU matrix. In the square case,
-      *          this is the L matrix. In the non-square, actually obtaining the L matrix takes some
-      *          more care, see the documentation of class LU.
-      *
-      * \sa matrixLU(), matrixU()
-      */
-    inline const Part<MatrixType, UnitLower> matrixL() const
-    {
-      return m_lu;
-    }
-
-    /** \returns an expression of the U matrix, i.e. the upper-triangular part of the LU matrix.
-      *
-      * \note The eigenvalues of U are sorted in non-increasing order.
-      *
-      * \sa matrixLU(), matrixL()
-      */
-    inline const Part<MatrixType, Upper> matrixU() const
     {
       return m_lu;
     }
@@ -136,10 +131,10 @@ template<typename MatrixType> class LU
       return m_q;
     }
 
-    /** Computes the kernel of the matrix.
+    /** Computes a basis of the kernel of the matrix, also called the null-space of the matrix.
       *
-      * \note: this method is only allowed on non-invertible matrices, as determined by
-      * isInvertible(). Calling it on an invertible matrice will make an assertion fail.
+      * \note This method is only allowed on non-invertible matrices, as determined by
+      * isInvertible(). Calling it on an invertible matrix will make an assertion fail.
       *
       * \param result a pointer to the matrix in which to store the kernel. The columns of this
       * matrix will be set to form a basis of the kernel (it will be resized
@@ -148,15 +143,32 @@ template<typename MatrixType> class LU
       * Example: \include LU_computeKernel.cpp
       * Output: \verbinclude LU_computeKernel.out
       *
-      * \sa kernel()
+      * \sa kernel(), computeImage(), image()
       */
-    void computeKernel(KernelResultType *result) const;
+    template<typename KernelMatrixType>
+    void computeKernel(KernelMatrixType *result) const;
 
-    /** \returns the kernel of the matrix. The columns of the returned matrix
+    /** Computes a basis of the image of the matrix, also called the column-space or range of he matrix.
+      *
+      * \note Calling this method on the zero matrix will make an assertion fail.
+      *
+      * \param result a pointer to the matrix in which to store the image. The columns of this
+      * matrix will be set to form a basis of the image (it will be resized
+      * if necessary).
+      *
+      * Example: \include LU_computeImage.cpp
+      * Output: \verbinclude LU_computeImage.out
+      *
+      * \sa image(), computeKernel(), kernel()
+      */
+    template<typename ImageMatrixType>
+    void computeImage(ImageMatrixType *result) const;
+
+    /** \returns the kernel of the matrix, also called its null-space. The columns of the returned matrix
       * will form a basis of the kernel.
       *
       * \note: this method is only allowed on non-invertible matrices, as determined by
-      * isInvertible(). Calling it on an invertible matrice will make an assertion fail.
+      * isInvertible(). Calling it on an invertible matrix will make an assertion fail.
       *
       * \note: this method returns a matrix by value, which induces some inefficiency.
       *        If you prefer to avoid this overhead, use computeKernel() instead.
@@ -164,9 +176,24 @@ template<typename MatrixType> class LU
       * Example: \include LU_kernel.cpp
       * Output: \verbinclude LU_kernel.out
       *
-      * \sa computeKernel()
+      * \sa computeKernel(), image()
       */
     const KernelResultType kernel() const;
+
+    /** \returns the image of the matrix, also called its column-space. The columns of the returned matrix
+      * will form a basis of the kernel.
+      *
+      * \note: Calling this method on the zero matrix will make an assertion fail.
+      *
+      * \note: this method returns a matrix by value, which induces some inefficiency.
+      *        If you prefer to avoid this overhead, use computeImage() instead.
+      *
+      * Example: \include LU_image.cpp
+      * Output: \verbinclude LU_image.out
+      *
+      * \sa computeImage(), kernel()
+      */
+    const ImageResultType image() const;
 
     /** This method finds a solution x to the equation Ax=b, where A is the matrix of which
       * *this is the LU decomposition, if any exists.
@@ -181,7 +208,8 @@ template<typename MatrixType> class LU
       * \returns true if any solution exists, false if no solution exists.
       *
       * \note If there exist more than one solution, this method will arbitrarily choose one.
-      *       If you need a complete analysis of the space of solutions, take the one solution obtained  *       by this method and add to it elements of the kernel, as determined by kernel().
+      *       If you need a complete analysis of the space of solutions, take the one solution obtained
+      *       by this method and add to it elements of the kernel, as determined by kernel().
       *
       * Example: \include LU_solve.cpp
       * Output: \verbinclude LU_solve.out
@@ -189,10 +217,7 @@ template<typename MatrixType> class LU
       * \sa MatrixBase::solveTriangular(), kernel(), computeKernel(), inverse(), computeInverse()
       */
     template<typename OtherDerived, typename ResultType>
-    bool solve(
-    const MatrixBase<OtherDerived>& b,
-    ResultType *result
-    ) const;
+    bool solve(const MatrixBase<OtherDerived>& b, ResultType *result) const;
 
     /** \returns the determinant of the matrix of which
       * *this is the LU decomposition. It has only linear complexity
@@ -292,72 +317,86 @@ template<typename MatrixType> class LU
     }
 
   protected:
+    const MatrixType& m_originalMatrix;
     MatrixType m_lu;
     IntColVectorType m_p;
     IntRowVectorType m_q;
     int m_det_pq;
     int m_rank;
+    RealScalar m_precision;
 };
 
 template<typename MatrixType>
 LU<MatrixType>::LU(const MatrixType& matrix)
-  : m_lu(matrix),
+  : m_originalMatrix(matrix),
+    m_lu(matrix),
     m_p(matrix.rows()),
     m_q(matrix.cols())
 {
   const int size = matrix.diagonal().size();
   const int rows = matrix.rows();
   const int cols = matrix.cols();
+  
+  // this formula comes from experimenting (see "LU precision tuning" thread on the list)
+  // and turns out to be identical to Higham's formula used already in LDLt.
+  m_precision = machine_epsilon<Scalar>() * size;
 
   IntColVectorType rows_transpositions(matrix.rows());
   IntRowVectorType cols_transpositions(matrix.cols());
   int number_of_transpositions = 0;
 
   RealScalar biggest = RealScalar(0);
-  for(int k = 0; k < size; k++)
+  m_rank = size;
+  for(int k = 0; k < size; ++k)
   {
     int row_of_biggest_in_corner, col_of_biggest_in_corner;
     RealScalar biggest_in_corner;
 
     biggest_in_corner = m_lu.corner(Eigen::BottomRight, rows-k, cols-k)
-                  .cwise().abs()
-                  .maxCoeff(&row_of_biggest_in_corner, &col_of_biggest_in_corner);
+                        .cwise().abs()
+                        .maxCoeff(&row_of_biggest_in_corner, &col_of_biggest_in_corner);
     row_of_biggest_in_corner += k;
     col_of_biggest_in_corner += k;
+    if(k==0) biggest = biggest_in_corner;
+
+    // if the corner is negligible, then we have less than full rank, and we can finish early
+    if(ei_isMuchSmallerThan(biggest_in_corner, biggest, m_precision))
+    {
+      m_rank = k;
+      for(int i = k; i < size; i++)
+      {
+        rows_transpositions.coeffRef(i) = i;
+        cols_transpositions.coeffRef(i) = i;
+      }
+      break;
+    }
+
     rows_transpositions.coeffRef(k) = row_of_biggest_in_corner;
     cols_transpositions.coeffRef(k) = col_of_biggest_in_corner;
     if(k != row_of_biggest_in_corner) {
       m_lu.row(k).swap(m_lu.row(row_of_biggest_in_corner));
-      number_of_transpositions++;
+      ++number_of_transpositions;
     }
     if(k != col_of_biggest_in_corner) {
       m_lu.col(k).swap(m_lu.col(col_of_biggest_in_corner));
-      number_of_transpositions++;
+      ++number_of_transpositions;
     }
-
-    if(k==0) biggest = biggest_in_corner;
-    const Scalar lu_k_k = m_lu.coeff(k,k);
-    if(ei_isMuchSmallerThan(lu_k_k, biggest)) continue;
     if(k<rows-1)
-      m_lu.col(k).end(rows-k-1) /= lu_k_k;
+      m_lu.col(k).end(rows-k-1) /= m_lu.coeff(k,k);
     if(k<size-1)
-      for( int col = k + 1; col < cols; col++ )
+      for(int col = k + 1; col < cols; ++col)
         m_lu.col(col).end(rows-k-1) -= m_lu.col(k).end(rows-k-1) * m_lu.coeff(k,col);
   }
 
-  for(int k = 0; k < matrix.rows(); k++) m_p.coeffRef(k) = k;
-  for(int k = size-1; k >= 0; k--)
+  for(int k = 0; k < matrix.rows(); ++k) m_p.coeffRef(k) = k;
+  for(int k = size-1; k >= 0; --k)
     std::swap(m_p.coeffRef(k), m_p.coeffRef(rows_transpositions.coeff(k)));
 
-  for(int k = 0; k < matrix.cols(); k++) m_q.coeffRef(k) = k;
-  for(int k = 0; k < size; k++)
+  for(int k = 0; k < matrix.cols(); ++k) m_q.coeffRef(k) = k;
+  for(int k = 0; k < size; ++k)
     std::swap(m_q.coeffRef(k), m_q.coeffRef(cols_transpositions.coeff(k)));
 
   m_det_pq = (number_of_transpositions%2) ? -1 : 1;
-
-  for(m_rank = 0; m_rank < size; m_rank++)
-    if(ei_isMuchSmallerThan(m_lu.diagonal().coeff(m_rank), m_lu.diagonal().coeff(0)))
-      break;
 }
 
 template<typename MatrixType>
@@ -367,7 +406,8 @@ typename ei_traits<MatrixType>::Scalar LU<MatrixType>::determinant() const
 }
 
 template<typename MatrixType>
-void LU<MatrixType>::computeKernel(KernelResultType *result) const
+template<typename KernelMatrixType>
+void LU<MatrixType>::computeKernel(KernelMatrixType *result) const
 {
   ei_assert(!isInvertible());
   const int dimker = dimensionOfKernel(), cols = m_lu.cols();
@@ -376,31 +416,30 @@ void LU<MatrixType>::computeKernel(KernelResultType *result) const
   /* Let us use the following lemma:
     *
     * Lemma: If the matrix A has the LU decomposition PAQ = LU,
-    * then Ker A = Q( Ker U ).
+    * then Ker A = Q(Ker U).
     *
     * Proof: trivial: just keep in mind that P, Q, L are invertible.
     */
 
   /* Thus, all we need to do is to compute Ker U, and then apply Q.
     *
-    * U is upper triangular, with eigenvalues sorted in decreasing order of
-    * absolute value. Thus, the diagonal of U ends with exactly
+    * U is upper triangular, with eigenvalues sorted so that any zeros appear at the end.
+    * Thus, the diagonal of U ends with exactly
     * m_dimKer zero's. Let us use that to construct m_dimKer linearly
     * independent vectors in Ker U.
     */
 
-  Matrix<Scalar, Dynamic, Dynamic, MatrixType::Flags&RowMajorBit,
-         MatrixType::MaxColsAtCompileTime, MaxSmallDimAtCompileTime>
+  Matrix<Scalar, Dynamic, Dynamic, MatrixType::Options,
+         MatrixType::MaxColsAtCompileTime, MatrixType::MaxColsAtCompileTime>
     y(-m_lu.corner(TopRight, m_rank, dimker));
 
   m_lu.corner(TopLeft, m_rank, m_rank)
-      .template marked<Upper>()
+      .template marked<UpperTriangular>()
       .solveTriangularInPlace(y);
 
-  for(int i = 0; i < m_rank; i++)
-    result->row(m_q.coeff(i)) = y.row(i);
-  for(int i = m_rank; i < cols; i++) result->row(m_q.coeff(i)).setZero();
-  for(int k = 0; k < dimker; k++) result->coeffRef(m_q.coeff(m_rank+k), k) = Scalar(1);
+  for(int i = 0; i < m_rank; ++i) result->row(m_q.coeff(i)) = y.row(i);
+  for(int i = m_rank; i < cols; ++i) result->row(m_q.coeff(i)).setZero();
+  for(int k = 0; k < dimker; ++k) result->coeffRef(m_q.coeff(m_rank+k), k) = Scalar(1);
 }
 
 template<typename MatrixType>
@@ -409,6 +448,25 @@ LU<MatrixType>::kernel() const
 {
   KernelResultType result(m_lu.cols(), dimensionOfKernel());
   computeKernel(&result);
+  return result;
+}
+
+template<typename MatrixType>
+template<typename ImageMatrixType>
+void LU<MatrixType>::computeImage(ImageMatrixType *result) const
+{
+  ei_assert(m_rank > 0);
+  result->resize(m_originalMatrix.rows(), m_rank);
+  for(int i = 0; i < m_rank; ++i)
+    result->col(i) = m_originalMatrix.col(m_q.coeff(i));
+}
+
+template<typename MatrixType>
+const typename LU<MatrixType>::ImageResultType
+LU<MatrixType>::image() const
+{
+  ImageResultType result(m_originalMatrix.rows(), m_rank);
+  computeImage(&result);
   return result;
 }
 
@@ -423,51 +481,47 @@ bool LU<MatrixType>::solve(
    * So we proceed as follows:
    * Step 1: compute c = Pb.
    * Step 2: replace c by the solution x to Lx = c. Exists because L is invertible.
-   * Step 3: compute d such that Ud = c. Check if such d really exists.
-   * Step 4: result = Qd;
+   * Step 3: replace c by the solution x to Ux = c. Check if a solution really exists.
+   * Step 4: result = Qc;
    */
 
-  const int rows = m_lu.rows();
+  const int rows = m_lu.rows(), cols = m_lu.cols();
   ei_assert(b.rows() == rows);
-  const int smalldim = std::min(rows, m_lu.cols());
+  const int smalldim = std::min(rows, cols);
 
-  typename OtherDerived::Eval c(b.rows(), b.cols());
+  typename OtherDerived::PlainMatrixType c(b.rows(), b.cols());
 
   // Step 1
-  for(int i = 0; i < rows; i++) c.row(m_p.coeff(i)) = b.row(i);
+  for(int i = 0; i < rows; ++i) c.row(m_p.coeff(i)) = b.row(i);
 
   // Step 2
-  Matrix<Scalar, MatrixType::RowsAtCompileTime, MatrixType::RowsAtCompileTime,
-         MatrixType::Flags&RowMajorBit,
-         MatrixType::MaxRowsAtCompileTime,
-         MatrixType::MaxRowsAtCompileTime> l(rows, rows);
-  l.setZero();
-  l.corner(Eigen::TopLeft,rows,smalldim)
-    = m_lu.corner(Eigen::TopLeft,rows,smalldim);
-  l.template marked<UnitLower>().solveTriangularInPlace(c);
+  m_lu.corner(Eigen::TopLeft,smalldim,smalldim).template marked<UnitLowerTriangular>()
+    .solveTriangularInPlace(
+      c.corner(Eigen::TopLeft, smalldim, c.cols()));
+  if(rows>cols)
+  {
+    c.corner(Eigen::BottomLeft, rows-cols, c.cols())
+      -= m_lu.corner(Eigen::BottomLeft, rows-cols, cols) * c.corner(Eigen::TopLeft, cols, c.cols());
+  }
 
   // Step 3
   if(!isSurjective())
   {
     // is c is in the image of U ?
-    RealScalar biggest_in_c = c.corner(TopLeft, m_rank, c.cols()).cwise().abs().maxCoeff();
-    for(int col = 0; col < c.cols(); col++)
-      for(int row = m_rank; row < c.rows(); row++)
-        if(!ei_isMuchSmallerThan(c.coeff(row,col), biggest_in_c))
+    RealScalar biggest_in_c = m_rank>0 ? c.corner(TopLeft, m_rank, c.cols()).cwise().abs().maxCoeff() : 0;
+    for(int col = 0; col < c.cols(); ++col)
+      for(int row = m_rank; row < c.rows(); ++row)
+        if(!ei_isMuchSmallerThan(c.coeff(row,col), biggest_in_c, m_precision))
           return false;
   }
-  Matrix<Scalar, Dynamic, OtherDerived::ColsAtCompileTime,
-         MatrixType::Flags&RowMajorBit,
-         MatrixType::MaxRowsAtCompileTime, OtherDerived::MaxColsAtCompileTime>
-    d(c.corner(TopLeft, m_rank, c.cols()));
   m_lu.corner(TopLeft, m_rank, m_rank)
-      .template marked<Upper>()
-      .solveTriangularInPlace(d);
+      .template marked<UpperTriangular>()
+      .solveTriangularInPlace(c.corner(TopLeft, m_rank, c.cols()));
 
   // Step 4
   result->resize(m_lu.cols(), b.cols());
-  for(int i = 0; i < m_rank; i++) result->row(m_q.coeff(i)) = d.row(i);
-  for(int i = m_rank; i < m_lu.cols(); i++) result->row(m_q.coeff(i)).setZero();
+  for(int i = 0; i < m_rank; ++i) result->row(m_q.coeff(i)) = c.row(i);
+  for(int i = m_rank; i < m_lu.cols(); ++i) result->row(m_q.coeff(i)).setZero();
   return true;
 }
 
@@ -478,10 +532,10 @@ bool LU<MatrixType>::solve(
   * \sa class LU
   */
 template<typename Derived>
-inline const LU<typename MatrixBase<Derived>::EvalType>
+inline const LU<typename MatrixBase<Derived>::PlainMatrixType>
 MatrixBase<Derived>::lu() const
 {
-  return eval();
+  return LU<PlainMatrixType>(eval());
 }
 
 #endif // EIGEN_LU_H
