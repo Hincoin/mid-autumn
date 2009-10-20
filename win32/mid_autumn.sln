@@ -4,9 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "script", "script\script.vcproj", "{DF6276C0-EC99-4AA4-BB45-36EE5476C522}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "core", "core\core.vcproj", "{F6FB6636-2AB8-4B9A-BCD1-D195C53EE33F}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F62787DD-1327-448B-9818-030062BCFAA5} = {F62787DD-1327-448B-9818-030062BCFAA5}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "virtual_func_simulation", "virtual_func_simulation\virtual_func_simulation.vcproj", "{CD45A549-62DD-4E9E-8390-5944A586155E}"
 EndProject

@@ -17,12 +17,13 @@ struct B{
 };
 using namespace Eigen;
 struct C{
-	//EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 	char a;
 	transform_t b;
 };
 struct D{
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 	char c;
 	C x;
 };

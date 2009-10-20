@@ -38,7 +38,7 @@
 #endif
 
 
-#define TBB_PARALLEL
+//#define TBB_PARALLEL
 //#define OMP_PARALLEL
 
 //define max number of threads 
