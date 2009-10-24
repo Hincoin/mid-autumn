@@ -14,6 +14,29 @@ namespace ma{
 	))
 	END_CRTP_INTERFACE
 
+	///
+	//texturea mapping2d
+	template<typename Conf>
+	class UVMapping2D:public TextureMapping2D<TextureMapping2D<Conf>,Conf>{
+	public:
+		ADD_SAME_TYPEDEF(Conf,scalar_t);
+		ADD_SAME_TYPEDEF(Conf,differential_geometry_t);
+		UVMapping2D(scalar_t su=1,scalar_t sv =1,
+			scalar_t du = 0,scalar_t dv = 0)
+			:su_(su),sv_(sv),du_(du),dv_(dv){}
+		void mappingImpl(const differential_geometry_t& dg,scalar_t& s,scalar_t& t,scalar_t& dsdx,scalar_t& dtdx,
+			scalar_t& dsdy,scalar_t& dtdy)
+		{
+			s = su_ * dg.u + du_;
+			t = sv_ * dg.v + dv_;
+			dsdx = su_ * dg.dudx;
+			dtdx = sv_ * dg.dvdx;
+			dsdy = su_ * dg.dudy;
+			dtdy = sv_ * dg.dvdy;
+		}
+	private:
+		scalar_t su_,sv_,du_,dv_;
+	};
 	//////////////////////////////////////////////////////////////////////////
 	BEGIN_CRTP_INTERFACE(TextureMapping3D)
 	ADD_CRTP_INTERFACE_TYPEDEF(differential_geometry_t)
