@@ -225,6 +225,7 @@ MAP_TYPE_STR(E,E);
 MAP_TYPE_STR(F,F);
 #include <typeinfo>
 
+#include "ParamSet.hpp"
 
 //testing code for my application
 typedef float scalar_t;
@@ -250,9 +251,48 @@ struct Polygon{};
 struct Triangle{};
 struct TriangleMesh{};
 
+class primitive{
+	virtual ~primitive(){}
+};
 template<typename Mtl,typename Shape>
-struct primitive{};
+struct geo_primitive:primitive{
+};
+#include <string>
+#include <vector>
+using std::string;
+using namespace ma;
+using std::vector;
+//managed by global state 
+boost::unordered_map<string,const char*> texname_type;
+typedef primitive* (*primitive_maker_t)(const ParamSet&,const ParamSet&);
+boost::unordered_map<string,primitive_maker_t> primitive_maker;
+//texture name to type
+//texture params,
+primitive* make_primitive(const ParamSet& mtl_params,const ParamSet& shape_params)
+{
+	//materialtypes<texture types> + shape_types
+	//get mtl_texture_names to get texture types
+	//string mtl_type = mtl_params.as<string>("type");
+	const std::vector<string>& texture_names = mtl_params.as<vector<string>&>("texture_names");
+	string mtl_type_texture_types;
+	for(vector<string>::iterator it = texture_names.begin();
+			it != texture_names.end();++it)
+	{
+		boost::unordered_map<string,const char*>::iterator finded =
+			texname_type.find(*it);
+		if (finded != texname_type.end())
+			mtl_type_texture_types+=finded->second; 
+	}
+	mtl_type_texture_types += mtl_params.as<string>("type");
 
+	const string& shape_type = shape_params.as<string>("type");
+	boost::unordered_map<string,primitive_maker_t>::iterator it =
+	primitive_maker.find(mtl_type_texture_types + shape_type);
+	if (it != primitive_maker.end())
+		return	(*(it->second))(mtl_params,shape_params);	
+	return 0;
+
+}
 
 bool class_combination_test()
 {
