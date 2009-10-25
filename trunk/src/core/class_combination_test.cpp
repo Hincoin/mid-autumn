@@ -242,6 +242,26 @@ struct const_texture{};
 template<typename T,typename Mapping>
 struct uvtexture{};
 
+template<typename T>
+struct create_texture;
+
+template<typename T>
+struct create_texture<const_texture<T> >
+{
+	const_texture<T>* operator()(const ParamSet& )const{return new const_texture<T>();}
+};
+template<typename T,typename Mapping>
+struct create_texture<uvtexture<T,Mapping> >{
+
+	uvtexture<T,Mapping>* operator()(const ParamSet& param)
+	{
+		const string& mapping_type = param.as<string>("mapping_type",param);		
+		//do somting ....
+
+		return new uvtexture<T,Mapping>();
+	}
+
+};
 struct map2d{};
 struct spherical_map2d{};
 struct cylinder_map2d{};
@@ -259,10 +279,8 @@ struct create_material<matte_mtl<ScalarTex,SpectrumTex> >{
 	
 	matte_mtl<ScalarTex,SpectrumTex>*
 		operator()(const ParamSet& params){
-//			const string& s_tex_name = params.as<string>("scalar");
-//			const string& sp_tex_name = params.as<string>("color");	
-			ScalarTex* s_tex = params.as<ScalarTex*>("kd");
-			SpectrumTex* sp_tex = params.as<SpectrumTex*>("sigma");
+			const string& s_tex_name = params.as<string>("kd");
+			const string& sp_tex_name = params.as<string>("sigma");	
 			return new matte_mtl<ScalarTex,SpectrumTex>(s_tex,sp_tex);
 		}
 
@@ -294,7 +312,10 @@ using std::vector;
 //managed by global state 
 boost::unordered_map<string,const char*> texname_type;
 typedef primitive* (*primitive_maker_t)(const ParamSet&,const ParamSet&);
+typedef MAny (*texture_maker_t)(const ParamSet&);
 boost::unordered_map<string,primitive_maker_t> primitive_maker;
+boost::unordered_map<string,texture_maker_t> textures_maker;
+boost::unordered_map<string,MAny> texname_textures;
 //texture name to type
 //texture params,
 template<typename Mtl,typename Shape>
@@ -302,7 +323,7 @@ struct PrimitiveCreator{
 	typedef map_type_str<Mtl> mtl_type_str;
 	typedef map_type_str<Shape> shape_type_str;
 	typedef PrimitiveCreator<Mtl,Shape> type;
-	static size_t type_str_size = mtl_type_str::type_str_size + shape_type_str::type_str_size - 2 + 1;
+	static const size_t type_str_size = mtl_type_str::type_str_size + shape_type_str::type_str_size - 2 + 1;
 	static char type_str_[type_str_size];
 	PrimitiveCreator(){
 		string key=mtl_type_str::type_str();
@@ -319,6 +340,24 @@ struct PrimitiveCreator{
 	{
 		return type_str_;	
 	}
+
+};
+
+template<typename T>
+struct TextureCreator{
+	typedef map_type_str<T> texture_type_str;
+	typedef TextureCreator<T> type;
+	static const size_t type_str_size = texture_type_str::type_str_size;
+       static char type_str_[type_str_size];	
+	static MAny make(const ParamSet& p)	
+	{return create_texture<T>()(p);}
+	TextureCreator(){
+	
+		::strcpy(type_str_,texture_type_str::type_str());
+		textures_maker.insert(std::make_pair(type_str_,&type::make));
+	}
+	static const char* type_str()
+	{ return type_str_;}
 
 };
 template<typename Mtl,typename Shape>
@@ -348,9 +387,18 @@ primitive* make_primitive(const ParamSet& mtl_params,const ParamSet& shape_param
 	return 0;
 
 }
-void make_texture(const string& tex_type,const string& name,ParamSet& mtl_params)
+void make_mapping(const string& mapping_type,ParamSet& tex_param)
 {
-	texname_type.insert(std::make_pair(name,map_type_str<Tex>::type_str()));	
+	tex_param.add("mapping_type",mapping_type);
+}
+void make_texture(const string& tex_type,const string& name,const string& mapping_type,ParamSet& mtl_params)
+{
+	texname_type.insert(std::make_pair(name,tex_type.c_str()));	
+	ParamSet tex_params;
+	make_mapping(mapping_type,tex_params);
+	boost::unordered_map<string,texture_maker_t>::iterator it = textures_maker.find(tex_type);
+	if (it != textures_maker.end())
+		mtl_params.add(name,(*(it->second))(tex_params));
 	
 }
 bool test_make_primitive()
@@ -365,12 +413,14 @@ bool test_make_primitive()
 	tex_names.push_back("kd");
 	tex_names.push_back("sigma");
 	std::vector<string> tex_types;
-
+	tex_types.push_back("const_texture");
+	tex_types.push_back("uvtexture");
 	//mtl_params.add("kd","");
 	//mtl_params.add("sigma",);	
 	for (size_t i = 0;i < tex_names.size(); ++i)
-		make_texture(tex_types[i],tex_names[i],mtl_params);
+		make_texture(tex_types[i],tex_names[i],"map2d",mtl_params);
 	primitive* primitive_result = make_primitive(mtl_params,shape_params);
+	return primitive_result != 0;
 
 }
 
