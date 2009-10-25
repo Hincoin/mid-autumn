@@ -103,14 +103,19 @@ template<template<typename MPL_Seq>class ToFusionSeq
 	struct combination_to_seq_impl<Comb,false>{
 		typedef Comb type;
 	};
-	template<typename Combination,typename ResultSeq>
+	template<typename Combination>
 	struct combination_to_sequence{
 		//BOOST_MPL_ASSERT((peek_sequence<Combination>));
-		typedef typename combination_to_seq_impl<Combination,peek_sequence<Combination>::value>::type seq_view;
-		typedef typename mpl::copy<seq_view,mpl::back_inserter<ResultSeq> >::type type;
+		typedef typename combination_to_seq_impl<Combination,peek_sequence<Combination>::value>::type type;
 	};
 	template<typename T>
-	struct map_type_str;
+	struct map_type_str
+{
+	typedef T type;
+	static const char* type_str(){return T::type_str();}
+	static const size_t type_str_size = T::type_str_size;
+};
+
 #define MAP_TYPE_STR(TYPE,TYPE_STR)\
 	template<>\
 	struct map_type_str<TYPE>{\
@@ -244,18 +249,42 @@ struct planar_map2d{};
 struct map3d{};
 struct identity_map3d{};
 template<typename ScalarTex,typename SpectrumTex>
-struct matte_mtl{};
+struct matte_mtl{
+	matte_mtl(ScalarTex*,SpectrumTex*){}
+};
+template<typename Mtl>
+struct create_material;
+template<typename ScalarTex,typename SpectrumTex>
+struct create_material<matte_mtl<ScalarTex,SpectrumTex> >{
+	
+	matte_mtl<ScalarTex,SpectrumTex>*
+		operator()(const ParamSet& params){
+//			const string& s_tex_name = params.as<string>("scalar");
+//			const string& sp_tex_name = params.as<string>("color");	
+			ScalarTex* s_tex = params.as<ScalarTex*>("kd");
+			SpectrumTex* sp_tex = params.as<SpectrumTex*>("sigma");
+			return new matte_mtl<ScalarTex,SpectrumTex>(s_tex,sp_tex);
+		}
+
+};
 
 struct Sphere{};
 struct Polygon{};
 struct Triangle{};
 struct TriangleMesh{};
 
+template<typename Shape>
+struct create_shape
+{
+	Shape* operator()(const ParamSet& ){return new Shape();}
+
+};
 class primitive{
 	virtual ~primitive(){}
 };
 template<typename Mtl,typename Shape>
 struct geo_primitive:primitive{
+	geo_primitive(Mtl* m,Shape* s){}
 };
 #include <string>
 #include <vector>
@@ -268,14 +297,40 @@ typedef primitive* (*primitive_maker_t)(const ParamSet&,const ParamSet&);
 boost::unordered_map<string,primitive_maker_t> primitive_maker;
 //texture name to type
 //texture params,
+template<typename Mtl,typename Shape>
+struct PrimitiveCreator{
+	typedef map_type_str<Mtl> mtl_type_str;
+	typedef map_type_str<Shape> shape_type_str;
+	typedef PrimitiveCreator<Mtl,Shape> type;
+	static size_t type_str_size = mtl_type_str::type_str_size + shape_type_str::type_str_size - 2 + 1;
+	static char type_str_[type_str_size];
+	PrimitiveCreator(){
+		string key=mtl_type_str::type_str();
+		key += shape_type_str::type_str();
+		::strcpy(type_str_,key.c_str());
+		primitive_maker.insert(std::make_pair(key,&PrimitiveCreator::make));	
+	}
+	static primitive* make(const ParamSet& mtl_param,const ParamSet& shape_param){
+		Mtl* m = create_material<Mtl>()(mtl_param);
+		Shape* s = create_shape<Shape>()(shape_param);
+		return new geo_primitive<Mtl,Shape>(m,s);
+	}
+	static const char* type_str()
+	{
+		return type_str_;	
+	}
+
+};
+template<typename Mtl,typename Shape>
+char PrimitiveCreator<Mtl,Shape>::type_str_[PrimitiveCreator<Mtl,Shape>::type_str_size] = {0};
 primitive* make_primitive(const ParamSet& mtl_params,const ParamSet& shape_params)
 {
 	//materialtypes<texture types> + shape_types
 	//get mtl_texture_names to get texture types
 	//string mtl_type = mtl_params.as<string>("type");
-	const std::vector<string>& texture_names = mtl_params.as<vector<string>&>("texture_names");
+	const std::vector<string>& texture_names = mtl_params.as<vector<string> >("texture_names");
 	string mtl_type_texture_types;
-	for(vector<string>::iterator it = texture_names.begin();
+	for(vector<string>::const_iterator it = texture_names.begin();
 			it != texture_names.end();++it)
 	{
 		boost::unordered_map<string,const char*>::iterator finded =
@@ -293,6 +348,31 @@ primitive* make_primitive(const ParamSet& mtl_params,const ParamSet& shape_param
 	return 0;
 
 }
+void make_texture(const string& tex_type,const string& name,ParamSet& mtl_params)
+{
+	texname_type.insert(std::make_pair(name,map_type_str<Tex>::type_str()));	
+	
+}
+bool test_make_primitive()
+{
+	ParamSet mtl_params;
+	ParamSet shape_params;
+
+	shape_params.add("type","TriangleMesh");
+	//add textures 
+	mtl_params.add("type","matte");	
+	std::vector<string> tex_names;
+	tex_names.push_back("kd");
+	tex_names.push_back("sigma");
+	std::vector<string> tex_types;
+
+	//mtl_params.add("kd","");
+	//mtl_params.add("sigma",);	
+	for (size_t i = 0;i < tex_names.size(); ++i)
+		make_texture(tex_types[i],tex_names[i],mtl_params);
+	primitive* primitive_result = make_primitive(mtl_params,shape_params);
+
+}
 
 bool class_combination_test()
 {
@@ -303,10 +383,12 @@ bool class_combination_test()
 	typedef mpl::vector<int,float> seq_type4;
 
 	typedef combination3<mpl::identity,func,seq_type1,seq_type2,seq_type3>::type comb3_types;
-	typedef combination_to_sequence<comb3_types,mpl::vector<> >::type seq_types;
-	comb3_types seqs;
+	//typedef combination_to_sequence<comb3_types,mpl::vector<> >::type seq_types;
+	typedef combination_to_sequence<comb3_types>::type view_t;
+	//comb3_types seqs;
+	typedef boost::fusion::result_of::as_vector<view_t>::type combined_tuple_t;
 
-	printf("combination3 string: %s \n",typeid(seq_types).name());
+	printf("combination3 string: %s \n",typeid(combined_tuple_t).name());
 	return true;
 }
 

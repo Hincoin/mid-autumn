@@ -28,7 +28,7 @@ struct D{
 	C x;
 };
 bool test(){
-	std::vector<transform_t> v;
+	//std::vector<transform_t> v;
 	//vector_t a,b;
 	//vector_t c = a-b;
 	//point_t p(1,1,1);
