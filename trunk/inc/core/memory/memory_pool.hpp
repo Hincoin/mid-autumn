@@ -125,7 +125,7 @@ namespace ma{
 				assert(block);
 				if(block->prev)
 					assert(reinterpret_cast<char*>(block) == (char*)(block->prev+1)+block->prev->size);
-				return block->size;
+				return block->size != 0;
 #else 
 				return true;
 #endif
