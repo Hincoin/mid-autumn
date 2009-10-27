@@ -7,6 +7,7 @@ bool class_combination_test();
 
 REGISTER_TEST_FUNC(class_combination_test,class_combination_test)
 
+#define FUSION_MAX_VECTOR_SIZE 50
 #include <boost/fusion/container.hpp>
 #include <boost/fusion/adapted/mpl.hpp>
 
@@ -231,7 +232,7 @@ MAP_TYPE_STR(F,F);
 #include <typeinfo>
 
 #include "ParamSet.hpp"
-
+#include <iostream>
 //testing code for my application
 typedef float scalar_t;
 typedef int spectrum_t; //fake it
@@ -249,9 +250,10 @@ struct uvtexture{typedef uvtexture<T,Mapping> type;};
 template<typename T>
 struct map_type_str<const_texture<T> >{
 	static const size_t type_str_size = map_type_str<T>::type_str_size - 1 + sizeof("const_texture");
-	static char type_str_[type_str_size];
+	char type_str_[type_str_size];
 	typedef const_texture<T> type;
 	map_type_str(){
+		::memset(type_str_,0,type_str_size);
 		::strcpy(type_str_,map_type_str<T>::type_str());
 		::strcpy(type_str_ + map_type_str<T>::type_str_size - 1,"const_texture");
 	}
@@ -267,10 +269,12 @@ struct map_type_str<uvtexture<T,Mapping> >
 {
 	static const size_t type_str_size = map_type_str<T>::type_str_size + map_type_str<Mapping>::type_str_size - 2 +
 		sizeof("uvtexture");
-	static char type_str_[type_str_size];
+	char type_str_[type_str_size];
 	typedef uvtexture<T,Mapping> type;
 
 	map_type_str(){
+		::memset(type_str_,0,type_str_size);
+
 		::strcpy(type_str_,map_type_str<T>::type_str());
 		::strcpy(type_str_ + map_type_str<T>::type_str_size - 1,map_type_str<Mapping>::type_str());
 		::strcpy(type_str_ + map_type_str<T>::type_str_size + map_type_str<Mapping>::type_str_size - 2,
@@ -296,7 +300,7 @@ struct create_texture<uvtexture<T,Mapping> >{
 
 	uvtexture<T,Mapping>* operator()(const ParamSet& param)
 	{
-		const string& mapping_type = param.as<string>("mapping_type",param);		
+		const string& mapping_type = param.as<string>("mapping_type");		
 		//do somting ....
 
 		return new uvtexture<T,Mapping>();
@@ -316,29 +320,37 @@ MAP_TYPE_STR(spherical_map2d,spherical_map2d);
 MAP_TYPE_STR(cylinder_map2d,cylinder_map2d);
 MAP_TYPE_STR(planar_map2d,planar_map2d);
 MAP_TYPE_STR(identity_map3d,identity_map3d);
-typedef mpl::vector<map2d,map3d,identity_map3d,spherical_map2d,cylinder_map2d,planar_map2d> map_type_seq;
+typedef mpl::vector<map2d/*,map3d,identity_map3d,spherical_map2d,cylinder_map2d,planar_map2d*/> map_type_seq;
 
 template<typename ScalarTex,typename SpectrumTex>
 struct matte_mtl{
 	typedef matte_mtl<ScalarTex,SpectrumTex> type;
-	matte_mtl(ScalarTex*,SpectrumTex*){}
+	matte_mtl(const ScalarTex*,const SpectrumTex*){}
 };
 template<typename Sc,typename Sp>
 struct map_type_str<matte_mtl<Sc,Sp> >{
 	static const size_t type_str_size = map_type_str<Sc>::type_str_size + map_type_str<Sp>::type_str_size -2 + sizeof("matte");
-	static char type_str_[type_str_size];
+	char type_str_[type_str_size];
 	typedef matte_mtl<Sc,Sp> type;
 	map_type_str(){
+		::memset(type_str_,0,type_str_size);
+
 		::strcpy(type_str_,map_type_str<Sc>::type_str());
 		::strcpy(type_str_ + map_type_str<Sc>::type_str_size - 1,map_type_str<Sp>::type_str());
-		::strcpy(type_str_ + map_type_str<Sp>::type_str_size + map_type_str<Sp>::type_str_size - 2,
+		::strcpy(type_str_ + map_type_str<Sc>::type_str_size + map_type_str<Sp>::type_str_size - 2,
 				"matte");
+		printf("matte: %s \n",type_str_);
 	}
 	static const char* type_str(){
 		static map_type_str self;
 		return self.type_str_;
 	}
 
+};
+
+template<typename T>
+struct matte_mtl_creator{
+typedef map_type_str<T> type;
 };
 template<typename Mtl>
 struct create_material;
@@ -350,8 +362,8 @@ struct create_material<matte_mtl<ScalarTex,SpectrumTex> >{
 			//const string& s_tex_name = params.as<string>("kd");
 			//const string& sp_tex_name = params.as<string>("sigma");
 			//find in global 	
-			ScalarTex* s_tex = params.as<MAny>("kd").cast<ScalarTex*>();
-			SpectrumTex* sp_tex = params.as<MAny>("sigma").cast<SpectrumTex*>();
+			const ScalarTex* s_tex = params.as<ScalarTex*>("kd");
+			const SpectrumTex* sp_tex = params.as<SpectrumTex*>("sigma");
 
 			return new matte_mtl<ScalarTex,SpectrumTex>(s_tex,sp_tex);
 		}
@@ -370,7 +382,7 @@ struct create_shape
 	Shape* operator()(const ParamSet& ){return new Shape();}
 
 };
-class primitive{
+struct primitive{
 	virtual ~primitive(){}
 };
 template<typename Mtl,typename Shape>
@@ -397,9 +409,11 @@ struct PrimitiveCreator{
 	typedef map_type_str<Mtl> mtl_type_str;
 	typedef map_type_str<Shape> shape_type_str;
 	typedef PrimitiveCreator<Mtl,Shape> type;
-	static const size_t type_str_size = mtl_type_str::type_str_size + shape_type_str::type_str_size - 3 + sizeof("geometry");
+	static const size_t type_str_size = mtl_type_str::type_str_size + shape_type_str::type_str_size - 2 + sizeof("geometry");
 	static char type_str_[type_str_size];
 	PrimitiveCreator(){
+		::memset(type_str_,0,type_str_size);
+
 		string key=mtl_type_str::type_str();
 		key += shape_type_str::type_str();
 		key += "geometry";
@@ -425,17 +439,19 @@ struct TextureCreator{
 	typedef map_type_str<T> texture_type_str;
 	typedef TextureCreator<T> type;
 	static const size_t type_str_size = texture_type_str::type_str_size;
-       static char type_str_[type_str_size];	
+     char type_str_[type_str_size];	
 	static MAny make(const ParamSet& p)	
 	{
 		const string& name = p.as<string>("name");
-		boost::unordered_map<string,MAny>::iterator it = textures_maker.find(name);
-		if (it != textures_maker.end())
+		boost::unordered_map<string,MAny>::iterator it = texname_textures.find(name);
+		if (it != texname_textures.end())
 			return it->second;
-		return create_texture<T>()(p);
+		MAny r(create_texture<T>()(p));
+		texname_textures.insert(std::make_pair(name,r));
+		return r;
 	}
 	TextureCreator(){
-	
+		::memset(type_str_,0,type_str_size);	
 		::strcpy(type_str_,texture_type_str::type_str());
 		textures_maker.insert(std::make_pair(type_str_,&type::make));
 	}
@@ -464,7 +480,7 @@ primitive* make_primitive(const ParamSet& mtl_params,const ParamSet& shape_param
 
 	const string& shape_type = shape_params.as<string>("type");
 	boost::unordered_map<string,primitive_maker_t>::iterator it =
-	primitive_maker.find(mtl_type_texture_types + shape_type);
+	primitive_maker.find(mtl_type_texture_types + shape_type + "geometry");
 	if (it != primitive_maker.end())
 		return	(*(it->second))(mtl_params,shape_params);	
 	return 0;
@@ -479,6 +495,7 @@ void make_texture(const string& tex_type,const string& name,const string& mappin
 	texname_type.insert(std::make_pair(name,tex_type.c_str()));	
 	ParamSet tex_params;
 	make_mapping(mapping_type,tex_params);
+	tex_params.add("name",name);
 	boost::unordered_map<string,texture_maker_t>::iterator it = textures_maker.find(tex_type);
 	if (it != textures_maker.end())
 		mtl_params.add(name,(*(it->second))(tex_params));
@@ -496,32 +513,49 @@ struct texture_seq{
 
 };
 
+
 bool test_make_primitive()
 {
 	//initialize types
 	typedef mpl::vector<scalar_t> float_t;
 	typedef mpl::vector<spectrum_t> color_t;
+	typedef mpl::joint_view<texture_seq<scalar_t>::type,texture_seq<spectrum_t>::type> textures_view;
+	typedef mpl::transform_view<textures_view,TextureCreator<mpl::_1> >::type textures_creator_view;
+	typedef boost::fusion::result_of::as_vector<textures_creator_view>::type textures_creator_tuple;
 	typedef combination2<mpl::identity,matte_mtl,texture_seq<scalar_t>::type,texture_seq<spectrum_t>::type >::type matte_comb;
-
-	typedef mpl::copy<combination_to_sequence<matte_comb>::type,mpl::back_inserter<mpl::vector<> > >::type matte_seq;
-	typedef combination2<mpl::identity,PrimitiveCreator,matte_seq,shape_seq>::type primitive_creator_comb;
+	typedef combination_to_sequence<matte_comb>::type matte_view;
+	typedef mpl::transform_view<matte_view,matte_mtl_creator<mpl::_1> >::type matte_creator_view;
+	typedef boost::fusion::result_of::as_vector<matte_creator_view>::type matte_comb_tuple;
+	typedef mpl::copy<matte_view,mpl::back_inserter<mpl::vector<> > >::type matte_seq;
+	//typedef combination2<boost::fusion::result_of::as_vector,matte_mtl,texture_seq<scalar_t>::type,texture_seq<spectrum_t>::type >::type matte_comb_tuple;
+	typedef combination2<boost::fusion::result_of::as_vector,PrimitiveCreator,matte_seq,shape_seq>::type primitive_creator_comb;
+	textures_creator_tuple register_texture_creators;
+	primitive_creator_comb register_primitive_creators;
+	//matte_comb_tuple register_matte_types;
 	///////////////////////////////////////////////
 	ParamSet mtl_params;
 	ParamSet shape_params;
 
-	shape_params.add("type","TriangleMesh");
+	shape_params.add("type",string("TriangleMesh"));
 	//add textures 
-	mtl_params.add("type","matte");	
+	mtl_params.add("type",string("matte"));	
 	std::vector<string> tex_names;
 	tex_names.push_back("kd");
 	tex_names.push_back("sigma");
 	std::vector<string> tex_types;
 	tex_types.push_back("floatconst_texture");
-	tex_types.push_back("coloruvtexture");
+	tex_types.push_back("colormap2duvtexture");
 	//mtl_params.add("kd","");
 	//mtl_params.add("sigma",);	
 	for (size_t i = 0;i < tex_names.size(); ++i)
 		make_texture(tex_types[i],tex_names[i],"map2d",mtl_params);
+	mtl_params.add("texture_names",tex_names);
+	for (boost::unordered_map<string,primitive_maker_t>::iterator it = primitive_maker.begin();
+			it != primitive_maker.end();
+			++it)
+	{
+		std::cout<<it->first<<std::endl;
+	}
 	primitive* primitive_result = make_primitive(mtl_params,shape_params);
 	return primitive_result != 0;
 
@@ -529,6 +563,7 @@ bool test_make_primitive()
 
 bool class_combination_test()
 {
+	test_make_primitive();
 	///using namespace boost;
 	typedef mpl::vector<A,B> seq_type1;
 	typedef mpl::vector<C,D> seq_type2;
