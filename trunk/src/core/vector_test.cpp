@@ -46,14 +46,14 @@ bool test(){
 	//transform_t t0;
 	//t0.identity();
 	//t0 = t0 * t;
-	C* cc = new C;
-	cc->b.setIdentity();
+	//C* cc = new C;
+	//cc->b.setIdentity();
 
-	D* dd = new D;
-	dd->x.b.setIdentity();
-	cc->b = dd->x.b;
-	delete dd;
-	delete cc;
+	//D* dd = new D;
+	//dd->x.b.setIdentity();
+	//cc->b = dd->x.b;
+	//delete dd;
+	//delete cc;
 
 	return true;
 }
