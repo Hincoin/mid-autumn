@@ -207,6 +207,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\core\class_combination_test1.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						GeneratePreprocessedFile="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\src\core\crtp_interface_macro_test.cpp"
 				>
 			</File>
