@@ -573,6 +573,7 @@ bool class_combination_test()
 	typedef combination3<mpl::identity,func,seq_type1,seq_type2,seq_type3>::type comb3_types;
 	//typedef combination_to_sequence<comb3_types,mpl::vector<> >::type seq_types;
 	typedef combination_to_sequence<comb3_types>::type view_t;
+	BOOST_MPL_ASSERT((mpl::is_sequence<view_t>));
 	//comb3_types seqs;
 	typedef boost::fusion::result_of::as_vector<view_t>::type combined_tuple_t;
 
