@@ -154,114 +154,12 @@ template<template<typename MPL_Seq>class ToFusionSeq
 	typedef TYPE type;\
 	};\
 
-	template<typename T>
-	struct to_map_type_str{
-		typedef map_type_str<T> type;
-	};
-
-	template<typename Seq>
-	struct to_mapped_sequence{
-		typedef typename boost::mpl::transform<Seq,to_map_type_str<boost::mpl::_1> >::type type;
-	};
-
-
-#include <string>
-	typedef int (*test_func)();
-	boost::unordered_map<std::string,test_func> test_func_map;
-
-	template<typename T0,typename T1,typename T2>
-	struct func{
-		typedef func<T0,T1,T2> type;
-		func(){
-			std::string t(map_type_str<T0>::type_str());
-			t+=map_type_str<T1>::type_str();
-			t+=map_type_str<T2>::type_str();
-			test_func_map.insert(std::make_pair(t,&type::make_test));
-			printf("type_str_size :%d\n",type_str_size);
-		}
-		static const size_t type_str_size = map_type_str<T0>::type_str_size + map_type_str<T1>::type_str_size + map_type_str<T2>::type_str_size-3+1 ;
-		static const char* type_str(){
-			static char type_str_ [type_str_size];
-		}
-		static int make_test(){	
-			return 0;
-		};
-	};
-	template<typename T0,typename T1,typename T2>
-	struct map_type_str<func<T0,T1,T2> >:func<T0,T1,T2>{
-		//... type_str and type_str_size
-	};
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-template<typename T1,typename T2>
-struct comp2{
-	typedef comp2<T1,T2> type;
-
-};
-template<typename T1,typename T2,typename T3>
-struct comp3{
-	typedef comp3<T1,T2,T3> type;
-	
-	comp3(){
-		printf("comp3<%s,%s,%s>\n",T1::get_type_str(),T2::get_type_str(),T3::get_type_str());
-	}
-
-};
-
-
-struct A{
-	static char* get_type_str(){return "A";}
-};
-struct B{
-	static char* get_type_str(){return "B";}
-};
-
-struct C{
-	static char* get_type_str(){return "C";}
-};
-
-struct D{
-	static char* get_type_str(){return "D";}
-};
-struct E{
-	static char* get_type_str(){return "E";}
-};
-
-struct F{
-	static char* get_type_str(){return "F";}
-};
-
-//MAP_TYPE_STR(int,int);
-//MAP_TYPE_STR(float,float);
-MAP_TYPE_STR(A,A);
-MAP_TYPE_STR(B,B);
-MAP_TYPE_STR(C,C);
-MAP_TYPE_STR(D,D);
-MAP_TYPE_STR(E,E);
-MAP_TYPE_STR(F,F);
 #include <typeinfo>
-
+#include <string>
+#include <vector>
 #include "ParamSet.hpp"
 #include <iostream>
+using namespace std;
 //testing code for my application
 typedef float scalar_t;
 typedef int spectrum_t; //fake it
@@ -327,7 +225,7 @@ struct create_texture<const_texture<T> >
 template<typename T,typename Mapping>
 struct create_texture<uvtexture<T,Mapping> >{
 
-	uvtexture<T,Mapping>* operator()(const ParamSet& param)
+	uvtexture<T,Mapping>* operator()(const ParamSet& param)const
 	{
 		const string& mapping_type = param.as<string>("mapping_type");		
 		//do somting ....
@@ -419,8 +317,7 @@ struct geo_primitive:primitive{
 	typedef geo_primitive<Mtl,Shape> type;
 	geo_primitive(Mtl* m,Shape* s){}
 };
-#include <string>
-#include <vector>
+
 using std::string;
 using namespace ma;
 using std::vector;
@@ -439,7 +336,7 @@ struct PrimitiveCreator{
 	typedef map_type_str<Shape> shape_type_str;
 	typedef PrimitiveCreator<Mtl,Shape> type;
 	static const size_t type_str_size = mtl_type_str::type_str_size + shape_type_str::type_str_size - 2 + sizeof("geometry");
-	static char type_str_[type_str_size];
+	static char type_str_[type::type_str_size];
 	PrimitiveCreator(){
 		::memset(type_str_,0,type_str_size);
 
@@ -489,7 +386,7 @@ struct TextureCreator{
 
 };
 template<typename Mtl,typename Shape>
-char PrimitiveCreator<Mtl,Shape>::type_str_[PrimitiveCreator<Mtl,Shape>::type_str_size] = {0};
+char PrimitiveCreator<Mtl,Shape>::type_str_[PrimitiveCreator<Mtl,Shape>::type_str_size]  = {0};
 primitive* make_primitive(const ParamSet& mtl_params,const ParamSet& shape_params)
 {
 	//materialtypes<texture types> + shape_types
@@ -591,7 +488,8 @@ struct texture_seq{
 //}
 template<typename T>
 struct apply{
-static void execute(){printf("apply: %s \n",typeid(T).name());}
+	template<typename U>
+static void execute(U&){printf("apply: %s \n",typeid(T).name());}
 };
 template<typename Seq,template<typename T> class Apply>
 struct recursive_execution;
@@ -600,30 +498,37 @@ template<typename Iter,typename EndIt,template<typename T> class Apply>
 struct recusive_executeion_impl;
 template<typename Iter,template<typename T> class Apply>
 struct recusive_executeion_impl<Iter,Iter,Apply>{
-	static void execute(){}
+	template<typename U>
+	static void execute(U&){}
 };
 template<typename Iter,typename EndIt,template<typename T> class Apply>
 struct recusive_executeion_impl{
-static void execute()
+	template<typename U>
+static void execute(U& context)
 {
 	typedef typename mpl::if_<mpl::is_sequence<typename mpl::deref<Iter>::type>,
 		recursive_execution<typename mpl::deref<Iter>::type,Apply>,
 		Apply<typename mpl::deref<Iter>::type>
 			>::type executer;
-	executer::execute();
-	recusive_executeion_impl<typename mpl::next<Iter>::type,EndIt,Apply>::execute();
+	executer::execute(context);
+	recusive_executeion_impl<typename mpl::next<Iter>::type,EndIt,Apply>::execute(context);
 }
 };
 template<typename Seq,template<typename T> class Apply>
 struct recursive_execution:recusive_executeion_impl<typename mpl::begin<Seq>::type,typename mpl::end<Seq>::type,Apply>{
 };
+template<typename T0,typename T1,typename T2>
+struct func{
+typedef func<T0,T1,T2> type;
+};
 bool class_combination_test()
 {
 	//test_make_primitive();
 	///using namespace boost;
-	typedef mpl::vector<A,B> seq_type1;
-	typedef mpl::vector<C,D> seq_type2;
-	typedef mpl::vector<E,F> seq_type3;
+	typedef mpl::vector<char,float> seq_type1;
+	typedef mpl::vector<short,double> seq_type2;
+	typedef mpl::vector<long,int> seq_type3;
+	
 	typedef mpl::vector<int,float> seq_type4;
 
 	//typedef combination3<mpl::identity,func,seq_type1,seq_type2,seq_type3>::type comb3_types;
@@ -635,7 +540,9 @@ bool class_combination_test()
 
 	//printf("combination3 string: %s \n",typeid(combined_tuple_t).name());
 	typedef combination3_view<mpl::identity,func,seq_type1,seq_type2,seq_type3>::type viewed_combination_t;
-	recursive_execution<viewed_combination_t,apply>::execute();
+	int a ;
+	recursive_execution<viewed_combination_t,apply>::execute(a);
+
 
 	//typedef combination3<boost::fusion::result_of::as_vector,func,seq_type1,seq_type2,seq_type3>::type comb3_types_t;
 	//comb3_types_t b;
