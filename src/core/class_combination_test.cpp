@@ -26,22 +26,13 @@ REGISTER_TEST_FUNC(class_combination_test,class_combination_test)
 
 #include <boost/unordered_map.hpp>
 
+#include <boost/mpl/transform_view.hpp>
+#include <boost/mpl/filter_view.hpp>
 template<template<typename MPL_Seq>class ToFusionSeq,template<typename Arg>class Fun,typename Seq>
 struct combination1{
 	typedef typename boost::mpl::transform<Seq,Fun<boost::mpl::_1> >::type mpl_type;
 	typedef typename ToFusionSeq<mpl_type>::type type;
 };
-/*
-template<typename T,typename Seq1,template<typename Arg1,typename Arg2>class Fun2>
-struct combination2_helper{
-	template<typename U>
-	struct _helper:Fun2<T,U>{
-		
-	};
-	typedef typename combination1<Seq1, _helper>::type type;
-
-};
-*/
 template<
 template<typename MPL_Seq>class ToFusionSeq
 ,template<typename Arg1,typename Arg2>class Fun2
@@ -53,10 +44,8 @@ struct combination2{
 		template<typename U0>
 			struct reduced:Fun2<T,U0>{};
 		typedef typename combination1<ToFusionSeq,reduced,Seq1>::type type;
-		//typedef typename combination1<Seq1,reduced>::fusion_seqence fusion_seqence;
 	};
 	typedef typename boost::mpl::transform<Seq0,combination2_helper<boost::mpl::_1> >::type mpl_type;
-	//typedef combination1<Seq0	
 	typedef typename ToFusionSeq<mpl_type>::type type;
 
 
@@ -75,6 +64,46 @@ template<template<typename MPL_Seq>class ToFusionSeq
 		typedef typename boost::mpl::transform<Seq0,combination3_helper<boost::mpl::_1> >::type mpl_type;
 		typedef typename ToFusionSeq<mpl_type>::type type;	
 	};
+
+	//////////////////////////////////////////////////////////////////////////
+
+	template<template<typename MPL_Seq>class ToFusionSeq,template<typename Arg>class Fun,typename Seq>
+	struct combination1_view{
+		typedef typename boost::mpl::transform_view<Seq,Fun<boost::mpl::_1> >::type mpl_type;
+		typedef typename ToFusionSeq<mpl_type>::type type;
+	};
+	template<
+		template<typename MPL_Seq>class ToFusionSeq
+		,template<typename Arg1,typename Arg2>class Fun2
+		,typename Seq0,typename Seq1
+	>
+	struct combination2_view{
+		template<typename T>
+		struct combination2_helper{
+			template<typename U0>
+			struct reduced:Fun2<T,U0>{};
+			typedef typename combination1_view<ToFusionSeq,reduced,Seq1>::type type;
+		};
+		typedef typename boost::mpl::transform_view<Seq0,combination2_helper<boost::mpl::_1> >::type mpl_type;
+		typedef typename ToFusionSeq<mpl_type>::type type;
+
+
+	};
+
+	template<template<typename MPL_Seq>class ToFusionSeq
+		,template<typename Arg1,typename Arg2,typename Arg3>class Fun3
+		,typename Seq0,typename Seq1,typename Seq2>
+	struct combination3_view{
+		template<typename T>
+		struct combination3_helper{
+			template<typename U0,typename U1>
+			struct reduced:Fun3<T,U0,U1>{};
+			typedef typename combination2_view<ToFusionSeq,reduced,Seq1,Seq2>::type type;	
+		};	
+		typedef typename boost::mpl::transform_view<Seq0,combination3_helper<boost::mpl::_1> >::type mpl_type;
+		typedef typename ToFusionSeq<mpl_type>::type type;	
+	};
+	//////////////////////////////////////////////////////////////////////////
 #include <boost/mpl/joint_view.hpp>
 #include <boost/mpl/is_sequence.hpp>
 #include <boost/mpl/if.hpp>
@@ -513,71 +542,103 @@ struct texture_seq{
 
 };
 
+//
+//bool test_make_primitive()
+//{
+//	//initialize types
+//	typedef mpl::vector<scalar_t> float_t;
+//	typedef mpl::vector<spectrum_t> color_t;
+//	typedef mpl::joint_view<texture_seq<scalar_t>::type,texture_seq<spectrum_t>::type> textures_view;
+//	typedef mpl::transform_view<textures_view,TextureCreator<mpl::_1> >::type textures_creator_view;
+//	typedef boost::fusion::result_of::as_vector<textures_creator_view>::type textures_creator_tuple;
+//	typedef combination2<mpl::identity,matte_mtl,texture_seq<scalar_t>::type,texture_seq<spectrum_t>::type >::type matte_comb;
+//	typedef combination_to_sequence<matte_comb>::type matte_view;
+//	typedef mpl::transform_view<matte_view,matte_mtl_creator<mpl::_1> >::type matte_creator_view;
+//	typedef boost::fusion::result_of::as_vector<matte_creator_view>::type matte_comb_tuple;
+//	typedef mpl::copy<matte_view,mpl::back_inserter<mpl::vector<> > >::type matte_seq;
+//	//typedef combination2<boost::fusion::result_of::as_vector,matte_mtl,texture_seq<scalar_t>::type,texture_seq<spectrum_t>::type >::type matte_comb_tuple;
+//	typedef combination2<boost::fusion::result_of::as_vector,PrimitiveCreator,matte_seq,shape_seq>::type primitive_creator_comb;
+//	textures_creator_tuple register_texture_creators;
+//	primitive_creator_comb register_primitive_creators;
+//	//matte_comb_tuple register_matte_types;
+//	///////////////////////////////////////////////
+//	ParamSet mtl_params;
+//	ParamSet shape_params;
+//
+//	shape_params.add("type",string("TriangleMesh"));
+//	//add textures 
+//	mtl_params.add("type",string("matte"));	
+//	std::vector<string> tex_names;
+//	tex_names.push_back("kd");
+//	tex_names.push_back("sigma");
+//	std::vector<string> tex_types;
+//	tex_types.push_back("floatconst_texture");
+//	tex_types.push_back("colormap2duvtexture");
+//	//mtl_params.add("kd","");
+//	//mtl_params.add("sigma",);	
+//	for (size_t i = 0;i < tex_names.size(); ++i)
+//		make_texture(tex_types[i],tex_names[i],"map2d",mtl_params);
+//	mtl_params.add("texture_names",tex_names);
+//	for (boost::unordered_map<string,primitive_maker_t>::iterator it = primitive_maker.begin();
+//			it != primitive_maker.end();
+//			++it)
+//	{
+//		std::cout<<it->first<<std::endl;
+//	}
+//	primitive* primitive_result = make_primitive(mtl_params,shape_params);
+//	return primitive_result != 0;
+//
+//}
+template<typename T>
+struct apply{
+static void execute(){printf("apply: %s \n",typeid(T).name());}
+};
+template<typename Seq,template<typename T> class Apply>
+struct recursive_execution;
 
-bool test_make_primitive()
+template<typename Iter,typename EndIt,template<typename T> class Apply>
+struct recusive_executeion_impl;
+template<typename Iter,template<typename T> class Apply>
+struct recusive_executeion_impl<Iter,Iter,Apply>{
+	static void execute(){}
+};
+template<typename Iter,typename EndIt,template<typename T> class Apply>
+struct recusive_executeion_impl{
+static void execute()
 {
-	//initialize types
-	typedef mpl::vector<scalar_t> float_t;
-	typedef mpl::vector<spectrum_t> color_t;
-	typedef mpl::joint_view<texture_seq<scalar_t>::type,texture_seq<spectrum_t>::type> textures_view;
-	typedef mpl::transform_view<textures_view,TextureCreator<mpl::_1> >::type textures_creator_view;
-	typedef boost::fusion::result_of::as_vector<textures_creator_view>::type textures_creator_tuple;
-	typedef combination2<mpl::identity,matte_mtl,texture_seq<scalar_t>::type,texture_seq<spectrum_t>::type >::type matte_comb;
-	typedef combination_to_sequence<matte_comb>::type matte_view;
-	typedef mpl::transform_view<matte_view,matte_mtl_creator<mpl::_1> >::type matte_creator_view;
-	typedef boost::fusion::result_of::as_vector<matte_creator_view>::type matte_comb_tuple;
-	typedef mpl::copy<matte_view,mpl::back_inserter<mpl::vector<> > >::type matte_seq;
-	//typedef combination2<boost::fusion::result_of::as_vector,matte_mtl,texture_seq<scalar_t>::type,texture_seq<spectrum_t>::type >::type matte_comb_tuple;
-	typedef combination2<boost::fusion::result_of::as_vector,PrimitiveCreator,matte_seq,shape_seq>::type primitive_creator_comb;
-	textures_creator_tuple register_texture_creators;
-	primitive_creator_comb register_primitive_creators;
-	//matte_comb_tuple register_matte_types;
-	///////////////////////////////////////////////
-	ParamSet mtl_params;
-	ParamSet shape_params;
-
-	shape_params.add("type",string("TriangleMesh"));
-	//add textures 
-	mtl_params.add("type",string("matte"));	
-	std::vector<string> tex_names;
-	tex_names.push_back("kd");
-	tex_names.push_back("sigma");
-	std::vector<string> tex_types;
-	tex_types.push_back("floatconst_texture");
-	tex_types.push_back("colormap2duvtexture");
-	//mtl_params.add("kd","");
-	//mtl_params.add("sigma",);	
-	for (size_t i = 0;i < tex_names.size(); ++i)
-		make_texture(tex_types[i],tex_names[i],"map2d",mtl_params);
-	mtl_params.add("texture_names",tex_names);
-	for (boost::unordered_map<string,primitive_maker_t>::iterator it = primitive_maker.begin();
-			it != primitive_maker.end();
-			++it)
-	{
-		std::cout<<it->first<<std::endl;
-	}
-	primitive* primitive_result = make_primitive(mtl_params,shape_params);
-	return primitive_result != 0;
-
+	typedef typename mpl::if_<mpl::is_sequence<typename mpl::deref<Iter>::type>,
+		recursive_execution<typename mpl::deref<Iter>::type,Apply>,
+		Apply<typename mpl::deref<Iter>::type>
+			>::type executer;
+	executer::execute();
+	recusive_executeion_impl<typename mpl::next<Iter>::type,EndIt,Apply>::execute();
 }
-
+};
+template<typename Seq,template<typename T> class Apply>
+struct recursive_execution:recusive_executeion_impl<typename mpl::begin<Seq>::type,typename mpl::end<Seq>::type,Apply>{
+};
 bool class_combination_test()
 {
-	test_make_primitive();
+	//test_make_primitive();
 	///using namespace boost;
 	typedef mpl::vector<A,B> seq_type1;
 	typedef mpl::vector<C,D> seq_type2;
 	typedef mpl::vector<E,F> seq_type3;
 	typedef mpl::vector<int,float> seq_type4;
 
-	typedef combination3<mpl::identity,func,seq_type1,seq_type2,seq_type3>::type comb3_types;
-	//typedef combination_to_sequence<comb3_types,mpl::vector<> >::type seq_types;
-	typedef combination_to_sequence<comb3_types>::type view_t;
-	BOOST_MPL_ASSERT((mpl::is_sequence<view_t>));
-	//comb3_types seqs;
-	typedef boost::fusion::result_of::as_vector<view_t>::type combined_tuple_t;
+	//typedef combination3<mpl::identity,func,seq_type1,seq_type2,seq_type3>::type comb3_types;
+	////typedef combination_to_sequence<comb3_types,mpl::vector<> >::type seq_types;
+	//typedef combination_to_sequence<comb3_types>::type view_t;
+	//BOOST_MPL_ASSERT((mpl::is_sequence<view_t>));
+	////comb3_types seqs;
+	//typedef boost::fusion::result_of::as_vector<view_t>::type combined_tuple_t;
 
-	printf("combination3 string: %s \n",typeid(combined_tuple_t).name());
+	//printf("combination3 string: %s \n",typeid(combined_tuple_t).name());
+	typedef combination3_view<mpl::identity,func,seq_type1,seq_type2,seq_type3>::type viewed_combination_t;
+	recursive_execution<viewed_combination_t,apply>::execute();
+
+	//typedef combination3<boost::fusion::result_of::as_vector,func,seq_type1,seq_type2,seq_type3>::type comb3_types_t;
+	//comb3_types_t b;
 	return true;
 }
 
