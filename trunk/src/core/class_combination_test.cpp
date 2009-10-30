@@ -23,11 +23,13 @@ REGISTER_TEST_FUNC(class_combination_test,class_combination_test)
 #include <boost/mpl/list.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/mpl/equal.hpp>
-
+#include <boost/mpl/accumulate.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <boost/mpl/transform_view.hpp>
 #include <boost/mpl/filter_view.hpp>
+#include <boost/mpl/joint_view.hpp>
+#include <boost/mpl/empty_sequence.hpp>
 template<template<typename MPL_Seq>class ToFusionSeq,template<typename Arg>class Fun,typename Seq>
 struct combination1{
 	typedef typename boost::mpl::transform<Seq,Fun<boost::mpl::_1> >::type mpl_type;
@@ -67,14 +69,12 @@ template<template<typename MPL_Seq>class ToFusionSeq
 
 	//////////////////////////////////////////////////////////////////////////
 
-	template<template<typename MPL_Seq>class ToFusionSeq,template<typename Arg>class Fun,typename Seq>
+	template<template<typename Arg>class Fun,typename Seq>
 	struct combination1_view{
-		typedef typename boost::mpl::transform_view<Seq,Fun<boost::mpl::_1> >::type mpl_type;
-		typedef typename ToFusionSeq<mpl_type>::type type;
+		typedef typename boost::mpl::transform_view<Seq,Fun<boost::mpl::_1> >::type type;
 	};
 	template<
-		template<typename MPL_Seq>class ToFusionSeq
-		,template<typename Arg1,typename Arg2>class Fun2
+template<typename Arg1,typename Arg2>class Fun2
 		,typename Seq0,typename Seq1
 	>
 	struct combination2_view{
@@ -82,29 +82,38 @@ template<template<typename MPL_Seq>class ToFusionSeq
 		struct combination2_helper{
 			template<typename U0>
 			struct reduced:Fun2<T,U0>{};
-			typedef typename combination1_view<ToFusionSeq,reduced,Seq1>::type type;
+			typedef typename combination1_view<reduced,Seq1>::type type;
 		};
 		typedef typename boost::mpl::transform_view<Seq0,combination2_helper<boost::mpl::_1> >::type mpl_type;
-		typedef typename ToFusionSeq<mpl_type>::type type;
+		//joint_view for every mpl_type ...
+		//accumulate ....
+		typedef typename boost::mpl::accumulate<mpl_type,
+			boost::mpl::empty_sequence ,
+			boost::mpl::joint_view<boost::mpl::_1,boost::mpl::_2> >::type mpl_seqence_view;
+		typedef mpl_seqence_view type;
 
 
 	};
 
-	template<template<typename MPL_Seq>class ToFusionSeq
-		,template<typename Arg1,typename Arg2,typename Arg3>class Fun3
+	template<template<typename Arg1,typename Arg2,typename Arg3>class Fun3
 		,typename Seq0,typename Seq1,typename Seq2>
 	struct combination3_view{
 		template<typename T>
 		struct combination3_helper{
 			template<typename U0,typename U1>
 			struct reduced:Fun3<T,U0,U1>{};
-			typedef typename combination2_view<ToFusionSeq,reduced,Seq1,Seq2>::type type;	
+			typedef typename combination2_view<reduced,Seq1,Seq2>::type type;	
 		};	
 		typedef typename boost::mpl::transform_view<Seq0,combination3_helper<boost::mpl::_1> >::type mpl_type;
-		typedef typename ToFusionSeq<mpl_type>::type type;	
+		//joint_view for every mpl_type ...
+		//accumulate ....
+		typedef typename boost::mpl::accumulate<mpl_type,
+			boost::mpl::empty_sequence ,
+			boost::mpl::joint_view<boost::mpl::_1,boost::mpl::_2> >::type mpl_seqence_view;
+		typedef mpl_seqence_view type;	
 	};
 	//////////////////////////////////////////////////////////////////////////
-#include <boost/mpl/joint_view.hpp>
+
 #include <boost/mpl/is_sequence.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/pop_front.hpp>
@@ -153,6 +162,59 @@ template<template<typename MPL_Seq>class ToFusionSeq
 	static const size_t type_str_size = sizeof(#TYPE_STR);\
 	typedef TYPE type;\
 	};\
+
+
+#include <string>
+	typedef int (*test_func)();
+	boost::unordered_map<std::string,test_func> test_func_map;
+
+	template<typename T0,typename T1,typename T2>
+	struct func3{
+		typedef func3<T0,T1,T2> type;
+	};
+	template<typename T0,typename T1>
+	struct func2{
+		typedef func2<T0,T1> type;
+	};
+
+
+template<typename T1,typename T2>
+struct comp2{
+	typedef comp2<T1,T2> type;
+
+};
+template<typename T1,typename T2,typename T3>
+struct comp3{
+	typedef comp3<T1,T2,T3> type;
+	
+	comp3(){
+		printf("comp3<%s,%s,%s>\n",T1::get_type_str(),T2::get_type_str(),T3::get_type_str());
+	}
+
+};
+
+
+struct A{
+	static char* get_type_str(){return "A";}
+};
+struct B{
+	static char* get_type_str(){return "B";}
+};
+
+struct C{
+	static char* get_type_str(){return "C";}
+};
+
+struct D{
+	static char* get_type_str(){return "D";}
+};
+struct E{
+	static char* get_type_str(){return "E";}
+};
+
+struct F{
+	static char* get_type_str(){return "F";}
+};
 
 #include <typeinfo>
 #include <string>
@@ -517,10 +579,30 @@ static void execute(U& context)
 template<typename Seq,template<typename T> class Apply>
 struct recursive_execution:recusive_executeion_impl<typename mpl::begin<Seq>::type,typename mpl::end<Seq>::type,Apply>{
 };
-template<typename T0,typename T1,typename T2>
-struct func{
-typedef func<T0,T1,T2> type;
+
+
+template<typename Seq,template<typename T> class Apply>
+struct iterate_execution;
+
+template<typename Iter,typename EndIt,template<typename T> class Apply>
+struct iterate_execution_impl;
+template<typename Iter,template<typename T> class Apply>
+struct iterate_execution_impl<Iter,Iter,Apply>{
+	static void execute(){}
 };
+template<typename Iter,typename EndIt,template<typename T> class Apply>
+struct iterate_execution_impl{
+	static void execute()
+	{
+		typedef Apply<typename mpl::deref<Iter>::type> current_executer;
+		current_executer::execute();
+		recusive_executeion_impl<typename mpl::next<Iter>::type,EndIt,Apply>::execute();
+	}
+};
+template<typename Seq,template<typename T> class Apply>
+struct iterate_execution:iterate_execution_impl<typename mpl::begin<Seq>::type,typename mpl::end<Seq>::type,Apply>{
+};
+
 bool class_combination_test()
 {
 	//test_make_primitive();
@@ -539,10 +621,12 @@ bool class_combination_test()
 	//typedef boost::fusion::result_of::as_vector<view_t>::type combined_tuple_t;
 
 	//printf("combination3 string: %s \n",typeid(combined_tuple_t).name());
-	typedef combination3_view<mpl::identity,func,seq_type1,seq_type2,seq_type3>::type viewed_combination_t;
-	int a ;
-	recursive_execution<viewed_combination_t,apply>::execute(a);
-
+	typedef combination3_view<func3,seq_type1,seq_type2,seq_type3>::type viewed_combination_t;
+	
+	typedef combination2_view<func2,viewed_combination_t,seq_type1>::type recured_viewed_combination_t;
+	int a = mpl::size<recured_viewed_combination_t>::value;
+	//recursive_execution<viewed_combination_t,apply>::execute(a);
+	//iterate_execution<recured_viewed_combination_t,apply>::execute();
 
 	//typedef combination3<boost::fusion::result_of::as_vector,func,seq_type1,seq_type2,seq_type3>::type comb3_types_t;
 	//comb3_types_t b;
