@@ -130,6 +130,7 @@ namespace boost{
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/size.hpp>
 
+#include "simple_test_framework.hpp"
 #include <typeinfo>
 using namespace boost::mpl;
 //using boost::mpl::list;
@@ -140,12 +141,12 @@ using namespace boost::mpl;
 ////using boost::mpl::list_c;
 ////using boost::mpl::list_c;
 typedef	list< 
-list_c< int, 1 >,
+list_c< int, 1, 16,17,18>,
 list_c< int, 2, 3 >, 
 list_c< int, 4, 5, 6 > ,
 list_c< int, 7, 8, 9, 10 > ,
-list_c< int, 11,12,13,14,15>,
-list_c< int, 16,17,18,19,20,21>  /*,
+list_c< int, 11,12,13,14,15>/*,
+list_c< int, 16,17,18,19,20,21>  ,
 list_c< int, 22,23,24,25,26,27,28> ,
 list_c< int, 29,30,31,32,33,34,35,36> ,
 list_c< int, 37,38,39,40,41,42,43,44,45,46> ,*/
@@ -166,7 +167,6 @@ struct print
 		std::cout << "]" << std::endl;
 	}
 };
-#include "simple_test_framework.hpp"
 
 
 bool product_view_test();
