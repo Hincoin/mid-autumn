@@ -1,6 +1,6 @@
 
 
-BUILD_FLAG:=release
+BUILD_FLAG:=debug
 EXTERN_INC_DIR:=extern
 TBB_INC_DIR:=$(EXTERN_INC_DIR)/tbb/include
 BIN_DIR:=build/bin
