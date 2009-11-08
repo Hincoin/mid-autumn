@@ -185,7 +185,7 @@ bool product_view_test()
 	//for_each< product_view<None> >( print() );
 	//typedef push_front<Six,Six>::type SixbySix;
 	//typedef push_front<Six,SixbySix>::type SixbySixbySix;
-	for_each<product_view<Six> >(print() );
+	//for_each<product_view<Six> >(print() );
 	//BOOST_MPL_ASSERT((boost::mpl::is_sequence(recured_viewed_combination_t)));
 	return true;
 }

@@ -4,8 +4,7 @@
 #include <boost/type_traits.hpp>
 #include <cassert>
 
-using namespace ma;
-
+namespace ma{
 template<typename Func>
 struct object_creator{
 typedef typename boost::make_recursive_variant<Func,
@@ -34,3 +33,20 @@ struct get_creator:public boost::static_visitor<Func>
 		return boost::apply_visitor(get_creator(idx+1,s),v);	
 	}
 };
+}
+
+#include <boost/unordered_map.hpp>
+#include "Singleton.hpp"
+
+namespace ma{
+
+	typedef boost::unordered_map<std::string, size_t > map_type_str_id_t;
+	template<typename FuncT>
+		struct Creators{
+			typedef typename object_creator<FuncT>::creator_variant_t creator_variant_t;			
+			std::vector<creator_variant_t> creators_;
+		};
+
+}
+
+
