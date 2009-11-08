@@ -164,6 +164,7 @@ namespace {
 		codes_test.push_back(name2code["test3"]);
 		codes_test.push_back(name2code["test2_type"]);
 		creator_fun_ptr f_test = ma::get_creator<creator_fun_ptr>(codes_test,test_makers);
+		test2<int,test3<int> >* t = f_test(ParamSet());
 		assert(f == f_test);
 		
 		return true;
