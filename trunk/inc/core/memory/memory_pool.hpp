@@ -921,8 +921,9 @@ namespace ma{
 //#endif
 				mBuckets[bi].free(p, ptr);
 			}
-			void bucket_purge()
+			bool bucket_purge()
 			{
+				bool ret = false;
 				for (unsigned i = 0; i < NUM_BUCKETS; i++) {
 //#ifdef MULTITHREADED
 					scope_lock_t lock(mBuckets[i].get_lock());
@@ -938,10 +939,12 @@ namespace ma{
 							p->unlink();
 							void* memAddr = details::align_down((char*)p, details::PAGE_SIZE);
 							bucket_system_free(memAddr);
+							ret = true;
 						}
 						p = next;
 					}
 				}
+				return ret;
 
 			}
 
@@ -989,7 +992,7 @@ namespace ma{
 				assert(ptr_in_bucket(ptr));
 				return bucket_free_direct(ptr, bucket_spacing_function(sz ));
 			}
-			bool release_memory(){bucket_purge();return true;}
+			bool release_memory(){return bucket_purge();}
 			bool is_small_allocation(void* ptr){return ptr_in_bucket(ptr);}
 			static inline bool is_small_allocation(size_t s) {
 				return s  <= MAX_SMALL_ALLOCATION;
@@ -1020,8 +1023,9 @@ namespace ma{
 		{
 			//printf("big memory allocator allocate :%d \n",big_memory_allocator_.debug_total_size);
 			//small
-			small_memory_allocator_.release_memory();
-			return big_memory_allocator_.release_memory(mem_size);
+			bool s = small_memory_allocator_.release_memory();
+			bool b = big_memory_allocator_.release_memory(mem_size);
+			return s || b;
 		}
 		void free(void* ptr,size_t sz)
 		{

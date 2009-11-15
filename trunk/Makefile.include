@@ -8,6 +8,7 @@ CORE_INC_DIR:=inc/core
 PBR_INC_DIR:=inc/pbr
 PIPELINE_INC_DIR:=inc/pipeline
 
+
 COMMON_DEF=-DUSE_PTHREAD
 
 #MSG
@@ -28,6 +29,7 @@ ECHO:=echo
 CP:=cp
 MV:=mv
 RM:=rm
+MKDIR:=mkdir
 ifeq ($(BUILD_FLAG),release)
 LINK_LIBS:=-lpthread #-ltbb
 
