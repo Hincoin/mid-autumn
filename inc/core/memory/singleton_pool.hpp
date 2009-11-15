@@ -13,7 +13,7 @@ namespace ma{
 		template <typename Tag, unsigned RequestedSize,
 			typename Mutex=details::null_mutex,
 			unsigned NextSize=32,
-			typename Pool = fixed_pool<>
+			typename Pool = fixed_pool<RequestedSize,NextSize>
 		>
 		struct fixed_singleton_pool
 		{
@@ -30,7 +30,7 @@ namespace ma{
 			struct pool_type: Mutex
 			{
 				Pool p;
-				pool_type():p(RequestedSize, NextSize) { }
+				pool_type()/*:p(RequestedSize, NextSize)*/ { }
 			};
 
 			typedef simple_singleton<pool_type> singleton;

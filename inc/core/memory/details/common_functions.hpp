@@ -22,7 +22,7 @@
 
 #endif
 
-
+#include <cassert>
 
 namespace ma{
 	namespace core{

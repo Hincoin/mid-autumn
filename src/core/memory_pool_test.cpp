@@ -157,19 +157,19 @@ bool test_my_pool(unsigned N,unsigned M)
 	return true;
 }
 
-void test_fixed_pool(unsigned N,unsigned M)
-{
-	clock_t t;
-	fixed_pool<> pool(N);
-	srand(0);
-	size_t alloc_insert_count = 0;
-	t = clock();
-	while(M--)
-	{
-		vector<void*> m;
-	}
-	printf("pool: %ld \n",clock()-t);
-}
+//void test_fixed_pool(unsigned N,unsigned M)
+//{
+//	clock_t t;
+//	fixed_pool<> pool(N);
+//	srand(0);
+//	size_t alloc_insert_count = 0;
+//	t = clock();
+//	while(M--)
+//	{
+//		vector<void*> m;
+//	}
+//	printf("pool: %ld \n",clock()-t);
+//}
 
 
 int xxxxmain()
@@ -228,6 +228,7 @@ bool fixed_pool_test()
 	bool result = true;
 	
 	std::vector<A_TEST*> a;
+	int t = 0;
 	for (int i = 0;i < N;i++)
 	{
 		a.push_back(new B_TEST);
@@ -235,9 +236,11 @@ bool fixed_pool_test()
 	for (int i = 0;i < N;i++)
 	{
 		delete a[i];
+		if (B_TEST::release_memory())t++;
 	}
 	a.clear();
-	bool b = ma::core::fixed_singleton_pool<B_TEST,sizeof(B_TEST),ma::core::details::mutex_t>::release_memory();
+	bool b = t > 0 && !ma::core::fixed_singleton_pool<B_TEST,sizeof(B_TEST),ma::core::details::mutex_t>::release_memory();
+	t = 0;
 	for (int i = 0;i < N;i++)
 	{
 		a.push_back(new B_TEST[3]);
@@ -245,9 +248,11 @@ bool fixed_pool_test()
 	for (int i = 0;i < N;i++)
 	{
 		delete [] ((B_TEST*) a[i]);
+		if(B_TEST::release_memory()) 
+			t++;
 	}
-	 result =  A_TEST::release_memory() || B_TEST::release_memory();
-	return result;
+	result =  t > 0;
+	return result && b;
 }
 bool generic_pool_test()
 {
@@ -304,9 +309,11 @@ bool pool_test(){
 	//assert(generic_pool_test());
 	//assert(mt_singleton_pool_test());
 	bool result = true;
-	result = result && fixed_pool_test();
-	result = result && generic_pool_test();
-	result = result && mt_singleton_pool_test();
+	bool result_fix =  fixed_pool_test();
+	bool result_gen =  generic_pool_test();
+	bool result_mt = mt_singleton_pool_test();
+	result = result_fix && result_gen && result_mt;
+	assert(result);
 	return result ;
 	printf("-----------------------------------------\n");
 }
