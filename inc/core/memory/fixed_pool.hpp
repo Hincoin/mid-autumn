@@ -31,7 +31,8 @@ namespace ma{
 			}
 		private:
 			//default_fixed_pool_impl<UserAllocator> pool_impl_;
-			fixed_pool_impl_fast_segregate<RequestedSize,NextSize,UserAllocator> pool_impl_;
+			//fixed_pool_impl_fast_segregate<RequestedSize,NextSize,UserAllocator> pool_impl_;
+			fixed_pool_impl_small<RequestedSize,UserAllocator> pool_impl_;
 		};
 	}
 }
