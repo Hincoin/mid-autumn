@@ -5,6 +5,10 @@
 #include "details/pool_mutex.hpp"
 namespace ma{
 	namespace core{
+		template<size_t S>
+			struct size_tag{
+				typedef size_t type;
+			};
 
 		//
 		// The singleton_pool class allows other pool interfaces for types of the same
@@ -109,18 +113,22 @@ namespace ma{
 
 #define MA_DECLARE_POOL_NEW_DELETE(Class)\
 	public:\
+	\
 	static bool release_memory()\
 	{\
-	return ma::core::fixed_singleton_pool<Class,sizeof(Class)>::release_memory() \
+	typedef ::ma::core::size_tag<sizeof(Class)> memory_tag_type;\
+	return ma::core::fixed_singleton_pool<memory_tag_type,sizeof(Class)>::release_memory() \
 			|| ma::core::generic_singleton_pool<Class>::release_memory();\
 	}\
 	void* operator new(size_t )\
 	{\
-		return ma::core::fixed_singleton_pool<Class,sizeof(Class)>::alloc();\
+	typedef ::ma::core::size_tag<sizeof(Class)> memory_tag_type;\
+		return ma::core::fixed_singleton_pool<memory_tag_type,sizeof(Class)>::alloc();\
 	}\
 	void operator delete(void* ptr)\
 	{\
-		return ma::core::fixed_singleton_pool<Class,sizeof(Class)>::free(ptr);\
+	typedef ::ma::core::size_tag<sizeof(Class)> memory_tag_type;\
+		return ma::core::fixed_singleton_pool<memory_tag_type,sizeof(Class)>::free(ptr);\
 	}\
 	void* operator new[](size_t sz)\
 	{\
@@ -134,18 +142,22 @@ namespace ma{
 //multi-thread version
 #define MA_DECLARE_POOL_NEW_DELETE_MT(Class)\
 	public:\
+	\
 	static bool release_memory()\
 	{\
-	return ma::core::fixed_singleton_pool<Class,sizeof(Class),ma::core::details::mutex_t>::release_memory() \
+	typedef ::ma::core::size_tag<sizeof(Class)> memory_tag_type;\
+	return ma::core::fixed_singleton_pool<memory_tag_type,sizeof(Class),ma::core::details::mutex_t>::release_memory() \
 		|| ma::core::generic_singleton_pool<Class,ma::core::details::mutex_t>::release_memory();\
 	}\
 	void* operator new(size_t sz)\
 	{\
-	return ma::core::fixed_singleton_pool<Class,sizeof(Class),ma::core::details::mutex_t>::alloc();\
+	typedef ::ma::core::size_tag<sizeof(Class)> memory_tag_type;\
+	return ma::core::fixed_singleton_pool<memory_tag_type,sizeof(Class),ma::core::details::mutex_t>::alloc();\
 	}\
 	void operator delete(void* ptr)\
 	{\
-	return ma::core::fixed_singleton_pool<Class,sizeof(Class),ma::core::details::mutex_t>::free(ptr);\
+	typedef ::ma::core::size_tag<sizeof(Class)> memory_tag_type;\
+	return ma::core::fixed_singleton_pool<memory_tag_type,sizeof(Class),ma::core::details::mutex_t>::free(ptr);\
 	}\
 	void* operator new[](size_t sz)\
 	{\

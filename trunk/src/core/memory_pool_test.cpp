@@ -35,6 +35,7 @@ typedef big_memory_pool<details::null_mutex> pool_t;
 BOOST_STATIC_ASSERT(sizeof(MemBlock) == (sizeof(size_t)+sizeof(void*)) );
 #include <vector>
 #include <ctime>
+#include <iostream>
 unsigned big_memory_size()
 {
 	return	( rand()%(1024*1024)+256);
@@ -214,6 +215,30 @@ struct B_TEST:A_TEST{
 
 	char b[20];
 };
+template <int N>
+struct char_size{char a[N];MA_DECLARE_POOL_NEW_DELETE(char_size);};
+template<typename T>
+bool fixed_pool_more_test(unsigned N )
+{
+	std::vector<unsigned> idx;
+	for (unsigned i = 0;i < N; ++i)
+	{
+		idx.push_back(i);
+	}
+	std::random_shuffle(idx.begin(),idx.end());
+	std::vector<T*> v;
+	using namespace ma::core;
+	typedef fixed_pool_impl_small<sizeof(T),details::default_user_allocator_malloc_free> pool_t;
+	cout << "" << (int)pool_t::bucket_size_ <<" " << pool_t::sub_page_size_ << " " <<(int)pool_t::sub_page_count_<<endl;
+	cout <<details::PAGE_SIZE<< (details::PAGE_SIZE - 10)/(pool_t::sub_page_size_) <<endl;
+	for (unsigned i = 0;i < N;++i)
+		v.push_back(new T);
+	for (unsigned i = 0;i < N;++i)
+	{
+		delete v[idx[i]];
+	}
+	return T::release_memory();	
+}
 bool fixed_pool_test()
 {
 	//
@@ -307,13 +332,15 @@ bool pool_test(){
 	printf("-----------------------------------------\n");
 	//assert(fixed_pool_test());
 	//assert(generic_pool_test());
-	//assert(mt_singleton_pool_test());
+	//assert(mt_singleton_pool_test());	
+	assert(fixed_pool_more_test<char_size<1> >(32*1024 * 32));
 	bool result = true;
 	bool result_fix =  fixed_pool_test();
 	bool result_gen =  generic_pool_test();
 	bool result_mt = mt_singleton_pool_test();
 	result = result_fix && result_gen && result_mt;
 	assert(result);
+
 	return result ;
 	printf("-----------------------------------------\n");
 }
