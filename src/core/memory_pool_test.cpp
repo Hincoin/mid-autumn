@@ -216,7 +216,14 @@ struct B_TEST:A_TEST{
 	char b[20];
 };
 template <int N>
-struct char_size{char a[N];MA_DECLARE_POOL_NEW_DELETE(char_size);};
+struct char_size{char a[N];MA_DECLARE_POOL_NEW_DELETE(char_size);
+char_size(){
+	for (size_t i = 0; i <  N; ++i)
+	{
+		a[i] = i;
+	}
+}
+};
 template<typename T>
 bool fixed_pool_more_test(unsigned N )
 {

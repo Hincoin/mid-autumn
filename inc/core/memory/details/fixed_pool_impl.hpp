@@ -285,6 +285,7 @@ struct fixed_pool_impl_small{
 				assert(!empty());
 				unsigned char* f = get_first_free_mem();	
 				free_list_ = *f;
+				assert(!dead_loop());
 				return f;
 			}
 			void free(void* ptr)
@@ -332,27 +333,21 @@ struct fixed_pool_impl_small{
 				bucket->next_block_ = ++i;
 				pData = (char*)pData + sub_page_size_;
 			}
-			unsigned char extra_room = (char*)(this) + details::PAGE_SIZE - (char*)pData;
-			unsigned char extra_size = extra_room > sizeof(bucket_info)?(extra_room - sizeof(bucket_info))/requested_size_ : 0;
-			if (extra_size > 0)
-			{
-				bucket = new (pData) bucket_info(extra_size);
-				bucket->free_list_ = 0;
-			}
 			bucket->next_block_ = UCHAR_MAX;
 		}
 		//no free space
 		bool empty()const{return free_list_ == UCHAR_MAX;}
 		bool is_free(){
-			bucket_info* bucket = get_first_free_bucket();
-			for(size_t i = 0;i < sub_page_count_;i++)
+			unsigned char next = free_list_;
+			unsigned char free_count = 0;
+			while(next != UCHAR_MAX)
 			{
+				bucket_info* bucket = get_bucket_by_idx(next);
 				if(!bucket->is_free())return false;
-				bucket = reinterpret_cast<bucket_info*>(
-						reinterpret_cast<char*>(bucket) + sub_page_size_
-						);
+				next = bucket->next_block_;
+				++free_count;
 			}		
-			return true;
+			return free_count == sub_page_count_;
 		}
 		void* alloc(){
 			assert(!empty());
@@ -383,7 +378,11 @@ struct fixed_pool_impl_small{
 		}
 		unsigned char sub_page_count()const{return ref_cnt_;}
 		bucket_info* get_first_free_bucket(){
-			return reinterpret_cast<bucket_info*>(	reinterpret_cast<char*>(this)+sizeof(page) + free_list_ * sizeof(bucket_info));
+			return get_bucket_by_idx(free_list_);
+		}
+		bucket_info* get_bucket_by_idx(unsigned char idx)
+		{
+			return reinterpret_cast<bucket_info*>(reinterpret_cast<char*>(this)+sizeof(page) + idx * sub_page_size_);
 		}
 
 	};
@@ -413,21 +412,23 @@ struct fixed_pool_impl_small{
 	}
 	bool release_memory(){
 		bool ret = false;
-		page* p = &page_list_.front();
-		while(p)
+		intrusive_list<page>::iterator it = page_list_.begin();
+		while (it != page_list_.end())
 		{
-			if(p->is_free())
+			if (it->is_free())
 			{
-				page* next = p->next();
-				p->unlink();
-				system_free(p);
-				p = next;
+				page* free_node = &(*it);
+				it = page_list_.erase(it);
+				system_free(free_node);
 				ret = true;
 			}
-			else p = p->next();
+			else ++it;
 		}
 		return ret;
-	
+	}
+	~fixed_pool_impl_small(){
+		release_memory();
+		assert(page_list_.empty());
 	}
 	private:
 	void* system_alloc()
