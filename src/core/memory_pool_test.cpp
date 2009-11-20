@@ -235,15 +235,23 @@ bool fixed_pool_more_test(unsigned N )
 	std::random_shuffle(idx.begin(),idx.end());
 	std::vector<T*> v;
 	using namespace ma::core;
-	typedef fixed_pool_impl_small<sizeof(T),details::default_user_allocator_malloc_free> pool_t;
-	cout << "" << (int)pool_t::bucket_size_ <<" " << pool_t::sub_page_size_ << " " <<(int)pool_t::sub_page_count_<<endl;
-	cout <<details::PAGE_SIZE<< (details::PAGE_SIZE - 10)/(pool_t::sub_page_size_) <<endl;
+	//typedef fixed_pool_impl_small<sizeof(T),details::default_user_allocator_malloc_free> pool_t;
+	//cout << "" << (int)pool_t::bucket_size_ <<" " << pool_t::sub_page_size_ << " " <<(int)pool_t::sub_page_count_<<endl;
+	//cout <<details::PAGE_SIZE<< (details::PAGE_SIZE - 10)/(pool_t::sub_page_size_) <<endl;
 	for (unsigned i = 0;i < N;++i)
 		v.push_back(new T);
 	for (unsigned i = 0;i < N;++i)
 	{
 		delete v[idx[i]];
 	}
+	v.clear();
+	for (unsigned i = 0;i < N;++i)
+		v.push_back(new T);
+	for (unsigned i = 0;i < N;++i)
+	{
+		delete v[idx[i]];
+	}
+
 	return T::release_memory();	
 }
 bool fixed_pool_test()
@@ -341,6 +349,9 @@ bool pool_test(){
 	//assert(generic_pool_test());
 	//assert(mt_singleton_pool_test());	
 	assert(fixed_pool_more_test<char_size<1> >(32*1024 * 32));
+	assert(fixed_pool_more_test<char_size<2> >(32*1024 * 32));
+	assert(fixed_pool_more_test<char_size<3> >(32*1024 * 32));
+	assert(fixed_pool_more_test<char_size<4> >(32*1024 * 32));
 	bool result = true;
 	bool result_fix =  fixed_pool_test();
 	bool result_gen =  generic_pool_test();
