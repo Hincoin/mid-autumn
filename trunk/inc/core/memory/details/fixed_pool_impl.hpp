@@ -72,7 +72,12 @@ struct default_user_allocator_malloc_free
 			template<unsigned A,unsigned B,unsigned M,unsigned Depth=498>
 			struct MinimumK:MinimumKImpl<A,B,M,Depth+1,M/B + 1,Depth>{};
 	
-		
+			template<bool Flag,typename A,typename B>
+			struct Select_{typedef B type;};
+			template<typename A,typename B>
+			struct Select_<true,A,B>{typedef A type;};
+
+
 		}
 template<size_t Size,size_t NextCount,typename UserAllocator>
 	struct fixed_pool_impl_fast_segregate{
@@ -247,9 +252,88 @@ struct fixed_pool_impl_rb_tree_segregate{
 	intrusive_list<page_node> empty_nodes_;
 };
 */
-//Size < 4
+//Size < 4 && Size > 1
+template<unsigned short Size,typename UserAllocator>
+struct fixed_pool_impl_small_segregate{
+private:
+	struct page:intrusive_list<page>::node{
+		unsigned short free_list_;
+		unsigned short ref_cnt_;
+		page():free_list_(0),ref_cnt_(0){
+			char* first = (char*)get_block_by_idx(free_list_);
+			for(unsigned short i = 0;i < max_elem_count_;){
+				*((unsigned short*) first ) = ++i;
+				first += requested_size_;
+			}
+		}
+		void free(void* ptr){
+			ref_cnt_--;
+			*((unsigned short*)ptr) = free_list_;
+			free_list_ = ((char*)ptr - (char*)this - sizeof(page)) / requested_size_;
+		}
+		bool empty(){
+			return ref_cnt_ == max_elem_count_;
+		}
+		unsigned short count(){return ref_cnt_;};
+		void* alloc(){
+			assert(ref_cnt_ < max_elem_count_);
+			ref_cnt_ ++ ;
+			unsigned short* cur = get_block_by_idx(free_list_);
+			free_list_ = *cur;
+			return cur;
+		}
+		unsigned short* get_block_by_idx(unsigned short idx){
+			void * p = ((char*)(this) + sizeof(page) + requested_size_ * idx);
+			return (unsigned short*)p;
+		}
+	};
+	intrusive_list<page> page_list_;
+	void* system_alloc(){return details::virtual_alloc(details::PAGE_SIZE);};
+	void system_free(void* ptr){details::virtual_free(ptr,details::PAGE_SIZE);}
+	void* alloc_from_list(){
+		page* p = &page_list_.front();
+		assert(!p->empty());
+		return p->alloc();
+	}
+	static const unsigned short requested_size_ = Size;
+	static const unsigned short max_elem_count_ = (details::PAGE_SIZE - sizeof(page)) /requested_size_;
+	BOOST_STATIC_ASSERT((requested_size_ > (details::PAGE_SIZE - sizeof(page))/USHRT_MAX));
+public:
+	void* malloc()
+	{
+		if(page_list_.empty() || page_list_.front().empty()){
+			page_list_.push_front(new (system_alloc()) page);
+		}
+		return alloc_from_list();
+	}
+	void free(void* ptr)
+	{
+		page* p = (page*)details::align_down(ptr,details::PAGE_SIZE);
+		p->free(ptr);
+		if (p->count() == 0)
+		{
+			p->unlink();
+			page_list_.push_front(p);
+		}
+	}
+	bool release_memory()
+	{
+		bool ret = false;
+		while (!page_list_.empty() && page_list_.front().count() == 0)
+		{
+			page& p = page_list_.front();
+			page_list_.pop_front();
+			system_free(&p);
+			ret = true;
+		}
+		return ret;
+	}
+	fixed_pool_impl_small_segregate(){}
+	~fixed_pool_impl_small_segregate(){release_memory();assert(page_list_.empty());}
+};
+//Size == 1
 template<unsigned Size,typename UserAllocator>
-struct fixed_pool_impl_small{
+struct fixed_pool_impl_small_list{
 	private:           	
 	
 		struct bucket_info{
@@ -426,7 +510,7 @@ struct fixed_pool_impl_small{
 		}
 		return ret;
 	}
-	~fixed_pool_impl_small(){
+	~fixed_pool_impl_small_list(){
 		release_memory();
 		assert(page_list_.empty());
 	}
@@ -500,6 +584,13 @@ BOOST_STATIC_ASSERT((sub_page_size_ > 0));
 	BOOST_STATIC_ASSERT((sub_page_count_ * sub_page_size_ <=  (details::PAGE_SIZE - sizeof(page)) ));
 	intrusive_list<page> page_list_;	
 	};
+template<unsigned Size,typename UserAllocator>
+struct fixed_pool_impl_small:
+details::Select_< (Size >= sizeof(short)),
+fixed_pool_impl_small_segregate<Size,UserAllocator>, 
+fixed_pool_impl_small_list<Size,UserAllocator>
+>::type
+{};
 	}
 
 }
