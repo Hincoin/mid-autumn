@@ -247,6 +247,7 @@ bool fixed_pool_more_test(unsigned N )
 	v.clear();
 	for (unsigned i = 0;i < N;++i)
 		v.push_back(new T);
+	T::release_memory();	
 	for (unsigned i = 0;i < N;++i)
 	{
 		delete v[idx[i]];
