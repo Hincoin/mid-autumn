@@ -5,6 +5,8 @@
 #include <functional>
 #include <limits>
 #include <cstring>
+#include <cstdlib>
+#include <new>
 #ifdef _DEBUG
 #include <algorithm>
 #endif // _DEBUG
@@ -36,7 +38,7 @@ namespace ma{
 			bool operator()(const MemBlock* lhs,const MemBlock* rhs)const;
 		};
 
-		struct FreeBlock: intrusive_multi_rbtree<FreeBlock>::node
+		struct FreeBlock: public intrusive_multi_rbtree<FreeBlock>::node
 			//boost::intrusive::set_base_hook<boost::intrusive::optimize_size<false>
 			//,boost::intrusive::link_mode<boost::intrusive::normal_link> >
 		{
@@ -845,7 +847,7 @@ namespace ma{
 					((free_link*)((char*)mem + i))->mNext = NULL;
 					assert(i + elemSize + sizeof(page) <= details::PAGE_SIZE);
 					page* p = ptr_get_page(mem);
-					new (p) page((free_link*)mem, (unsigned short)elemSize, marker);
+					new ((void*)p) page((free_link*)mem, (unsigned short)elemSize, marker);
 					return p;
 				}
 				return NULL;
