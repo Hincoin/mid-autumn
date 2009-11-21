@@ -220,10 +220,23 @@ struct char_size{char a[N];MA_DECLARE_POOL_NEW_DELETE(char_size);
 char_size(){
 	for (size_t i = 0; i <  N; ++i)
 	{
-		a[i] = i;
+		a[i] = (char)i;
 	}
 }
 };
+
+
+template <int N>
+struct char_size_no_pool{char a[N]; 
+char_size_no_pool(){
+	for (size_t i = 0; i <  N; ++i)
+	{
+		a[i] = (char)i;
+	}
+}
+static bool release_memory(){return true;}
+};
+
 template<typename T>
 bool fixed_pool_more_test(unsigned N )
 {
@@ -349,15 +362,39 @@ bool pool_test(){
 	//assert(fixed_pool_test());
 	//assert(generic_pool_test());
 	//assert(mt_singleton_pool_test());	
-	assert(fixed_pool_more_test<char_size<1> >(32*1024 * 32));
-	assert(fixed_pool_more_test<char_size<2> >(32*1024 * 32));
-	assert(fixed_pool_more_test<char_size<3> >(32*1024 * 32));
-	assert(fixed_pool_more_test<char_size<4> >(32*1024 * 32));
+	const unsigned N = 32*1024 * 32;
+	timer t;
+	t.start_timer();
+	bool fixed_r0 = (fixed_pool_more_test<char_size<1> >(N));
+	printf("fixed_r0   clock: %ld \n",t.clocks());
+	t.start_timer();
+	bool fixed_r1 = (fixed_pool_more_test<char_size<2> >(N));
+	printf("fixed_r1   clock: %ld \n",t.clocks());
+	t.start_timer();
+	bool fixed_r2 = (fixed_pool_more_test<char_size<3> >(N));
+	printf("fixed_r2   clock: %ld \n",t.clocks());
+	t.start_timer();
+	bool fixed_r3 = (fixed_pool_more_test<char_size<4> >(N));
+	printf("fixed_r3   clock: %ld \n",t.clocks());
+
+	t.start_timer();
+	bool no_pool_fixed_r0 = (fixed_pool_more_test<char_size_no_pool<1> >(N));
+	printf("no_pool_fixed_r0   clock: %ld \n",t.clocks());
+	t.start_timer();
+	bool no_pool_fixed_r1 = (fixed_pool_more_test<char_size_no_pool<2> >(N));
+	printf("no_pool_fixed_r1   clock: %ld \n",t.clocks());
+	t.start_timer();
+	bool no_pool_fixed_r2 = (fixed_pool_more_test<char_size_no_pool<3> >(N));
+	printf("no_pool_fixed_r2   clock: %ld \n",t.clocks());
+	t.start_timer();
+	bool no_pool_fixed_r3 = (fixed_pool_more_test<char_size_no_pool<4> >(N));
+	printf("no_pool_fixed_r3   clock: %ld \n",t.clocks());
+ 
 	bool result = true;
 	bool result_fix =  fixed_pool_test();
 	bool result_gen =  generic_pool_test();
 	bool result_mt = mt_singleton_pool_test();
-	result = result_fix && result_gen && result_mt;
+	result = result_fix && result_gen && result_mt && fixed_r0 && fixed_r1 && fixed_r2 && fixed_r3;
 	assert(result);
 
 	return result ;
