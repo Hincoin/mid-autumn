@@ -42,7 +42,7 @@ unsigned big_memory_size()
 }
 unsigned small_memory_size()
 {
-	return	( rand()%(512)+128);
+	return	( rand()%(512));
 }
 #define MEMORY_SIZE (rand()%2 ? small_memory_size():big_memory_size())
 
@@ -82,7 +82,7 @@ void test_pool_alloc(vector<void*>& m,size_t N,PoolT& my_pool)
 			//my_pool.free(m.back());m.pop_back();
 		}
 		else 
-			m.push_back(my_pool.alloc(MEMORY_SIZE));
+			m.push_back(my_pool.realloc(0,MEMORY_SIZE));
 		assert(checkMemory(m));
 	}
 }
@@ -93,7 +93,7 @@ void test_pool_free(vector<void*>& m,PoolT& my_pool)
 	{
 		if(i == 8)
 			int a_break = 0;
-		my_pool.free(m[i]);
+		my_pool.realloc(m[i],0);
 	}
 }
 
@@ -311,6 +311,7 @@ bool fixed_pool_test()
 bool generic_pool_test()
 {
 	bool result = true;
+#define ENABLE_PERFORMANCE_TEST
 #ifdef ENABLE_PERFORMANCE_TEST
 	const size_t N = 1024*32; //for big
 	//const size_t N = 1024 * 1024 *8;//for small
@@ -344,6 +345,7 @@ bool generic_pool_test()
 		result = false;
 	}
 
+	generic_singleton_pool<pool_allocator_tag, details::mutex_t >::release_memory();
 
 	return result;
 }
@@ -362,7 +364,7 @@ bool pool_test(){
 	//assert(fixed_pool_test());
 	//assert(generic_pool_test());
 	//assert(mt_singleton_pool_test());	
-	const unsigned N = 32*1024 * 32;
+	const unsigned N = 32;//32*1024 * 32;
 	timer t;
 	t.start_timer();
 	bool fixed_r0 = (fixed_pool_more_test<char_size<1> >(N));
