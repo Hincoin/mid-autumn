@@ -297,7 +297,7 @@ bool fixed_pool_test()
 	t = 0;
 	for (int i = 0;i < N;i++)
 	{
-		a.push_back(new B_TEST[3]);
+		a.push_back(new B_TEST[N%128]);
 	}
 	for (int i = 0;i < N;i++)
 	{
@@ -313,7 +313,7 @@ bool generic_pool_test()
 	bool result = true;
 #define ENABLE_PERFORMANCE_TEST
 #ifdef ENABLE_PERFORMANCE_TEST
-	const size_t N = 1024*32; //for big
+	const size_t N = 1024*4; //for big
 	//const size_t N = 1024 * 1024 *8;//for small
 	const size_t M = 256;// 
 #else
@@ -333,11 +333,13 @@ bool generic_pool_test()
 			std::vector<int,pool_allocator<int,details::mutex_t> > v;
 			std::set<int,std::less<int>,pool_allocator<int,details::mutex_t> > s;
 			int n = int(N*N);
+			printf("loop:%d",n*(sizeof(int) + 20));
 			while (n--)
 			{
 				v.push_back(n);
 				s.insert(n);
 			}
+			printf("allocator test done\n");
 		}
 	}
 	catch (...)
@@ -366,7 +368,7 @@ bool realloc_test(unsigned N)
 	while (M -- )
 	{
 		void * p = my_pool.realloc(0,rand()%(512));
-		unsigned K = 32;
+		unsigned K = 512;
 		while (K--)
 		{
 			int debug_stop = 0;
@@ -393,7 +395,7 @@ bool pool_test(){
 	//assert(fixed_pool_test());
 	//assert(generic_pool_test());
 	//assert(mt_singleton_pool_test());	
-	const unsigned N = 32*1024 * 32;
+	const unsigned N = 32*1024 * 4;
 	realloc_test(N);
 	timer t;
 	t.start_timer();

@@ -519,7 +519,7 @@ namespace ma{
 			if (!block)//malloc failed
 			{
 				//try to return the memory back to OS and re-malloc
-				if(!release_memory(malloc_size))
+				if(!release_memory())
 					return 0;
 				block = reinterpret_cast<MemBlock*>(details::virtual_alloc(malloc_size));
 				if( !block) return 0;

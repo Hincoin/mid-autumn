@@ -1,4 +1,5 @@
-#include <limits>
+#include <cstdlib>
+#include <climits>
 #include "intrusive_list.hpp"
 #include "common_functions.hpp"
 
@@ -499,7 +500,7 @@ cur_value : MinimumKImpl<A,B,M,cur_value,Depth + 1,MaxDepth>::value);
 			}
 			bool release_memory(){
 				bool ret = false;
-				intrusive_list<page>::iterator it = page_list_.begin();
+				typename intrusive_list<page>::iterator it = page_list_.begin();
 				while (it != page_list_.end())
 				{
 					if (it->is_free())
