@@ -16,6 +16,24 @@ bool run_test();
 	\
 	}
 
+#include <time.h>
+
+
+struct timer{
+private:
+	clock_t start_time;
+public:
+	void start_timer() { start_time = clock(); }
+
+	double stop_timer() {
+		return ( clock() - start_time)/ (double)(CLOCKS_PER_SEC);
+	}  
+	long clocks(){
+		return  long(clock() - start_time) ;
+	}
+};
+
+
 #ifdef NDEBUG
 //#define ENABLE_PERFORMANCE_TEST
 #endif
