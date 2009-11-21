@@ -358,13 +358,43 @@ bool mt_singleton_pool_test()
 
 	return result;
 }
+bool realloc_test(unsigned N)
+{
+	memory_pool<details::null_mutex> my_pool;
+	unsigned M = N;
+	vector<void*> v ;
+	while (M -- )
+	{
+		void * p = my_pool.realloc(0,rand()%(512));
+		unsigned K = 32;
+		while (K--)
+		{
+			int debug_stop = 0;
+			if(N == 1044577)
+			{
+				debug_stop = 0;
+			}
+			p = my_pool.realloc(p,rand()%(512));
+		}
+		v.push_back(p);
+	}
+	my_pool.release_memory();
+	random_shuffle(v.begin(),v.end());
+	while (!v.empty())
+	{
+		my_pool.realloc(v.back(),0);
+		v.pop_back();
+	}
 
+	return my_pool.release_memory();
+}
 bool pool_test(){
 	printf("-----------------------------------------\n");
 	//assert(fixed_pool_test());
 	//assert(generic_pool_test());
 	//assert(mt_singleton_pool_test());	
-	const unsigned N = 32;//32*1024 * 32;
+	const unsigned N = 32*1024 * 32;
+	realloc_test(N);
 	timer t;
 	t.start_timer();
 	bool fixed_r0 = (fixed_pool_more_test<char_size<1> >(N));
