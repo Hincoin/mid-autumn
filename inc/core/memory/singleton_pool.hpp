@@ -111,6 +111,39 @@ namespace ma{
 	}
 }
 
+//this is why gcc is really greate
+#ifdef __GNUC__
+#define  MA_DECLARE_ARRAY_DELETE(CLASS)\
+	void operator delete[](void* ptr,size_t sz)\
+	{\
+		return ma::core::generic_singleton_pool<CLASS>::free(ptr,sz);\
+	}\
+
+#else
+#define MA_DECLARE_ARRAY_DELETE(CLASS)\
+	void operator delete[](void* ptr)\
+	{\
+	return ma::core::generic_singleton_pool<CLASS>::free(ptr);\
+	}\
+
+#endif
+
+#ifdef __GNUC__
+#define  MA_DECLARE_ARRAY_DELETE_MT(CLASS)\
+	void operator delete[](void* ptr,size_t sz)\
+	{\
+	return ma::core::generic_singleton_pool<CLASS,ma::core::details::mutex_t>::free(ptr,sz);\
+}\
+
+#else
+#define MA_DECLARE_ARRAY_DELETE_MT(CLASS)\
+	void operator delete[](void* ptr)\
+	{\
+	return ma::core::generic_singleton_pool<CLASS,ma::core::details::mutex_t>::free(ptr);\
+}\
+
+#endif
+
 #define MA_DECLARE_POOL_NEW_DELETE(Class)\
 	public:\
 	\
@@ -134,10 +167,8 @@ namespace ma{
 	{\
 		return ma::core::generic_singleton_pool<Class>::alloc(sz);\
 	}\
-	void operator delete[](void* ptr)\
-	{\
-		return ma::core::generic_singleton_pool<Class>::free(ptr);\
-	}\
+	MA_DECLARE_ARRAY_DELETE(Class)
+
 
 //multi-thread version
 #define MA_DECLARE_POOL_NEW_DELETE_MT(Class)\
@@ -163,10 +194,7 @@ namespace ma{
 	{\
 	return ma::core::generic_singleton_pool<Class,ma::core::details::mutex_t>::alloc(sz);\
 	}\
-	void operator delete[](void* ptr)\
-	{\
-	return ma::core::generic_singleton_pool<Class,ma::core::details::mutex_t>::free(ptr);\
-	}\
+	MA_DECLARE_ARRAY_DELETE_MT(Class)
 
 
 #endif
