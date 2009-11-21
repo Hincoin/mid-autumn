@@ -68,8 +68,8 @@ namespace ma{
 
 		struct MemBlock{
 			MemBlock(MemBlock* prev,size_t sz):prev(prev),size(sz),used(false){assert(size > sizeof(FreeBlock));}
-			MemBlock* next(){assert(size > sizeof(FreeBlock)); return (MemBlock*)(((char*)(this+1))+size);}
-			FreeBlock* free_block(){assert(!used && size > sizeof(FreeBlock));return ((FreeBlock*)(this+1));}
+			MemBlock* next(){assert(size >= sizeof(FreeBlock)); return (MemBlock*)(((char*)(this+1))+size);}
+			FreeBlock* free_block(){assert(!used && size >= sizeof(FreeBlock));return ((FreeBlock*)(this+1));}
 			small_free_node* small_free_block(){assert(!used && size > sizeof(small_free_node));return ((small_free_node*)(this+1));}
 
 			MemBlock* prev;
@@ -570,6 +570,8 @@ namespace ma{
 		inline void* big_memory_pool<Mutex>::tree_realloc(void* ptr,size_t sz){
 			scope_lock_t lock(mutex_);
 
+			if (sz < sizeof(FreeBlock))
+				sz = sizeof(FreeBlock);
 			sz = details::round_up(sz,sizeof(MemBlock));
 			MemBlock* cur = static_cast<MemBlock*>(ptr) - 1;
 			assert(checkAllBlocks());
