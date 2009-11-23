@@ -148,12 +148,15 @@ namespace ma{
 					}
 				}
 				if(cached_block_)
+				{
 					for (block_set_t::iterator it = block_set_.lower_bound(*cached_block_->free_block());
 						it != block_set_.upper_bound(*cached_block_->free_block());
 						++it)
 					{
 						assert(cached_block_ != it->getMemBlock());
 					}
+					assert(checkValid(cached_block_));
+				}
 #endif
 				return ret;
 			}
@@ -268,6 +271,8 @@ namespace ma{
 					m_next->prev = next;
 
 					m->size = MemBlock::size_type(sz);
+					assert(checkValid(m));
+					assert(checkValid(next));
 					return next;
 				}
 				return 0;
@@ -304,13 +309,17 @@ namespace ma{
 				{
 					blk->used = false;
 					if( cached_block_ == 0)
+					{
 						cached_block_ = reorganize_freeblock(blk);
+						assert(checkValid(cached_block_));
+					}
 					else if (!cached_block_->prev && !cached_block_->next()->size)//this is a whole block allocated
 					{
 						//back to system ? 
 						//back to tree ?
 						insert_free_block(cached_block_);
 						cached_block_ = reorganize_freeblock(blk);
+						assert(checkValid(cached_block_));
 					}
 					else
 					{
@@ -328,6 +337,7 @@ namespace ma{
 							cached_block_->size += (sizeof(MemBlock) + blk->size);
 							blk->next()->prev = cached_block_;
 							cached_block_  = reorganize_freeblock(cached_block_);
+							assert(checkValid(cached_block_));
 							assert(cached_block_->next()->used && (!cached_block_->prev || cached_block_->prev->used));
 							return;
 						}
@@ -337,6 +347,7 @@ namespace ma{
 							cached_block_->next()->prev = blk;
 							cached_block_ = blk;
 							cached_block_ = reorganize_freeblock(cached_block_);
+							assert(checkValid(cached_block_));
 							assert(cached_block_->next()->used && (!cached_block_->prev || cached_block_->prev->used));
 							return;
 						}
@@ -346,6 +357,7 @@ namespace ma{
 							cached_block_->size += (sizeof(MemBlock) + blk->size);
 							blk->next()->prev = cached_block_;
 							cached_block_  = reorganize_freeblock(cached_block_);
+							assert(checkValid(cached_block_));
 							assert(cached_block_->next()->used && (!cached_block_->prev || cached_block_->prev->used));
 							return;
 						}
@@ -355,6 +367,7 @@ namespace ma{
 							cached_block_->next()->prev = blk;
 							cached_block_ = blk;
 							cached_block_ = reorganize_freeblock(cached_block_);
+							assert(checkValid(cached_block_));
 							assert(cached_block_->next()->used && (!cached_block_->prev || cached_block_->prev->used));
 							return;
 						}
@@ -362,6 +375,7 @@ namespace ma{
 						{
 							insert_free_block(cached_block_);
 							cached_block_ = blk;
+							assert(checkValid(cached_block_));
 						}
 						else
 						{
@@ -382,13 +396,17 @@ namespace ma{
 					assert(blk->next()== cached_block_ || blk->next()->used);
 #endif
 					if( cached_block_ == 0)
+					{	
 						cached_block_ = blk;
+						assert(checkValid(cached_block_));
+					}
 					else if (!cached_block_->prev && !cached_block_->next()->size)//this is a whole block allocated
 					{
 						//back to system ? 
 						//back to tree ?
 						insert_free_block(cached_block_);
 						cached_block_ = blk;
+						assert(checkValid(cached_block_));
 					}
 					else
 					{
@@ -405,6 +423,7 @@ namespace ma{
 							blk->size += (sizeof(MemBlock) + cached_block_->size);
 							cached_block_->next()->prev = blk;
 							cached_block_ = blk;
+							assert(checkValid(cached_block_));
 							assert(cached_block_->next()->used && (!blk->prev || blk->prev->used));
 							return;
 						}
@@ -422,6 +441,7 @@ namespace ma{
 							//block_set_.insert(*cached_mr_block_->free_block());
 							insert_free_block(cached_block_);
 							cached_block_ = blk;
+							assert(checkValid(cached_block_));
 						}
 
 					}
@@ -445,6 +465,7 @@ namespace ma{
 			sz = details::round_up(sz,sizeof(MemBlock));
 
 			if (cached_block_){
+				assert(checkValid(cached_block_));
 				MemBlock* cached_next = split_block(cached_block_,sz);
 				if (cached_next)
 				{
@@ -458,6 +479,7 @@ namespace ma{
 			}
 			if (mr_block_)
 			{
+				assert(checkValid(mr_block_));
 				MemBlock* mr_next = split_block(mr_block_,sz);
 				if (mr_next)
 				{
@@ -561,7 +583,7 @@ namespace ma{
 			{
 				scope_lock_t lock(mutex_);
 				MemBlock* cur = static_cast<MemBlock*>(p) - 1;
-
+				assert(checkValid(cur));
 				add_free_block_from_free(cur);
 			}
 			assert(checkAllBlocks());
@@ -631,7 +653,7 @@ namespace ma{
 					erase_free_block(prev);
 				}
 
-				next->next()->prev = prev;
+				next->prev = prev;
 				prev->size = prev->size + cur->size + MemBlock::size_type(sizeof(MemBlock) + next_merged_size);
 				::memmove(prev+1,cur+1,cur->size);
 				prev->used = true;
