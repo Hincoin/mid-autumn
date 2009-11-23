@@ -11,6 +11,7 @@ REGISTER_TEST_FUNC(POOL,pool_test)
 #include <stdlib.h>
 #include<algorithm>
 #include <vector>
+#include <map>
 #include <set>
 //#define SET_POOL
 #ifdef SET_POOL
@@ -363,31 +364,58 @@ bool mt_singleton_pool_test()
 bool realloc_test(unsigned N)
 {
 	memory_pool<details::null_mutex> my_pool;
-	unsigned M = N;
-	vector<void*> v ;
-	while (M -- )
-	{
-		void * p = my_pool.realloc(0,rand()%(512));
-		unsigned K = 512;
-		while (K--)
-		{
-			int debug_stop = 0;
-			if(N == 1044577)
-			{
-				debug_stop = 0;
-			}
-			p = my_pool.realloc(p,rand()%(512));
-		}
-		v.push_back(p);
-	}
-	my_pool.release_memory();
-	random_shuffle(v.begin(),v.end());
-	while (!v.empty())
-	{
-		my_pool.realloc(v.back(),0);
-		v.pop_back();
-	}
+	//unsigned M = N;
+	//vector<void*> v ;
+	//while (M -- )
+	//{
+	//	void * p = my_pool.realloc(0,rand()%(512));
+	//	unsigned K = 512;
+	//	while (K--)
+	//	{
+	//		int debug_stop = 0;
+	//		if(N == 1044577)
+	//		{
+	//			debug_stop = 0;
+	//		}
+	//		p = my_pool.realloc(p,rand()%(512));
+	//	}
+	//	v.push_back(p);
+	//}
+	//my_pool.release_memory();
+	//random_shuffle(v.begin(),v.end());
+	//while (!v.empty())
+	//{
+	//	my_pool.realloc(v.back(),0);
+	//	v.pop_back();
+	//}
 
+	//return my_pool.release_memory();
+	FILE* fptr = fopen("trace.txt","r");
+	int ptr_addr_r,ptr_addr,sz;
+	map<int,void*> ptr_addr_map;
+	int debug_count = 0;
+	while (EOF != fscanf(fptr,"%x ,%x, %d",&ptr_addr_r,&ptr_addr,&sz))
+	{
+		debug_count++;
+		if (debug_count == 10053)
+		{
+			int take_break = 0;
+		}
+		if (ptr_addr == 0)
+		{
+			void* p = my_pool.realloc(0,sz);
+			ptr_addr_map[ptr_addr_r] = p;
+		}
+		else
+		{
+			void* p = my_pool.realloc(ptr_addr_map[ptr_addr],sz);
+			if (sz != 0)
+				ptr_addr_map[ptr_addr_r] = p;
+			else
+				ptr_addr_map.erase(ptr_addr_r);
+		}
+	}
+	fclose(fptr);
 	return my_pool.release_memory();
 }
 bool pool_test(){
