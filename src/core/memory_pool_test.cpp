@@ -394,10 +394,12 @@ bool realloc_test(unsigned N)
 	int ptr_addr_r,ptr_addr,sz;
 	map<int,void*> ptr_addr_map;
 	int debug_count = 0;
+
 	while (EOF != fscanf(fptr,"%x ,%x, %d",&ptr_addr_r,&ptr_addr,&sz))
 	{
 		debug_count++;
-		if (debug_count == 10053)
+		my_pool.big_memory_allocator_.enableDebug(debug_count > 1105000);
+		if (debug_count == 595398)
 		{
 			int take_break = 0;
 		}
@@ -416,6 +418,7 @@ bool realloc_test(unsigned N)
 		}
 	}
 	fclose(fptr);
+	printf("%d\n",debug_count);
 	return my_pool.release_memory();
 }
 bool pool_test(){

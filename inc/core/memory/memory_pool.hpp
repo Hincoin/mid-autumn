@@ -123,6 +123,10 @@ namespace ma{
 			//debug
 			bool checkValid(MemBlock* block)
 			{
+				if (!enable_debug)
+				{
+					return true;
+				}
 #ifdef _DEBUG
 				assert(block);
 				if(block->prev)
@@ -132,8 +136,15 @@ namespace ma{
 				return true;
 #endif
 			}
-
+			void enableDebug(bool flag)
+			{
+				enable_debug = flag;
+			}
 			bool checkAllBlocks(){
+				if (!enable_debug)
+				{
+					return true;
+				}
 				bool ret = true;
 #ifdef _DEBUG	
 				for(block_set_t::iterator it = block_set_.begin();it != block_set_.end(); ++it)
@@ -162,7 +173,7 @@ namespace ma{
 			}
 			bool check_not_free_block(MemBlock* blk)
 			{
-				if (blk == mr_block_ )
+				if (blk == mr_block_ || blk == cached_block_)
 				{
 					return false;
 				}
@@ -184,8 +195,9 @@ namespace ma{
 			size_t debug_find_count;
 			size_t debug_found_count;
 			size_t debug_insert_count;
+			bool enable_debug;
 
-			big_memory_pool():cached_block_(0),mr_block_(0){debug_total_size = 0;debug_find_count = 0;debug_found_count=0;debug_allocated_size = 0;debug_insert_count = 0;}
+			big_memory_pool():cached_block_(0),mr_block_(0){debug_total_size = 0;debug_find_count = 0;debug_found_count=0;debug_allocated_size = 0;debug_insert_count = 0;enable_debug = false;}
 			~big_memory_pool(){
 				//return all memory to OS
 				release_memory(size_t(-1));
@@ -351,6 +363,16 @@ namespace ma{
 							assert(cached_block_->next()->used && (!cached_block_->prev || cached_block_->prev->used));
 							return;
 						}
+#ifdef _DEBUG
+						if (blk->prev && !blk->prev->used)
+						{
+							assert(!check_not_free_block(blk->prev));
+						}
+						if (blk->next() && !blk->next()->used)
+						{
+							assert(!check_not_free_block(blk->next()));
+						}
+#endif
 						blk = reorganize_freeblock(blk);
 						if (blk->prev == cached_block_)
 						{
@@ -380,6 +402,7 @@ namespace ma{
 						else
 						{
 							insert_free_block(blk);
+							assert(!check_not_free_block(blk));
 						}
 					}
 				}
@@ -394,6 +417,8 @@ namespace ma{
 						assert(blk->prev->used);
 					}
 					assert(blk->next()== cached_block_ || blk->next()->used);
+					if((intptr_t)blk == 0x05479e68)
+						int take_breka= 0;
 #endif
 					if( cached_block_ == 0)
 					{	
@@ -583,7 +608,8 @@ namespace ma{
 			{
 				scope_lock_t lock(mutex_);
 				MemBlock* cur = static_cast<MemBlock*>(p) - 1;
-				assert(checkValid(cur));
+				if((intptr_t)cur == 0x05479e68)
+					assert(checkValid(cur));
 				add_free_block_from_free(cur);
 			}
 			assert(checkAllBlocks());
@@ -643,6 +669,7 @@ namespace ma{
 						assert(!check_not_free_block(next) );
 						//block_set_.erase(block_set_.iterator_to(*next->free_block()));
 						erase_free_block(next);
+						next->next()->prev = prev;
 					}
 				}
 				if(cached_block_ == prev)
