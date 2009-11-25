@@ -81,10 +81,15 @@ void test_pool_alloc(vector<void*>& m,size_t N,PoolT& my_pool)
 			m.back() = my_pool.realloc(m.back(),MEMORY_SIZE);
 #endif
 			//my_pool.free(m.back());m.pop_back();
+			if (m.back() == 0) m.pop_back();
 		}
 		else 
+		{
 			m.push_back(my_pool.realloc(0,MEMORY_SIZE));
-		assert(checkMemory(m));
+			if (m.back() == 0) m.pop_back();
+
+		}
+		//assert(checkMemory(m));
 	}
 }
 template<typename PoolT>
@@ -391,6 +396,7 @@ bool realloc_test(unsigned N)
 
 	//return my_pool.release_memory();
 	FILE* fptr = fopen("trace.txt","r");
+	if (!fptr) return true;
 	int ptr_addr_r,ptr_addr,sz;
 	map<int,void*> ptr_addr_map;
 	int debug_count = 0;

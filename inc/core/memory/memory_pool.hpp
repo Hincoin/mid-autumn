@@ -68,9 +68,9 @@ namespace ma{
 
 		struct MemBlock{
 			MemBlock(MemBlock* prev,size_t sz):prev(prev),size(sz),used(false){assert(size > sizeof(FreeBlock));}
-			MemBlock* next(){assert(size >= sizeof(FreeBlock)); return (MemBlock*)(((char*)(this+1))+size);}
-			FreeBlock* free_block(){assert(!used && size >= sizeof(FreeBlock));return ((FreeBlock*)(this+1));}
-			small_free_node* small_free_block(){assert(!used && size > sizeof(small_free_node));return ((small_free_node*)(this+1));}
+			MemBlock* next(){/*assert(used || size >= sizeof(FreeBlock));*/ return (MemBlock*)(((char*)(this+1))+size);}
+			FreeBlock* free_block(){/*assert(!used && size >= sizeof(FreeBlock));*/return ((FreeBlock*)(this+1));}
+			small_free_node* small_free_block(){/*assert(!used && size > sizeof(small_free_node));*/return ((small_free_node*)(this+1));}
 
 			MemBlock* prev;
 			size_t size:sizeof(std::size_t)*8-1;
@@ -730,7 +730,7 @@ namespace ma{
 
 					void* mem = free_block;
 					block_set_.erase(bsb_it++);
-					details::virtual_free((char* )mem,mem_size);
+					details::virtual_free((char* )mem,free_block->size);
 					ret=true;
 				}
 				else
