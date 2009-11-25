@@ -14,6 +14,7 @@
 #include <string.h>
 #include <memory>
 #include <boost/unordered_map.hpp>
+#include <boost/type_traits.hpp>
 namespace ma{
 template<typename T>
 	std::size_t hash_value(const std::vector<T>& v)
@@ -29,7 +30,7 @@ typedef boost::unordered_map<type_name_t,type_code_t> type_name2code;
 template<typename CreatorFuncPtr,typename CreatorMap>
 	const CreatorFuncPtr get_creator(const type_code_comp_t& type_code,const CreatorMap& creators)
 	{
-		BOOST_MPL_ASSERT((boost::is_pointer<CreatorFuncPtr>));
+		BOOST_STATIC_ASSERT((boost::is_pointer<CreatorFuncPtr>::value));
 		typename CreatorMap::const_iterator it = creators.find(type_code);
 		if (it == creators.end()) return 0;
 		return boost::get<CreatorFuncPtr>((it->second));
