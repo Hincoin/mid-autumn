@@ -213,11 +213,11 @@ cur_value : MinimumKImpl<A,B,M,cur_value,Depth + 1,MaxDepth>::value);
 			static const size_type requested_size_ = Size ;
 			//make sure it is mutiple of PAGE_SIZE
 			static const size_type MAX_PAGES = 32;
-			static const size_type page_request_size_ = (NextCount * requested_size_< details::PAGE_SIZE ?
+			static const size_type page_request_size_ = details::PAGE_SIZE/*(NextCount * requested_size_< details::PAGE_SIZE ?
 				details::MinimumK<requested_size_,details::PAGE_SIZE,sizeof(page),MAX_PAGES>::value : 
 			details::MinimumK<
 				NextCount * requested_size_,details::PAGE_SIZE,sizeof(page),MAX_PAGES
-			>::value)*details::PAGE_SIZE;
+			>::value)*details::PAGE_SIZE*/;
 		public:
 			fixed_pool_impl_fast_segregate()
 			{
