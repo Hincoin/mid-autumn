@@ -258,7 +258,9 @@ bool fixed_pool_more_test(unsigned N )
 	//cout << "" << (int)pool_t::bucket_size_ <<" " << pool_t::sub_page_size_ << " " <<(int)pool_t::sub_page_count_<<endl;
 	//cout <<details::PAGE_SIZE<< (details::PAGE_SIZE - 10)/(pool_t::sub_page_size_) <<endl;
 	for (unsigned i = 0;i < N;++i)
+	{
 		v.push_back(new T);
+	}
 	for (unsigned i = 0;i < N;++i)
 	{
 		delete v[idx[i]];
@@ -427,6 +429,36 @@ bool realloc_test(unsigned N)
 	printf("%d\n",debug_count);
 	return my_pool.release_memory();
 }
+struct run_test_t{
+template<typename S>
+	void operator()(S)
+	{
+	timer t;
+	t.start_timer();
+	bool fixed_r0 = (fixed_pool_more_test<char_size<S::value> >(32*1024*3));
+	printf("size:%d fixed_r0   clock: %ld \n",S::value,t.clocks());
+	assert(fixed_r0);
+	
+	}
+};
+#include <boost/mpl/for_each.hpp>
+#include <boost/mpl/vector.hpp>
+#include <boost/mpl/vector_c.hpp>
+#include <boost/mpl/int.hpp>
+#include <boost/mpl/transform.hpp>
+#include <boost/mpl/at.hpp>
+template<typename IntSeq>
+void test_fixed()
+{
+	boost::mpl::for_each<IntSeq>(run_test_t());
+}
+struct to_int{
+template<typename N>
+	struct apply{
+		typedef N type;
+	};
+typedef to_int type;
+};
 bool pool_test(){
 	printf("-----------------------------------------\n");
 	//assert(fixed_pool_test());
@@ -434,20 +466,14 @@ bool pool_test(){
 	//assert(mt_singleton_pool_test());	
 	const unsigned N = 32*1024 * 4;
 	realloc_test(N);
+	namespace mpl= boost::mpl;
+	typedef	boost::mpl::vector_c<int,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19> int_list0;
+	typedef boost::mpl::vector_c<int,33,24,26,28,29,30,33,34,35,37,39,43,41,44,46,48> int_list1;
+	typedef boost::mpl::transform<int_list0,to_int>::type int_list0_t;
+	typedef boost::mpl::transform<int_list1,to_int>::type int_list1_t;
+	test_fixed<int_list0_t>();
+	test_fixed<int_list1_t>();
 	timer t;
-	t.start_timer();
-	bool fixed_r0 = (fixed_pool_more_test<char_size<1> >(N));
-	printf("fixed_r0   clock: %ld \n",t.clocks());
-	t.start_timer();
-	bool fixed_r1 = (fixed_pool_more_test<char_size<2> >(N));
-	printf("fixed_r1   clock: %ld \n",t.clocks());
-	t.start_timer();
-	bool fixed_r2 = (fixed_pool_more_test<char_size<3> >(N));
-	printf("fixed_r2   clock: %ld \n",t.clocks());
-	t.start_timer();
-	bool fixed_r3 = (fixed_pool_more_test<char_size<4> >(N));
-	printf("fixed_r3   clock: %ld \n",t.clocks());
-
 	t.start_timer();
 	bool no_pool_fixed_r0 = (fixed_pool_more_test<char_size_no_pool<1> >(N));
 	printf("no_pool_fixed_r0   clock: %ld \n",t.clocks());
@@ -465,7 +491,7 @@ bool pool_test(){
 	bool result_fix =  fixed_pool_test();
 	bool result_gen =  generic_pool_test();
 	bool result_mt = mt_singleton_pool_test();
-	result = result_fix && result_gen && result_mt && fixed_r0 && fixed_r1 && fixed_r2 && fixed_r3;
+	result = result_fix && result_gen && result_mt ;
 	assert(result);
 
 	return result ;

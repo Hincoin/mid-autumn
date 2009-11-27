@@ -96,10 +96,10 @@ cur_value : MinimumKImpl<A,B,M,cur_value,Depth + 1,MaxDepth>::value);
 			}
 			void free(void *ptr)	
 			{
-				FreeNode* t = (FreeNode*)(ptr); 
+				FreeNode* t = FreeNode::as_free_node(ptr);
 				t->next = free_list_;
 				free_list_ = t;	
-				page* cur_page = get_page(ptr);
+				page* cur_page = t->get_page();
 				cur_page->dec_ref();
 				//push_front
 				if (cur_page->count() == 0)
@@ -115,7 +115,7 @@ cur_value : MinimumKImpl<A,B,M,cur_value,Depth + 1,MaxDepth>::value);
 				//remove from free list
 				if (free_list_)
 				{
-					while(free_list_ && get_page(free_list_)->count()==0)
+					while(free_list_ && (free_list_->get_page())->count()==0)
 					{
 						free_list_ = free_list_->next;
 						ret = true;
@@ -124,7 +124,7 @@ cur_value : MinimumKImpl<A,B,M,cur_value,Depth + 1,MaxDepth>::value);
 					FreeNode* prev = free_list_;
 					while(cur)
 					{
-						page* p = get_page(cur);
+						page* p = cur->get_page();
 						if (p->count() == 0)
 						{
 							//delete cur node
@@ -148,10 +148,46 @@ cur_value : MinimumKImpl<A,B,M,cur_value,Depth + 1,MaxDepth>::value);
 			}
 		private:
 		private:
-			struct FreeNode{
+			static const size_type MinSize = 32;
+			struct page;
+			struct FreeNode;
+			struct FreeNodeBase_Empty{
+				void set_page(page*){}
+				page* get_page(){
+					BOOST_STATIC_ASSERT(page_request_size_ == details::PAGE_SIZE);
+					return (page*)details::align_down(this,page_request_size_);
+				}	
+				static page* get_page(void* ptr){return ((FreeNodeBase_Empty*)ptr)->get_page();}
+				void* get_memory(){return this;}
+				static FreeNode* as_free_node(void* ptr){return (FreeNode*)ptr;}
+				static const size_type extra_space = 0;
+			};
+			struct FreeNodeBase_Header{
+				page* page_header;
+				void set_page(page* p){
+					page_header = p;
+					assert(((size_t)p & (details::PAGE_SIZE-1))==0);
+				}
+				page* get_page(){
+					assert(((size_t)page_header &(details::PAGE_SIZE-1))==0);
+					return page_header;
+				}
+
+				static page* get_page(void* ptr){
+					void* p = ((FreeNodeBase_Header*)(ptr)-1)->page_header;
+					assert(((size_t)p &(details::PAGE_SIZE-1))==0);
+					return ((FreeNodeBase_Header*)(ptr)-1)->page_header;}
+				void* get_memory(){
+					assert(((size_t)page_header &(details::PAGE_SIZE-1))==0);
+					return this+1;
+				}
+				static 	FreeNode* as_free_node(void* ptr){return (FreeNode*)((FreeNodeBase_Header*)(ptr)-1);}
+				static const size_type extra_space = sizeof(page*);
+			};
+			struct FreeNode:details::Select_< (Size>MinSize),
+			FreeNodeBase_Header,FreeNodeBase_Empty>::type{
 				FreeNode* next;
 			};
-			BOOST_STATIC_ASSERT(Size >= sizeof(FreeNode*));
 			struct page : intrusive_list<page>::node {
 				page():ref_cnt_(0){}
 				size_type ref_cnt_;
@@ -165,8 +201,7 @@ cur_value : MinimumKImpl<A,B,M,cur_value,Depth + 1,MaxDepth>::value);
 			intrusive_list<page> page_list_;
 			FreeNode* free_list_;
 			page* get_page(void* ptr){
-				return (page*)details::align_down(ptr,page_request_size_);
-
+				return FreeNode::get_page(ptr);
 			}
 			void* system_alloc()
 			{
@@ -177,6 +212,7 @@ cur_value : MinimumKImpl<A,B,M,cur_value,Depth + 1,MaxDepth>::value);
 				void* p_last = (void*)((char*)ptr+page_request_size_-requested_size_);
 				((FreeNode*) (p_last))->next = free_list_;
 				free_list_ = (FreeNode*)(p_last);
+				free_list_->set_page(ptr);
 				return ptr;
 			}
 			void system_free(void* ptr)
@@ -187,8 +223,8 @@ cur_value : MinimumKImpl<A,B,M,cur_value,Depth + 1,MaxDepth>::value);
 			void* alloc_from_free_list()
 			{
 				assert(free_list_);
-				void *ptr = free_list_;
-				page* cur_page = get_page(ptr);
+				void* ptr = free_list_->get_memory();
+				page* cur_page = free_list_->get_page();
 				cur_page->inc_ref();
 				if (!free_list_->next && !cur_page->empty())
 				{
@@ -196,7 +232,8 @@ cur_value : MinimumKImpl<A,B,M,cur_value,Depth + 1,MaxDepth>::value);
 					//if (dist >= (sizeof(page)+requested_size_))
 					{
 						free_list_->next = 
-							reinterpret_cast<FreeNode*>((char*)ptr - requested_size_);
+							reinterpret_cast<FreeNode*>((char*)free_list_- requested_size_);
+						free_list_->next->set_page(cur_page);
 						free_list_->next->next = 0;
 					}
 				}
@@ -207,17 +244,21 @@ cur_value : MinimumKImpl<A,B,M,cur_value,Depth + 1,MaxDepth>::value);
 					cur_page->unlink();
 					page_list_.push_back(cur_page);
 				}
-
+				assert(((size_t)(FreeNode::as_free_node(ptr)->get_page())  & (details::PAGE_SIZE -1)) == 0);
+				assert(((size_t)(	get_page(ptr)) & (details::PAGE_SIZE-1)) == 0);
 				return ptr;
 			}
-			static const size_type requested_size_ = Size ;
+			static const size_type requested_size_ = Size + FreeNode::extra_space;
 			//make sure it is mutiple of PAGE_SIZE
 			static const size_type MAX_PAGES = 32;
-			static const size_type page_request_size_ = details::PAGE_SIZE/*(NextCount * requested_size_< details::PAGE_SIZE ?
+			static const size_type computed_size =  (NextCount * requested_size_< details::PAGE_SIZE ?
 				details::MinimumK<requested_size_,details::PAGE_SIZE,sizeof(page),MAX_PAGES>::value : 
 			details::MinimumK<
 				NextCount * requested_size_,details::PAGE_SIZE,sizeof(page),MAX_PAGES
-			>::value)*details::PAGE_SIZE*/;
+			>::value)*details::PAGE_SIZE;
+			static const size_type page_request_size_ = requested_size_ > MinSize? computed_size:details::PAGE_SIZE/**/;
+
+			BOOST_STATIC_ASSERT((requested_size_ > sizeof(FreeNode*)));
 		public:
 			fixed_pool_impl_fast_segregate()
 			{
@@ -231,32 +272,7 @@ cur_value : MinimumKImpl<A,B,M,cur_value,Depth + 1,MaxDepth>::value);
 			}
 
 		};
-		/*
-		template<unsigned Size,unsigned NextCount,typename UserAllocator>
-		struct fixed_pool_impl_rb_tree_segregate{
-		typedef typename UserAllocator::size_type size_type;
-		typedef typename UserAllocator::difference_type difference_type;
-
-		void* malloc(){}
-		void free(void* ptr){}
-		bool release_memory(){}
-		fixed_pool_impl_rb_tree_segregate(){}
-		~fixed_pool_impl_rb_tree_segregate(){}
-		private:
-		struct FreeNode{
-		FreeNode* next;
-		};
-		struct page:public intrusive_multi_rbtree<page>::node{
-		size_type ref_cnt_;
-		};
-		struct page_node:public intrusive_list<page_node>::node{
-		};
-		FreeNode* free_list_;
-		intrusive_rb_tree<page> page_tree_;
-		intrusive_list<page_node> empty_nodes_;
-		};
-		*/
-		//Size < 4 && Size > 1
+		// Size > 1
 		template<unsigned short Size,typename UserAllocator>
 		struct fixed_pool_impl_small_segregate{
 		private:
@@ -597,7 +613,7 @@ Depth : PrevDepth;
 		{};
 		template<unsigned Size,unsigned NextCount, typename UserAllocator>
 		struct fixed_pool_impl:
-			details::Select_<Size < sizeof(void*),
+			details::Select_<Size <= sizeof(void*),
 			fixed_pool_impl_small<Size,UserAllocator>, 
 			fixed_pool_impl_fast_segregate<Size,NextCount,UserAllocator> >::type
 		{};
