@@ -17,7 +17,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="..\..\build\bin\$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
@@ -40,6 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="../../extern/;../../extern/oolua/include;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -60,7 +61,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="lua-5.1.4.lib"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="$(OutDir)"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -92,7 +95,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="..\..\build\bin\$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
@@ -115,6 +118,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="../../extern/;../../extern/oolua/include;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -133,7 +137,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="lua-5.1.4.lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="$(OutDir)"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -175,8 +181,48 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\extern\oolua\src\class_from_stack.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\src\lua_function.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\src\lua_stack_dump.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\src\lua_table.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\src\oolua.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\src\oolua_check_result.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\src\oolua_error.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\src\oolua_storage.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\test.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						GeneratePreprocessedFile="0"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
@@ -184,12 +230,160 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\..\extern\oolua\include\base_checker.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\class_from_stack.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\class_public_member.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\cpp_member_func.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\determin_qualifier.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\export_func_to_lua.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\fwd_push_pull.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\lua_function.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\lua_includes.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\lua_operator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\lua_ref.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\lua_stack_dump.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\lua_table.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\lvd_types.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\member_func_helper.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\oolua.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\oolua_char_arrays.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\oolua_check_result.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\oolua_error.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\oolua_exception.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\oolua_member_function.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\oolua_push_pull.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\oolua_registration.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\oolua_storage.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\oolua_typedefs.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\oolua_userdata.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\oolua_version.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\param_traits.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\platform_check.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\proxy_class.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\proxy_member_caller.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\push_pointer_internal.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extern\oolua\include\type_list.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+		</Filter>
+		<Filter
+			Name="lzy_header"
+			>
+			<File
+				RelativePath=".\l_proxy_member_caller.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\proxy_class_registration.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\virtual_function_inheritance.cpp"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
