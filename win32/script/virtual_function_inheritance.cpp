@@ -33,7 +33,7 @@ namespace OOLUA{
 		enum { is_integral = Type_enum_defaults<type>::is_integral  };
 
 		cpp_acquire_base_ptr(raw* ptr):m_ptr(ptr),m_lua(0),ref(LUA_NOREF),called_(false){}
-		cpp_acquire_base_ptr():m_ptr(0),m_lua(0),ref(LUA_NOREF),called_(false){}
+		cpp_acquire_base_ptr():m_lua(0),ref(LUA_NOREF),called_(false){m_ptr = (T*)(this);}
 
 		raw* m_ptr;
 	protected:
@@ -44,16 +44,17 @@ namespace OOLUA{
 		template<typename R,typename T0,typename T1,typename T2>
 		R call(const char* func_name,T0 t0,T1 t1,T2 t2,R (T::*f)(T0,T1,T2))//pass default call
 		{
-			assert(ref != LUA_NOREF);
-			assert(m_lua);
-
-			if (called_)
+			if (called_ || ref == LUA_NOREF )
 			{
+				assert(m_ptr);
 				called_=false;
 				//default call
 				return (m_ptr->*f)(t0,t1,t2);
 			}
+			assert(ref != LUA_NOREF);
+			assert(m_lua);
 			called_ = true;
+			
 			lua_getref(m_lua,ref);
 
 			printf("%d,",lua_type(m_lua,-1) );
@@ -62,6 +63,11 @@ namespace OOLUA{
 			printf("%d,",lua_type(m_lua,-1) );
 			lua_pushstring(m_lua,func_name);
 			lua_gettable(m_lua,-2);
+			//is_lua_bind_function
+			//if (is_lua_bind_function(m_lua,-1))
+			//{
+			//	printf("is_lua_bind_function\n");
+			//}
 			
 			bool is_func = lua_type(m_lua,-1) == LUA_TFUNCTION;
 			assert(is_func);
@@ -90,10 +96,13 @@ namespace OOLUA{
 		 friend void pull2cpp<T>(lua_State* const,cpp_acquire_base_ptr<T>& );
 	public:
 		cpp_acquire_base_ptr(const cpp_acquire_base_ptr& other)
-			:m_lua(other.m_lua),called_(called_),m_ptr(other.m_ptr)
+			:ref(LUA_NOREF),m_lua(other.m_lua),called_(other.called_),m_ptr(other.m_ptr)
 		{
-			lua_getref(m_lua,other.ref);
-			ref = lua_ref(m_lua,-1);
+			if (other.ref != LUA_NOREF)
+			{
+				lua_getref(m_lua,other.ref);
+				ref = lua_ref(m_lua,-1);
+			}
 		}
 		void swap(cpp_acquire_base_ptr& other)
 		{
@@ -111,6 +120,14 @@ namespace OOLUA{
 			 if (ref != LUA_NOREF)
 				lua_unref(m_lua,ref);
 		 }
+	private:
+		bool is_lua_bind_function(lua_State* L,int index)
+		{
+			if(!lua_getupvalue(L,index,2))
+				return false;
+			lua_pop(L,1);
+			return lua_type(L,-1) == LUA_TFUNCTION;
+		}
 	};
 	//pulls a pointer from the stack which Cpp will then own and call delete on
 	template<typename T>
@@ -143,7 +160,7 @@ namespace OOLUA{
 		//lua_rawget(s,wt);
 		//assert(! lua_isnil(s,-1));
 		value.m_lua = s;
-		
+		value.called_ = false;
 		//value.m_ptr->SetScriptObject(value);		
 		static_cast<cpp_acquire_base_ptr<T>&>(*value.m_ptr) = value;
 		INTERNAL::set_owner(s,value.m_ptr,OOLUA::Cpp);
@@ -221,8 +238,8 @@ OOLUA::Proxy_class< ScriptDerived >::Reg_type OOLUA::Proxy_class< ScriptDerived 
 void test_virtual_inheritance()
 {
 		OOLUA::Script* lua = new OOLUA::Script;
-		lua->register_class<ScriptDerived>(); //--
-		const char* trunk =	"function ScriptDerived:func0(x,y,z) print(\"lua \",x,y,z);return 1000; end  function func() local x = ScriptDerived:new();x:func0(11,22,33); return x; end";
+		lua->register_class<ScriptDerived>(); //--function ScriptDerived:func0(x,y,z) print(\"lua \",x,y,z);return 1000; end  
+		const char* trunk =	"function func() local x = ScriptDerived:new();x:func0(11,22,33); return x; end";
 		if(lua->run_chunk(trunk))
 		{
 			lua->call("func");
