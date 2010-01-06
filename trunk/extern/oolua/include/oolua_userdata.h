@@ -2,6 +2,7 @@
 #	define OOLUA_USERDATA_H_
 
 #include <cstring>
+#include "lua_ref.h"
 namespace OOLUA
 {
     namespace INTERNAL
@@ -13,7 +14,9 @@ namespace OOLUA
 			char* none_const_name;//none constant name of the class
 			int name_size;//size of name
             bool gc;//should it be garbage collected
-			int ref;
+			//Lua_table_ref mt;//meta_table
+			Lua_ud_ref ud;//reference to self;
+			void release(){ud.~Lua_ud_ref();}
         };
 		inline bool id_is_const(Lua_ud* ud)
 		{

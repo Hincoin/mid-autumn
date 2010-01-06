@@ -167,7 +167,13 @@ namespace OOLUA
 			ud->name = (char*) (isConst? OOLUA::Proxy_class<T>::class_name_const :OOLUA::Proxy_class<T>::class_name);
 			ud->none_const_name = (char*) OOLUA::Proxy_class<T>::class_name;
 			ud->name_size = OOLUA::Proxy_class<T>::name_size;
-			ud->ref = LUA_NOREF;
+			
+			//make a reference to self
+			lua_pushvalue(l,-1);
+			ud->ud = Lua_ud_ref(l,lua_ref(l,-1));
+			//lua_pop(l,1);
+			
+			
 
 			lua_getfield(l, LUA_REGISTRYINDEX,ud->name);
 
