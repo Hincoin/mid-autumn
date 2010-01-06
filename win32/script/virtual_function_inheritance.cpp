@@ -32,94 +32,79 @@ namespace OOLUA{
 		enum { is_constant = Type_enum_defaults<type>::is_constant  };
 		enum { is_integral = Type_enum_defaults<type>::is_integral  };
 
-		cpp_acquire_base_ptr(raw* ptr):m_ptr(ptr),m_lua(0),ref(LUA_NOREF),called_(false){}
-		cpp_acquire_base_ptr():m_lua(0),ref(LUA_NOREF),called_(false){m_ptr = (T*)(this);}
+		cpp_acquire_base_ptr(raw* ptr):m_ptr(ptr)called_(false){}
+		cpp_acquire_base_ptr():called_(false){m_ptr = (T*)(this);}
 
 		raw* m_ptr;
 	protected:
-		lua_State* m_lua;
-		int ref;
+		Lua_ud_ref ud;
 		bool called_;
 
 		template<typename R,typename T0,typename T1,typename T2>
 		R call(const char* func_name,T0 t0,T1 t1,T2 t2,R (T::*f)(T0,T1,T2))//pass default call
 		{
-			if (called_ || ref == LUA_NOREF )
+			if (called_ || !ud.valid() )
 			{
 				assert(m_ptr);
 				called_=false;
 				//default call
 				return (m_ptr->*f)(t0,t1,t2);
 			}
-			assert(ref != LUA_NOREF);
-			assert(m_lua);
+			assert(ud.valid());
 			called_ = true;
-			
-			lua_getref(m_lua,ref);
+			lua_State* l = ud.lua_state();
+			INTERNAL::Lua_ud* user_data = INTERNAL::find_ud_dont_care_about_type_and_clean_stack(l,m_ptr);
+			if (!user_data)//user_data is gc-ed
+			{
+				called_ = false;
+				return (m_ptr->*f)(t0,t1,t2);
+			}
+			lua_getref(l,ud.ref());
+			//lua_pushvalue(l,-1);
+			if (!lua_getmetatable(l,-1))
+			{
+				assert(0);
+			}
 
-			printf("%d,",lua_type(m_lua,-1) );
-			OOLUA::push2lua(m_lua,"__index");//table key
-			lua_gettable(m_lua, -2);//table value
-			printf("%d,",lua_type(m_lua,-1) );
-			lua_pushstring(m_lua,func_name);
-			lua_gettable(m_lua,-2);
+			printf("%d,",lua_type(l,-1) );
+			OOLUA::push2lua(l,"__index");//table key
+			lua_gettable(l, -2);//table value
+			printf("%d,",lua_type(l,-1) );
+			lua_pushstring(l,func_name);
+			lua_gettable(l,-2);
 			//is_lua_bind_function
 			//if (is_lua_bind_function(m_lua,-1))
 			//{
 			//	printf("is_lua_bind_function\n");
 			//}
 			
-			bool is_func = lua_type(m_lua,-1) == LUA_TFUNCTION;
+			bool is_func = lua_type(l,-1) == LUA_TFUNCTION;
 			assert(is_func);
 
-			INTERNAL::Lua_ud* ud = INTERNAL::find_ud_dont_care_about_type_and_clean_stack(m_lua,m_ptr);
-			lua_pushlightuserdata(m_lua,ud);
-			push2lua(m_lua,t0);
-			assert(lua_type(m_lua,-1) == LUA_TNUMBER);
 			
-			push2lua(m_lua,t1);
-			assert(lua_type(m_lua,-1) == LUA_TNUMBER);
-			push2lua(m_lua,t2);
-			assert(lua_type(m_lua,-1) == LUA_TNUMBER);
-			int a = lua_isnumber(m_lua,-1);
-			int b = lua_isnumber(m_lua,-2);
-			int c = lua_isnumber(m_lua,-3);
-			if (lua_pcall(m_lua,4,1,0))
+			lua_pushlightuserdata(l,user_data);
+			push2lua(l,t0);
+			assert(lua_type(l,-1) == LUA_TNUMBER);
+			
+			push2lua(l,t1);
+			assert(lua_type(l,-1) == LUA_TNUMBER);
+			push2lua(l,t2);
+			assert(lua_type(l,-1) == LUA_TNUMBER);
+			int a = lua_isnumber(l,-1);
+			int b = lua_isnumber(l,-2);
+			int c = lua_isnumber(l,-3);
+			if (lua_pcall(l,4,1,0))
 			{
 				assert(0);
 			}
 			called_ = false;
 			R r;
-			pull2cpp(m_lua,r);
+			pull2cpp(l,r);
+			lua_pop(l,3);//number of arguments
 			return r;
 		}
 		 friend void pull2cpp<T>(lua_State* const,cpp_acquire_base_ptr<T>& );
 	public:
-		cpp_acquire_base_ptr(const cpp_acquire_base_ptr& other)
-			:ref(LUA_NOREF),m_lua(other.m_lua),called_(other.called_),m_ptr(other.m_ptr)
-		{
-			if (other.ref != LUA_NOREF)
-			{
-				lua_getref(m_lua,other.ref);
-				ref = lua_ref(m_lua,-1);
-			}
-		}
-		void swap(cpp_acquire_base_ptr& other)
-		{
-			std::swap(m_lua,other.m_lua);
-			std::swap(ref,other.ref);
-			std::swap(called_,other.called_);
-			std::swap(m_ptr,other.m_ptr);
-		};
-		cpp_acquire_base_ptr& operator=(cpp_acquire_base_ptr other)
-		{
-			swap(other);
-			return *this;
-		}
-		 ~cpp_acquire_base_ptr(){
-			 if (ref != LUA_NOREF)
-				lua_unref(m_lua,ref);
-		 }
 	private:
 		bool is_lua_bind_function(lua_State* L,int index)
 		{
@@ -155,11 +140,10 @@ namespace OOLUA{
 
 
 		INTERNAL::Lua_ud* ud = INTERNAL::find_ud_dont_care_about_type_and_clean_stack(s,value.m_ptr);
-		value.ref = ud->ref;
+		value.ud = ud->ud;
 		//lua_pushlightuserdata(s,class_ptr);
 		//lua_rawget(s,wt);
 		//assert(! lua_isnil(s,-1));
-		value.m_lua = s;
 		value.called_ = false;
 		//value.m_ptr->SetScriptObject(value);		
 		static_cast<cpp_acquire_base_ptr<T>&>(*value.m_ptr) = value;
@@ -201,27 +185,27 @@ public:
 MAKE_CPP_PORXY(Derived,ScriptDerived)
 
 
-LUA_PROXY_CLASS(AbstractClass)
-OOLUA_TYPEDEFS Abstract OOLUA_END_TYPES
-LUA_MEM_FUNC(int(float,float,float),func0)
-LUA_PROXY_CLASS_END
-
-EXPORT_OOLUA_FUNCTIONS_1_NON_CONST(AbstractClass,func0);
-EXPORT_OOLUA_FUNCTIONS_0_CONST(AbstractClass)
+//LUA_PROXY_CLASS(AbstractClass)
+//OOLUA_TYPEDEFS Abstract OOLUA_END_TYPES
+//LUA_MEM_FUNC(int(float,float,float),func0)
+//LUA_PROXY_CLASS_END
+//
+//EXPORT_OOLUA_FUNCTIONS_1_NON_CONST(AbstractClass,func0);
+//EXPORT_OOLUA_FUNCTIONS_0_CONST(AbstractClass)
 
 ///////////////////////////////////////////////////////////////////////////
 
-LUA_PROXY_CLASS(Derived,AbstractClass)
-OOLUA_NO_TYPEDEFS
-LUA_MEM_FUNC(int(float,float,float),func0)
-LUA_PROXY_CLASS_END
-
-EXPORT_OOLUA_FUNCTIONS_0_CONST(Derived)
-EXPORT_OOLUA_FUNCTIONS_1_NON_CONST(Derived,func0)
+//LUA_PROXY_CLASS(Derived,AbstractClass)
+//OOLUA_NO_TYPEDEFS
+//LUA_MEM_FUNC(int(float,float,float),func0)
+//LUA_PROXY_CLASS_END
+//
+//EXPORT_OOLUA_FUNCTIONS_0_CONST(Derived)
+//EXPORT_OOLUA_FUNCTIONS_1_NON_CONST(Derived,func0)
 
 //////////////////////////////////////////////////////////////////////////
 
-LUA_PROXY_CLASS(ScriptDerived,Derived)
+LUA_PROXY_CLASS(ScriptDerived)
 OOLUA_NO_TYPEDEFS
 LUA_MEM_FUNC_RENAME(int(float,float,float),func0,func0_call_from_script)
 LUA_PROXY_CLASS_END
@@ -238,18 +222,31 @@ OOLUA::Proxy_class< ScriptDerived >::Reg_type OOLUA::Proxy_class< ScriptDerived 
 void test_virtual_inheritance()
 {
 		OOLUA::Script* lua = new OOLUA::Script;
-		lua->register_class<ScriptDerived>(); //--function ScriptDerived:func0(x,y,z) print(\"lua \",x,y,z);return 1000; end  
-		const char* trunk =	"function func() local x = ScriptDerived:new();x:func0(11,22,33); return x; end";
+		lua->register_class<ScriptDerived>(); //--function ScriptDerived:func0(x,y,z) print(\"lua \",x,y,z);return 1000; end
+		const char* trunk =	"  function func() local x = ScriptDerived:new();x:func0(11,22,33); return x; end";
 		if(lua->run_chunk(trunk))
 		{
-			lua->call("func");
-			//OOLUA::cpp_acquire_base_ptr<ScriptDerived> r; 
-			OOLUA::make_cpp_proxy<Derived>::type r;
-			OOLUA::pull2cpp(*lua,r);
-			AbstractClass* abc = r.m_ptr;
-			lua->gc();
-			int x = abc->func0(1.1f,2.2f,3.3f);
-			printf("func0 return : %d \n",x);
+			int k = 0;
+			while(k++ < 100 )
+			{
+				lua->call("func");
+				//OOLUA::cpp_acquire_base_ptr<ScriptDerived> r; 
+				OOLUA::make_cpp_proxy<Derived>::type r;
+				OOLUA::pull2cpp(*lua,r);
+				AbstractClass* abc = r.m_ptr;
+				using namespace OOLUA;
+				int i = 0;
+				int x;
+				lua->gc();
+				while (i++ < 100)
+				{
+					x = abc->func0(1.1f,2.2f,3.3f);
+				}
+				printf("func0 return : %d \n",x);
+				
+				delete abc;
+			}
+
 		}
 		delete lua;
 }

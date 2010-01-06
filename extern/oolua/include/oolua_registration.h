@@ -60,6 +60,7 @@ namespace OOLUA
 		int delete_type(lua_State * /*const*/ l)
 		{
 			Lua_ud *ud = static_cast<Lua_ud *>( lua_touserdata(l, -1) );
+			ud->release();
 			delete static_cast<T*>(ud->void_class_ptr);
 			return 0;
 		}
@@ -75,6 +76,7 @@ namespace OOLUA
 			{
 				delete static_cast<T*>(ud->void_class_ptr);
 			}
+			ud->release();
 			//ud will be cleaned up by the Lua API
 			return 0;
 		}

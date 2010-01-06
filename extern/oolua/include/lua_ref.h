@@ -37,13 +37,25 @@ namespace OOLUA
 		Lua_ref(lua_State* const lua,int const& ref);
 		explicit Lua_ref(lua_State* const lua);
 		Lua_ref();
-		Lua_ref& operator =(Lua_ref const& /*rhs*/);//unimplemented
-		Lua_ref(Lua_ref const& /*rhs*/);//unimplemented
+		Lua_ref& operator =(Lua_ref rhs)//unimplemented
+		{
+			swap(rhs);
+			return *this;
+		}
+		Lua_ref(Lua_ref const& rhs):m_lua(rhs.m_lua),m_ref(LUA_NOREF)
+		{
+			if (rhs.m_ref != LUA_NOREF)
+			{
+				lua_getref(m_lua,rhs.m_ref);
+				m_ref = lua_ref(m_lua,-1);
+			}
+		}
 		~Lua_ref();
 		bool valid()const;
 		int const& ref()const;
 		void set_ref(lua_State* const lua,int const& ref);
 		void swap(Lua_ref & rhs);
+		lua_State* lua_state()const{return m_lua;}
 	private:
 		void release();
 		lua_State* m_lua;
@@ -113,6 +125,8 @@ namespace OOLUA
 	///\typedef Lua_func_ref 
 	///Wrapper for a lua function
 	typedef Lua_ref<1> Lua_func_ref;
+
+	typedef Lua_ref<2> Lua_ud_ref;//user data ref
 
 
 }
