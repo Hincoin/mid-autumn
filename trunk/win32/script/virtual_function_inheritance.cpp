@@ -60,11 +60,6 @@ namespace OOLUA{
 				return (m_ptr->*f)(t0,t1,t2);
 			}
 			lua_getref(l,ud.ref());
-			//lua_pushvalue(l,-1);
-			if (!lua_getmetatable(l,-1))
-			{
-				assert(0);
-			}
 
 			printf("%d,",lua_type(l,-1) );
 			OOLUA::push2lua(l,"__index");//table key
@@ -100,7 +95,7 @@ namespace OOLUA{
 			called_ = false;
 			R r;
 			pull2cpp(l,r);
-			lua_pop(l,3);//number of arguments
+			lua_pop(l,2);//number of arguments ?
 			return r;
 		}
 		 friend void pull2cpp<T>(lua_State* const,cpp_acquire_base_ptr<T>& );
@@ -237,11 +232,12 @@ void test_virtual_inheritance()
 				using namespace OOLUA;
 				int i = 0;
 				int x;
-				lua->gc();
+				
 				while (i++ < 100)
 				{
 					x = abc->func0(1.1f,2.2f,3.3f);
 				}
+				lua->gc();
 				printf("func0 return : %d \n",x);
 				
 				delete abc;

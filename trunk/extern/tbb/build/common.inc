@@ -44,7 +44,7 @@ ifndef tbb_os
 endif # !tbb_os
 
 ifeq ($(wildcard $(tbb_root)/build/$(tbb_os).inc),)
-  $(error "$(tbb_os)" is not supported. Add $(tbb_root)/build/$(tbb_os).inc file with os-specific settings )
+  $(error "$(tbb_os)" is not supported. Add build/$(tbb_os).inc file with os-specific settings )
 endif
 
 # detect arch and runtime versions, provide common os-specific definitions

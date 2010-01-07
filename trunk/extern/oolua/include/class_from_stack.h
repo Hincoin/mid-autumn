@@ -116,6 +116,14 @@ namespace OOLUA
 				return 0;
 			INTERNAL::Lua_ud * ud = static_cast<INTERNAL::Lua_ud *>( lua_touserdata(l, narg) );
 
+			//make a reference to metatable
+			lua_pushvalue(l,narg);
+			if (lua_getmetatable(l,-1))
+			{
+				ud->ud = Lua_ud_ref(l,lua_ref(l,-1));
+			}
+			lua_pop(l,1);
+
 			////is the type the was on the stack the same as either of the two which were pushed after
 			if(! INTERNAL::ids_equal(ud->none_const_name,ud->name_size
 								,(char*)Proxy_class<T>::class_name,Proxy_class<T>::name_size) )
@@ -134,6 +142,14 @@ namespace OOLUA
 			if( ! index_is_userdata(l,narg,Proxy_class<T>::class_name) )
 				return 0;
 			INTERNAL::Lua_ud * ud = static_cast<INTERNAL::Lua_ud *>( lua_touserdata(l, narg) );
+
+			//make a reference to metatable
+			lua_pushvalue(l,narg);
+			if (lua_getmetatable(l,-1))
+			{
+				ud->ud = Lua_ud_ref(l,lua_ref(l,-1));
+			}
+			lua_pop(l,1);
 
 			if( INTERNAL::id_is_const(ud) )
 			{
