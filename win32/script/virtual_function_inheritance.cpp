@@ -217,8 +217,8 @@ OOLUA::Proxy_class< ScriptDerived >::Reg_type OOLUA::Proxy_class< ScriptDerived 
 void test_virtual_inheritance()
 {
 		OOLUA::Script* lua = new OOLUA::Script;
-		lua->register_class<ScriptDerived>(); //--function ScriptDerived:func0(x,y,z) print(\"lua \",x,y,z);return 1000; end
-		const char* trunk =	"  function func() local x = ScriptDerived:new();x:func0(11,22,33); return x; end";
+		lua->register_class<ScriptDerived>(); //--
+		const char* trunk =	"function ScriptDerived:func0(x,y,z) print(\"lua \",x,y,z);return 1000; end  function func() local x = ScriptDerived:new();x:func0(11,22,33); return x; end";
 		if(lua->run_chunk(trunk))
 		{
 			int k = 0;
