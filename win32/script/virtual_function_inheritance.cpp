@@ -68,7 +68,7 @@ namespace OOLUA{
 			lua_pushstring(l,func_name);
 			lua_gettable(l,-2);
 			//is_lua_bind_function
-			//if (is_lua_bind_function(m_lua,-1))
+			//if (is_lua_bind_function(l,-1))
 			//{
 			//	printf("is_lua_bind_function\n");
 			//}
@@ -103,7 +103,7 @@ namespace OOLUA{
 	private:
 		bool is_lua_bind_function(lua_State* L,int index)
 		{
-			if(!lua_getupvalue(L,index,2))
+			if(!lua_getupvalue(L,index,1))
 				return false;
 			lua_pop(L,1);
 			return lua_type(L,-1) == LUA_TFUNCTION;
