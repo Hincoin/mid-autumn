@@ -11,51 +11,41 @@
 ///  @email
 ///  See http://www.liamdevine.co.uk for contact details.
 ///  @licence
-///  This work is licenced under a Creative Commons Licence. \n
-///  see: \n
-///  http://creativecommons.org/licenses/by-nc-sa/3.0/ \n
-///  and: \n
-///  http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode \n
-///  For more details.
+///  See licence.txt for more details.
 ///////////////////////////////////////////////////////////////////////////////
 #ifndef PARAM_TRAITS_H_
-#	define PARAM_TRAITS_H_
+#       define PARAM_TRAITS_H_
 
-#	include "lvd_types.h"
-#	include "determin_qualifier.h"
-
+#       include "lvd_types.h"
+#       include "determin_qualifier.h"
+#       include <string>
 namespace OOLUA
 {
 	///////////////////////////////////////////////////////////////////////////////
 	///  @struct in_p
 	///  Input parameter trait
-	///  @author Liam Devine @date 17/02/2008
 	///////////////////////////////////////////////////////////////////////////////
 	template<typename T>struct in_p;
 	///////////////////////////////////////////////////////////////////////////////
 	///  @struct out_p
 	///  Output parameter trait
-	///  @author Liam Devine @date 17/02/2008
 	///////////////////////////////////////////////////////////////////////////////
 	template<typename T>struct out_p;
 	///////////////////////////////////////////////////////////////////////////////
 	///  @struct in_out_p
 	///  Input and output parameter trait
-	///  @author Liam Devine @date 17/02/2008
 	///////////////////////////////////////////////////////////////////////////////
 	template<typename T>struct in_out_p;
 
 	///////////////////////////////////////////////////////////////////////////////
 	///  @struct cpp_in_p
 	///  Input parameter trait which cpp takes ownership of
-	///  @author Liam Devine @date 17/02/2008
 	///////////////////////////////////////////////////////////////////////////////
 	template<typename T>struct cpp_in_p;
 
 	///////////////////////////////////////////////////////////////////////////////
 	///  @struct lua_out_p
 	///  Output parameter trait which Lua takes ownership of
-	///  @author Liam Devine @date 17/02/2008
 	///////////////////////////////////////////////////////////////////////////////
 	template<typename T>struct lua_out_p;
 
@@ -105,22 +95,17 @@ namespace OOLUA
 		typedef typename LVD::remove_all_ptrs<T>::type type;
 	};
 
-	template<typename T>
-	struct param_type;
-
 	template<typename T,int is_intergal>struct Pull_type;
 
 	template<typename T>
 	struct Pull_type<T,0>
 	{
 		typedef T* type;
-		//typedef param_type<T> parameter_type;
 	};
 	template<typename T>
 	struct Pull_type<T,1>
 	{
 		typedef T type;
-		//typedef param_type<T> parameter_type;
 	};
 
 	template<typename T,typename Orignal_Type,int is_intergal>struct Pull_type_;
@@ -129,17 +114,15 @@ namespace OOLUA
 	struct Pull_type_<T,Orignal_Type,0>
 	{
 		typedef typename LVD::if_else<
-										LVD::is_const<Orignal_Type>::value
-										,T const*
-										,T*
-									>::type type;
-		//typedef param_type<Orignal_Type> parameter_type;
+			LVD::is_const<Orignal_Type>::value
+			,T const*
+			,T*
+		>::type type;
 	};
 	template<typename T,typename Orignal_Type>
 	struct Pull_type_<T,Orignal_Type,1>
 	{
 		typedef T type;
-		//typedef param_type<Orignal_Type> parameter_type;
 	};
 
 	template<typename T>
@@ -161,7 +144,7 @@ namespace OOLUA
 	{
 		typedef T* type;
 		typedef typename Raw_type<T>::type raw;
-        typedef typename Pull_type<T,LVD::is_integral_type<raw>::value >::type pull_type;
+		typedef typename Pull_type<T,LVD::is_integral_type<raw>::value >::type pull_type;
 		enum { in = 1};
 		enum { out = 1};
 		enum { owner = No_change};
@@ -175,7 +158,7 @@ namespace OOLUA
 	{
 		typedef T& type;
 		typedef typename Raw_type<T>::type raw;
-        typedef typename Pull_type<T,LVD::is_integral_type<raw>::value >::type pull_type;
+		typedef typename Pull_type<T,LVD::is_integral_type<raw>::value >::type pull_type;
 		enum { in = 1};
 		enum { out = 1};
 		enum { owner = No_change};
@@ -189,7 +172,7 @@ namespace OOLUA
 	{
 		typedef T type;
 		typedef typename Raw_type<T>::type raw;
-        typedef typename Pull_type<T,LVD::is_integral_type<raw>::value >::type pull_type;
+		typedef typename Pull_type<T,LVD::is_integral_type<raw>::value >::type pull_type;
 		enum { in = 0};
 		enum { out = 1};
 		enum { owner = No_change};
@@ -215,7 +198,7 @@ namespace OOLUA
 	{
 		typedef T* type;
 		typedef typename Raw_type<T>::type raw;
-        typedef typename Pull_type<T,LVD::is_integral_type<raw>::value >::type pull_type;
+		typedef typename Pull_type<T,LVD::is_integral_type<raw>::value >::type pull_type;
 		enum { in = 0};
 		enum { out = 1};
 		enum { owner = No_change};
@@ -224,12 +207,13 @@ namespace OOLUA
 		enum { is_integral = Type_enum_defaults<type>::is_integral  };
 	};
 
+
 	template<typename T>
 	struct out_p<T const*>
 	{
 		typedef T const* type;
 		typedef typename Raw_type<T>::type raw;
-        typedef typename Pull_type<T,LVD::is_integral_type<raw>::value >::type pull_type;
+		typedef typename Pull_type<T,LVD::is_integral_type<raw>::value >::type pull_type;
 		enum { in = 0};
 		enum { out = 1};
 		enum { owner = No_change};
@@ -242,7 +226,7 @@ namespace OOLUA
 	{
 		typedef T& type;
 		typedef typename Raw_type<T>::type raw;
-        typedef typename Pull_type<T,LVD::is_integral_type<raw>::value >::type pull_type;
+		typedef typename Pull_type<T,LVD::is_integral_type<raw>::value >::type pull_type;
 		enum { in = 0};
 		enum { out = 1};
 		enum { owner = No_change};
@@ -258,7 +242,7 @@ namespace OOLUA
 	{
 		typedef T& type;
 		typedef typename Raw_type<T>::type raw;
-        typedef typename Pull_type<T,LVD::is_integral_type<raw>::value >::type pull_type;
+		typedef typename Pull_type<T,LVD::is_integral_type<raw>::value >::type pull_type;
 		enum { in = 1};
 		enum { out = 0};
 		enum { owner = Cpp};
@@ -271,7 +255,7 @@ namespace OOLUA
 	{
 		typedef T* type;
 		typedef typename Raw_type<T>::type raw;
-        typedef typename Pull_type<T,LVD::is_integral_type<raw>::value >::type pull_type;
+		typedef typename Pull_type<T,LVD::is_integral_type<raw>::value >::type pull_type;
 		enum { in = 1};
 		enum { out = 0};
 		enum { owner = Cpp};
@@ -285,7 +269,7 @@ namespace OOLUA
 	{
 		typedef T& type;
 		typedef typename Raw_type<T>::type raw;
-        typedef typename Pull_type<T,LVD::is_integral_type<raw>::value >::type pull_type;
+		typedef typename Pull_type<T,LVD::is_integral_type<raw>::value >::type pull_type;
 		enum { in = 0};
 		enum { out = 1};
 		enum { owner = Lua};
@@ -298,7 +282,7 @@ namespace OOLUA
 	{
 		typedef T* type;
 		typedef typename Raw_type<T>::type raw;
-        typedef typename Pull_type<T,LVD::is_integral_type<raw>::value >::type pull_type;
+		typedef typename Pull_type<T,LVD::is_integral_type<raw>::value >::type pull_type;
 		enum { in = 0};
 		enum { out = 1};
 		enum { owner = Lua};
@@ -311,8 +295,6 @@ namespace OOLUA
 	///  @struct cpp_owned_ptr
 	///  Informs the binding that Cpp will take control of the pointer and call
 	///  delete on it when appropriate.
-	///  @remarks <TODO: insert remarks here>
-	///  @author Liam Devine @date 27/02/2008
 	///////////////////////////////////////////////////////////////////////////////
 	template<typename T>struct cpp_acquire_ptr;
 
@@ -352,7 +334,8 @@ namespace OOLUA
 		raw* m_ptr;
 	};
 
-//////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////
+
 	template<typename T, typename T1>
 	struct add_out_param
 	{
@@ -363,7 +346,6 @@ namespace OOLUA
 	///  @struct total_out_params
 	///  Adds the amount of return parameters together
 	///  which is an enum in the type
-	///  @author Liam Devine @date 17/02/2008
 	///////////////////////////////////////////////////////////////////////////////
 	//template<typename T>struct total_out_params;
 
@@ -381,7 +363,6 @@ namespace OOLUA
 	///////////////////////////////////////////////////////////////////////////////
 	///  @struct has_param_traits
 	///  Checks if the type is a trait type or not.
-	///  @author Liam Devine @date 17/02/2008
 	///////////////////////////////////////////////////////////////////////////////
 	template<typename T>struct has_param_traits;
 
@@ -427,11 +408,11 @@ namespace OOLUA
 		enum {value = 1};
 	};
 
+
 	///////////////////////////////////////////////////////////////////////////////
 	///  @struct param_type_typedef
 	///  Typedefs the raw underlying type weather it is already a raw type or
 	///  a type wrapped in a trait.
-	///  @author Liam Devine @date 17/02/2008
 	///////////////////////////////////////////////////////////////////////////////
 	template<typename T, bool True>
 	struct param_type_typedef
@@ -466,7 +447,6 @@ namespace OOLUA
 	///  @struct param_type
 	///  Uses param_type_typedef and has_param_traits to define the type and its
 	///  in_p in_out_p or out_p traits.
-	///  @author Liam Devine @date 17/02/2008
 	///////////////////////////////////////////////////////////////////////////////
 	template<typename T>
 	struct param_type
@@ -501,7 +481,6 @@ namespace OOLUA
 
 	};
 
-	//template<typename T,typename T1>struct Converter;
 	template<typename Pull_type,typename Real_type>struct Converter;
 
 	template<typename T>
@@ -647,7 +626,7 @@ namespace OOLUA
 	struct Converter<T*,T const*const&>
 	{
 		Converter(T* t):m_t(t){}
-        operator T const * /*const*/() const
+		operator T const * /*const*/() const
 		{
 			return m_t;
 		}
@@ -679,6 +658,7 @@ namespace OOLUA
 		Converter(Converter const &);
 		T* m_t;
 	};
+
 
 	template<typename T>
 	struct Converter<T,T>
@@ -752,6 +732,64 @@ namespace OOLUA
 		Converter& operator =(Converter const &);
 		Converter(Converter const &);
 		T const* m_t;
+	};
+
+
+	///////////////////////////////////////////////////////////////////////////////
+	///  Specialisation for C style strings
+	///////////////////////////////////////////////////////////////////////////////
+	template<>
+	struct in_p<char*>
+	{
+		typedef char* type;
+		typedef std::string raw;
+		typedef std::string pull_type;
+		enum {in = 1};
+		enum {out = 0};
+		enum {owner = No_change};
+		enum { is_by_value = 0 };
+		enum { is_constant = 0 };
+		enum { is_integral = 1 };
+	};
+
+	template<>
+	struct Converter<std::string,char *>
+	{
+		Converter(std::string & t):m_t(&t[0]){}
+		operator char * () const
+		{
+			return m_t;
+		}
+		Converter& operator =(Converter const &);
+		Converter(Converter const &);
+		char * m_t;
+	};
+
+	template<>
+	struct in_p<char const*>
+	{
+		typedef char const* type;
+		typedef std::string raw;
+		typedef std::string pull_type;
+		enum {in = 1};
+		enum {out = 0};
+		enum {owner = No_change};
+		enum { is_by_value = 0 };
+		enum { is_constant = 1 };
+		enum { is_integral = 1 };
+	};
+
+	template<>
+	struct Converter<std::string,char const*>
+	{
+		Converter(std::string const& t):m_t(t.c_str()){}
+		operator char const* () const
+		{
+			return m_t;
+		}
+		Converter& operator =(Converter const &);
+		Converter(Converter const &);
+		char const* m_t;
 	};
 
 }

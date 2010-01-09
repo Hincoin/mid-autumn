@@ -129,7 +129,34 @@ namespace OOLUA
 				OOLUA::push2lua(l,*value);
 			}
 		};
-
+		template<>
+		struct push_ptr_2lua<char,true>
+		{
+			static void push2lua(lua_State* const l,char* const& value,Owner)
+			{
+				assert(l && value);
+				lua_pushstring(l,value);
+			}
+			static void push2lua(lua_State* const l,char* const& value)
+			{
+				assert(l && value);
+				lua_pushstring(l,value);
+			}
+		};
+		template<>
+		struct push_ptr_2lua<char const,true>
+		{
+			static void push2lua(lua_State* const l,char const* const& value,Owner)
+			{
+				assert(l&&value);
+				lua_pushstring(l,value);
+			}
+			static void push2lua(lua_State* const l,char const* const& value)
+			{
+				assert(l && value);
+				lua_pushstring(l,value);
+			}
+		};
 	}
 
 	void inline push2lua(lua_State* const s, bool const& value)
@@ -146,6 +173,11 @@ namespace OOLUA
 	{
 		assert(s && value);
 		lua_pushstring (s, value);
+	}
+	void inline push2lua(lua_State*const s,char* const& value)
+	{
+		assert(s && value);
+		lua_pushstring(s, value);
 	}
 	void inline push2lua(lua_State* const s, double const& value)
 	{
