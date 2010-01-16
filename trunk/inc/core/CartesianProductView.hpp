@@ -98,8 +98,8 @@ namespace boost{
 				typedef typename fold< 
 					S, false_, 
 					or_< 
-					_1, boost::is_same< begin<_2>, end<_2> > 
-					// empty<_2> refuses to compile on MSVC 7.1
+					_1, //boost::is_same< begin<_2>, end<_2> > 
+					 empty<_2> //refuses to compile on MSVC 7.1
 					> 
 				>::type
 				empty_result;
