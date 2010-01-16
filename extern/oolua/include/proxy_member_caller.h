@@ -27,13 +27,13 @@ namespace OOLUA
 		//	OOLUA::Member_func_helper<R,R::owner>::push2lua(l,r);
 		//}
 #define MA_LUA_CONVERTER_AUX(z,N,_)\
-	typedef param_type<boost::mpl::at_c<Seq,N>::type> P##N##_T;\
-	Converter<typename P##N##_T::pull_type, typename P##N##_T::type> p_##N##(boost::fusion::at_c<N>(p));\
+	typedef param_type<typename boost::mpl::at_c<Seq,N>::type> P##N##_T;\
+	Converter<typename P##N##_T::pull_type, typename P##N##_T::type> p_##N(boost::fusion::at_c<N>(p));\
 
 #define MA_LUA_PROXY_MEMBER_CALL_AUX(z,N,T)\
 	template<typename Seq, BOOST_PP_ENUM_PARAMS(N,typename P) BOOST_PP_COMMA_IF(N) typename FuncType>\
 	static void call(lua_State* const l, C* m_this,FuncType ptr2mem ,\
-	 boost::fusion::vector<BOOST_PP_ENUM_PARAMS(N,P)>& BOOST_PP_IF(N,p,)\
+	 boost::fusion::vector##N<BOOST_PP_ENUM_PARAMS(N,P)>& BOOST_PP_IF(N,p,)\
 		)\
 		{\
 		BOOST_PP_REPEAT(N,MA_LUA_CONVERTER_AUX,_)\
@@ -64,13 +64,13 @@ namespace OOLUA
 			(m_this->*ptr2mem)();
 		}
 #define MA_LUA_CONVERTER_AUX(z,N,_)\
-	typedef param_type<boost::mpl::at_c<Seq,N>::type> P##N##_T;\
-	Converter<typename P##N##_T::pull_type, typename P##N##_T::type> p_##N##(boost::fusion::at_c<N>(p));\
+	typedef param_type<typename boost::mpl::at_c<Seq,N>::type> P##N##_T;\
+	Converter<typename P##N##_T::pull_type, typename P##N##_T::type> p_##N(boost::fusion::at_c<N>(p));\
 
 #define MA_LUA_PROXY_MEMBER_CALL_AUX(z,N,T)\
 	template<typename Seq, BOOST_PP_ENUM_PARAMS(N,typename P) BOOST_PP_COMMA_IF(N) typename FuncType>\
 	static void call(lua_State* const l, C* m_this,FuncType ptr2mem ,\
-	boost::fusion::vector<BOOST_PP_ENUM_PARAMS(N,P)>& BOOST_PP_IF(N,p,)\
+	boost::fusion::vector##N<BOOST_PP_ENUM_PARAMS(N,P)>& BOOST_PP_IF(N,p,)\
 	)\
 		{\
 		BOOST_PP_REPEAT(N,MA_LUA_CONVERTER_AUX,_)\
