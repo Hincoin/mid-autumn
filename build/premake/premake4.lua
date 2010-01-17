@@ -20,6 +20,8 @@ configuration "Release"
 	targetdir (root_dir .. "/build/bin/release")
 	libdirs(root_dir .. "/build/bin/release")
 
+configuration {"linux","gmake"}
+buildoptions{"-std=c++0x","-fpermissive"}
 
 
 
@@ -40,6 +42,7 @@ files{
 }
 	
 ----------------------------------------------------------------------
+--a static core library
 project "pbr"
 kind "ConsoleApp"
 language "C++"
@@ -57,6 +60,22 @@ files{
 }
 	
 -----------------------------------------------------------------------
+--an application with extensions
+project "pbr_ext"
+kind "ConsoleApp"
+language "C++"
+
+includedirs{
+	root_dir .. "/extern/",
+	root_dir .. "/extern/tbb/include/",
+	root_dir .. "/inc/core/",
+	root_dir .. "/inc/pbr/",
+}
+
+files{ 
+	root_dir .. "/inc/pbr/*.hpp",
+}
+-----------------------------------------------------------------------
 cwd = os.getcwd()
 cp_cmd="cp"
 mk_cmd="make"
@@ -64,7 +83,6 @@ if os_type == "windows" then
 	cp_cmd="copy"
 	mk_cmd="mingw-make32"--use mingw by default
 end
-
 --external libraries
 --tbb
 os.chdir((root_dir .. "/extern/tbb"))

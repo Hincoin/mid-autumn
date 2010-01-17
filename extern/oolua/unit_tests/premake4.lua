@@ -13,11 +13,10 @@ files
 }
 includedirs 
 {
---	"include/cppunit",
---	"include/gmock",
-	"../" .. "../" .. "cppunit/include",
-	"../" .. "../" .."gmock/include",
-	"../" .. "../" .."gmock/gtest/include",
+	"include/cppunit",
+	"include/gmock",
+--	"../" .. "../" .. "cppunit/include",
+--	"../" .. "../" .."gmock/include",
 	"include/lua",
 	"include/",
 	root .. "include/",
@@ -56,8 +55,9 @@ links
 
 	configuration {"gmake or codeblocks","linux or macosx" }
 		libdirs {"usr/local/lib","usr/lib"}
-		links{ "cppunit", "lua" }
-		linkoptions{"`gmock-config --cxxflags --ldflags --libs`"}
+		links{ "cppunit", "lua", "gmock" }
+		linkoptions{"`../../gmock/scripts/gmock-config --cxxflags --ldflags --libs`"}
+
 
 	configuration {"xcode3" }
 		libdirs {"usr/local/lib","usr/lib"}
@@ -72,8 +72,10 @@ links
 		
 	configuration {"gmake","Debug"}	
 		postbuildcommands  { root .. "bin/Debug/" .. name }
+	--	libdirs{"../../../build/bin/debug"}
 		
 	configuration {"gmake","Release"}	
+	--	libdirs{"../../../build/bin/release"}
 		postbuildcommands { root .. "bin/Release/" .. name }
 
 	configuration {"linux" }
