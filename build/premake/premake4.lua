@@ -40,7 +40,8 @@ files{
 	root_dir .. "/src/core/*.hpp",
 	root_dir .. "/src/core/*.cpp",
 }
-	
+	defines{"CORE_SOURCE"}
+
 ----------------------------------------------------------------------
 --a static core library
 project "pbr"
@@ -58,6 +59,7 @@ files{
 	root_dir .. "/inc/pbr/*.hpp",
 	root_dir .. "/src/pbr/*.cpp",
 }
+defines{"CORE_SOURCE"}
 	
 -----------------------------------------------------------------------
 --an application with extensions
@@ -68,13 +70,26 @@ language "C++"
 includedirs{
 	root_dir .. "/extern/",
 	root_dir .. "/extern/tbb/include/",
+	root_dir .. "/extern/oolua/include/",
 	root_dir .. "/inc/core/",
 	root_dir .. "/inc/pbr/",
+	root_dir .. "/inc/pbr_ext/",
 }
 
 files{ 
 	root_dir .. "/inc/pbr/*.hpp",
+	root_dir .. "/inc/pbr_ext/*.hpp",
+	root_dir .. "/src/pbr_ext/*.cpp",
 }
+
+configuration{"Debug"}
+	links{"oolua_d" --[[,"pbr"]]}
+configuration{"Release"}
+	links{"oolua"}
+
+	
+	
+	
 -----------------------------------------------------------------------
 cwd = os.getcwd()
 cp_cmd="cp"
