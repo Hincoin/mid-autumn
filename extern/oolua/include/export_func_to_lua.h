@@ -225,4 +225,28 @@ EXPORT_OOLUA_FUNCTIONS_15_(OOLUA_NON_CONST,Class,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,
 EXPORT_OOLUA_FUNCTIONS_0_NON_CONST(Class)\
 EXPORT_OOLUA_FUNCTIONS_0_CONST(Class)
 ///  @}
+//
+//
+
+
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/tuple/to_seq.hpp>
+#include "oolua_ppargn.h"
+
+#define ADD_MEMFUNC(z,Class,F)\
+	{#F,&OOLUA::Proxy_class<Class>::F},
+
+#define EXPORT_FUNCTIONS(MOD,CLASS,...)\
+	CLASS_LIST_MEMBERS_START_##MOD(CLASS)\
+	BOOST_PP_FOREACH(ADD_MEMFUNC,CLASS,BOOST_PP_TUPLE_TO_SEQ(PP_ARGN(_VA_ARGS_),(_VA_ARGS_))\
+	CLASS_LIST_MEMBERS__END
+	
+#define EXPORT_FUNCTIONS_CONST(CLASS,...)\
+			EXPORT_FUNCTIONS(OOLUA_CONST,CLASS,_VA_ARGS_)
+
+
+#define EXPORT_FUNCTIONS_NON_CONST(CLASS,...)\
+			EXPORT_FUNCTIONS(OOLUA_NON_CONST ,CLASS,_VA_ARGS_)
+
+
 #endif 
