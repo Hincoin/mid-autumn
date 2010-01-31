@@ -85,6 +85,71 @@ namespace OOLUA
 #undef MA_LUA_CONVERTER_AUX
 	};
 
+
+	template <typename R  >
+	struct Proxy_caller_impl<R,void,0>
+	{
+		template<typename FuncType>
+		static void call(lua_State*  const l, FuncType ptr2mem )
+		{
+			typename R::type r( (m_this->*ptr2mem)() );
+			OOLUA::Member_func_helper<R,R::owner>::push2lua(l,r);
+		}
+#define MA_LUA_CONVERTER_AUX(z,N,_)\
+	typedef param_type<typename boost::mpl::at_c<Seq,N>::type> P##N##_T;\
+	Converter<typename P##N##_T::pull_type, typename P##N##_T::type> p_##N(boost::fusion::at_c<N>(p));\
+
+#define MA_LUA_PROXY_MEMBER_CALL_AUX(z,N,T)\
+	template<typename Seq, BOOST_PP_ENUM_PARAMS(N,typename P) BOOST_PP_COMMA_IF(N) typename FuncType>\
+	static void call(lua_State* const l, FuncType ptr2mem ,\
+	boost::fusion::vector##N<BOOST_PP_ENUM_PARAMS(N,P)>& BOOST_PP_IF(N,p,)\
+	)\
+		{\
+		BOOST_PP_REPEAT(N,MA_LUA_CONVERTER_AUX,_)\
+		typename R::type r((*ptr2mem)(\
+		BOOST_PP_ENUM_PARAMS(N,p_)\
+		));\
+		OOLUA::Member_func_helper<R,R::owner>::push2lua(l,r);\
+		}\
+		}\
+
+#ifndef MA_FUNCTION_MAX_ARG_NUM
+#define MA_FUNCTION_MAX_ARG_NUM 10
+#endif
+		BOOST_PP_REPEAT(MA_FUNCTION_MAX_ARG_NUM,MA_LUA_PROXY_MEMBER_CALL_AUX,_)
+#undef MA_LUA_PROXY_MEMBER_CALL_AUX
+#undef MA_LUA_CONVERTER_AUX
+	};
+
+	template <typename R  >
+	struct Proxy_caller_impl<R,void,1>
+	{
+		template<typename FuncType>
+		static void call(lua_State*  const /*l*/, FuncType ptr2mem )
+		{
+			(*ptr)();
+		}
+#define MA_LUA_CONVERTER_AUX(z,N,_)\
+	typedef param_type<typename boost::mpl::at_c<Seq,N>::type> P##N##_T;\
+	Converter<typename P##N##_T::pull_type, typename P##N##_T::type> p_##N(boost::fusion::at_c<N>(p));\
+
+#define MA_LUA_PROXY_MEMBER_CALL_AUX(z,N,T)\
+	template<typename Seq, BOOST_PP_ENUM_PARAMS(N,typename P) BOOST_PP_COMMA_IF(N) typename FuncType>\
+	static void call(lua_State* const l, FuncType ptr2mem ,\
+	boost::fusion::vector##N<BOOST_PP_ENUM_PARAMS(N,P)>& BOOST_PP_IF(N,p,)\
+	)\
+		{\
+		BOOST_PP_REPEAT(N,MA_LUA_CONVERTER_AUX,_)\
+		(*ptr2mem)(BOOST_PP_ENUM_PARAMS(N,p_));\
+		}\
+
+#ifndef MA_FUNCTION_MAX_ARG_NUM
+#define MA_FUNCTION_MAX_ARG_NUM 10
+#endif
+		BOOST_PP_REPEAT(MA_FUNCTION_MAX_ARG_NUM,MA_LUA_PROXY_MEMBER_CALL_AUX,_)
+#undef MA_LUA_PROXY_MEMBER_CALL_AUX
+#undef MA_LUA_CONVERTER_AUX
+	};
 	template <typename PReturn, typename Class> struct Proxy_caller
 		:Proxy_caller_impl<PReturn,Class,LVD::is_void<typename  PReturn::type >::value>
 	{};

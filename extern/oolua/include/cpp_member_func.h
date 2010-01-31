@@ -57,6 +57,27 @@
 //	OOLUA_BACK_INTERNAL_2\
 //	return total_out_params< Type_list<out_p<return_value >,P1_,P2_ >::type> ::out;\
 //}
+#define LUA_EXPORT_FUNC(FT,FN)\
+	static int l_##FN(lua_State* l)\
+	{\
+		typedef boost::function_traits<FT>::result_type result_type;		\
+		typedef param_type<result_type> R;\
+		typedef func_param_type_list<FT>::type parameter_list;\
+		{\
+			internal_param_pull2_cpp_push2_lua<parameter_list> scope_value(l);\
+			OOLUA::Proxy_caller<R,void>::call<parameter_list>(l,FN,scope_value.v);\
+		}\
+		typedef boost::mpl::transform<parameter_list,to_param_type<boost::mpl::_1> >::type params_list;\
+		return out_params_count<boost::mpl::push_front<\
+		params_list,\
+		out_p<result_type>\
+		>::type >::value;\
+	}\
+
+#define REGISTER_FUNC(L,FN)\
+   lua_pushcfunction(L,l_##FN);\
+   lua_setglobal(L,#FN);\
+
 
 #define LUA_CLASS_MEM_FUNC_RENAME(func_type,func_rename,func_name,mod)\
 int func_rename(lua_State* const l)mod\
