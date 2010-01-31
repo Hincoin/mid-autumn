@@ -363,5 +363,4 @@ namespace OOLUA
 						>::work(l);
 	}
 
-}
 #endif
