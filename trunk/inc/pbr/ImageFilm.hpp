@@ -13,8 +13,10 @@ namespace ma{
 	template<class T, int logBlockSize = 2> class BlockedArray {
 		inline void *AllocAligned(size_t size) {
 			const int  L1_CACHE_LINE_SIZE = 64;
-#if defined(WIN32)
+#if defined(WIN32) && defined(_MSC_VER)
 			return _aligned_malloc(size, L1_CACHE_LINE_SIZE);
+#elif defined(WIN32)
+			return __mingw_aligned_malloc(size, L1_CACHE_LINE_SIZE);
 #elif defined(__APPLE__)
 			return valloc(size);
 #else
@@ -22,10 +24,13 @@ namespace ma{
 #endif
 		}
 		inline void FreeAligned(void *ptr) {
-#ifdef WIN32 // NOBOOK
-			_aligned_free(ptr);
+
+#if defined(WIN32) && defined(_MSC_VER)
+        _aligned_free(ptr);
+#elif defined(WIN32)
+		__mingw_aligned_free(ptr);
 #else // NOBOOK
-			free(ptr);
+        free(ptr);
 #endif // NOBOOK
 		}
 	public:

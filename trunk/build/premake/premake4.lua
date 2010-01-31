@@ -20,10 +20,12 @@ configuration "Release"
 	targetdir (root_dir .. "/build/bin/release")
 	libdirs(root_dir .. "/build/bin/release")
 
-configuration {"linux","gmake"}
+configuration {"gmake"}
 buildoptions{"-std=c++0x","-fpermissive"}
+defines{"_GNU_C_"}
 
-
+configuration{"win32"}
+defines{"WIN32","_WIN32"}
 
 location (root_dir .. "/build/premake/projects")
 --------------------------------------------------------------------
@@ -96,7 +98,7 @@ cp_cmd="cp"
 mk_cmd="make"
 if os_type == "windows" then
 	cp_cmd="copy"
-	mk_cmd="mingw-make32"--use mingw by default
+	mk_cmd="mingw32-make"--use mingw by default
 end
 --external libraries
 --tbb
