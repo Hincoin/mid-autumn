@@ -92,7 +92,7 @@ namespace OOLUA
 		template<typename FuncType>
 		static void call(lua_State*  const l, FuncType ptr2mem )
 		{
-			typename R::type r( (m_this->*ptr2mem)() );
+			typename R::type r( (*ptr2mem)() );
 			OOLUA::Member_func_helper<R,R::owner>::push2lua(l,r);
 		}
 #define MA_LUA_CONVERTER_AUX(z,N,_)\
@@ -111,7 +111,6 @@ namespace OOLUA
 		));\
 		OOLUA::Member_func_helper<R,R::owner>::push2lua(l,r);\
 		}\
-		}\
 
 #ifndef MA_FUNCTION_MAX_ARG_NUM
 #define MA_FUNCTION_MAX_ARG_NUM 10
@@ -125,7 +124,7 @@ namespace OOLUA
 	struct Proxy_caller_impl<R,void,1>
 	{
 		template<typename FuncType>
-		static void call(lua_State*  const /*l*/, FuncType ptr2mem )
+		static void call(lua_State*  const /*l*/, FuncType ptr )
 		{
 			(*ptr)();
 		}

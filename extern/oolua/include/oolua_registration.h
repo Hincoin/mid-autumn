@@ -362,5 +362,6 @@ namespace OOLUA
 								,typename TYPELIST::at_with_default<typename OOLUA::Proxy_class<T>::AllBases,0>::type 
 						>::work(l);
 	}
+}
 
 #endif

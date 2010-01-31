@@ -37,8 +37,10 @@ namespace ma
 
 
 // Platform-specific definitions
-#if defined(WIN32)
+#if defined(WIN32) && defined(_MSC_VER)
 #define memalign(a,b) _aligned_malloc(b, a)
+#elif defined(WIN32)
+#define memalign(a,b) __mingw_aligned_malloc(b,a) 
 #elif defined(__APPLE__)
 #define memalign(a,b) valloc(b)
 #elif defined(__OpenBSD__)
@@ -55,8 +57,10 @@ namespace ma
     }
     void FreeAligned(void *ptr)
     {
-#ifdef WIN32 // NOBOOK
+#if defined(WIN32) && defined(_MSC_VER)
         _aligned_free(ptr);
+#elif defined(WIN32)
+		__mingw_aligned_free(ptr);
 #else // NOBOOK
         free(ptr);
 #endif // NOBOOK

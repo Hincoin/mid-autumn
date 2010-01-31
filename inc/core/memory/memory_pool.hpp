@@ -11,6 +11,10 @@
 #include <algorithm>
 #endif // _DEBUG
 #include <cassert>
+#ifdef _GNU_C_
+#include <stdint.h>
+#endif
+
 #include "details/intrusive_rbtree.hpp"
 #include "details/intrusive_list.hpp"
 #include "details/pool_mutex.hpp"
