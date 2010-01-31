@@ -57,15 +57,16 @@ LUA_PROXY_CLASS(ParamIntNoReturn)
 	LUA_MEM_FUNC(void(int,int,int,int,int,int,int),seven)
 	LUA_MEM_FUNC(void(int,int,int,int,int,int,int,int),eight)
 LUA_PROXY_CLASS_END
-EXPORT_OOLUA_FUNCTIONS_8_NON_CONST(ParamIntNoReturn,
-								   one,
+EXPORT_FUNCTIONS_N_NON_CONST(ParamIntNoReturn,
+						 8,(	   one,
 								   two,
 								   three,
 								   four,
 								   five,
 								   six,
 								   seven,
-								   eight)
+								   eight))
+
 EXPORT_OOLUA_FUNCTIONS_0_CONST(ParamIntNoReturn)
 
 struct MockHelper
