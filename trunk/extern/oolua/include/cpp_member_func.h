@@ -65,7 +65,7 @@
 		typedef func_param_type_list<FT>::type parameter_list;\
 		{\
 			internal_param_pull2_cpp_push2_lua<parameter_list> scope_value(l);\
-			OOLUA::Proxy_caller<R,void>::call<parameter_list>(l,FN,scope_value.v);\
+			OOLUA::Proxy_caller<R,void>::call<parameter_list>(l,&FN,scope_value.v);\
 		}\
 		typedef boost::mpl::transform<parameter_list,to_param_type<boost::mpl::_1> >::type params_list;\
 		return out_params_count<boost::mpl::push_front<\
@@ -83,7 +83,6 @@
 int func_rename(lua_State* const l)mod\
 {\
 	enum{func_is_ = 0,func_is_const=1};\
-	assert(m_this);\
 	typedef boost::function_traits<func_type>::result_type result_type;\
 	typedef param_type<result_type> R;\
 	typedef func_param_type_list<func_type>::type parameter_list;\

@@ -93,7 +93,8 @@ inline bool many_test(){
 		(d_result.a == 20);
 	assert(result);
 
-	MAny a_ptr((new D1));
+	D1* void_ptr = new D1;
+	MAny a_ptr(void_ptr);
 
 	Base1* b1_ptr = a_ptr.cast<Base1*>();
 	Base2* b2_ptr = a_ptr.cast<Base2*>();

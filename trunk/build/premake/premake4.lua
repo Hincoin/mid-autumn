@@ -47,7 +47,7 @@ files{
 ----------------------------------------------------------------------
 --a static core library
 project "pbr"
-kind "ConsoleApp"
+kind "StaticLib"
 language "C++"
 
 includedirs{
@@ -85,9 +85,9 @@ files{
 }
 
 configuration{"Debug"}
-	links{"oolua_d" --[[,"pbr"]]}
+	links{"pbr","lua","oolua_d" --[[,"pbr"]]}
 configuration{"Release"}
-	links{"oolua"}
+	links{"pbr","lua","oolua"}
 
 	
 	
