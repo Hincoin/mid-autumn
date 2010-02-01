@@ -264,6 +264,27 @@ namespace details{
 		&many_dynamic::assign,
 		&many_dynamic::swap
 	};
+	template<typename T>
+		struct many_traits_impl_void;
+template<typename T>
+	struct many_traits_impl_void<T*>{
+		typedef typename cast_types<T>::stored_type* stored_type;
+		typedef details::many_static<stored_type> many_static_type;
+		typedef many_static_type many_storage_type;
+
+		typedef stored_type result_type;
+		typedef const typename cast_types<T>::stored_type* const_result_type;
+	};
+template<>
+	struct many_traits_impl_void<void*>
+	{
+		typedef void* stored_type;
+		typedef many_static<stored_type> many_static_type;
+		typedef many_static_type many_storage_type;
+		typedef stored_type result_type;
+		typedef const void* const_result_type;
+	};
+
 }
 
 //never return reference to non-class type
@@ -295,14 +316,16 @@ class MAny{
 			const_reference_type,T>::type const_result_type;
 	};
 	template<typename T>
-	struct many_traits<T*>{
-		typedef typename cast_types<T>::stored_type* stored_type;
+	struct many_traits<T*>:details::many_traits_impl_void<T*>{
+		/*typedef typename boost::mpl::if_<boost::is_same<T*,void*>,
+				void*,typename cast_types<T>::stored_type*>::type stored_type;
 		typedef details::many_static<stored_type> many_static_type;
 		typedef many_static_type many_storage_type;
 
 		typedef stored_type result_type;
-		typedef const typename cast_types<T>::stored_type* const_result_type;
-
+		typedef typename boost::mpl::if_<boost::is_same<T*,void*>,
+				const void*,const typename cast_types<T>::stored_type*>::type const_result_type;
+*/
 	};
 
 	template<typename T> struct helper;

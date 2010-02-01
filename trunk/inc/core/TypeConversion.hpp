@@ -374,6 +374,14 @@ public:
 		//return *(const TO_U*)(r);
 	}
 };
+template<>
+struct cast_types<void>
+{
+	typedef void* stored_type;
+	static const void* cast_to(const TypeInfo& t_info,const void* const x){
+		return typeid(void*) == t_info? 0: x;
+	}
+};
 template<typename T>
 const typename cast_types<T>::TypeCastFuncMap cast_types<T>::casted_types_info = cast_types<T>::init_type_info();
 
