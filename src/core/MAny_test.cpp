@@ -106,6 +106,14 @@ inline bool many_test(){
 		&& 
 		(d_ptr->b == b2_ptr->b && b2_ptr->b == 11);
 	assert(result);
+	MAny void_p ( (void*) void_ptr);
+	d_ptr = void_p.cast<D1*>();
+	result = result &&
+		(d_ptr->a == b1_ptr->a && b1_ptr->a == 10)
+		&& 
+		(d_ptr->b == b2_ptr->b && b2_ptr->b == 11);
+	assert(result);
+
 	delete d_ptr;
 
 	//basic type conversion
