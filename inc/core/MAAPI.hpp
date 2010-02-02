@@ -30,9 +30,9 @@ extern COREDLL void maLookAt(float ex,
 							   float uy,
 							   float uz);
 extern COREDLL
-void maConcatTransform(float transform[16]);
+void maConcatTransform(float transform[4][4]);
 extern COREDLL
-void maTransform(float transform[16]);
+void maTransform(float transform[4][4]);
 extern COREDLL void maCoordinateSystem(const std::string &);
 extern COREDLL void maCoordSysTransform(const std::string &);
 extern COREDLL void maPixelFilter(const std::string &name, const ParamSet &params);
