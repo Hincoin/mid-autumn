@@ -243,6 +243,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\extern\oolua\include\cpp_constructor.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\extern\oolua\include\cpp_member_func.h"
 				>
 			</File>

@@ -1,6 +1,9 @@
 #ifndef CPP_CONSTRUTOR_H
 #define CPP_CONSTRUTOR_H
 
+#include <boost/mpl/copy_if.hpp>
+#include <boost/mpl/equal.hpp>
+
 #include "cpp_member_func.h"
 
 
@@ -46,13 +49,13 @@ namespace OOLUA{
 		typedef typename boost::mpl::at_c<Seq,I>::type cur_type;
 		int operator()(lua_State* l)const
 		{
-			return invoke(l,boost::mpl::bool_<(I+1 < boost::mpl::size<Seq>::value ) >());
+			return invoke(l,boost::mpl::bool_<(I+1 < boost::mpl::size<Seq>::type::value ) >());
 		}
-		int invoke(lua_State* l,boost::true_type)const
+		int invoke(lua_State* l,boost::mpl::bool_<true>)const
 		{
-			return param_is_of_type_one<cur_type>(l,I) && param_is_of_type<I+1,Seq>(l);
+			return param_is_of_type_one<cur_type>(l,I) && param_is_type_accum<I+1,Seq>()(l);
 		}
-		int invoke(lua_State* l,boost::false_type)const
+		int invoke(lua_State* l,boost::mpl::bool_<false>)const
 		{
 			return param_is_of_type_one<cur_type>(l,I); 
 		}
@@ -65,17 +68,17 @@ namespace OOLUA{
 
 template<typename Class,typename Params>
 	struct Construtor{
-		typedef boost::mpl::transform<Params,to_param_type<boost::mpl::_1> >::type params_with_traits;
+		typedef typename boost::mpl::transform<Params,to_param_type<boost::mpl::_1> >::type params_with_traits;
 		static int construct(lua_State* l)
 		{
-			return construct_(l,boost::mpl::empty<Params>());
+			return construct_(l,boost::mpl::bool_<boost::mpl::size<Params>::value == 0>());
 		}
-		static int construct_(lua_State* l,boost::true_type)
+		static int construct_(lua_State* l,boost::mpl::bool_<true>)
 		{
 			construct_impl(l);
 			return 1;
 		}
-		static int construct_(lua_State* l,boost::false_type)
+		static int construct_(lua_State* l,boost::mpl::bool_<false>)
 		{
 			if ( param_is_of_type<params_with_traits>(l) )
 			{
@@ -88,9 +91,9 @@ template<typename Class,typename Params>
 		static void construct_impl(lua_State* l)
 		{
 			{
-				internal_param_pull2_cpp_push2_lua pull_push(l);
-				Class* obj = call_construct(l,pull_push.v);			
-				OOLUA::Lua_ud* ud = OOLUA::INTERNAL::add_ptr(l,obj,false);
+				internal_param_pull2_cpp_push2_lua<Params> pull_push(l);
+				Class* obj = call_construct<Params>(l,pull_push.v);			
+				OOLUA::INTERNAL::Lua_ud* ud = OOLUA::INTERNAL::add_ptr(l,obj,false);
 				ud->gc = true;
 			}
 		}
@@ -99,7 +102,7 @@ template<typename Class,typename Params>
 	Converter<typename P##N##_T::pull_type, typename P##N##_T::type> p_##N(boost::fusion::at_c<N>(p));\
 
 #define MA_LUA_PROXY_MEMBER_CALL_AUX(z,N,T)\
-	template<typename Seq, BOOST_PP_ENUM_PARAMS(N,typename P) BOOST_PP_COMMA_IF(N) typename FuncType>\
+	template<typename Seq  BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N,typename P)>\
 	static Class* call_construct(lua_State* const l, \
 	boost::fusion::vector##N<BOOST_PP_ENUM_PARAMS(N,P)>& BOOST_PP_IF(N,p,)\
 	)\
@@ -120,7 +123,7 @@ template<typename Class,typename Params>
 	template<typename Class,typename CParams,size_t I,size_t E>
 		struct factory_constructor_impl_f
 		{
-			typedef boost::mpl::at_c<CParams,I>::type cur_params;
+			typedef typename boost::mpl::at_c<CParams,I>::type cur_params;
 			int operator()(lua_State* l)const
 			{
 				if(Construtor<Class,cur_params>::construct(l))
@@ -133,7 +136,7 @@ template<typename Class,typename Params>
 				}
 				else
 				{
-					luaL_error(l,"%s %d %s %s","Could not match",boost::mpl::size<cur_params>::value,
+					luaL_error(l,"%s %d %s %s","Could not match",boost::mpl::size<cur_params>::type::value,
 							"parameter constructor for type ",Proxy_class<Class>::class_name);
 					return 0;
 				}
@@ -141,16 +144,18 @@ template<typename Class,typename Params>
 			
 		};
 		template<typename Class,typename CParams,size_t I>
-		struct factory_constructor_impl_f<Class,CParams,I,0>
+		struct factory_constructor_impl_f<Class,CParams,I,I>
 		{
 			int operator()(lua_State* l)const
 			{
-				luaL_error(l,"%s %d %s %s","Could not match",boost::mpl::size<cur_params>::value,
+				luaL_error(l,"%s %d %s %s","Could not match",0,
 							"parameter constructor for type ",Proxy_class<Class>::class_name);
 				return 0;
 			}	
 			
 		};
+	template <typename Ps1,typename Sz>
+	struct SizeEqualTo:boost::mpl::equal_to<boost::mpl::size<Ps1>,Sz>{};
 
 	template<typename Class,typename CParams>
 	inline int factory_constructor_impl(lua_State* l)
@@ -160,11 +165,12 @@ template<typename Class,typename Params>
 		switch (param_count){
 #define PARAM_CNT_CASE(z,N,_)\
 			case N:\
-				boost::mpl::copy_if<CParams,\
-					boost::mpl::equal<boost::mpl::size<mpl::_1>,boost::mpl::int_<N> >,\
+				typedef boost::mpl::copy_if<CParams,\
+				SizeEqualTo<boost::mpl::_1,boost::mpl::int_<N> >,\
 					boost::mpl::back_inserter<boost::mpl::vector<> > >::type _##N##_params;\
-				return factory_constructor_impl_f<Class,_##N##_params,0,boost::mpl::size<_##N##_params>::value>()(l);\
+					return factory_constructor_impl_f<Class,_##N##_params,0,boost::mpl::size<_##N##_params>::type::value>()(l);\
 				break;\
+
 #ifndef MA_FUNCTION_MAX_ARG_NUM
 #define MA_FUNCTION_MAX_ARG_NUM 10
 #endif
@@ -172,14 +178,17 @@ template<typename Class,typename Params>
 	
 #undef PARAM_CNT_CASE
 			default:
-				luaL_error(l,"%s %d %s %s","Could not match",boost::mpl::size<cur_params>::value,
+				luaL_error(l,"%s %d %s %s","Could not match",param_count,
 							"parameter constructor for type ",Proxy_class<Class>::class_name);
 				return 0;
 				break;
 		}
 	}
-//DEF_CTOR(mpl::vector<>,mpl::vector<int>,mpl::vector<bool>)
-#define LUA_CTOR(...)\
+//DEF_CTOR(mpl::vector<>,mpl::vector<int>,mpl::vector<bool>)'
+#define LUA_CTOR_ARGS(...)\
+	mpl::vector<__VA_ARGS__>
+
+#define LUA_CTORS(...)\
 static int factory_constructor(lua_State* l)\
 {\
 	typedef mpl::vector<__VA_ARGS__> ctor_params;\

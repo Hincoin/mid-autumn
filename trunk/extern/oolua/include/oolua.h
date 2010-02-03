@@ -116,18 +116,18 @@ namespace OOLUA
 	template<typename T>
 	inline void Script::register_class()
 	{
-		register_class<T>(m_lua);
+		::OOLUA::register_class<T>(m_lua);
 	}
 	template<typename T>
 	inline void Script::register_class(T* /*dummy*/)
 	{
-		register_class<T>();
+		::OOLUA::register_class<T>();
 	}
 
 	template<typename T,typename K,typename V>
 	inline void Script::register_class_static(K const& k, V const& v)
 	{
-			register_class_static(m_lua,k,v);
+		::OOLUA::register_class_static(m_lua,k,v);
 	}
 	//if you want to use oolua with a lua_State you already have active
 	//or supplied by some third party then calling this function
