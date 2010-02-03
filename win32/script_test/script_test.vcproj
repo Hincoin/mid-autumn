@@ -445,6 +445,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\extern\oolua\unit_tests\test_classes\cpp_constructor.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\extern\oolua\unit_tests\test_classes\destruct.cpp"
 				>
 			</File>
