@@ -7,6 +7,7 @@
 //OOLUA_CLASS_NO_BASES(C_simple)
 LUA_PROXY_CLASS(C_simple)
 OOLUA_NO_TYPEDEFS
+LUA_CTORS()
 LUA_MEM_FUNC(void(int const&),set_int)
 LUA_MEM_FUNC_CONST(int(),get_int)
 LUA_MEM_FUNC(void(),func)

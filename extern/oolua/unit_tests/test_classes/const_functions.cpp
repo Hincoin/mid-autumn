@@ -67,6 +67,7 @@ private:
 };
 LUA_PROXY_CLASS(Constant)
 	OOLUA_NO_TYPEDEFS
+	LUA_CTORS()
 	LUA_MEM_FUNC_CONST(int(),cpp_func_const)
 	LUA_MEM_FUNC(void(),cpp_func)
 LUA_PROXY_CLASS_END

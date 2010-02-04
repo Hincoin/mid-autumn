@@ -47,15 +47,15 @@ namespace OOLUA
 			return 0;
 		}
 
-		template<typename T>
-		inline int create_type(lua_State * /*const*/ l)
-		{
-			lua_remove(l, 1);
-			T* obj = new T;
-			Lua_ud* ud = add_ptr(l,obj,false);
-			ud->gc = true;
-			return 1;
-		}
+		//template<typename T>
+		//inline int create_type(lua_State * /*const*/ l)
+		//{
+		//	lua_remove(l, 1);
+		//	T* obj = new T;
+		//	Lua_ud* ud = add_ptr(l,obj,false);
+		//	ud->gc = true;
+		//	return 1;
+		//}
 		template<typename T>
 		int delete_type(lua_State * /*const*/ l)
 		{
@@ -258,7 +258,7 @@ namespace OOLUA
 			static void set(lua_State*  const l, int methods)
 			{
 				push_char_carray(l,new_str);
-				lua_pushcfunction(l, &INTERNAL::create_type<T>);
+				lua_pushcfunction(l, &Proxy_class<T>::factory_constructor);
 				lua_settable(l, methods);
 				// methods["new"] = create_type
 			}

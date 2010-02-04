@@ -31,6 +31,7 @@ LUA_PROXY_CLASS(Class_ops)
 		OOLUA::Mul_op,
 		OOLUA::Div_op
 	OOLUA_END_TYPES
+	LUA_CTORS()
 LUA_MEM_FUNC_CONST(int const &(),geti)
 LUA_MEM_FUNC(void(int const&),seti)
 LUA_MEM_FUNC_CONST(Class_ops const*(),pointer_to_const)

@@ -22,14 +22,17 @@
 
 LUA_PROXY_CLASS(A_simple)
 OOLUA_NO_TYPEDEFS
+LUA_CTORS()
 LUA_PROXY_CLASS_END
 
 LUA_PROXY_CLASS(A_derived,A_simple)
 OOLUA_NO_TYPEDEFS
+LUA_CTORS()
 LUA_PROXY_CLASS_END
 
 LUA_PROXY_CLASS(B_simple)
 OOLUA_NO_TYPEDEFS
+LUA_CTORS()
 LUA_MEM_FUNC(void(cpp_acquire_ptr<A_simple*>),add_A_ptr)
 LUA_MEM_FUNC(lua_acquire_ptr<A_simple*>(),create_A)
 LUA_MEM_FUNC(B_simple*(),return_this)

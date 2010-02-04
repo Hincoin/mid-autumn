@@ -3,7 +3,7 @@
 
 #include <boost/mpl/copy_if.hpp>
 #include <boost/mpl/equal.hpp>
-
+#include <boost/mpl/and.hpp>
 #include "cpp_member_func.h"
 
 
@@ -165,9 +165,9 @@ template<typename Class,typename Params>
 		switch (param_count){
 #define PARAM_CNT_CASE(z,N,_)\
 			case N:\
-				typedef boost::mpl::copy_if<CParams,\
+			typedef boost::mpl::if_c< boost::mpl::bool_<(N == 0)>::value && boost::mpl::equal_to<boost::mpl::size<CParams>,boost::mpl::int_<0> >::value,boost::mpl::vector<boost::mpl::vector<> >,boost::mpl::copy_if<CParams,\
 				SizeEqualTo<boost::mpl::_1,boost::mpl::int_<N> >,\
-					boost::mpl::back_inserter<boost::mpl::vector<> > >::type _##N##_params;\
+				boost::mpl::back_inserter<boost::mpl::vector<> > >::type >::type _##N##_params;\
 					return factory_constructor_impl_f<Class,_##N##_params,0,boost::mpl::size<_##N##_params>::type::value>()(l);\
 				break;\
 

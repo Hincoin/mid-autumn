@@ -7,6 +7,7 @@
 
 LUA_PROXY_CLASS(Push)
 OOLUA_NO_TYPEDEFS
+LUA_CTORS()
 LUA_MEM_FUNC(Push&(),ref)
 LUA_MEM_FUNC(Push const&(),ref_const )
 LUA_MEM_FUNC(Push*(),ptr)

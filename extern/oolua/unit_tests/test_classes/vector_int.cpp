@@ -8,6 +8,7 @@ typedef std::vector<int> vector_int;
 
 LUA_PROXY_CLASS(vector_int)
 	OOLUA_NO_TYPEDEFS
+	LUA_CTORS()
 	LUA_MEM_FUNC(void(vector_int::const_reference),push_back)
 	LUA_MEM_FUNC(void(),pop_back)
 	LUA_MEM_FUNC_CONST(vector_int::size_type(),size)

@@ -9,6 +9,7 @@ struct Ownership_stub
 
 LUA_PROXY_CLASS(Ownership_stub)
 	OOLUA_NO_TYPEDEFS
+	LUA_CTORS()
 LUA_PROXY_CLASS_END
 
 EXPORT_OOLUA_NO_FUNCTIONS(Ownership_stub)
