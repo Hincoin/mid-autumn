@@ -26,15 +26,18 @@ BOOST_STATIC_ASSERT( (mpl::empty<OOLUA::Proxy_class<Abstract3>::Bases>::value));
 
 LUA_PROXY_CLASS(Derived1Abstract1,Abstract1)
 	OOLUA_NO_TYPEDEFS
+	LUA_CTORS()
 LUA_PROXY_CLASS_END
 
 LUA_PROXY_CLASS(TwoAbstractBases, Abstract1, Abstract2)
 	OOLUA_NO_TYPEDEFS
+	LUA_CTORS()
 LUA_PROXY_CLASS_END
 
 
 LUA_PROXY_CLASS(DerivedFromTwoAbstractBasesAndAbstract3,TwoAbstractBases,Abstract3)
 	OOLUA_NO_TYPEDEFS
+	LUA_CTORS()
 LUA_PROXY_CLASS_END
 
 namespace BASE_HELPERS

@@ -503,6 +503,14 @@
 			<File
 				RelativePath="..\..\extern\oolua\unit_tests\test_classes\max_params.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						GeneratePreprocessedFile="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\extern\oolua\unit_tests\test_classes\metatable_check.cpp"

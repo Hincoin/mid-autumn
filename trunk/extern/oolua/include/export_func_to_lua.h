@@ -231,9 +231,9 @@ EXPORT_OOLUA_FUNCTIONS_0_CONST(Class)
 
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/tuple/to_seq.hpp>
-
+#include <boost/preprocessor/stringize.hpp>
 #define ADD_MEMFUNC(z,Class,F)\
-	{#F,&OOLUA::Proxy_class<Class>::F},
+	{BOOST_PP_STRINGIZE(F),&OOLUA::Proxy_class<Class>::F},
 
 #define EXPORT_FUNCTIONS(MOD,CLASS,NARGS,ARG_TUPLE)\
 	CLASS_LIST_MEMBERS_START_##MOD(CLASS)\

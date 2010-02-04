@@ -3,6 +3,7 @@
 class Return_double{};
 LUA_PROXY_CLASS(Return_double)
 OOLUA_NO_TYPEDEFS
+LUA_CTORS()
 LUA_PROXY_CLASS_END
 EXPORT_OOLUA_NO_FUNCTIONS(Return_double)
 
@@ -34,6 +35,7 @@ private:
 
 LUA_PROXY_CLASS(Method_returns_class)
 OOLUA_NO_TYPEDEFS
+LUA_CTORS()
 LUA_MEM_FUNC(Return_double&(),ref)
 LUA_MEM_FUNC(Return_double const&(),ref_const)
 LUA_MEM_FUNC(Return_double*(),ptr)

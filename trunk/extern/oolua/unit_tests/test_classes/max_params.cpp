@@ -66,7 +66,15 @@ EXPORT_FUNCTIONS_N_NON_CONST(ParamIntNoReturn,
 								   six,
 								   seven,
 								   eight))
-
+//EXPORT_OOLUA_FUNCTIONS_8_NON_CONST(ParamIntNoReturn,
+//								   one,
+//								   two,
+//								   three,
+//								   four,
+//								   five,
+//								   six,
+//								   seven,
+//								   eight)
 EXPORT_OOLUA_FUNCTIONS_0_CONST(ParamIntNoReturn)
 
 struct MockHelper
