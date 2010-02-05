@@ -4,12 +4,59 @@
 #include <boost/mpl/copy_if.hpp>
 #include <boost/mpl/equal.hpp>
 #include <boost/mpl/and.hpp>
+#include <boost/mpl/or.hpp>
 #include "cpp_member_func.h"
 
 
 namespace OOLUA{
 
+	//////////////////////////////////////////////////////////////////////////
+	//static checker for constructor parameters
+	//ambiguity check
 
+	//////////////////////////////////////////////////////////////////////////
+	//for static type checking when declare constructor
+	template<typename A,typename B>
+	struct is_same_for_lua:
+		boost::mpl::or_<
+		boost::is_same<A,B> ,
+		boost::mpl::and_<boost::is_arithmetic<A>,boost::is_arithmetic<B> >
+		>
+	{};
+	template<typename B>
+	struct is_same_for_lua<bool,B>:boost::mpl::bool_<false>{};
+	template<typename A>
+	struct is_same_for_lua<A,bool>:boost::mpl::bool_<false>{};
+	template<>
+	struct is_same_for_lua<bool,bool>:boost::mpl::bool_<true>{};
+	template<typename B,typename BNext,typename E>
+	struct lua_type_comparison_impl{
+		typedef typename boost::mpl::or_<
+			boost::mpl::equal<typename boost::mpl::deref<B>::type,typename boost::mpl::deref<BNext>::type,is_same_for_lua<boost::mpl::_1,boost::mpl::_2> >,
+			typename lua_type_comparison_impl<BNext,typename boost::mpl::next<BNext>::type,E>::type
+		>::type type;
+	};
+
+	template<typename B,typename E>
+	struct lua_type_comparison_impl<B,E,E>{
+		typedef boost::mpl::bool_<false> type;
+	};
+
+	template<typename B,typename E>
+	struct lua_type_comparison_iter{
+		typedef typename boost::mpl::next<B>::type next_iter;
+		typedef typename boost::mpl::or_<
+			typename lua_type_comparison_impl<B,next_iter,E>::type,
+			typename lua_type_comparison_iter<next_iter,E>::type>::type type;
+	};
+	template<typename E>
+	struct lua_type_comparison_iter<E,E>{
+		typedef boost::mpl::bool_<false> type;
+	};
+
+	template <typename SeqOfSeq>
+	struct lua_type_comparison:lua_type_comparison_iter<typename boost::mpl::begin<SeqOfSeq>::type ,typename boost::mpl::end<SeqOfSeq>::type>{};
+	//////////////////////////////////////////////////////////////////////////
 	template<typename P,int>
 		struct can_userdata_convert_to_type{
 			static int valid(lua_State*,int){ return 0;}
@@ -22,6 +69,7 @@ namespace OOLUA{
 				return OOLUA::INTERNAL::class_from_index<typename P::raw_type>(l,index) != 0;
 			}
 		};
+
 	template<typename Param>
 		int param_is_of_type_one(lua_State* l, int const index)
 		{
@@ -160,6 +208,9 @@ template<typename Class,typename Params>
 	template<typename Class,typename CParams>
 	inline int factory_constructor_impl(lua_State* l)
 	{
+		//check params 
+		typedef lua_type_comparison<CParams>::type static_ambiguity_type_check_failed;
+		BOOST_MPL_ASSERT((boost::mpl::not_<static_ambiguity_type_check_failed>));
 		lua_remove(l,1);// remove class type
 		int param_count = lua_gettop(l);
 		switch (param_count){
