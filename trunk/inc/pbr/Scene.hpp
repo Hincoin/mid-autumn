@@ -59,7 +59,7 @@ namespace ma
 	private:
 		primitive_ptr aggregate;
 
-		camera_ptr camera;
+		camera_ptr camera_;
 		volume_region_ptr volume_region;
 		surface_integrator_ptr surface_integrator;
 		volume_integrator_ptr volume_integrator;
@@ -129,13 +129,13 @@ namespace ma{
 			input_seq_t input_;
 			//output_seq_t output_;
 			const S* scene;
-			/*const*/ camera_ptr camera;
+			/*const*/ camera_ptr camera_;
 			const size_t* sizes_array;
 
 			ray_tracing(
 				input_seq_t in,
 				const S* s,/*const*/ camera_ptr c)
-				:input_(in),scene(s),camera(c){}
+				:input_(in),scene(s),camera_(c){}
 
 			input_seq_t input()const{return input_;}
 			bool run(size_t i )const //return bool to decide continue or break
@@ -148,12 +148,12 @@ namespace ma{
 					scalar_t alpha = 0;
 					typename sample_t::camera_sample_t camera_sample;
 
-					scalar_t ray_weight = camera->generateRay(*sample,ray);
+					scalar_t ray_weight = camera::generateRay(camera_,sample,ray);
 					camera_sample = *sample;
 					if (ray_weight > 0)
 						ls = ray_weight * scene->li(ray, sample,alpha);
 					//this is thread-safe because the image space is divided into different sections
-					camera->addSample(  camera_sample, ray, ls, alpha);
+					camera::addSample(camera_,  camera_sample, ray, ls, alpha);
 				}
 				return true;
 			}
@@ -207,7 +207,7 @@ void Scene<Conf>::render()
 #ifdef TBB_PARALLEL
 	//do compute
 	typedef parallel::ray_tracing<class_type> ray_tracing_func_t;
-	ray_tracing_func_t tracing_f(sampled_rays,this,camera );
+	ray_tracing_func_t tracing_f(sampled_rays,this,camera_ );
 	parallel_for::run(tracing_f,concurrency);
 	after_parallel = clock();
 	//for (size_t i = 0;i < sample_count; ++i)
@@ -225,7 +225,7 @@ void Scene<Conf>::render()
 	while(sampler->getNextSample(*sample))
 	{
 		ray_differential_t ray;
-		scalar_t ray_weight = camera->generateRay(*sample,ray);//generateRay(camera,*sample,ray);
+		scalar_t ray_weight = camera::generateRay(camera_,sample,ray);//generateRay(camera,*sample,ray);
 		scalar_t alpha=0;
 		spectrum_t ls;
 		if (ray_weight > 0)
@@ -234,7 +234,7 @@ void Scene<Conf>::render()
 		//{
 		//	printf("intersect %.2f,%.2f ! \n",sample->image_x,sample->image_y);
 		//}
-		camera->addSample( sample->cameraSample(),ray,ls,alpha);
+		camera::addSample(camera_, sample->cameraSample(),ray,ls,alpha);
 	}
 /**/
 	//fflush(fp);
@@ -244,11 +244,11 @@ void Scene<Conf>::render()
 
 	printf("render time before li:%ld do li:%ld clocks ; after parallel: %ld \n",
 		before_parallel,(long)(clock()-tick),(long)after_parallel);
-	camera->writeImage();
+	camera::writeImage(camera_);
 }
 template<typename Conf>
 Scene<Conf>::~Scene(){
-	delete_ptr(camera);
+	delete_ptr(camera_);
 	delete_ptr(sampler);
 	delete_ptr(surface_integrator);
 	//delete_ptr(volume_integrator);
@@ -267,7 +267,7 @@ Scene<Conf>::Scene(camera_ptr c,surface_integrator_ptr in,
 {
 lights = lts;
 aggregate = accel;
-camera = c;
+camera_ = c;
 sampler = s;
 surface_integrator = in;
 volume_integrator = vi;

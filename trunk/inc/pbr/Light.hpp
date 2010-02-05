@@ -5,6 +5,15 @@
 //#include "Move.hpp"
 namespace ma
 {
+	namespace light{
+		DECL_FUNC_NEST(spectrum_t,sample_l,3)
+		DECL_FUNC_NEST(spectrum_t,sample_l,6)
+		DECL_FUNC_NEST(spectrum_t,power,1)
+		DECL_FUNC(bool,isDeltaLight,0)
+		DECL_FUNC_NEST(spectrum_t,le,1)
+		DECL_FUNC_NEST(scalar_t,pdf,2)
+		DECL_FUNC_NEST(scalar_t,pdf,3)
+	}
 	BEGIN_CRTP_INTERFACE(Light)
 		//type dependencies
 		ADD_CRTP_INTERFACE_TYPEDEF(transform_t)

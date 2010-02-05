@@ -3,6 +3,11 @@
 #include "CRTPInterfaceMacro.hpp"
 
 namespace ma{
+	//
+	namespace texture{
+		DECL_FUNC_NEST(scalar_t,mapping,7)
+	}
+
 	BEGIN_CRTP_INTERFACE(TextureMapping2D)
 	ADD_CRTP_INTERFACE_TYPEDEF(differential_geometry_t)
 	ADD_CRTP_INTERFACE_TYPEDEF(scalar_t)
