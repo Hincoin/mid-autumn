@@ -212,7 +212,7 @@ cur_value : MinimumKImpl<A,B,M,cur_value,Depth + 1,MaxDepth>::value);
 				void* p_last = (void*)((char*)ptr+page_request_size_-requested_size_);
 				((FreeNode*) (p_last))->next = free_list_;
 				free_list_ = (FreeNode*)(p_last);
-				free_list_->set_page(ptr);
+				free_list_->set_page((page*)ptr);
 				return ptr;
 			}
 			void system_free(void* ptr)

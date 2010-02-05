@@ -41,7 +41,7 @@ public:\
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/seq/for_each_i.hpp>
 #include <boost/preprocessor/punctuation/comma_if.hpp>
-
+#include <boost/preprocessor/repetition/enum_binary_params.hpp>
 #define __CRTP_PROCESS_ARG(R,PREFIX,I,ARG)\
 	BOOST_PP_COMMA_IF(I)\
 	BOOST_PP_EXPAND(\
@@ -127,5 +127,44 @@ __CRTP_TEMPLATE_FUNCTION_EXPANDED(TARGN,RET,FN,BOOST_PP_TUPLE_TO_SEQ(ARGN,ARGS),
 //	typedef _CONFIG_CLASS_NAME::_TYPE_ type;\
 //	};}}
 */
+
+#define DECL_FUNC(R,FN,PN)\
+	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
+	inline R FN(const ObjT& obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+	{ return obj.FN(BOOST_PP_ENUM_PARAMS(PN,p));}\
+	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
+	inline R FN(ObjT& obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+	{ return obj.FN(BOOST_PP_ENUM_PARAMS(PN,p));}\
+	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
+	inline R FN(const ObjT* obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+	{ return obj->FN(BOOST_PP_ENUM_PARAMS(PN,p));}\
+	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
+	inline R FN(ObjT* obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+	{ return obj->FN(BOOST_PP_ENUM_PARAMS(PN,p));}\
+
+//nested return type
+#define DECL_FUNC_NEST(R,FN,PN)\
+	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
+	inline typename ObjT::R FN(const ObjT& obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+	{return obj.FN(BOOST_PP_ENUM_PARAMS(PN,p));}\
+	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
+	inline typename ObjT::R FN(ObjT& obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+	{return obj.FN(BOOST_PP_ENUM_PARAMS(PN,p));}\
+	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
+	inline typename ObjT::R FN(const ObjT* obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+	{return obj->FN(BOOST_PP_ENUM_PARAMS(PN,p));}\
+	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
+	inline typename ObjT::R FN(ObjT* obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+	{return obj->FN(BOOST_PP_ENUM_PARAMS(PN,p));}\
+
+//	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
+//	inline R FN(ObjT& obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,T) )\
+//	{\ return obj.FN(BOOST_PP_ENUM_PARAMS(PN,p));}\
+//template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
+//inline R FN(ObjT* obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,T) )\
+//{\ return obj.FN(BOOST_PP_ENUM_PARAMS(PN,p));}\
+//template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
+//inline R FN(const ObjT* obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,T) )\
+//{\ return obj.FN(BOOST_PP_ENUM_PARAMS(PN,p));}\
 
 #endif

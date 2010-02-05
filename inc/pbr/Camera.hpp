@@ -6,6 +6,11 @@
 #include "PtrTraits.hpp"
 
 namespace ma{
+	namespace camera{
+		DECL_FUNC_NEST(scalar_t,generateRay,2)
+		DECL_FUNC(void,addSample,4)
+		DECL_FUNC(void,writeImage,0)
+	}
 	BEGIN_CRTP_INTERFACE(Camera)
 	ADD_CRTP_INTERFACE_TYPEDEF(sample_t);
 	ADD_CRTP_INTERFACE_TYPEDEF(transform_t);
@@ -28,8 +33,8 @@ namespace ma{
 	CRTP_CONST_METHOD(scalar_t,generateRay,2,
 		( I_(const sample_t&,sample), I_(ray_t&,r)));
 
-	void addSample(const sample_t& s,const ray_t& r,const spectrum_t& l,scalar_t alpha)
-	{return film_->addSample(s,r,l,alpha);}
+	void addSample(const sample_t* s,const ray_t& r,const spectrum_t& l,scalar_t alpha)
+	{return film_->addSample(*s,r,l,alpha);}
 	void writeImage(){return film_->writeImage();}
 protected:
 	film_ptr film_;
