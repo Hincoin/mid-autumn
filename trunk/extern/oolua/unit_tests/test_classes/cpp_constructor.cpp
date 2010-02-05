@@ -22,7 +22,34 @@ namespace
 	struct Stub2{};
 	struct InvalidStub{};
 }
+typedef boost::mpl::vector<> v0_t;
+typedef boost::mpl::vector<char*> v1_t;
+typedef boost::mpl::vector<std::string> v1s_t;
+typedef boost::mpl::vector<char*,std::string> v2_t;
+typedef boost::mpl::vector<bool> v1b_t;
+typedef boost::mpl::vector<int> v1i_t;
+typedef boost::mpl::vector<float> v1f_t;
+typedef boost::mpl::vector<bool,int,float> v3bif_t;
+typedef boost::mpl::vector<bool,char,int> v3bcf_t;
 
+typedef boost::mpl::vector<v0_t,v1_t> vno_same_type;
+BOOST_STATIC_ASSERT((!boost::mpl::equal<v0_t,v1_t,OOLUA::is_same_for_lua<boost::mpl::_1,boost::mpl::_2> >::value));
+BOOST_STATIC_ASSERT((boost::mpl::equal<v3bif_t,v3bcf_t,OOLUA::is_same_for_lua<boost::mpl::_1,boost::mpl::_2> >::value));
+
+typedef boost::mpl::vector<v3bif_t,v1_t,v1s_t,v1b_t,v1i_t,v1f_t> v2_has_same_type;
+
+typedef OOLUA::lua_type_comparison<vno_same_type >::type false_same_type;
+
+typedef boost::mpl::begin<vno_same_type>::type vno2_begin;
+BOOST_STATIC_ASSERT(!(boost::mpl::equal<boost::mpl::deref<vno2_begin>::type,boost::mpl::deref<boost::mpl::next<vno2_begin>::type>::type >::value));
+typedef OOLUA::lua_type_comparison_impl<vno2_begin,boost::mpl::next<vno2_begin>::type,boost::mpl::end<vno_same_type>::type>::type t_has_same_type;
+
+BOOST_STATIC_ASSERT((!t_has_same_type::value));
+
+
+
+typedef OOLUA::lua_type_comparison< v2_has_same_type >::type true_same_type;
+BOOST_STATIC_ASSERT((true_same_type::value));
 class ParamConstructor
 {
 public:
