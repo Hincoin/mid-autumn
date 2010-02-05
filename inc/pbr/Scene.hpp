@@ -153,7 +153,7 @@ namespace ma{
 					if (ray_weight > 0)
 						ls = ray_weight * scene->li(ray, sample,alpha);
 					//this is thread-safe because the image space is divided into different sections
-					camera::addSample(camera_,  camera_sample, ray, ls, alpha);
+					camera::addSample(camera_,  &camera_sample, ray, ls, alpha);
 				}
 				return true;
 			}
@@ -225,7 +225,7 @@ void Scene<Conf>::render()
 	while(sampler->getNextSample(*sample))
 	{
 		ray_differential_t ray;
-		scalar_t ray_weight = camera::generateRay(camera_,sample,ray);//generateRay(camera,*sample,ray);
+		scalar_t ray_weight = camera::generateRay(camera_,sample->cameraSample(),ray);//generateRay(camera,*sample,ray);
 		scalar_t alpha=0;
 		spectrum_t ls;
 		if (ray_weight > 0)
@@ -234,7 +234,7 @@ void Scene<Conf>::render()
 		//{
 		//	printf("intersect %.2f,%.2f ! \n",sample->image_x,sample->image_y);
 		//}
-		camera::addSample(camera_, sample->cameraSample(),ray,ls,alpha);
+		camera::addSample(camera_, &sample->cameraSample(),ray,ls,alpha);
 	}
 /**/
 	//fflush(fp);
