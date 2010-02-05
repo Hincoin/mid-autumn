@@ -258,7 +258,7 @@ namespace OOLUA
 			static void set(lua_State*  const l, int methods)
 			{
 				push_char_carray(l,new_str);
-				lua_pushcfunction(l, &Proxy_class<T>::factory_constructor);
+				lua_pushcfunction(l, &Proxy_class<T>::__lua_factory_constructor__);
 				lua_settable(l, methods);
 				// methods["new"] = create_type
 			}

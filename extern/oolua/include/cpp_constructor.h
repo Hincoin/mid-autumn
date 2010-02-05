@@ -19,8 +19,8 @@ namespace OOLUA{
 	template<typename A,typename B>
 	struct is_same_for_lua:
 		boost::mpl::or_<
-		boost::is_same<A,B> ,
-		boost::mpl::and_<boost::is_arithmetic<A>,boost::is_arithmetic<B> >
+		boost::is_same<typename param_type<A>::raw_type,typename param_type<B>::raw_type> ,
+		boost::mpl::and_<boost::is_arithmetic<typename param_type<A>::raw_type>,boost::is_arithmetic<typename param_type<B>::raw_type> >
 		>
 	{};
 	template<typename B>
@@ -29,10 +29,18 @@ namespace OOLUA{
 	struct is_same_for_lua<A,bool>:boost::mpl::bool_<false>{};
 	template<>
 	struct is_same_for_lua<bool,bool>:boost::mpl::bool_<true>{};
+
+	template<>
+	struct is_same_for_lua<char*,std::string>:boost::mpl::bool_<true>{};
+
+	template<>
+	struct is_same_for_lua<std::string,char*>:boost::mpl::bool_<true>{};
+
 	template<typename B,typename BNext,typename E>
 	struct lua_type_comparison_impl{
 		typedef typename boost::mpl::or_<
-			boost::mpl::equal<typename boost::mpl::deref<B>::type,typename boost::mpl::deref<BNext>::type,is_same_for_lua<boost::mpl::_1,boost::mpl::_2> >,
+			boost::mpl::equal<typename boost::mpl::deref<B>::type,typename boost::mpl::deref<BNext>::type,
+			is_same_for_lua<boost::mpl::_1,boost::mpl::_2> >,
 			typename lua_type_comparison_impl<BNext,typename boost::mpl::next<BNext>::type,E>::type
 		>::type type;
 	};
@@ -240,7 +248,7 @@ template<typename Class,typename Params>
 	mpl::vector<__VA_ARGS__>
 
 #define LUA_CTORS(...)\
-static int factory_constructor(lua_State* l)\
+static int __lua_factory_constructor__(lua_State* l)\
 {\
 	typedef mpl::vector<__VA_ARGS__> ctor_params;\
 	return factory_constructor_impl<class_,ctor_params>(l);\
