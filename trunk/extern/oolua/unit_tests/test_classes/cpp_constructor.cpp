@@ -33,7 +33,7 @@ typedef boost::mpl::vector<bool,int,float> v3bif_t;
 typedef boost::mpl::vector<bool,char,int> v3bcf_t;
 
 typedef boost::mpl::vector<v0_t,v1_t> vno_same_type;
-BOOST_STATIC_ASSERT((!boost::mpl::equal<v0_t,v1_t,OOLUA::is_same_for_lua<boost::mpl::_1,boost::mpl::_2> >::value));
+BOOST_STATIC_ASSERT((boost::mpl::equal<v1s_t,v1_t,OOLUA::is_same_for_lua<boost::mpl::_1,boost::mpl::_2> >::value));
 BOOST_STATIC_ASSERT((boost::mpl::equal<v3bif_t,v3bcf_t,OOLUA::is_same_for_lua<boost::mpl::_1,boost::mpl::_2> >::value));
 
 typedef boost::mpl::vector<v3bif_t,v1_t,v1s_t,v1b_t,v1i_t,v1f_t> v2_has_same_type;
