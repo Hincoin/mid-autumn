@@ -6,7 +6,7 @@
 typedef bool (*test_func_t)();
 
 bool register_test_function(const char* module_name,test_func_t f);
-bool run_test();
+bool run_test(int,char**);
 
 #include <cassert>
 
