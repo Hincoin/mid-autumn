@@ -59,7 +59,9 @@ namespace ma{
 		typedef Spectrum< scalar_t> spectrum_t;
 		//////////////////////////////////////////////////////////////////////////
 		//temp typedef
-		typedef ray_t ray_differental_t;
+		//typedef ray_t ray_differental_t;
+
+		typedef RayDifferential<typename B::vector_t> ray_differential_t;
 
 	};
 	//declarations
@@ -270,7 +272,6 @@ struct scene_config:B{
 	typedef MAPrimitive<primitive_interface_config<B> >* primitive_ptr;
 	typedef Intersection<intersection_config<B> > intersection_t;
 	//typedef typename intersection_config<B>::ray_differential_t ray_differential_t;
-	typedef RayDifferential<typename B::vector_t> ray_differential_t;
 	typedef void* volume_integrator_ptr;
 	typedef void* volume_region_ptr;
 

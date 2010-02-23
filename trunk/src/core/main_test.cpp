@@ -5,12 +5,12 @@
 #include "simple_test_framework.hpp"
 
 
-int main()
+int main(int argc,char* argv[])
 {
 //#ifdef TBB_PARALLEL
 //	tbb::task_scheduler_init init(2);
 //#endif
-	run_test();
+	run_test(argc,argv);
 	return 0;
 }
 
