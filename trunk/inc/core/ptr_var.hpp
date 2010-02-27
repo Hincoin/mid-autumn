@@ -192,7 +192,7 @@ namespace ma{
 		void swap(ptr_var& rhs){std::swap(ptr,rhs.ptr);std::swap(which,rhs.which);}
 
 		//////////////////////////////////////////////////////////////////////////
-		int which()const{return which;}
+		//int which()const{return which;}
 
 		template<typename T>
 		T* get(){

@@ -20,7 +20,7 @@ bool register_test_function(const char* module_name,test_func_t f){
 	get_functions().insert(std::make_pair(module_name,f));
 	return true;
 }
-bool run_test(int arc,char* argv){
+bool run_test(int argc,char** argv){
 	bool result = true;
 	if(argc == 1)
 	for (function_map_t::iterator i = get_functions().begin();i  != get_functions().end(); ++i)
@@ -33,7 +33,18 @@ bool run_test(int arc,char* argv){
 		printf("\n");
 	}
 	else{
-		for(
-???
-???
-???
+		for (int i = 1;i < argc; ++i)
+		{
+			function_map_t::iterator it = get_functions().find(argv[i]);
+			if(it != get_functions().end())
+			{
+				printf("run test module %s ",it->first.c_str());
+				if((*(it->second))())
+				{printf("success !");}
+				else
+				{printf("failed !");result = false;}
+				printf("\n");
+			}
+		}
+	}
+}
