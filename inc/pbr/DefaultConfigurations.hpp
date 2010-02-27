@@ -61,7 +61,7 @@ namespace ma{
 		//temp typedef
 		//typedef ray_t ray_differental_t;
 
-		typedef RayDifferential<typename B::vector_t> ray_differential_t;
+		typedef RayDifferential<vector_t> ray_differential_t;
 
 	};
 	//declarations
