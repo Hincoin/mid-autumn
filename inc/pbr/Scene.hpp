@@ -1,9 +1,9 @@
 #ifndef _MA_INCLUDED_SCENE_HPP_
 #define _MA_INCLUDED_SCENE_HPP_
 
-#include "CRTPInterfaceMacro.hpp"
 #include <vector>
-
+#include "CRTPInterfaceMacro.hpp"
+#include "Camera.hpp"
 namespace ma
 {
 	template<typename Conf>
