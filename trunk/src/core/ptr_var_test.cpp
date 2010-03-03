@@ -38,6 +38,14 @@ namespace ma{
 		MAKE_VISITOR(t,1)
 		MAKE_VISITOR(tt,2)
 		MAKE_VISITOR(ttt,1)
+
+		PTR_VAR_CALL_FUNC(t0,0)
+		PTR_VAR_CALL_FUNC(matchesFlags,1)
+		PTR_VAR_CALL_FUNC(t0,1)
+		PTR_VAR_CALL_FUNC(t,1)
+		PTR_VAR_CALL_FUNC(tt,2)
+		PTR_VAR_CALL_FUNC(ttt,1)
+
 	struct test_obj;
 	struct v_test_obj{
 		virtual void t0()const=0;
@@ -155,6 +163,10 @@ bool func_test()
 	result = result && tt_ref<float>(d,a,b) == tt_ref<float>(*test_ptr,c,c1);;
 	result = result && tt_ref<float>(d,a,b) == test_ptr->tt(c,c1);
 
+	///////////////////////////////////
+	ptr_var_t0<void>(d);
+	ptr_var_tt<float>(d,a,b);
+		//////////////////////////////
 	test_obj o_test;
 	
 	get<test_obj>(o_test);
