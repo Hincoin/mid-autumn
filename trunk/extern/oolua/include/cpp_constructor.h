@@ -86,12 +86,12 @@ namespace OOLUA{
 			{
 			
 				case LUA_TBOOLEAN:
-					return boost::is_same<bool,Param::raw_type>::value;break;
+					return boost::is_same<bool,typename Param::raw_type>::value;break;
 				case LUA_TNUMBER:
-					return boost::is_arithmetic<Param::raw_type>::value; break;
+					return boost::is_arithmetic<typename Param::raw_type>::value; break;
 				case LUA_TSTRING:
-					return boost::is_same<char* , Param::raw_type>::value ||
-								 boost::is_same<std::string,Param::raw_type>::value; break;
+					return boost::is_same<char* , typename Param::raw_type>::value ||
+								 boost::is_same<std::string,typename Param::raw_type>::value; break;
 				case LUA_TUSERDATA:
 					return can_userdata_convert_to_type<Param,Param::is_integral>::valid(l,index);
 					break;
@@ -217,14 +217,14 @@ template<typename Class,typename Params>
 	inline int factory_constructor_impl(lua_State* l)
 	{
 		//check params 
-		typedef lua_type_comparison<CParams>::type static_ambiguity_type_check_failed;
+		typedef typename lua_type_comparison<CParams>::type static_ambiguity_type_check_failed;
 		BOOST_MPL_ASSERT((boost::mpl::not_<static_ambiguity_type_check_failed>));
 		lua_remove(l,1);// remove class type
 		int param_count = lua_gettop(l);
 		switch (param_count){
 #define PARAM_CNT_CASE(z,N,_)\
 			case N:\
-			typedef boost::mpl::if_c< boost::mpl::bool_<(N == 0)>::value && boost::mpl::equal_to<boost::mpl::size<CParams>,boost::mpl::int_<0> >::value,boost::mpl::vector<boost::mpl::vector<> >,boost::mpl::copy_if<CParams,\
+			typedef typename  boost::mpl::if_c< boost::mpl::bool_<(N == 0)>::value && boost::mpl::equal_to<boost::mpl::size<CParams>,boost::mpl::int_<0> >::value,boost::mpl::vector<boost::mpl::vector<> >,typename boost::mpl::copy_if<CParams,\
 				SizeEqualTo<boost::mpl::_1,boost::mpl::int_<N> >,\
 				boost::mpl::back_inserter<boost::mpl::vector<> > >::type >::type _##N##_params;\
 					return factory_constructor_impl_f<Class,_##N##_params,0,boost::mpl::size<_##N##_params>::type::value>()(l);\
