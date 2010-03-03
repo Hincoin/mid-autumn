@@ -7,11 +7,12 @@
 #include "boost/preprocessor/enum_shifted_params.hpp"
 #include "boost/preprocessor/repeat.hpp"
 
+#include "boost/preprocessor/tuple/elem.hpp"
 
 #include "boost/mpl/limits/list.hpp"
 
 #include <boost/type_traits.hpp>
-
+#include <boost/mpl/size.hpp>
 #include "PtrTraits.hpp"
 
 #define POINTER_VARIANT_LIMIT_TYPES \
@@ -164,6 +165,7 @@ namespace ma{
 		int which;
 		//char aligned_storage[ boost::alignment_of<char[sizeof(void*) + sizeof(char)]>::value ];
 	public:
+		typedef seq_type types;
 		typedef ptr_var<POINTER_VARIANT_ENUM_PARAMS(T)> class_type;
 		//////////////////////////////////////////////////////////////////////////
 		template<typename U>
@@ -192,7 +194,7 @@ namespace ma{
 		void swap(ptr_var& rhs){std::swap(ptr,rhs.ptr);std::swap(which,rhs.which);}
 
 		//////////////////////////////////////////////////////////////////////////
-		//int which()const{return which;}
+		int which_type()const{return which;}
 
 		template<typename T>
 		T* get(){
@@ -813,6 +815,27 @@ namespace ma{
 //MAKE_VISITOR(sample_method,2);
 //MAKE_VISITOR(sample_method,3);
 
+		//PTR_VAR_CALL_FUNC(int,return_int,3,(a,b,c))
+#define PTR_VAR_CALL_FUNC_AUX_CASE(z,M,FUNC_N)\
+	case M: if(M >= size_var_types) throw boost::bad_get();\
+	   typedef typename boost::mpl::if_c< (M < size_var_types), \
+		boost::mpl::advance<typename boost::mpl::begin<var_types>::type,boost::mpl::int_<M> > ,\
+		boost::mpl::begin<var_types>  >::type _##M##_th_type_iter_t;typedef typename _##M##_th_type_iter_t::type _##M##_th_type_iter;\
+			   return ptr.get<typename boost::mpl::deref<_##M##_th_type_iter>::type>()-> BOOST_PP_TUPLE_ELEM(2,0,FUNC_N) (BOOST_PP_ENUM_PARAMS(BOOST_PP_TUPLE_ELEM(2,1,FUNC_N),p)); 
+
+
+#define PTR_VAR_CALL_FUNC(FUNC,N)\
+template<typename RET , typename PTR_VAR BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N,typename T)> \
+		RET ptr_var_##FUNC(PTR_VAR ptr BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_BINARY_PARAMS(N, T, &p) )\
+		{\
+			typedef typename PTR_VAR::types var_types;\
+			static const int size_var_types = boost::mpl::size<var_types>::value;\
+			switch(ptr.which_type()){\
+BOOST_PP_REPEAT(POINTER_VARIANT_LIMIT_TYPES,PTR_VAR_CALL_FUNC_AUX_CASE,(FUNC,N) )	\
+			}\
+			throw boost::bad_get();\
+		}
+		
 }
 
 
