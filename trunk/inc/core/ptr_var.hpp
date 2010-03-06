@@ -826,7 +826,7 @@ namespace ma{
 
 #define PTR_VAR_CALL_FUNC(FUNC,N)\
 template<typename RET , typename PTR_VAR BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N,typename T)> \
-		RET ptr_var_##FUNC(PTR_VAR ptr BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_BINARY_PARAMS(N, T, &p) )\
+	inline	RET ptr_var_##FUNC(PTR_VAR ptr BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_BINARY_PARAMS(N, T, &p) )\
 		{\
 			typedef typename PTR_VAR::types var_types;\
 			static const int size_var_types = boost::mpl::size<var_types>::value;\
