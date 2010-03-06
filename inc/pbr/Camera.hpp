@@ -4,7 +4,7 @@
 #include "CRTPInterfaceMacro.hpp"
 #include "Move.hpp"
 #include "PtrTraits.hpp"
-
+#include "ptr_var.hpp"
 namespace ma{
 	namespace camera{
 		DECL_FUNC_NEST(scalar_t,generateRay,2)

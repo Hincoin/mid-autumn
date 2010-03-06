@@ -39,13 +39,11 @@ namespace ma{
 		MAKE_VISITOR(tt,2)
 		MAKE_VISITOR(ttt,1)
 
-		PTR_VAR_CALL_FUNC(t0,0)
-		PTR_VAR_CALL_FUNC(matchesFlags,1)
-		PTR_VAR_CALL_FUNC(t0,1)
-		PTR_VAR_CALL_FUNC(t,1)
-		PTR_VAR_CALL_FUNC(tt,2)
-		PTR_VAR_CALL_FUNC(ttt,1)
-
+		namespace decl_func{
+		DECL_FUNC(void,t0,0)
+		DECL_FUNC(int,t,1);
+		DECL_FUNC(float,tt,2)
+}
 	struct test_obj;
 	struct v_test_obj{
 		virtual void t0()const=0;
@@ -164,8 +162,8 @@ bool func_test()
 	result = result && tt_ref<float>(d,a,b) == test_ptr->tt(c,c1);
 
 	///////////////////////////////////
-	ptr_var_t0<void>(d);
-	ptr_var_tt<float>(d,a,b);
+	decl_func::t0(d);
+	decl_func::tt(d,a,b);
 		//////////////////////////////
 	test_obj o_test;
 	
@@ -196,7 +194,9 @@ bool func_test()
 	ttt<void(const test_obj&)>(test_ptr,get<const test_obj&>(d));
  
 	std::set<var_t> v_set;
-
+#ifdef NDEBUG
+#define ENABLE_PERFORMANCE_TEST
+#endif
 #ifdef	ENABLE_PERFORMANCE_TEST
 	const int N = 1024*256 * 128;
 	const int M = 1;
