@@ -148,6 +148,7 @@ bool func_test()
 	bool result = true;
 	typedef boost::mpl::list<test_obj2,test_obj3,test_obj4,test_obj5,test_obj1,test_obj6,test_obj7,test_obj8,test_obj> var_seq;
 	typedef ma::make_ptr_var_over_sequence<var_seq>::type var_t;
+
 	BOOST_STATIC_ASSERT((is_ptr_variant<var_t>::value));
 	var_t d;
 	d = new test_obj;
@@ -223,6 +224,10 @@ bool func_test()
 		t0_test<var_t>(M);
 	}
 	printf("t0_test<var_t>() : %ld",(long)(clock()-s));
+	typedef ma::make_shared_ptr_var_over_sequence<var_seq>::type shared_ptr_var_t;
+	var_t tt = new test_obj;
+	shared_ptr_var_t shared_tt(tt);
+	
 	return result;
 }
 
