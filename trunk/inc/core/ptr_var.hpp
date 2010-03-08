@@ -41,7 +41,7 @@ namespace ma{
 
 
 	template < POINTER_VARIANT_AUX_DECLARE_PARAMS > class ptr_var;
-
+	template < POINTER_VARIANT_AUX_DECLARE_PARAMS > class shared_ptr_var;
 #undef POINTER_VARIANT_AUX_DECLARE_PARAMS_IMPL
 #undef POINTER_VARIANT_AUX_DECLARE_PARAMS
 
@@ -154,6 +154,7 @@ namespace ma{
 	template<typename T0 ,
 		POINTER_VARIANT_ENUM_SHIFTED_PARAMS(typename T) >
 	class ptr_var{
+protected:
 		typedef typename
 			boost::mpl::if_<details::ptr_var::is_over_sequence<T0>,
 			T0,
@@ -446,7 +447,7 @@ namespace ma{
 		}
 
 
-	private:
+	protected:
 		class _forbid_delete{void operator delete(void*);};
 		template<POINTER_VARIANT_ENUM_PARAMS(typename U)>
 		friend void* get_ptr(const ma::ptr_var<POINTER_VARIANT_ENUM_PARAMS(U)>& lhs);
@@ -460,6 +461,55 @@ namespace ma{
 	};
 
 
+template<typename T0 ,
+		POINTER_VARIANT_ENUM_SHIFTED_PARAMS(typename T) >
+	class shared_ptr_var:ptr_var<POINTER_VARIANT_ENUM_PARAMS(T)>{
+		typedef int count_type;
+		typedef ptr_var<POINTER_VARIANT_ENUM_PARAMS(T)> ptr_type;
+		count_type* pn;
+		public:
+		explicit shared_ptr_var(const ptr_type& p = ptr_type())
+		{
+			ptr_type::ptr = get_ptr(p);
+			ptr_type::which = p.which_type();
+			pn = new count_type(1);
+		}	
+		~shared_ptr_var(){
+			if(--*pn == 0)
+			{
+				delete_ptr(static_cast<ptr_type&>(*this));
+				delete pn;
+			}	
+		}
+		shared_ptr_var(shared_ptr_var const& r):
+			ptr_type::ptr(r.ptr),ptr_type::which(r.which),pn(r.pn)
+		{
+			++*pn;
+		}
+		shared_ptr_var& operator=(shared_ptr_var const& r)
+		{
+			shared_ptr_var(r).swap(*this);
+			return *this;
+		}
+
+		void reset(const ptr_type& p=ptr_type()){
+			shared_ptr_var(p).swap(*this);
+		}
+		long use_count()const
+		{
+			return *pn;
+		}
+		bool unique()const
+		{
+			return *pn == 1;
+		}
+		void swap(shared_ptr_var& other)
+		{
+			static_cast<ptr_type&>(*this).swap(other);
+			std::swap(pn,other.pn);
+		}
+	};
+
 	template<POINTER_VARIANT_ENUM_PARAMS(typename U)>
 	inline void* get_ptr(const ma::ptr_var<POINTER_VARIANT_ENUM_PARAMS(U)>& lhs){
 		return lhs.ptr;
@@ -469,6 +519,10 @@ namespace ma{
 		typedef ptr_var<details::ptr_var::over_sequence<Types> > type;
 	};
 
+	template<typename Types>
+		struct make_shared_ptr_var_over_sequence{
+		typedef shared_ptr_var<details::ptr_var::over_sequence<Types> > type;
+		};
 }
 
 namespace std{
@@ -495,6 +549,10 @@ namespace ma{
 	struct is_ptr_variant:boost::false_type{};
 	template<POINTER_VARIANT_ENUM_PARAMS(typename T)>
 	struct is_ptr_variant< ptr_var<POINTER_VARIANT_ENUM_PARAMS(T)> >:boost::true_type{};
+
+	template<POINTER_VARIANT_ENUM_PARAMS(typename T)>
+	struct is_ptr_variant< shared_ptr_var<POINTER_VARIANT_ENUM_PARAMS(T)> >:boost::true_type{};
+
 
 	template<POINTER_VARIANT_ENUM_PARAMS(typename T)>
 	void inline delete_ptr(ptr_var<POINTER_VARIANT_ENUM_PARAMS(T)>& p)
