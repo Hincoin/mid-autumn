@@ -7,6 +7,7 @@ namespace ma{
 	// UVTexture Declarations
 	template<typename Conf>
 	class UVTexture : public Texture<UVTexture<Conf>,Conf> {
+		public:
 		ADD_SAME_TYPEDEF(Conf,texturemap2d_ptr);
 		ADD_SAME_TYPEDEF(Conf,differential_geometry_t);
 		ADD_SAME_TYPEDEF(Conf,spectrum_t);

@@ -1,11 +1,13 @@
 #ifndef _MA_INCLUDED_TEXTURE_HPP_
 #define _MA_INCLUDED_TEXTURE_HPP_
 #include "CRTPInterfaceMacro.hpp"
-
+#include "ptr_var.hpp"
 namespace ma{
 	//
 	namespace texture{
 		DECL_FUNC_NEST(scalar_t,mapping,7)
+			
+		DECL_FUNC_NEST(scalar_t,evaluate,1)
 	}
 
 	BEGIN_CRTP_INTERFACE(TextureMapping2D)
@@ -54,15 +56,17 @@ namespace ma{
 		END_CRTP_INTERFACE
 	//////////////////////////////////////////////////////////////////////////
 	BEGIN_CRTP_INTERFACE(Texture)
+	public:
 	ADD_CRTP_INTERFACE_TYPEDEF(scalar_t)
 	ADD_CRTP_INTERFACE_TYPEDEF(differential_geometry_t)
-public:
+	public:
 	CRTP_CONST_METHOD(scalar_t,evaluate,1,( I_(const differential_geometry_t&,dg)))
 	END_CRTP_INTERFACE
 
 	// ConstantTexture Declarations
 	template <class Conf>
 	class ConstantTexture : public Texture<ConstantTexture<Conf>,Conf> {
+		public:
 		ADD_SAME_TYPEDEF(Conf,scalar_t)
 		ADD_SAME_TYPEDEF(Conf,differential_geometry_t)
 	public:
