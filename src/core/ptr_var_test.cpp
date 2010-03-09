@@ -225,6 +225,8 @@ bool func_test()
 	}
 	printf("t0_test<var_t>() : %ld",(long)(clock()-s));
 	typedef ma::make_shared_ptr_var_over_sequence<var_seq>::type shared_ptr_var_t;
+	BOOST_STATIC_ASSERT(is_ptr_variant<shared_ptr_var_t>::value);
+	BOOST_MPL_ASSERT((boost::is_same<test_obj2,boost::mpl::at_c<shared_ptr_var_t::types,0>::type>));
 	var_t tt = new test_obj;
 	shared_ptr_var_t shared_tt(tt);
 	

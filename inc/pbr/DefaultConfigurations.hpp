@@ -153,7 +153,7 @@ namespace ma{
 		//typedef void* volume_integrator_ptr;
 	};
 	template<typename B,typename S>
-	struct texture_config {
+	struct texture_config:B {
 		typedef DifferentialGeometry<typename B::scalar_t,B::dimension> differential_geometry_t;
 		typedef S scalar_t;
 	};
@@ -161,10 +161,17 @@ namespace ma{
 	struct material_config:public B{
 		typedef boost::shared_ptr<BSDF<bsdf_config<B> > > bsdf_ptr;
 
-	typedef ConstantTexture<texture_config<B,typename B::spectrum_t> > texture_spectrum_t;
-	typedef ConstantTexture<texture_config<B,typename B::scalar_t> > texture_scalar_t;
-	typedef boost::shared_ptr<texture_spectrum_t>  texture_spectrum_ref;
-	typedef boost::shared_ptr<texture_scalar_t> texture_scalar_t_ref;
+	typedef ConstantTexture<texture_config<B,typename B::spectrum_t> > const_texture_spectrum_t;
+	typedef ConstantTexture<texture_config<B,typename B::scalar_t> > const_texture_scalar_t;
+	typedef const_texture_spectrum_t default_texture_spectrum_t;
+	typedef const_texture_scalar_t default_texture_scalar_t;
+	//typedef UVTexture<texture_config<B,typename B::spectrum_t> > uvtexture_spectrum_t;
+	//typedef UVTexture<texture_config<B,typename B::scalar_t> > uvtexture_scalar_t;
+
+	typedef shared_ptr_var</*uvtexture_spectrum_t,*/const_texture_spectrum_t> texture_spectrum_ref;
+	typedef shared_ptr_var</*uvtexture_scalar_t,*/const_texture_scalar_t> texture_scalar_t_ref;
+	//typedef boost::shared_ptr<texture_spectrum_t>  texture_spectrum_ref;
+	//typedef boost::shared_ptr<texture_scalar_t> texture_scalar_t_ref;
 
 
 	typedef DifferentialGeometry<typename B::scalar_t,B::dimension> differential_geometry_t;

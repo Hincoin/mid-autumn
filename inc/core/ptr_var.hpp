@@ -10,7 +10,7 @@
 #include "boost/preprocessor/tuple/elem.hpp"
 
 #include "boost/mpl/limits/list.hpp"
-
+#include "boost/mpl/at.hpp"
 #include <boost/type_traits.hpp>
 #include <boost/mpl/size.hpp>
 #include "PtrTraits.hpp"
@@ -463,11 +463,14 @@ protected:
 
 template<typename T0 ,
 		POINTER_VARIANT_ENUM_SHIFTED_PARAMS(typename T) >
-	class shared_ptr_var:ptr_var<POINTER_VARIANT_ENUM_PARAMS(T)>{
+	class shared_ptr_var:public ptr_var<POINTER_VARIANT_ENUM_PARAMS(T)>{
 		typedef int count_type;
 		typedef ptr_var<POINTER_VARIANT_ENUM_PARAMS(T)> ptr_type;
 		count_type* pn;
 		public:
+
+		typedef typename ptr_type::types types;
+
 		explicit shared_ptr_var(const ptr_type& p = ptr_type())
 		{
 			ptr_type::ptr = get_ptr(p);
@@ -481,9 +484,11 @@ template<typename T0 ,
 				delete pn;
 			}	
 		}
-		shared_ptr_var(shared_ptr_var const& r):
-			ptr_type::ptr(r.ptr),ptr_type::which(r.which),pn(r.pn)
+		shared_ptr_var(shared_ptr_var const& r)
 		{
+			ptr_type::ptr = (r.ptr);
+			ptr_type::which = (r.which);
+			pn = (r.pn);
 			++*pn;
 		}
 		shared_ptr_var& operator=(shared_ptr_var const& r)
@@ -507,6 +512,12 @@ template<typename T0 ,
 		{
 			static_cast<ptr_type&>(*this).swap(other);
 			std::swap(pn,other.pn);
+		}
+		operator typename ptr_type::_forbid_delete*()const
+		{
+			if(!this->ptr)return 0;
+			static typename ptr_type::_forbid_delete t;
+			return &t;
 		}
 	};
 
@@ -553,6 +564,7 @@ namespace ma{
 	template<POINTER_VARIANT_ENUM_PARAMS(typename T)>
 	struct is_ptr_variant< shared_ptr_var<POINTER_VARIANT_ENUM_PARAMS(T)> >:boost::true_type{};
 
+	BOOST_STATIC_ASSERT(is_ptr_variant<shared_ptr_var<int> >::value);
 
 	template<POINTER_VARIANT_ENUM_PARAMS(typename T)>
 	void inline delete_ptr(ptr_var<POINTER_VARIANT_ENUM_PARAMS(T)>& p)
@@ -939,47 +951,61 @@ BOOST_PP_REPEAT(POINTER_VARIANT_LIMIT_TYPES,PTR_VAR_CALL_FUNC_AUX_CASE,(FUNC,N) 
 
 
 
-
+	namespace ptr_var_details{
+		template<typename ObjT,bool is_ptr_var>
+		struct _call_func_ret_type{
+			typedef ObjT type;
+		};	
+		template<typename ObjT>
+		struct _call_func_ret_type<ObjT,true>
+		{
+			typedef typename ObjT::types sequence_of_t;
+			typedef typename boost::mpl::at_c<sequence_of_t,0>::type type;
+		};
+		template<typename ObjT>
+		struct call_func_ret_type:_call_func_ret_type<ObjT,is_ptr_variant<ObjT>::value>
+		{};
+	}
 //nested return type
 #define DECL_FUNC_NEST(R,FN,PN)\
 		namespace details{\
 			PTR_VAR_CALL_FUNC(FN,PN)\
 	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
-	inline typename ObjT::R FN##impl(const ObjT& obj , boost::false_type BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+		inline typename ptr_var_details::call_func_ret_type<ObjT>::type::R FN##impl(const ObjT& obj , boost::false_type BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
 	{return obj.FN(BOOST_PP_ENUM_PARAMS(PN,p));}\
 	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
-	inline typename ObjT::R FN##impl(ObjT& obj , boost::false_type BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+		inline typename ptr_var_details::call_func_ret_type<ObjT>::type::R FN##impl(ObjT& obj , boost::false_type BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
 	{return obj.FN(BOOST_PP_ENUM_PARAMS(PN,p));}\
 	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
-	inline typename ObjT::R FN##impl(const ObjT* obj , boost::false_type BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+		inline typename ptr_var_details::call_func_ret_type<ObjT>::type::R  FN##impl(const ObjT* obj , boost::false_type BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
 	{return obj->FN(BOOST_PP_ENUM_PARAMS(PN,p));}\
 	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
-	inline typename ObjT::R FN##impl(ObjT* obj , boost::false_type BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+		inline typename ptr_var_details::call_func_ret_type<ObjT>::type::R FN##impl(ObjT* obj , boost::false_type BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
 	{return obj->FN(BOOST_PP_ENUM_PARAMS(PN,p));}\
 	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
-	inline typename ObjT::R FN##impl(const ObjT& obj , boost::true_type BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
-	{return ptr_var_##FN<typename ObjT::R>(obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,p));}\
+		inline typename ptr_var_details::call_func_ret_type<ObjT>::type::R FN##impl(const ObjT& obj , boost::true_type BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+	{return ptr_var_##FN<typename ptr_var_details::call_func_ret_type<ObjT>::type::R >(obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,p));}\
 	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
-	inline typename ObjT::R FN##impl(ObjT& obj , boost::true_type BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
-	{return ptr_var_##FN<typename ObjT::R>(obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,p));}\
+		inline typename ptr_var_details::call_func_ret_type<ObjT>::type::R FN##impl(ObjT& obj , boost::true_type BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+	{return ptr_var_##FN<typename ptr_var_details::call_func_ret_type<ObjT>::type::R >(obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,p));}\
 	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
-	inline typename ObjT::R FN##impl(const ObjT* obj , boost::true_type BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
-	{return ptr_var_##FN<typename ObjT::R>(*obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,p));}\
+		inline typename ptr_var_details::call_func_ret_type<ObjT>::type::R  FN##impl(const ObjT* obj , boost::true_type BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+	{return ptr_var_##FN<typename ptr_var_details::call_func_ret_type<ObjT>::type::R >(*obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,p));}\
 	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
-	inline typename ObjT::R FN##impl(ObjT* obj , boost::true_type BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
-	{return ptr_var_##FN<typename ObjT::R>(*obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,p));}\
+		inline typename ptr_var_details::call_func_ret_type<ObjT>::type::R  FN##impl(ObjT* obj , boost::true_type BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+	{return ptr_var_##FN<typename ptr_var_details::call_func_ret_type<ObjT>::type::R>(*obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,p));}\
 	}\
 template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
-	inline typename ObjT::R FN(const ObjT& obj  BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+	inline typename ptr_var_details::call_func_ret_type<ObjT>::type::R FN(const ObjT& obj  BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
 	{return details::FN##impl(obj, is_ptr_variant<ObjT>() BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,p));}\
 	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
-	inline typename ObjT::R FN(ObjT& obj  BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+	inline typename ptr_var_details::call_func_ret_type<ObjT>::type::R  FN(ObjT& obj  BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
 	{return details::FN##impl(obj, is_ptr_variant<ObjT>() BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,p));}\
 	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
-	inline typename ObjT::R FN(const ObjT* obj  BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+	inline typename ptr_var_details::call_func_ret_type<ObjT>::type::R FN(const ObjT* obj  BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
 	{return details::FN##impl(obj, is_ptr_variant<ObjT>() BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,p));}\
 	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
-	inline typename ObjT::R FN(ObjT* obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+	inline typename ptr_var_details::call_func_ret_type<ObjT>::type::R FN(ObjT* obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
 	{return details::FN##impl(obj, is_ptr_variant<ObjT>() BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,p));}\
 		
 

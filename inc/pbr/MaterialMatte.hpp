@@ -2,6 +2,7 @@
 #define _MA_INCLUDED_MATERIALMATTE_HPP_
 
 #include "Material.hpp"
+#include "Texture.hpp"
 
 namespace ma{
 
@@ -11,8 +12,8 @@ namespace ma{
 	public:
 		ADD_SAME_TYPEDEF(Conf,bsdf_ptr);
 
-		ADD_SAME_TYPEDEF(Conf,texture_spectrum_t);
-		ADD_SAME_TYPEDEF(Conf,texture_scalar_t );
+		ADD_SAME_TYPEDEF(Conf,default_texture_spectrum_t);
+		ADD_SAME_TYPEDEF(Conf,default_texture_scalar_t );
 
 		ADD_SAME_TYPEDEF(Conf,texture_spectrum_ref);
 		ADD_SAME_TYPEDEF(Conf,texture_scalar_t_ref);
@@ -62,8 +63,8 @@ namespace ma{
 			//memory leak here change to be a smart-ptr
 			bsdf_ptr bsdf(new bsdf_t(dgs, dgGeom.normal));
 			// Evaluate textures for _Matte_ material and allocate BRDF
-			spectrum_t r = Kd->evaluate(dgs).Clamp();
-			scalar_t sig = ma::clamp(sigma->evaluate(dgs), scalar_t(0), scalar_t(90));
+			spectrum_t r = texture::evaluate(Kd,dgs).Clamp();
+			scalar_t sig = ma::clamp( texture::evaluate(sigma,dgs), scalar_t(0), scalar_t(90));
 			if (sig == scalar_t(0))
 				bsdf->add(new lambertian_t(r));
 			else
@@ -81,18 +82,18 @@ namespace ma{
 
 			ADD_SAME_TYPEDEF(Matte<Conf>,texture_spectrum_ref);
 			ADD_SAME_TYPEDEF(Matte<Conf>,texture_scalar_t_ref);
-			ADD_SAME_TYPEDEF(Conf,texture_spectrum_t);
-			ADD_SAME_TYPEDEF(Conf,texture_scalar_t );
+			ADD_SAME_TYPEDEF(Conf,default_texture_spectrum_t);
+			ADD_SAME_TYPEDEF(Conf,default_texture_scalar_t );
 			ADD_SAME_TYPEDEF(Conf,spectrum_t);
 			ADD_SAME_TYPEDEF(Conf,scalar_t);
 			Matte<Conf>* 
 				operator()(const transform_t& xform,const ParamSet& mp)const
 			{
 				texture_spectrum_ref Kd = mp.as<texture_spectrum_ref>("Kd", 
-					texture_spectrum_ref (new texture_spectrum_t (spectrum_t(1.f))) );
+					texture_spectrum_ref (new default_texture_spectrum_t (spectrum_t(1.f))) );
 
 				texture_scalar_t_ref sigma = mp.as<texture_scalar_t_ref>("sigma",
-					texture_scalar_t_ref (new texture_scalar_t (scalar_t(0.f))) );
+					texture_scalar_t_ref (new default_texture_scalar_t (scalar_t(0.f))) );
 				texture_scalar_t_ref bumpMap = mp.as<texture_scalar_t_ref>("bumpmap", 
 					texture_scalar_t_ref () );
 				return new matte_t(Kd, sigma, bumpMap);
