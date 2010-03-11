@@ -148,7 +148,7 @@ namespace ma{
 					scalar_t alpha = 0;
 					typename sample_t::camera_sample_t camera_sample;
 
-					scalar_t ray_weight = camera::generateRay(camera_,sample,ray);
+					scalar_t ray_weight = camera::generateRay(camera_,sample,ref(ray));
 					camera_sample = *sample;
 					if (ray_weight > 0)
 						ls = ray_weight * scene->li(ray, sample,alpha);
@@ -225,7 +225,7 @@ void Scene<Conf>::render()
 	while(sampler->getNextSample(*sample))
 	{
 		ray_differential_t ray;
-		scalar_t ray_weight = camera::generateRay(camera_,sample->cameraSample(),ray);//generateRay(camera,*sample,ray);
+		scalar_t ray_weight = camera::generateRay(camera_,sample->cameraSample(),ref(ray));//generateRay(camera,*sample,ray);
 		scalar_t alpha=0;
 		spectrum_t ls;
 		if (ray_weight > 0)
