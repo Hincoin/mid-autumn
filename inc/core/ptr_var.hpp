@@ -13,6 +13,7 @@
 #include "boost/mpl/at.hpp"
 #include <boost/type_traits.hpp>
 #include <boost/mpl/size.hpp>
+#include <boost/ref.hpp>
 #include "PtrTraits.hpp"
 
 #define POINTER_VARIANT_LIMIT_TYPES \
@@ -1008,8 +1009,13 @@ template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)
 	inline typename ptr_var_details::call_func_ret_type<ObjT>::type::R FN(ObjT* obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
 	{return details::FN##impl(obj, is_ptr_variant<ObjT>() BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,p));}\
 		
+//reference
+using boost::ref;
+
 
 }
+
+
 
 
 
