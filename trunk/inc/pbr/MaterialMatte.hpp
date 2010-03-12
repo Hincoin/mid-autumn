@@ -8,7 +8,7 @@ namespace ma{
 
 	// Matte Class Declarations
 	template<typename Conf>
-	class Matte : public Material<Matte<Conf>,Conf> {
+	class Matte : public Material<Matte<Conf>,Conf::interface_config> {
 	public:
 		ADD_SAME_TYPEDEF(Conf,bsdf_ptr);
 

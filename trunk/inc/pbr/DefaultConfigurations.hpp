@@ -153,12 +153,19 @@ namespace ma{
 		//typedef void* volume_integrator_ptr;
 	};
 	template<typename B,typename S>
-	struct texture_config:B {
+	struct texture_interface_config:B {
 		typedef DifferentialGeometry<typename B::scalar_t,B::dimension> differential_geometry_t;
 		typedef S scalar_t;
 	};
+
+	//specific
+	template<typename B,typename S>
+	struct texture_config:texture_interface_config<B,S> {
+		typedef texture_interface_config<B,S> interface_config; 
+	};
+
 	template<typename B>
-	struct material_config:public B{
+	struct material_interface_config:public B{
 		typedef boost::shared_ptr<BSDF<bsdf_config<B> > > bsdf_ptr;
 
 	typedef ConstantTexture<texture_config<B,typename B::spectrum_t> > const_texture_spectrum_t;
@@ -176,10 +183,15 @@ namespace ma{
 
 	typedef DifferentialGeometry<typename B::scalar_t,B::dimension> differential_geometry_t;
 
-	//the following is matte material specific config
-	typedef BSDF<bsdf_config<B> > bsdf_t;
-	typedef Lambertian<bxdf_config<B> > lambertian_t;
-	typedef OrenNayar<bxdf_config<B> > oren_nayar_t;
+	};
+
+	template<typename B>
+	struct matte_material_config:public material_interface_config<B>{
+		typedef material_interface_config<B> interface_config;
+		//the following is matte material specific config
+		typedef BSDF<bsdf_config<B> > bsdf_t;
+		typedef Lambertian<bxdf_config<B> > lambertian_t;
+		typedef OrenNayar<bxdf_config<B> > oren_nayar_t;
 	};
 	template<typename B>
 	struct primitive_interface_config:B{
@@ -201,7 +213,7 @@ namespace ma{
 	struct primitive_config:primitive_interface_config<B>{
 
 
-		typedef Matte<material_config<B> > material_t;
+		typedef Matte<matte_material_config<B> > material_t;
 
 		//typedef typename Conf::ScalarType ScalarType;
 		//static const int Dimension = Conf::Dimension;

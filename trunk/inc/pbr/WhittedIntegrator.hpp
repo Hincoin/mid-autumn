@@ -69,7 +69,7 @@ namespace ma{
 				vector_t wi;
 				for (unsigned i = 0; i < scene->lights.size(); ++i) {
 					visibility_tester_t visibility;
-					spectrum_t Li = scene->lights[i]->sample_l(p, wi, visibility);
+					spectrum_t Li = light::sample_l(scene->lights[i],p,ref( wi ), ref(visibility));
 					if (Li.black()) continue;
 					spectrum_t f = bsdf->f(wo, wi);
 					if (!f.black() && visibility.unOccluded(scene))

@@ -22,7 +22,7 @@ namespace ma{
 		}
 		spectrum_t evaluateImpl(const differential_geometry_t &dg) const {
 			scalar_t s, t, dsdx, dtdx, dsdy, dtdy;
-			mapping->map(dg, s, t, dsdx, dtdx, dsdy, dtdy);
+			texture::mapping(mapping,dg, ref(s), ref(t), ref(dsdx), ref(dtdx), ref(dsdy), ref(dtdy));
 			scalar_t cs[spectrum_t::COLOR_SAMPLES];
 			memset(cs, 0, spectrum_t::COLOR_SAMPLES * sizeof(scalar_t));
 			cs[0] = s - Floor2Int(s);
