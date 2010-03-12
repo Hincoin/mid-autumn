@@ -8,6 +8,7 @@ namespace ma
 	namespace light{
 		DECL_FUNC_NEST(spectrum_t,sample_l,3)
 		DECL_FUNC_NEST(spectrum_t,sample_l,6)
+		DECL_FUNC_NEST(spectrum_t,sample_l,7)
 		DECL_FUNC_NEST(spectrum_t,power,1)
 		DECL_FUNC(bool,isDeltaLight,0)
 		DECL_FUNC_NEST(spectrum_t,le,1)
