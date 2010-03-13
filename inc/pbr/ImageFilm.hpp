@@ -88,13 +88,13 @@ namespace ma{
 	};
 
 	template<typename Conf>
-	class ImageFilm:public Film<ImageFilm<Conf>,Conf>{
+	class ImageFilm:public Film<ImageFilm<Conf>,typename Conf::interface_config>{
 		ADD_SAME_TYPEDEF(Conf,sample_t)
 		ADD_SAME_TYPEDEF(Conf,spectrum_t)
 		ADD_SAME_TYPEDEF(Conf,ray_t)
 		ADD_SAME_TYPEDEF(Conf,scalar_t)
 		ADD_SAME_TYPEDEF(Conf,filter_ptr);
-		typedef Film<ImageFilm<Conf>,Conf> parent_type;
+		typedef Film<ImageFilm<Conf>,typename Conf::interface_config> parent_type;
 	public:
 		// ImageFilm Public Methods
 		ImageFilm(int xres, int yres,
@@ -183,7 +183,7 @@ namespace ma{
 
 					// Possibly write out in-progress image
 					if (--sampleCount == 0) {
-						writeImage();
+						parent_type::writeImage();
 						sampleCount = writeFrequency;
 					}
 		}

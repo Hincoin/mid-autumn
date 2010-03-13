@@ -2,8 +2,14 @@
 #define _MA_INCLUDED_SAMPLING_HPP_
 
 #include "MAMath.hpp"
+#include "ptr_var.hpp"
 namespace ma{
 
+	namespace sampler{
+		DECL_FUNC(bool,getNextSample,1)
+		DECL_FUNC(int,totalSamples,0)
+		DECL_FUNC(int,roundSize,1)
+	}
 	BEGIN_CRTP_INTERFACE(Sampler)
 		ADD_CRTP_INTERFACE_TYPEDEF(sample_t)
 protected:
@@ -90,7 +96,7 @@ public:
 			}
 			return sample;
 		}
-		camera_sample_t cameraSample()const{
+		const camera_sample_t& cameraSample()const{
 			return *this;
 		}
 		const integrator_sample_t* integratorSample()const{
@@ -99,9 +105,12 @@ public:
 		//private:
 
 	};
+	namespace filter{
+		DECL_FUNC_NEST(scalar_t,evaluate,2)
+	}
 	BEGIN_CRTP_INTERFACE(Filter)
+public:
 		ADD_CRTP_INTERFACE_TYPEDEF(scalar_t)
-	public:
 		// Filter Interface
 		Filter(scalar_t xw, scalar_t yw)
 			: xWidth(xw), yWidth(yw), invXWidth(reciprocal(xw)),

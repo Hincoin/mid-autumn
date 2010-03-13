@@ -241,12 +241,20 @@ typename Conf::spectrum_t BSDF<Conf>::rho(const vector_t &wo, BxDFType flags) co
 }
 //////////////////////////////////////////////////////////////////////////
 
+namespace bxdf{
+	DECL_FUNC(bool,matchesFlags,1)
+	DECL_FUNC_NEST(spectrum_t,sample_f,5)
+	DECL_FUNC_NEST(spectrum_t,rho,3)
+	DECL_FUNC_NEST(spectrum_t,rho,2)
+	DECL_FUNC_NEST(scalar_t,pdf,2)
+	DECL_FUNC(BxDFType,type,0)
+}
 //more bxdf types
 BEGIN_CRTP_INTERFACE(BxDF)
+public:
 ADD_CRTP_INTERFACE_TYPEDEF(spectrum_t)
 ADD_CRTP_INTERFACE_TYPEDEF(vector_t)
 ADD_CRTP_INTERFACE_TYPEDEF(scalar_t);
-public:
 BxDF(BxDFType t):type_(t){}
 bool matchesFlags(BxDFType flags)const{return (type_ & flags) == type_;}
 
@@ -327,6 +335,10 @@ typename Conf::spectrum_t BxDF<D,Conf>::rho(int nSamples, scalar_t *samples) con
 }
 
 //////////////////////////////////////////////////////////////////////////
+namespace fresnel{
+	DECL_FUNC_NEST(spectrum_t,evaluate,1)
+
+}
 BEGIN_CRTP_INTERFACE(Fresnel)
 ADD_CRTP_INTERFACE_TYPEDEF(spectrum_t)
 ADD_CRTP_INTERFACE_TYPEDEF(scalar_t)
@@ -334,6 +346,11 @@ public:
 	CRTP_CONST_METHOD(spectrum_t,evaluate,1,( I_(scalar_t,cosi)))
 END_CRTP_INTERFACE
 
+namespace microfacetdistribution{
+	DECL_FUNC_NEST(scalar_t,d,1)
+	DECL_FUNC(void,sample_f,5)
+	DECL_FUNC_NEST(scalar_t,pdf,2)
+}
 BEGIN_CRTP_INTERFACE(MicrofacetDistribution)
 	ADD_CRTP_INTERFACE_TYPEDEF(vector_t)
 	ADD_CRTP_INTERFACE_TYPEDEF(scalar_t)
@@ -350,13 +367,13 @@ END_CRTP_INTERFACE
 
 
 template<typename Conf>
-class Lambertian : public BxDF<Lambertian<Conf>,Conf> {
+class Lambertian : public BxDF<Lambertian<Conf>,typename Conf::interface_config> {
 	typedef Lambertian<Conf> class_type;
 public:
 	ADD_SAME_TYPEDEF(Conf,vector_t);
 	ADD_SAME_TYPEDEF(Conf,scalar_t);
 	ADD_SAME_TYPEDEF(Conf,spectrum_t);
-	typedef BxDF<Lambertian<Conf>,Conf> parent_type;
+	typedef BxDF<Lambertian<Conf>,typename Conf::interface_config> parent_type;
 	// Lambertian Public Methods
 	Lambertian(const spectrum_t &reflectance)
 		: parent_type(BxDFType(BSDF_REFLECTION | BSDF_DIFFUSE)),
@@ -374,11 +391,11 @@ private:
 	MA_DECLARE_POOL_NEW_DELETE_MT(class_type)
 };
 template<typename Conf>
-class OrenNayar : public BxDF<OrenNayar<Conf>,Conf> {
+class OrenNayar : public BxDF<OrenNayar<Conf>,typename Conf::interface_config> {
 	ADD_SAME_TYPEDEF(Conf,vector_t);
 	ADD_SAME_TYPEDEF(Conf,scalar_t);
 	ADD_SAME_TYPEDEF(Conf,spectrum_t);
-	typedef BxDF<OrenNayar<Conf>,Conf> parent_type;
+	typedef BxDF<OrenNayar<Conf>,typename Conf::interface_config> parent_type;
 	typedef OrenNayar<Conf> class_type;
 public:
 	// OrenNayar Public Methods

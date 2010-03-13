@@ -1,5 +1,6 @@
+#ifndef CORE_SOURCE
 #define CORE_SOURCE
-
+#endif
 
 #include "MAAPI.hpp"
 
@@ -450,15 +451,15 @@ COREDLL void maTransformEnd(){
 
 	 //////////////////////////////////////////////////////////////////////////
 	 //test
-	 typedef ImageFilm<film_config<basic_config_t> > image_film_t;
-	 typedef PointLight<light_config<basic_config_t> > light_t;
-	 typedef PerspectiveCamera<camera_config<basic_config_t> > camera_t;
+	 typedef ImageFilm<image_film_config<basic_config_t> > image_film_t;
+	 typedef PointLight<point_light_config<basic_config_t> > light_t;
+	 typedef PerspectiveCamera<perspective_camera_config<basic_config_t> > camera_t;
 	 typedef Sample<sample_config<basic_config_t> > sample_t;
-	 typedef LDSampler<sampler_config<basic_config_t> > sampler_t;
+	 typedef LDSampler<ldsampler_config<basic_config_t> > sampler_t;
 	 typedef MAPrimitive<primitive_interface_config<basic_config_t> > primitive_t;
 	 typedef WhittedIntegrator<surface_integrator_config<basic_config_t> > surface_integrator_t;
 	 typedef Scene<scene_config<basic_config_t> > scene_t;
-	 typedef MitchellFilter<filter_config<basic_config_t> > filter_t;
+	 typedef MitchellFilter<mitchellfilter_config<basic_config_t> > filter_t;
 	 filter_t* filter = new filter_t(0.33f,0.33f,2,2);
 
 	 //////////////////////////////////////////////////////////////////////////

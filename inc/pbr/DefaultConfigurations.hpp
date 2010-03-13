@@ -109,17 +109,28 @@ namespace ma{
 	template<typename B>
 	struct filter_config:public B{};
 	template<typename B>
+	struct mitchellfilter_config:filter_config<B>{
+		typedef filter_config<B> interface_config;
+	};
+	template<typename B>
 	struct film_config:B{
-
 		typedef CameraSample<sample_config<B> > sample_t;
-
-		typedef MitchellFilter<filter_config<B> >* filter_ptr;
+	};
+	template<typename B>
+	struct image_film_config:film_config<B>{
+		typedef film_config<B> interface_config;
+		typedef MitchellFilter<mitchellfilter_config<B> >* filter_ptr;
 	};
 	template<typename B>
 	struct camera_config:B{
 		typedef CameraSample<sample_config<B> > sample_t;
-		typedef ImageFilm<film_config<B> >* film_ptr;
+
+		typedef ImageFilm<image_film_config<B> >* film_ptr;
 		//ADD_CRTP_INTERFACE_TYPEDEF(film_ptr);
+	};
+	template <typename B>
+	struct perspective_camera_config:camera_config<B>{
+		typedef camera_config<B> interface_config;	
 	};
 	template<typename B>
 	struct surface_integrator_config:B{
@@ -141,8 +152,11 @@ namespace ma{
 	struct volume_integrator_config:B{};
 	template<typename B>
 	struct sampler_config:B{
-		//typedef Sample<sample_config<B> > sample_t;
 		typedef typename scene_config<B>::sample_t sample_t;
+	};
+	template<typename B>
+	struct ldsampler_config:sampler_config<B>{
+		typedef sampler_config<B> interface_config;
 	};
 	template<typename B>
 	struct sample_config:B{
@@ -184,14 +198,15 @@ namespace ma{
 	typedef DifferentialGeometry<typename B::scalar_t,B::dimension> differential_geometry_t;
 
 	};
-
+	template<typename B> struct lambertian_bxdf_config;
+	template<typename B> struct orennayar_bxdf_config;
 	template<typename B>
 	struct matte_material_config:public material_interface_config<B>{
 		typedef material_interface_config<B> interface_config;
 		//the following is matte material specific config
 		typedef BSDF<bsdf_config<B> > bsdf_t;
-		typedef Lambertian<bxdf_config<B> > lambertian_t;
-		typedef OrenNayar<bxdf_config<B> > oren_nayar_t;
+		typedef Lambertian<lambertian_bxdf_config<B> > lambertian_t;
+		typedef OrenNayar<orennayar_bxdf_config<B> > oren_nayar_t;
 	};
 	template<typename B>
 	struct primitive_interface_config:B{
@@ -255,6 +270,10 @@ namespace ma{
 		typedef typename scene_config<B>::ray_differential_t ray_differential_t;
 	};
 	template<typename B>
+	struct point_light_config:light_config<B>{
+	typedef light_config<B> interface_config;	
+	};
+	template<typename B>
 	struct volume_region_config:B{};
 
 	template<typename B>
@@ -262,10 +281,18 @@ namespace ma{
 
 	};
 	template<typename B>
+	struct orennayar_bxdf_config:bxdf_config<B>{
+		typedef bxdf_config<B> interface_config;	
+	};
+	template<typename B>
+	struct lambertian_bxdf_config:bxdf_config<B>{
+		typedef bxdf_config<B> interface_config;	
+	}; 
+	template<typename B>
 	struct bsdf_config:public B{
 		typedef DifferentialGeometry<typename B::scalar_t,B::dimension> differential_geometry_t;
 		//typedef Lambertian<bxdf_config<B> >* BxDF_ptr;
-		typedef ptr_var<Lambertian<bxdf_config<B> >,OrenNayar<bxdf_config<B> > > BxDF_ptr;
+		typedef ptr_var<Lambertian<lambertian_bxdf_config<B> >,OrenNayar<orennayar_bxdf_config<B> > > BxDF_ptr;
 	};
 	template<typename B>
 	struct intersection_config:B{
@@ -281,11 +308,11 @@ namespace ma{
 	//volume_integrator 
 template<typename B>
 struct scene_config:B{
-	typedef PointLight<light_config<B> > light_t;
+	typedef PointLight<point_light_config<B> > light_t;
 	typedef light_t* light_ptr; //ptr var
-	typedef PerspectiveCamera<camera_config<B> >* camera_ptr;
+	typedef PerspectiveCamera<perspective_camera_config<B> >* camera_ptr;
 	typedef WhittedIntegrator<surface_integrator_config<B> >* surface_integrator_ptr;
-	typedef LDSampler<sampler_config<B> >* sampler_ptr;
+	typedef LDSampler<ldsampler_config<B> >* sampler_ptr;
 	typedef Sample<sample_config<B> > sample_t;
 	typedef sample_t* sample_ptr;
 	typedef MAPrimitive<primitive_interface_config<B> >* primitive_ptr;
