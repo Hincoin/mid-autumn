@@ -21,6 +21,7 @@ cd oolua
 ./premake4 gmake linux
 make oolua
 cp bin/Debug/* ../../build/bin/debug
+make config=release oolua
 cp bin/Release/* ../../build/bin/release
 cd ..
 
