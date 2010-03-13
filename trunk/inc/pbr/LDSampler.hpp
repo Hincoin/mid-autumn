@@ -12,9 +12,9 @@ namespace ma{
 
 	// LDSampler Declarations
 	template<typename Conf>
-	class LDSampler : public Sampler<LDSampler<Conf>,Conf> {
-		friend class Sampler<LDSampler<Conf>,Conf>;
-		typedef Sampler<LDSampler<Conf>,Conf> parent_type;
+	class LDSampler : public Sampler<LDSampler<Conf>,typename Conf::interface_config> {
+		friend class Sampler<LDSampler<Conf>,typename Conf::interface_config>;
+		typedef Sampler<LDSampler<Conf>,typename Conf::interface_config> parent_type;
 		typedef LDSampler<Conf> class_type;
 	public:
 		ADD_SAME_TYPEDEF(Conf,sample_t);

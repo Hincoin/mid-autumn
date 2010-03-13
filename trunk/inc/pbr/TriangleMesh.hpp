@@ -3,7 +3,7 @@
 
 #include "Shape.hpp"
 #include <vector>
-
+#include "ErrorReporter.hpp"
 namespace ma
 {
     struct cfg_not_intersectable

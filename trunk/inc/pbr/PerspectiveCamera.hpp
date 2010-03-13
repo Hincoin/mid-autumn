@@ -6,10 +6,10 @@
 namespace ma{
 	//
 	template<typename Conf>
-	class PerspectiveCamera:public ProjectiveCamera<PerspectiveCamera<Conf>,Conf>
+	class PerspectiveCamera:public ProjectiveCamera<PerspectiveCamera<Conf>,typename Conf::interface_config>
 	{
-		friend class Camera<PerspectiveCamera<Conf>,Conf>;
-		typedef ProjectiveCamera<PerspectiveCamera<Conf>,Conf> parent_type;
+		friend class Camera<PerspectiveCamera<Conf>,typename Conf::interface_config>;
+		typedef ProjectiveCamera<PerspectiveCamera<Conf>,typename Conf::interface_config> parent_type;
 	public:
 		ADD_SAME_TYPEDEF(Conf,sample_t);
 		ADD_SAME_TYPEDEF(Conf,transform_t);

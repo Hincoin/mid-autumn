@@ -6,8 +6,15 @@
 #include <cmath>
 #include "MAMath.hpp"
 namespace ma{
-	// Spectrum Declarations
 	template<typename S = float,int C_S = 3>
+	class Spectrum;
+	template<typename S,int SN>
+	Spectrum<S,SN> FromXYZ(float x, float y, float z); 
+	template<typename S,int SN>
+	std::ostream &operator<<(std::ostream &, const Spectrum<S,SN>&);
+
+	// Spectrum Declarations
+	template<typename S ,int C_S>
 	class Spectrum {
 		typedef Spectrum<S,C_S> class_type;
 	public:
@@ -31,7 +38,7 @@ namespace ma{
 		// move operation
 		//////////////////////////////////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////
-		friend std::ostream &operator<<(std::ostream &, const class_type &);
+		friend std::ostream &operator<< <>(std::ostream &, const class_type &);
 		Spectrum &operator+=(const class_type &s2) {
 			for (int i = 0; i < COLOR_SAMPLES; ++i)
 				c[i] += s2.c[i];
@@ -174,7 +181,8 @@ namespace ma{
 		static float XWeight[COLOR_SAMPLES];
 		static float YWeight[COLOR_SAMPLES];
 		static float ZWeight[COLOR_SAMPLES];
-		friend class_type FromXYZ(sample_type x, sample_type y, sample_type z);
+
+		template<typename ST,int CS> friend class_type FromXYZ(ST x, ST y, ST z);
 	};
 
 }

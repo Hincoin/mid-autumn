@@ -4,8 +4,8 @@
 namespace ma{
 	// Mitchell Filter Declarations
 	template<typename Conf>
-	class MitchellFilter : public Filter<MitchellFilter<Conf>,Conf> {
-		typedef Filter<MitchellFilter<Conf>,Conf> parent_type;
+	class MitchellFilter : public Filter<MitchellFilter<Conf>,typename Conf::interface_config> {
+		typedef Filter<MitchellFilter<Conf>,typename Conf::interface_config> parent_type;
 		ADD_SAME_TYPEDEF(Conf,scalar_t)
 	public:
 		// MitchellFilter Public Methods

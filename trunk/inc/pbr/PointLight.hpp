@@ -1,15 +1,15 @@
 
 #ifndef _MA_INCLUDED_POINTLIGHT_HPP_
 #define _MA_INCLUDED_POINTLIGHT_HPP_
-
+#include "MonteCarlo.hpp"
 #include "Light.hpp"
 
 namespace ma{
 	template<typename Conf>
-	class PointLight: public Light<PointLight<Conf>,Conf>
+	class PointLight: public Light<PointLight<Conf>,typename Conf::interface_config>
 	{
-		friend class Light<PointLight<Conf>,Conf>;
-		typedef Light<PointLight<Conf>,Conf> parent_type;
+		friend class Light<PointLight<Conf>,typename Conf::interface_config>;
+		typedef Light<PointLight<Conf>,typename Conf::interface_config> parent_type;
 	public:
 		ADD_SAME_TYPEDEF(Conf,transform_t);
 		ADD_SAME_TYPEDEF(Conf,spectrum_t);
@@ -73,7 +73,7 @@ namespace ma{
 		ray_t &ray, scalar_t& pdf) const {
 			ray.origin() = light_pos;
 			ray.direction() = UniformSampleSphere(u1, u2);
-			pdf = UniformSpherePdf();
+			pdf = UniformSpherePdf<scalar_t>();
 			return intensity;
 	}
 

@@ -1,3 +1,6 @@
+#ifndef _MA_INCLUDED_ERROR_REPORTER_HPP_
+#define _MA_INCLUDED_ERROR_REPORTER_HPP_
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstdarg>
@@ -27,3 +30,4 @@ namespace ma{
 		va_end(args);
 	}
 }
+#endif
