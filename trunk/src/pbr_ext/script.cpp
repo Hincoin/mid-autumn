@@ -89,73 +89,47 @@ static ParamSet get_params(lua_State* l)
 	}
 	return params;
 }
-static int l_maPixelFilter(lua_State* l)
-{
-	luaL_checktype(l,1,LUA_TSTRING);
-	luaL_checktype(l,2,LUA_TTABLE);
-	std::string name = lua_tolstring(l,1,0);
-	printf("name %s \n",name.c_str());
-	ParamSet params(get_params(l));
-	/*
-	for(lua_pushnil(l);lua_next(l,-2);lua_pop(l,1))
-	{
-		std::string key_name = lua_tolstring(l,-2,0);
-		MAny val;
-		printf("key:%s \t",key_name.c_str());
-		switch(lua_type(l,-1))
-		{
-			case LUA_TNIL:break;
-			case LUA_TNUMBER:
-						  val = (double)lua_tonumber(l,-1);
-						  break;
-			case LUA_TBOOLEAN:
-						  val = (bool)lua_toboolean(l,-1);
-						  break;
-			case LUA_TSTRING:
-						  val = std::string(lua_tolstring(l,-1,0));
-						  break;
-			case LUA_TTABLE:break;
-			case LUA_TFUNCTION:break;
-			case LUA_TUSERDATA:break;
-			case LUA_TTHREAD:break;
-			case LUA_TLIGHTUSERDATA:break;
-			default:break;
-		}
-		params.add(key_name,val);
-	}*/
-	printf("enter filter function");
-	maPixelFilter(name,params);
-	return 0;
-}
-//extern COREDLL void maFilm(const std::string &type,
-//							 const ParamSet &params);
-static int l_maFilm(lua_State* l)
-{
-	return 0;
-}
-//extern COREDLL void maSampler(const std::string &name,
-//								const ParamSet &params);
-static int l_maSampler(lua_State* l)
-{
+#define CALL_API(L,FUNC)\
+	luaL_checktype(L,1,LUA_TSTRING);\
+	luaL_checktype(L,2,LUA_TTABLE);\
+	std::string name = lua_tolstring(l,1,0);\
+	ParamSet params(get_params(l));\
+	FUNC(name,params);\
 
-	return 0;
-}	
-//extern COREDLL void maAccelerator(const std::string &name,
-//									const ParamSet &params);
-static int l_maAccelerator(lua_State* l)
-{
-
-	return 0;
+#define DEF_LUA_API_FUNC(FUNC)\
+	static int l_##FUNC(lua_State* l)\
+{\
+	CALL_API(l,FUNC)\
+	return 0;\
 }
-//extern COREDLL
-//void maSurfaceIntegrator(const std::string &name,
-	//					   const ParamSet &params);
-static int l_maSurfaceIntegrator(lua_State* l)
-{
+DEF_LUA_API_FUNC(maPixelFilter);
+DEF_LUA_API_FUNC(maFilm)
+DEF_LUA_API_FUNC(maSampler)
+DEF_LUA_API_FUNC(maAccelerator)
+DEF_LUA_API_FUNC(maSurfaceIntegrator)
+DEF_LUA_API_FUNC(maVolumeIntegrator)
+DEF_LUA_API_FUNC(maCamera)
+DEF_LUA_API_FUNC(maFrameBegin)
+//DEF_LUA_API_FUNC(maTexture)
+DEF_LUA_API_FUNC(maMaterial)
+DEF_LUA_API_FUNC(maLightSource)
+DEF_LUA_API_FUNC(maAreaLightSource)
+DEF_LUA_API_FUNC(maShape)
+DEF_LUA_API_FUNC(maVolume)
 
-	return 0;
-}
-
+LUA_EXPORT_FUNC(void(),maWorldBegin)
+LUA_EXPORT_FUNC(void(),maAttributeBegin)
+LUA_EXPORT_FUNC(void(),maAttributeEnd)
+LUA_EXPORT_FUNC(void(),maTransformBegin)
+LUA_EXPORT_FUNC(void(),maTransformEnd)
+LUA_EXPORT_FUNC(void(),maReverseOrientation)
+//LUA_EXPORT_FUNC(void(const char*),maObjectBegin)
+LUA_EXPORT_FUNC(void(),maObjectEnd)
+//LUA_EXPORT_FUNC(void(const char*),maObjectInstance)
+LUA_EXPORT_FUNC(void(),maWorldEnd)
+LUA_EXPORT_FUNC(void(),maFrameEnd)
+//extern COREDLL void maTexture(const std::string &name, const std::string &type,
+//								const std::string &texname, const ParamSet &params);
 }
 
 void register_api(lua_State* l)
@@ -175,6 +149,27 @@ void register_api(lua_State* l)
 	REGISTER_FUNC(l,maSampler);
 	REGISTER_FUNC(l,maAccelerator);
 	REGISTER_FUNC(l,maSurfaceIntegrator);
+	REGISTER_FUNC(l,maVolumeIntegrator)
+	REGISTER_FUNC(l,maCamera)
+	REGISTER_FUNC(l,maFrameBegin)
+	REGISTER_FUNC(l,maMaterial)
+	REGISTER_FUNC(l,maLightSource)
+	REGISTER_FUNC(l,maAreaLightSource)
+	REGISTER_FUNC(l,maShape)
+	REGISTER_FUNC(l,maVolume)
+
+	REGISTER_FUNC(l,maWorldBegin)
+	REGISTER_FUNC(l,maAttributeBegin)
+	REGISTER_FUNC(l,maAttributeEnd)
+	REGISTER_FUNC(l,maTransformBegin)
+	REGISTER_FUNC(l,maTransformEnd)
+	REGISTER_FUNC(l,maReverseOrientation)
+	REGISTER_FUNC(l,maObjectEnd)
+//	REGISTER_FUNC(l,maObjectBegin)
+//	REGISTER_FUNC(l,maObjectInstance)
+	REGISTER_FUNC(l,maWorldEnd)
+	REGISTER_FUNC(l,maFrameEnd)
+
 }
 
 
