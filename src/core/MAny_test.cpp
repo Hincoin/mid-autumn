@@ -125,6 +125,11 @@ inline bool many_test(){
 	char ccx = builtin.cast<char&>();
 	ccx = 6;
 
+	std::vector<int> v_test;
+	v_test.push_back(0);
+	MAny m ( v_test );
+	m = m;
+	m = MAny(v_test);
 	return result;
 }
 

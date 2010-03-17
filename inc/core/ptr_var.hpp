@@ -10,10 +10,12 @@
 #include "boost/preprocessor/tuple/elem.hpp"
 
 #include "boost/mpl/limits/list.hpp"
+#include "boost/mpl/list.hpp"
 #include "boost/mpl/at.hpp"
 #include <boost/type_traits.hpp>
 #include <boost/mpl/size.hpp>
 #include <boost/ref.hpp>
+#include <boost/variant.hpp>
 #include "PtrTraits.hpp"
 
 #define POINTER_VARIANT_LIMIT_TYPES \
@@ -481,7 +483,8 @@ template<typename T0 ,
 		~shared_ptr_var(){
 			if(--*pn == 0)
 			{
-				delete_ptr(static_cast<ptr_type&>(*this));
+				if(ptr_type::which > 0)
+					delete_ptr(static_cast<ptr_type&>(*this));
 				delete pn;
 			}	
 		}
