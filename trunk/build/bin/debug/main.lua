@@ -2,7 +2,7 @@
 local function light_param(posx,posy,posz)
 	maBeginParam()
 	maAddPointParam("from",{posx,posy,posz});
-	maAddSpectrumParam("I",{100});
+	maAddSpectrumParam("I",{200});
 	maLightSource("point",{})
 	maEndParam()
 end
@@ -35,7 +35,7 @@ function main()
 
 	maInit();
 	maIdentity();
-	maLookAt(0,0,10,0,0,0,0,1,0);
+	maLookAt(0,0,2,0,0,0,0,1,0);
 	camera_param();
 	maWorldBegin();
 	maAttributeBegin();
@@ -44,6 +44,9 @@ function main()
 	light_param(-10,-20,-10);
 	light_param(-10,-20,10);
 	light_param(-10,20,10);
+	light_param(-10,20,-10);
+	light_param(10,20,-10);
+	light_param(10,-20,-10);
 	maAttributeEnd();
 	maRotate(3.14/4,1,0,0);
 	material_param();
