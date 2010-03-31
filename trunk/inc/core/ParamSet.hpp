@@ -7,7 +7,7 @@
 
 #include "AssocVector.hpp"
 
-
+namespace ma{
 class ParamSet
 {
 public:
@@ -38,6 +38,6 @@ protected:
 private:
 	parameter_set parameters_;
 };
-
+}
 
 #endif

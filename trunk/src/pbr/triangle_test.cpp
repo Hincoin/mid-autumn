@@ -4,6 +4,8 @@
 #include "Point.hpp"
 #include "Vector.hpp"
 #include "Color.hpp"
+
+using namespace ma;
 namespace{
 	ParamSet camera_param();
 	ParamSet light_param(float x,float y,float z);
@@ -11,7 +13,6 @@ namespace{
 	ParamSet material_param();
 }
 
-using namespace ma;
 
 
 typedef Point<vector3f> point3f;

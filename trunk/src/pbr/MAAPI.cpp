@@ -16,15 +16,14 @@
 #include "DefaultConfigurations.hpp"
 //test
 #include "KdTree.hpp"
+#include "TextureParam.hpp"
+#include "modules.hpp"
 
 #include <string>
 #include <vector>
 using std::string;
 using std::vector;
 using namespace ma;
-
-typedef transform3f transform_t;
-
 struct RenderOptions{
 	RenderOptions();
 	scene_ptr makeScene()const;
@@ -57,10 +56,11 @@ surface_integrator_name("directlighting"),camera_name("perspective")
 	//current_instance=0;
 }
 
+
 struct GraphicsState{
 	GraphicsState():material("matte"),reverse_orientation(false){;}
-	//AssocVector<string,add_shared_ptr<Texture<float> >::type> float_textures;
-	//AssocVector<string,add_shared_ptr<Texture<Spectrumf> >::type> spectrum_textures;
+	std::map<string, shared_float_texture_t > float_textures_;
+	std::map<string, shared_spectrum_texture_t> spectrum_textures_;
 	ParamSet material_params;
 	string material;
 	ParamSet area_light_params;
@@ -291,6 +291,25 @@ COREDLL void maTransformEnd(){
 	 const std::string &texname, const ParamSet &params){
 		 //todo
 		 verify_world("Texture");
+		 TextureParam tp(params,params,graphics_state.float_textures_,graphics_state.spectrum_textures_);
+		 if(type == "float")
+		 {
+			 if(graphics_state.float_textures_.find(name) != graphics_state.float_textures_.end())
+				 report_warning("Texture \"%s\" being redefined.",name.c_str());
+			 shared_float_texture_t ft = make_float_texture(texname,current_transform,tp);
+			 if (ft) graphics_state.float_textures_[name] = ft;
+		 }
+		 else if(type == "color")
+		 {
+			 if(graphics_state.spectrum_textures_.find(name) != graphics_state.spectrum_textures_.end())
+				 report_warning("Texture \"%s\" being redefined",name.c_str());
+			 shared_spectrum_texture_t st = make_spectrum_texture(texname,
+					 current_transform,tp);
+			 if(st) graphics_state.spectrum_textures_[name] = st;
+		 }
+		 else 
+			 report_error("Texture type \"%s\" unknow.",type.c_str());
+
  }
  COREDLL void maMaterial(const std::string &name,
 	 const ParamSet &params){
