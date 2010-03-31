@@ -5,7 +5,7 @@
 #include "Point.hpp"
 #include "Vector.hpp"
 
-
+using namespace ma;
 //
 //Film "image"
 //#	"integer xresolution" [128] "integer yresolution" [128] 

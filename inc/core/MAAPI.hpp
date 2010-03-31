@@ -35,36 +35,36 @@ extern COREDLL
 void maTransform(float transform[4][4]);
 extern COREDLL void maCoordinateSystem(const std::string &);
 extern COREDLL void maCoordSysTransform(const std::string &);
-extern COREDLL void maPixelFilter(const std::string &name, const ParamSet &params);
+extern COREDLL void maPixelFilter(const std::string &name, const ma::ParamSet &params);
 extern COREDLL void maFilm(const std::string &type,
-							 const ParamSet &params);
+							 const ma::ParamSet &params);
 extern COREDLL void maSampler(const std::string &name,
-								const ParamSet &params);
+								const ma::ParamSet &params);
 extern COREDLL void maAccelerator(const std::string &name,
-									const ParamSet &params);
+									const ma::ParamSet &params);
 extern COREDLL
 void maSurfaceIntegrator(const std::string &name,
-						   const ParamSet &params);
+						   const ma::ParamSet &params);
 extern COREDLL
 void maVolumeIntegrator(const std::string &name,
-						  const ParamSet &params);
-extern COREDLL void maCamera(const std::string &, const ParamSet &cameraParams);
+						  const ma::ParamSet &params);
+extern COREDLL void maCamera(const std::string &, const ma::ParamSet &cameraParams);
 extern COREDLL void maSearchPath(const std::string &path);
-extern COREDLL void maFrameBegin(const std::string&,const ParamSet& frameParams);
+extern COREDLL void maFrameBegin(const std::string&,const ma::ParamSet& frameParams);
 extern COREDLL void maWorldBegin();
 extern COREDLL void maAttributeBegin();
 extern COREDLL void maAttributeEnd();
 extern COREDLL void maTransformBegin();
 extern COREDLL void maTransformEnd();
 extern COREDLL void maTexture(const std::string &name, const std::string &type,
-								const std::string &texname, const ParamSet &params);
+								const std::string &texname, const ma::ParamSet &params);
 extern COREDLL void maMaterial(const std::string &name,
-								 const ParamSet &params);
-extern COREDLL void maLightSource(const std::string &name, const ParamSet &params);
-extern COREDLL void maAreaLightSource(const std::string &name, const ParamSet &params);
-extern COREDLL void maShape(const std::string &name, const ParamSet &params);
+								 const ma::ParamSet &params);
+extern COREDLL void maLightSource(const std::string &name, const ma::ParamSet &params);
+extern COREDLL void maAreaLightSource(const std::string &name, const ma::ParamSet &params);
+extern COREDLL void maShape(const std::string &name, const ma::ParamSet &params);
 extern COREDLL void maReverseOrientation();
-extern COREDLL void maVolume(const std::string &name, const ParamSet &params);
+extern COREDLL void maVolume(const std::string &name, const ma::ParamSet &params);
 extern COREDLL void maObjectBegin(const std::string &name);
 extern COREDLL void maObjectEnd();
 extern COREDLL void maObjectInstance(const std::string &name);

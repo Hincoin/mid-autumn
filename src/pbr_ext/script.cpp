@@ -4,6 +4,7 @@
 
 #include "DefaultConfigurations.hpp"
 namespace OOLUA{
+	using namespace ma;
 // API Function Declarations
 LUA_EXPORT_FUNC(void(),maIdentity)
 LUA_EXPORT_FUNC(void (float,float,float),maTranslate)

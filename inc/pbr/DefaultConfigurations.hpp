@@ -226,21 +226,7 @@ namespace ma{
 	struct refined_primitive_config;
 	template<typename B>
 	struct primitive_config:primitive_interface_config<B>{
-
-
 		typedef Matte<matte_material_config<B> > material_t;
-
-		//typedef typename Conf::ScalarType ScalarType;
-		//static const int Dimension = Conf::Dimension;
-		//typedef typename vector_type<ScalarType,Dimension>::type VectorType;
-		//typedef SpaceSegment<VectorType> BBox;
-		//typedef  Point<VectorType> point_type;
-		//typedef Ray<VectorType> ray_type;
-		//typedef MAIntersection<PrimitiveConfigure<ScalarType,Dimension> > intersection_type;
-		//typedef MAPrimitive<Conf>  interface_type;
-		//typedef typename shared_pointer<interface_type>::type shared_primitive;
-		//typedef std::vector<shared_primitive> shared_primitive_array;
-		//typedef Primitive<Derived,Conf> class_type;
 	};
 	template<typename B>
 	struct geometry_primitive_config:primitive_config<B>{
@@ -329,9 +315,15 @@ struct scene_config:B{
 
 //default configurations
 	typedef basic_config<> basic_config_t;
+	typedef basic_config_t::spectrum_t spectrum_t;
+	typedef basic_config_t::transform_t transform_t;
+
 	typedef Scene<scene_config<basic_config_t> >* scene_ptr;
 	typedef scene_config<basic_config_t>::light_t light_t;
 	typedef scene_config<basic_config_t>::light_ptr light_ptr;
+	
+	typedef material_interface_config<basic_config_t>::texture_spectrum_ref shared_spectrum_texture_t;
+	typedef material_interface_config<basic_config_t>::texture_scalar_t_ref shared_float_texture_t;
 
 
 	typedef geometry_primitive_config<basic_config_t> geometry_primitive_config_t;
