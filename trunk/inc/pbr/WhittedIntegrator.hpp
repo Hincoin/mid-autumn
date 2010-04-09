@@ -136,5 +136,22 @@ namespace ma{
 	}
 }
 
+namespace ma
+{
+	MAKE_TYPE_STR_MAP(1,WhittedIntegrator,whitted)
+namespace details
+{
+	template<typename C>
+		struct integrator_creator<WhittedIntegrator<C> >
+		{
+			typedef WhittedIntegrator<C> surface_integrator_t;	
+			surface_integrator_t* 
+				operator()(const ParamSet& param)const
+				{
+					return new surface_integrator_t(5);
+				}
+		};
+}
 
+}
 #endif

@@ -71,4 +71,48 @@ namespace ma{
 		return scalar_t(1);
 	}
 }
+
+namespace ma
+{
+	MAKE_TYPE_STR_MAP(1,PerspectiveCamera,perspective)
+namespace details
+{
+template<typename Conf>
+	struct camera_creator<PerspectiveCamera<Conf> >
+	{
+		typedef PerspectiveCamera<Conf> camera_t;
+		camera_t* operator()(const ParamSet& param,const typename camera_t::transform_t& world_to_camera,
+				const typename camera_t::film_ptr film)const
+		{
+	 //////////////////////////////////////////////////////////////////////////
+	 // Extract common camera parameters
+	 float hither = 1e-3f;
+	 float yon =  1e30f;
+	 float shutteropen =  0.f;
+	 float shutterclose = 1.f;
+	 float lensradius =  0.f;
+	 float focaldistance =  1e30f;
+	 float frame = 1.33f;
+	 float screen[4];
+	 if (frame > 1.f) {
+		 screen[0] = -frame;
+		 screen[1] =  frame;
+		 screen[2] = -1.f;
+		 screen[3] =  1.f;
+	 }
+	 else {
+		 screen[0] = -1.f;
+		 screen[1] =  1.f;
+		 screen[2] = -1.f / frame;
+		 screen[3] =  1.f / frame;
+	 }
+	 float fov =  90;
+	 return new camera_t(world_to_camera,screen, hither, yon,
+		 shutteropen, shutterclose, lensradius, focaldistance,
+		 fov, film);
+		
+		}	
+	};
+}
+}
 #endif

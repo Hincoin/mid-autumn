@@ -79,4 +79,34 @@ namespace ma{
 		scalar_t value;
 	};
 }
+#include "TypeMap.hpp"
+namespace ma{
+namespace details
+{
+	template<typename T>
+		struct texture_creator;
+}
+	template<typename T,typename XF,typename TP>
+	T* create_texture(const XF& xform,const TP& param)
+	{
+		return details::texture_creator<T>()(xform,param);
+	}
+
+
+MAKE_TYPE_STR_MAP(1,ConstantTexture,constant)
+
+namespace details
+{
+	template<typename C>
+		struct texture_creator<ConstantTexture<C> >
+		{
+			typedef ConstantTexture<C> texture_t;
+			template<typename XF,typename TP>
+			texture_t* operator()(const XF& xform,const TP& tp)const
+			{
+				return new texture_t(0);	
+			}
+		};
+}
+}
 #endif

@@ -166,4 +166,30 @@ namespace ma{
 		return (class_type*)subdivided_;
 	}
 }
+namespace ma{
+	MAKE_TYPE_STR_MAP(1,LDSampler,lowdiscrepancy)
+namespace details
+{
+template<typename C>
+	struct sampler_creator<LDSampler<C> >
+	{
+		template<typename FP>
+LDSampler<C>* operator()(const ParamSet& param,FP film )const
+{
+
+	typedef LDSampler<C> sampler_t;
+	 ////////////////////////////////////////////////////////////////////////////
+	 // Initialize common sampler parameters
+	 int xstart, xend, ystart, yend;
+	 film->getSampleExtent(xstart, xend, ystart, yend);
+	 int nsamp = 4;
+	 return new sampler_t(xstart, xend, ystart, yend, nsamp);
+
+	 //////////////////////////////////////////////////////////////////////////
+	
+}	
+	};
+}
+
+}
 #endif

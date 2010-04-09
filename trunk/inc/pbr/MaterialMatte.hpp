@@ -3,7 +3,7 @@
 
 #include "Material.hpp"
 #include "Texture.hpp"
-
+#include "TypeMap.hpp"
 namespace ma{
 
 	// Matte Class Declarations
@@ -86,19 +86,24 @@ namespace ma{
 			ADD_SAME_TYPEDEF(Conf,default_texture_scalar_t );
 			ADD_SAME_TYPEDEF(Conf,spectrum_t);
 			ADD_SAME_TYPEDEF(Conf,scalar_t);
+			template<typename ParamT>
 			Matte<Conf>* 
-				operator()(const transform_t& xform,const ParamSet& mp)const
+				operator()(const transform_t& xform,const ParamT& mp)const
 			{
-				texture_spectrum_ref Kd = mp.as<texture_spectrum_ref>("Kd", 
+				texture_spectrum_ref Kd = mp.template as<texture_spectrum_ref>("Kd", 
 					texture_spectrum_ref (new default_texture_spectrum_t (spectrum_t(1.f))) );
 
-				texture_scalar_t_ref sigma = mp.as<texture_scalar_t_ref>("sigma",
+				texture_scalar_t_ref sigma = mp.template as<texture_scalar_t_ref>("sigma",
 					texture_scalar_t_ref (new default_texture_scalar_t (scalar_t(0.f))) );
-				texture_scalar_t_ref bumpMap = mp.as<texture_scalar_t_ref>("bumpmap", 
+				texture_scalar_t_ref bumpMap = mp.template as<texture_scalar_t_ref>("bumpmap", 
 					texture_scalar_t_ref () );
 				return new matte_t(Kd, sigma, bumpMap);
 			}
 		};
 	}
+
+	MAKE_TYPE_STR_MAP(1,Matte,matte)
 }
+
+
 #endif

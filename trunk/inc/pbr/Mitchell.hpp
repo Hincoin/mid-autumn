@@ -34,4 +34,21 @@ namespace ma{
 	}
 }
 
+namespace ma
+{
+	MAKE_TYPE_STR_MAP(1,MitchellFilter,mitchell)
+namespace details
+{
+template<typename Conf>
+	struct filter_creator<MitchellFilter<Conf> >
+	{
+		typedef MitchellFilter<Conf> filter_t;
+		filter_t*
+			operator()(const ParamSet& param)const
+			{
+				return new filter_t(0.33f,0.33f,2,2);
+			}
+	};
+}
+}
 #endif

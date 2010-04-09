@@ -15,7 +15,6 @@
 #include "Color.hpp"
 #include "DefaultConfigurations.hpp"
 //test
-#include "KdTree.hpp"
 #include "TextureParam.hpp"
 #include "modules.hpp"
 
@@ -320,7 +319,8 @@ COREDLL void maTransformEnd(){
  COREDLL void maLightSource(const std::string &name, const ParamSet &params){
 	 verify_world("LightSource");
 	 //todo
-	 render_options->lights.push_back(create_light<light_t>(current_transform,params));
+	 render_options->lights.push_back(make_light(name,current_transform,params));
+	// render_options->lights.push_back(create_light<light_t>(current_transform,params));
  }
  COREDLL void maAreaLightSource(const std::string &name, const ParamSet &params){
 	 verify_world("AreaLightSource");
@@ -333,8 +333,10 @@ COREDLL void maTransformEnd(){
 	//Reference<Shape> shape = MakeShape(name,
 	//	curTransform, graphicsState.reverseOrientation,
 	//	params);
-	shape_t* shape = create_shape<shape_t>(current_transform,graphics_state.reverse_orientation,
-		params);
+	shape_ref_t shape = make_shape(name,current_transform,graphics_state.reverse_orientation,
+		params);	
+	//shape_t* shape = create_shape<shape_t>(current_transform,graphics_state.reverse_orientation,
+	//		params);
 	if (!shape) return;
 	//params.ReportUnused();
 	//// Initialize area light for shape
@@ -343,7 +345,7 @@ COREDLL void maTransformEnd(){
 	//	area = MakeAreaLight(graphicsState.areaLight,
 	//	curTransform, graphicsState.areaLightParams, shape);
 	//// Initialize material for shape
-	//TextureParams mp(params,
+	//TextureParam mp(params,
 	//	graphicsState.materialParams,
 	//	graphicsState.floatTextures,
 	//	graphicsState.spectrumTextures);
@@ -351,13 +353,15 @@ COREDLL void maTransformEnd(){
 	//Reference<Material> mtl =
 	//	MakeMaterial(graphicsState.material,
 	//	curTransform, mp);
-	material_t* mtl = create_material<material_t>(current_transform,graphics_state.material_params);
+	//material_t* mtl = create_material<material_t>(current_transform,graphics_state.material_params);
+	TextureParam mp(params,graphics_state.material_params,graphics_state.float_textures_,graphics_state.spectrum_textures_);
+	material_ref_t mtl = make_material(graphics_state.material,current_transform,mp);
 	//if (!mtl)
 	//	mtl = MakeMaterial("matte", curTransform, mp);
 	//if (!mtl)
 	//	Severe("Unable to create \"matte\" material?!");
 	// Create primitive and add to scene or current instance
-	primitive_ref_t prim (  new geometry_primitive_t(const_shape_ref_t(shape),const_material_ref_t(mtl)));
+	primitive_ref_t prim (  new geometry_primitive_t((shape),(mtl)));
 	//Reference<Primitive> prim =
 	//	new GeometricPrimitive(shape, mtl, area);
 	//if (renderOptions->currentInstance) {
@@ -422,6 +426,18 @@ COREDLL void maTransformEnd(){
 
  scene_ptr RenderOptions::makeScene() const {
 
+	 typedef Scene<scene_config<basic_config_t> > scene_t;
+	filter_ptr filter = make_filter(filter_name,filter_params);
+	film_ptr film = make_film(film_name,film_params,filter);
+	camera_ptr camera = make_camera(camera_name,camera_params,world_to_camera,film);
+	sampler_ptr sampler = make_sampler(sampler_name,sampler_params,film);
+	surface_integrator_ptr si = make_surface_integrator(surface_integrator_name,
+			surface_integrator_params);
+	primitive_ptr accelerator = make_accelerator(accelerator_name,primitives,accelerator_params);
+	scene_ptr scene = new scene_t(camera,si,NULL,sampler,accelerator,lights,NULL);
+	//primitives.clear();//todo: primitive should keep because accelerator not keep it.	
+	lights.clear();
+	return scene;
 	 // Create scene objects from API settings
 	 //Filter *filter = MakeFilter(FilterName, FilterParams);
 	 //Film *film = MakeFilm(FilmName, FilmParams, filter);
@@ -467,7 +483,7 @@ COREDLL void maTransformEnd(){
 		// volumeRegions.end());
 	 //return ret;
 
-
+/*
 	 //////////////////////////////////////////////////////////////////////////
 	 //test
 	 typedef ImageFilm<image_film_config<basic_config_t> > image_film_t;
@@ -548,4 +564,5 @@ COREDLL void maTransformEnd(){
 		surface_integrator, NULL,
 		 sampler, accel, lights, NULL);
 	 return ret;
+	 */
  }

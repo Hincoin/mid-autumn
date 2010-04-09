@@ -20,5 +20,15 @@ protected:
 	const int x_resolution,y_resolution;
 	END_CRTP_INTERFACE
 }
+#include "ParamSet.hpp"
+namespace ma{
+	namespace details{
+	template<typename F>
+	struct film_creator;	
+	}
+	template<typename F,typename FP>
+		F* create_film(const ParamSet &param,FP filt)
+		{return details::film_creator<F>()(param,filt);}
+}
 
 #endif

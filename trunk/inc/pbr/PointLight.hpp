@@ -87,6 +87,7 @@ namespace ma{
 //}
 
 namespace ma{
+	MAKE_TYPE_STR_MAP(1,PointLight,point)
 	namespace details{
 		template<typename Conf>
 		struct light_creator<PointLight<Conf> >{

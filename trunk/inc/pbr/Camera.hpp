@@ -85,7 +85,18 @@ protected:
 		scalar_t LensRadius, FocalDistance;
 	};
 
+
+}
+#include "ParamSet.hpp"
+namespace ma{
+namespace details{
+template<typename T> struct camera_creator;
+}
 
-
+	template<typename C>
+	C* create_camera(const ParamSet &param,const typename C::transform_t& world_to_camera,typename C::film_ptr film)
+	{
+		return details::camera_creator<C>()(param,world_to_camera,film);
+	}
 }
 #endif

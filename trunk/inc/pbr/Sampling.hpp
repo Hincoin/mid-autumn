@@ -67,7 +67,7 @@ public:
 		static class_type* make_sample(SIPtr surf,VIPtr vol,const SPtr s)
 		{
 			class_type* sample = new class_type;
-			surf->requestSamples(*sample, s);
+			integrator::requestSamples(surf,ref(*sample), s);
 			//vol->requestSamples(this, s);
 			// Allocate storage for sample pointers
 			size_t nPtrs = sample->n1D.size() + sample->n2D.size();
@@ -123,6 +123,18 @@ public:
 	END_CRTP_INTERFACE
 }
 
+namespace ma{
+namespace details{
+template<typename F> struct filter_creator;
+template<typename S> struct sampler_creator;
+}
+template<typename F>
+F* create_filter(const ParamSet& param)
+{return details::filter_creator<F>()(param);}
+template<typename S,typename FP>
+S* create_sampler(const ParamSet& param,FP film)
+{return details::sampler_creator<S>()(param,film);}
+}
 
 namespace ma{
 
