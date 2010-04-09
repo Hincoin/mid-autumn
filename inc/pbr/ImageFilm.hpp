@@ -290,5 +290,36 @@ namespace ma{
 	};
 }
 
+namespace ma{
+	MAKE_TYPE_STR_MAP(1,ImageFilm,image)
+namespace details{
+	template<typename Conf>
+	struct film_creator<ImageFilm<Conf> >
+	{
+		template<typename FP>
+		ImageFilm<Conf>*
+		operator()(const ParamSet& param,FP filt)const
+		{
+			typedef ImageFilm<Conf> film_t;
+			//create film
+			 std::string filename =  "pbrt.tga";
+			 bool premultiplyAlpha =  true;
+#ifdef NDEBUG
+	 int xres = 800;
+	 int yres = 600;
+#else
+	 int xres = 80;
+	 int yres = 60;
+#endif
+
+	 float crop[4] = { 0, 1, 0, 1 };
+
+	 int write_frequency = -1;
+	 return new film_t(xres,yres,filt,crop,filename,premultiplyAlpha,write_frequency);		
+		}	
+	};	
+}
+
+}
 
 #endif

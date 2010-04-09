@@ -1,8 +1,14 @@
 #ifndef _MA_INCLUDED_MATERIAL_HPP_
 #define _MA_INCLUDED_MATERIAL_HPP_
 #include "CRTPInterfaceMacro.hpp"
-
+#include "ptr_var.hpp"
 namespace ma{
+	namespace material{
+	
+		DECL_FUNC_NEST(bsdf_ptr,getBSDF,2)	
+		DECL_FUNC(void,bump,4)	
+	}
+
 	BEGIN_CRTP_INTERFACE(Material)
 		ADD_CRTP_INTERFACE_TYPEDEF(bsdf_ptr)
 		ADD_CRTP_INTERFACE_TYPEDEF(differential_geometry_t)
@@ -57,15 +63,14 @@ public:
 	END_CRTP_INTERFACE
 }
 
-#include "ParamSet.hpp"
 
 namespace ma{
 	namespace details{
 		template<typename M>
 		struct material_creator;
 	}
-	template<typename M>
-	M* create_material(const typename M::transform_t& xform,const ParamSet& mp)
+	template<typename M,typename TP>
+	M* create_material(const typename M::transform_t& xform,const TP& mp)
 	{
 		return details::material_creator<M>()(xform,mp);
 	}

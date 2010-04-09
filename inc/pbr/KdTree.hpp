@@ -209,4 +209,27 @@ namespace ma{
 
 }
 
+namespace ma{
+	MAKE_TYPE_STR_MAP(0,KdTreeAccel,kdtree)
+namespace details{
+template<>
+	struct accelerator_creator<KdTreeAccel>{
+		template<typename PrimRef>
+	KdTreeAccel* operator()(
+	const std::vector<PrimRef>& prims,const ParamSet& param
+			)const
+	{
+	 //////////////////////////////////////////////////////////////////////////
+	 int isectCost = 80;
+	 int travCost = 1;
+	 float emptyBonus =  0.5f;
+	 int maxPrims = 1;
+	 int maxDepth = -1;
+	 return new KdTreeAccel(prims, isectCost, travCost,
+		 emptyBonus, maxPrims, maxDepth);
+	}	
+	};
+
+}
+}
 #endif // KDTREE_HPP_INCLUDED

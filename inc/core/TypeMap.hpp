@@ -35,8 +35,9 @@ template<typename CreatorFuncPtr,typename CreatorMap>
 		if (it == creators.end()) return 0;
 		return boost::get<CreatorFuncPtr>((it->second));
 	}
-}
+
 template<typename T> struct map_type_str;
+}
 
 //template<typename T0,typename T1>
 //sample_creator<geometry_primitive<T0,T1> >{
@@ -55,6 +56,10 @@ template<typename T> struct map_type_str;
 	::memcpy(type_code_ + _offset_##N,map_type_str<T##N>::type_code(),\
 			sizeof(size_t) * map_type_str<T##N>::type_code_size_);\
 
+#define SIMPLE_TYPE_STR
+
+#ifndef SIMPLE_TYPE_STR
+
 #define MAKE_SIMPLE_TYPE_STR(N,TYPE,TYPE_STR,TYPE_MAP)\
 	template<>\
 	struct map_type_str<TYPE>{\
@@ -69,6 +74,7 @@ template<typename T> struct map_type_str;
 	size_t type_code_[type_code_size_];\
 	typedef TYPE type;\
 	static const size_t* type_code(){static map_type_str<TYPE> self;return self.type_code_;}\
+	static const char* type_str(){return #TYPE_STR;}\
 	};\
        	
 #define MAKE_TML_TYPE_STR(N,TMLCLASS,TMLCLASSNAME,TYPE_MAP)\
@@ -89,8 +95,8 @@ struct map_type_str<TMLCLASS<BOOST_PP_ENUM_PARAMS(N,T)> >{\
 	static type self;\
 	return self.type_code_;\
 }\
+	static const char* type_str(){return #TMLCLASSNAME;}\
 };\
-
 
 #define PP_MAKE_TYPE_STR_MAP(N)\
 	BOOST_PP_IF(N, MAKE_TML_TYPE_STR,MAKE_SIMPLE_TYPE_STR)\
@@ -98,6 +104,30 @@ struct map_type_str<TMLCLASS<BOOST_PP_ENUM_PARAMS(N,T)> >{\
 #define MAKE_TYPE_STR_MAP(N,TMLCLASS,TMLCLASSNAME,TYPE_MAP)\
 	PP_MAKE_TYPE_STR_MAP(N)(N,TMLCLASS,TMLCLASSNAME,TYPE_MAP) 
 
+#else
+
+#define MAKE_SIMPLE_TYPE_STR(N,TYPE,TYPE_STR)\
+	template<>\
+	struct map_type_str<TYPE>{\
+	static const char* type_str(){return #TYPE_STR;}\
+	};\
+       	
+#define MAKE_TML_TYPE_STR(N,TMLCLASS,TMLCLASSNAME)\
+	template<BOOST_PP_ENUM_PARAMS(N,typename T)>\
+struct map_type_str<TMLCLASS<BOOST_PP_ENUM_PARAMS(N,T)> >{\
+	static const char* type_str(){return #TMLCLASSNAME;}\
+};\
+
+#define PP_MAKE_TYPE_STR_MAP(N)\
+	BOOST_PP_IF(N, MAKE_TML_TYPE_STR,MAKE_SIMPLE_TYPE_STR)\
+
+#define MAKE_TYPE_STR_MAP(N,TMLCLASS,TMLCLASSNAME)\
+	PP_MAKE_TYPE_STR_MAP(N)(N,TMLCLASS,TMLCLASSNAME) 
+
+#endif
+
+
+#ifndef SIMPLE_TYPE_STR
 
 #define REGISTER_TYPE_STR_MAKER_MAP(N,TMLCLASS,TMLCLASSNAME,TYPE_MAP,CREATOR,MAKERMAP)\
 template<BOOST_PP_ENUM_PARAMS(N,typename T)>\
@@ -118,6 +148,9 @@ struct map_type_str<TMLCLASS<BOOST_PP_ENUM_PARAMS(N,T)> >{\
 		static type self;\
 		return self.type_code_;\
 	}\
+	static const char* type_str(){return #TMLCLASSNAME;}\
 };\
+
+#endif
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #endif

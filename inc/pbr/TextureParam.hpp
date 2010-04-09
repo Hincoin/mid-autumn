@@ -19,7 +19,7 @@ class TextureParam{
 		shared_float_texture_t getFloatTexture(const std::string& name,
 				float def)const;
 		template<typename T>
-		T	find(const std::string& name,const T& d)const
+		T	as(const std::string& name,const T& d)const
 			{ 
 				return geom_params_.as<T>(name,material_params_.as<T>(name,d));
 			}

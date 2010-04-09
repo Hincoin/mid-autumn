@@ -424,6 +424,7 @@ public:
 
 
 namespace ma{
+	MAKE_TYPE_STR_MAP(1,MATriangleMesh,trianglemesh)	
 	namespace details{
 		template<typename CFG>
 		struct shape_creator<MATriangleMesh<CFG> >{

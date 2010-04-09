@@ -14,6 +14,8 @@
 
 #include "Shape.hpp"
 #include "Vector.hpp"
+
+#include "Material.hpp"
 namespace ma
 {
 
@@ -156,7 +158,7 @@ struct MAGeometryPrimitive:MAPrimitive<typename Conf::interface_config/*Primitiv
 		typedef typename Conf::refined_shape_ref_t refined_shape_ref_t;
 
 		typedef typename Conf::const_shape_ref_t const_shape_ref_t;
-        typedef typename Conf::material_t material_type;
+        //typedef typename Conf::material_t material_type;
 
         typedef typename Conf::const_material_ref_t const_material_ref_t;
 
@@ -245,7 +247,7 @@ private:
 				differential_geometry_t dgs;
 				shape_->getShadingGeometry(WorldToObject.inverse(),
 					dg, dgs);
-				return material_->getBSDF(dg, dgs);
+				return material::getBSDF(material_,dg, dgs);
 			}
 public:
         MAGeometryPrimitive(const_shape_ref_t s,const_material_ref_t m)
@@ -292,5 +294,18 @@ MA_FORWARD_TYPEDEF(intersection_t )
 ////details::ma_primitive_interface<S,D>* createAccel(const std::vector<details::ma_primitive_interface<S,D>::shared_primitive >& ps,const ParameterType& p)
 ////{}
 
+}
+#include "ParamSet.hpp"
+namespace ma{
+namespace details
+{
+	template<typename A>
+		struct accelerator_creator;
+}
+	template<typename A,typename PrimRef>
+	A* create_accelerator(const std::vector<PrimRef>& primitives,const ParamSet& param)
+{
+	return details::accelerator_creator<A>()(primitives,param);
+}
 }
 #endif // MAPRIMITIVE_HPP_INCLUDED

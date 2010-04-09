@@ -4,6 +4,9 @@
 #include <vector>
 #include "CRTPInterfaceMacro.hpp"
 #include "Camera.hpp"
+#include "Transport.hpp"
+#include "Sampling.hpp"
+#include "Light.hpp"
 namespace ma
 {
 	template<typename Conf>
@@ -51,7 +54,7 @@ namespace ma
 		spectrum_t le(const ray_differential_t& r)const{
 			spectrum_t L;
 			for (unsigned i = 0; i < lights.size(); ++i)
-				L +=  lights[i]->le(r);
+				L +=  light::le(lights[i],r);
 			return L;
 		}
 		std::vector<light_ptr> lights;
@@ -63,7 +66,7 @@ namespace ma
 		volume_region_ptr volume_region;
 		surface_integrator_ptr surface_integrator;
 		volume_integrator_ptr volume_integrator;
-		sampler_ptr sampler;
+		sampler_ptr sampler_;
 		bbox_t bound;
 
 		
@@ -183,7 +186,7 @@ void Scene<Conf>::render()
 	input_sample_t sampled_rays;
 	MA_ASSERT( default_sample_grain_size >= hardware_concurrency());
 	unsigned concurrency = default_sample_grain_size;//std::min<unsigned>(default_grain_size,hardware_concurrency());
-	sampler_ptr sampler_divided = sampler->subdivide(concurrency);
+	sampler_ptr sampler_divided = sampler::subdivide(sampler_,concurrency);
 	for (unsigned i = 0;i < concurrency; ++i)
 	{
 		sampled_rays.samples[i] = sample_t::make_sample(surface_integrator,volume_integrator,this);
@@ -219,10 +222,11 @@ void Scene<Conf>::render()
 #else
 	sample_ptr sample = sample_t::make_sample(surface_integrator,volume_integrator,this);
 
-	surface_integrator->preprocess(this);
+	integrator::preprocess(surface_integrator,this);
 	//preprocess(surface_integrator,this);
 	//preprocess(volume_integrator,this);
-	while(sampler->getNextSample(*sample))
+	//while(sampler->getNextSample(*sample))
+	while(sampler::getNextSample(sampler_,ref(*sample)))
 	{
 		ray_differential_t ray;
 		scalar_t ray_weight = camera::generateRay(camera_,sample->cameraSample(),ref(ray));//generateRay(camera,*sample,ray);
@@ -249,7 +253,7 @@ void Scene<Conf>::render()
 template<typename Conf>
 Scene<Conf>::~Scene(){
 	delete_ptr(camera_);
-	delete_ptr(sampler);
+	delete_ptr(sampler_);
 	delete_ptr(surface_integrator);
 	//delete_ptr(volume_integrator);
 	virtual_delete(aggregate);
@@ -268,7 +272,7 @@ Scene<Conf>::Scene(camera_ptr c,surface_integrator_ptr in,
 lights = lts;
 aggregate = accel;
 camera_ = c;
-sampler = s;
+sampler_ = s;
 surface_integrator = in;
 volume_integrator = vi;
 volume_region = vr;
@@ -284,7 +288,7 @@ template<typename Conf>
 typename Conf::spectrum_t Scene<Conf>::li(const ray_differential_t& r,
 		const sample_ptr sample,scalar_t& alpha)const
 {
-	spectrum_t lo = surface_integrator->li(const_cast<Scene<Conf>*>(this),r,sample,alpha);
+	spectrum_t lo = integrator::li(surface_integrator,const_cast<Scene<Conf>*>(this),r,sample,alpha);
 //	spectrum_t t =
 //
 	return lo;
@@ -294,7 +298,7 @@ typename Conf::spectrum_t Scene<Conf>::li(const ray_differential_t& r,
 										  const sample_ptr sample)const
 {
 	scalar_t alpha = 0;
-	spectrum_t lo = surface_integrator->li(const_cast<Scene<Conf>*>(this),r,sample,alpha);
+	spectrum_t lo = integrator::li(surface_integrator,const_cast<Scene<Conf>*>(this),r,sample,alpha);
 	//	spectrum_t t =
 	//
 	return lo;
