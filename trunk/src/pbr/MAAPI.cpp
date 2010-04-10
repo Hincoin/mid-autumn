@@ -41,7 +41,7 @@ struct RenderOptions{
 	string camera_name;
 	ParamSet camera_params;
 	transform_t world_to_camera;
-	mutable vector<light_ptr> lights;
+	vector<light_ptr> lights;
 	vector <primitive_ref_t> primitives;
 	//AssocVector<string,vector<SharedPrimitive> > instances;
 	//vector<SharedPrimitive> *current_instance;
@@ -123,6 +123,10 @@ COREDLL void maInit()
 	current_state = STATE_OPTIONS_BLOCK;
 	render_options = new RenderOptions;
 	graphics_state = GraphicsState();
+	//
+	//
+	//
+	register_all_creators();
 }
 COREDLL void maCleanUp(){
 	if (current_state == STATE_UNINITIALIZED)
@@ -219,8 +223,8 @@ COREDLL void maTransform(float transform[4][4])
  COREDLL void maAccelerator(const std::string &name,
 	 const ParamSet &params){
 		 verify_options("Accelerator");
-		 render_options->sampler_name = name;
-		 render_options->sampler_params = params;
+		 render_options->accelerator_name= name;
+		 render_options->accelerator_params= params;
  }
 
 COREDLL void maSurfaceIntegrator(const std::string &name,
@@ -434,9 +438,12 @@ COREDLL void maTransformEnd(){
 	surface_integrator_ptr si = make_surface_integrator(surface_integrator_name,
 			surface_integrator_params);
 	primitive_ptr accelerator = make_accelerator(accelerator_name,primitives,accelerator_params);
+	if(!filter || !film || !camera || !sampler || !si || !accelerator)
+	{
+		report_error("Cannot create Scene!\n");
+		return 0;
+	}
 	scene_ptr scene = new scene_t(camera,si,NULL,sampler,accelerator,lights,NULL);
-	//primitives.clear();//todo: primitive should keep because accelerator not keep it.	
-	lights.clear();
 	return scene;
 	 // Create scene objects from API settings
 	 //Filter *filter = MakeFilter(FilterName, FilterParams);
