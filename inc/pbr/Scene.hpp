@@ -234,9 +234,9 @@ void Scene<Conf>::render()
 		spectrum_t ls;
 		if (ray_weight > 0)
 			ls = ray_weight * li(ray, sample,alpha);
-		//if (alpha != 0)
+		//if (alpha != 0 && !ls.black())
 		//{
-		//	printf("intersect %.2f,%.2f ! \n",sample->image_x,sample->image_y);
+		//		printf("intersect %.2f,%.2f ! \n",sample->image_x,sample->image_y);
 		//}
 		camera::addSample(camera_, &sample->cameraSample(),ray,ls,alpha);
 	}
@@ -288,7 +288,7 @@ template<typename Conf>
 typename Conf::spectrum_t Scene<Conf>::li(const ray_differential_t& r,
 		const sample_ptr sample,scalar_t& alpha)const
 {
-	spectrum_t lo = integrator::li(surface_integrator,const_cast<Scene<Conf>*>(this),r,sample,alpha);
+	spectrum_t lo = integrator::li(surface_integrator,const_cast<Scene<Conf>*>(this),r,sample,ref(alpha));
 //	spectrum_t t =
 //
 	return lo;

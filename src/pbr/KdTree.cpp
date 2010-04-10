@@ -98,6 +98,7 @@ namespace ma
         shared_primitive_array prims;
         for (uint32 i = 0; i < p.size(); ++i)
             ma::fullyRefine(p[i],prims);
+		printf("number of prims : %d \n",prims.size());
         // Initialize mailboxes for _KdTreeAccel_
         //curMailboxId = 0;
 		::memset(curMailboxId,0,sizeof(curMailboxId));

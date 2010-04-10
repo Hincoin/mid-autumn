@@ -36,7 +36,10 @@ function main()
 	maInit();
 	maIdentity();
 	maLookAt(0,0,2,0,0,0,0,1,0);
+	maSampler("lowdiscrepancy",{});
 	camera_param();
+	maAccelerator("kdtree",{});
+	maSurfaceIntegrator("whitted",{});
 	maWorldBegin();
 	maAttributeBegin();
 	light_param(10,20,10);
