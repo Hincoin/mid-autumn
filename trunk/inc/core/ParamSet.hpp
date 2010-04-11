@@ -19,7 +19,7 @@ public:
 	typename boost::mpl::if_<boost::is_pointer<T>,
 		const typename boost::remove_pointer<T>::type*,
 		const T&>::type
-	as(const std::string& name,const T& default_value=T()  )const
+	as(const std::string& name,T default_value = T()  )const
 	{
 		const_iterator it = parameters_.find(name);
 		//BOOST_MPL_ASSERT((boost::is_pointer<T>));

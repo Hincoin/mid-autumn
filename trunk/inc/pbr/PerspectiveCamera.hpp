@@ -86,13 +86,13 @@ template<typename Conf>
 		{
 	 //////////////////////////////////////////////////////////////////////////
 	 // Extract common camera parameters
-	 float hither = 1e-3f;
-	 float yon =  1e30f;
-	 float shutteropen =  0.f;
-	 float shutterclose = 1.f;
-	 float lensradius =  0.f;
-	 float focaldistance =  1e30f;
-	 float frame = 1.33f;
+	 float hither = std::max(1e-3f,param.as<float>("hither",1e-3f));
+	 float yon =  std::min(1e30f,param.as<float>("yon",1e30f));
+	 float shutteropen =  param.as<float>("shutteropen",0.f);
+	 float shutterclose = param.as<float>("shutterclose",1.f);
+	 float lensradius =  param.as<float>("lensradius",0.f);
+	 float focaldistance =  param.as<float>("focaldistance",1e30f);
+	 float frame = param.as<float>("frameaspectratio",film->xResolution()/film->yResolution());
 	 float screen[4];
 	 if (frame > 1.f) {
 		 screen[0] = -frame;
@@ -106,8 +106,11 @@ template<typename Conf>
 		 screen[2] = -1.f / frame;
 		 screen[3] =  1.f / frame;
 	 }
-	 float fov =  90;
-	 return new camera_t(world_to_camera,screen, hither, yon,
+	 std::vector<float> screenwindow ;
+	 screenwindow = param.as<std::vector<float> >("screenwindow",screenwindow);
+	
+	 float fov =  param.as<float>("fov",90.f);
+	 return new camera_t(world_to_camera,screenwindow.size() == 4 ?&screenwindow[0]:screen, hither, yon,
 		 shutteropen, shutterclose, lensradius, focaldistance,
 		 fov, film);
 		

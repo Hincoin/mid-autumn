@@ -220,11 +220,11 @@ template<>
 			)const
 	{
 	 //////////////////////////////////////////////////////////////////////////
-	 int isectCost = 80;
-	 int travCost = 1;
-	 float emptyBonus =  0.5f;
-	 int maxPrims = 1;
-	 int maxDepth = -1;
+	 int isectCost = param.as<int>("intersectcost",80);
+	 int travCost = param.as<int>("traversalcost",1);
+	 float emptyBonus =  param.as<float>("emptybonus",0.5f);
+	 int maxPrims = param.as<int>("maxprims",1);
+	 int maxDepth = param.as<int>("maxdepth",-1);
 	 return new KdTreeAccel(prims, isectCost, travCost,
 		 emptyBonus, maxPrims, maxDepth);
 	}	
