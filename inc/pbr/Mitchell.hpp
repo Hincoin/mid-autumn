@@ -46,7 +46,12 @@ template<typename Conf>
 		filter_t*
 			operator()(const ParamSet& param)const
 			{
-				return new filter_t(0.33f,0.33f,2,2);
+				typedef typename Conf::scalar_t scalar_t;
+				scalar_t xw = param.as<scalar_t>("xwidth",2.f);
+				scalar_t yw = param.as<scalar_t>("ywidth",2.f);
+				scalar_t B = param.as<scalar_t> ("B",1.f/3.f);
+				scalar_t C = param.as<scalar_t> ("C",1.f/3.f);
+				return new filter_t(B,C,xw,yw);
 			}
 	};
 }

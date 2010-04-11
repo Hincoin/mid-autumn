@@ -302,8 +302,8 @@ namespace details{
 		{
 			typedef ImageFilm<Conf> film_t;
 			//create film
-			 std::string filename =  "pbrt.tga";
-			 bool premultiplyAlpha =  true;
+			 std::string filename =  param.as<std::string>("filename","pbrt.tga");
+			 bool premultiplyAlpha =  param.as<bool>("premultiplyalpha",true);
 #ifdef NDEBUG
 	 int xres = 800;
 	 int yres = 600;
@@ -312,9 +312,20 @@ namespace details{
 	 int yres = 60;
 #endif
 
+		 xres = param.as<int>("xresolution",xres);
+	 yres = param.as<int>("yresolution",yres);
 	 float crop[4] = { 0, 1, 0, 1 };
+	 std::vector<float> cropwindow ;
+	cropwindow =  param.as<std::vector<float> >("cropwindow",cropwindow);	
+	 if(cropwindow.size() == 4)
+	 {
+		crop[0] = clamp(std::min(cropwindow[0],cropwindow[1]),0.f,1.f);
+	   crop[1] = clamp(std::max(cropwindow[0],cropwindow[1]),0.f,1.f);
+   crop[2] = clamp(std::min(cropwindow[2],cropwindow[3]),0.f,1.f);
+crop[3] = clamp(std::max(cropwindow[2],cropwindow[3]),0.f,1.f);   
+	 }
 
-	 int write_frequency = -1;
+	 int write_frequency = param.as<int>("writefrequency",-1);
 	 return new film_t(xres,yres,filt,crop,filename,premultiplyAlpha,write_frequency);		
 		}	
 	};	

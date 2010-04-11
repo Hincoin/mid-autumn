@@ -182,7 +182,7 @@ LDSampler<C>* operator()(const ParamSet& param,FP film )const
 	 // Initialize common sampler parameters
 	 int xstart, xend, ystart, yend;
 	 film->getSampleExtent(xstart, xend, ystart, yend);
-	 int nsamp = 4;
+	 int nsamp = param.as<int>("pixelsamples",4);
 	 return new sampler_t(xstart, xend, ystart, yend, nsamp);
 
 	 //////////////////////////////////////////////////////////////////////////

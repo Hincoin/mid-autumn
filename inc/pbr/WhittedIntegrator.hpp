@@ -148,7 +148,8 @@ namespace details
 			surface_integrator_t* 
 				operator()(const ParamSet& param)const
 				{
-					return new surface_integrator_t(5);
+					int max_depth = param.as<float>("maxdepth",5);
+					return new surface_integrator_t(max_depth);
 				}
 		};
 }
