@@ -9,8 +9,8 @@ namespace ma{
 class TextureParam{
 	public:
 		TextureParam(const ParamSet& geomp,const ParamSet& matp,
-				std::map<std::string,shared_float_texture_t>& ft,
-				std::map<std::string,shared_spectrum_texture_t>& st)
+				const std::map<std::string,shared_float_texture_t>& ft,
+				const std::map<std::string,shared_spectrum_texture_t>& st)
 			:geom_params_(geomp),material_params_(matp),
 			float_textures_(ft),
 			spectrum_textures_(st){}
@@ -27,8 +27,8 @@ class TextureParam{
 		const ParamSet& getMaterialParams()const{return material_params_;}
 	private:
 		const ParamSet & geom_params_,&material_params_;
-	std::map<std::string,shared_float_texture_t>& float_textures_;
-	std::map<std::string,shared_spectrum_texture_t>& spectrum_textures_;
+	const std::map<std::string,shared_float_texture_t>& float_textures_;
+	const std::map<std::string,shared_spectrum_texture_t>& spectrum_textures_;
 };
 }
 #endif

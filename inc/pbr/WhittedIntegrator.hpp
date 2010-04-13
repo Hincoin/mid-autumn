@@ -55,6 +55,7 @@ namespace ma{
 			}
 			else {
 				// Initialize _alpha_ for ray hit
+				//printf("hit somthing \n");
 				alpha = 1.;
 				// Compute emitted and reflected light at ray intersection point_t
 				// Evaluate BSDF at hit point_t
@@ -71,10 +72,13 @@ namespace ma{
 					visibility_tester_t visibility;
 					spectrum_t Li = light::sample_l(scene->lights[i],p,ref( wi ), ref(visibility));
 					if (Li.black()) continue;
+					//printf("light not black\n");
 					spectrum_t f = bsdf->f(wo, wi);
+					//printf("bsdf->f is black %d",f.black());
 					if (!f.black() && visibility.unOccluded(scene))
 						L += f * Li * std::abs(wi.dot(n) ) * visibility.transmittance(scene);
 				}
+				//printf("is light black %d\n",L.black());
 				if (rayDepth[get_thread_logic_id()]++ < maxDepth) {
 					// Trace rays for specular reflection and refraction
 					spectrum_t f = bsdf->sample_f(wo, wi,

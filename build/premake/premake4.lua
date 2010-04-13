@@ -21,7 +21,7 @@ configuration "Release"
 	libdirs(root_dir .. "/build/bin/release")
 
 configuration {"gmake"}
-buildoptions{"-std=c++0x","-fpermissive"}
+buildoptions{"-std=c++0x","-fpermissive","-ggdb","-pg"}
 defines{"_GNU_C_"}
 
 configuration{"win32"}
