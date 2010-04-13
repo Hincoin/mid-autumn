@@ -348,6 +348,8 @@ struct scene_config:B{
 	typedef material_interface_config<basic_config_t>::spectrum_texture_types spectrum_texture_types;
 	typedef material_interface_config<basic_config_t>::texture_spectrum_ref shared_spectrum_texture_t;
 	typedef material_interface_config<basic_config_t>::texture_scalar_t_ref shared_float_texture_t;
+	typedef material_interface_config<basic_config_t>::default_texture_spectrum_t default_spectrum_texture_t;
+	typedef material_interface_config<basic_config_t>::default_texture_scalar_t default_float_texture_t;
 
 	typedef primitive_config<basic_config_t>::material_types material_types;
 	typedef scene_config<basic_config_t>::camera_types camera_types;

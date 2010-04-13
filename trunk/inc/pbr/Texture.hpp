@@ -101,10 +101,11 @@ namespace details
 		struct texture_creator<ConstantTexture<C> >
 		{
 			typedef ConstantTexture<C> texture_t;
+			typedef typename texture_t::scalar_t scalar_t;
 			template<typename XF,typename TP>
 			texture_t* operator()(const XF& xform,const TP& tp)const
 			{
-				return new texture_t(0);	
+				return new texture_t(tp.template as<scalar_t>("value",scalar_t(1)));	
 			}
 		};
 }

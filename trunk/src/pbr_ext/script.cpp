@@ -104,6 +104,7 @@ static int l_maAddSpectrumParam(lua_State* l)
 		i++;
 	}
 	assert(i == 3 || i == 1);
+	printf("add spectrum param %d (%f,%f,%f)\n",i,numbers[0],numbers[1],numbers[2]);
 	if ( i == 1)
 		static_param.add(name,basic_config<>::spectrum_t(numbers[0]));
 	else if ( i == 3) 

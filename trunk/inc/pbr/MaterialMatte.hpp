@@ -64,6 +64,7 @@ namespace ma{
 			bsdf_ptr bsdf(new bsdf_t(dgs, dgGeom.normal));
 			// Evaluate textures for _Matte_ material and allocate BRDF
 			spectrum_t r = texture::evaluate(Kd,dgs).Clamp();
+			assert(!r.black());
 			scalar_t sig = ma::clamp( texture::evaluate(sigma,dgs), scalar_t(0), scalar_t(90));
 			if (sig == scalar_t(0))
 				bsdf->add(new lambertian_t(r));
@@ -90,13 +91,17 @@ namespace ma{
 			Matte<Conf>* 
 				operator()(const transform_t& xform,const ParamT& mp)const
 			{
-				texture_spectrum_ref Kd = mp.template as<texture_spectrum_ref>("Kd", 
-					texture_spectrum_ref (new default_texture_spectrum_t (spectrum_t(1.f))) );
+				texture_spectrum_ref Kd = (mp.getSpectrumTexture("Kd", 
+					 (spectrum_t(1.f))) );
+				assert(Kd);
 
-				texture_scalar_t_ref sigma = mp.template as<texture_scalar_t_ref>("sigma",
-					texture_scalar_t_ref (new default_texture_scalar_t (scalar_t(0.f))) );
-				texture_scalar_t_ref bumpMap = mp.template as<texture_scalar_t_ref>("bumpmap", 
-					texture_scalar_t_ref () );
+				texture_scalar_t_ref sigma = mp.getFloatTexture("sigma",
+					scalar_t(0.f));
+				assert(sigma);
+				//texture_scalar_t_ref bumpMap = mp.getFloatTexture("bumpmap", 
+				//	scalar_t(0.f) );
+				//assert(bumpMap);
+				texture_scalar_t_ref bumpMap = texture_scalar_t_ref();
 				return new matte_t(Kd, sigma, bumpMap);
 			}
 		};

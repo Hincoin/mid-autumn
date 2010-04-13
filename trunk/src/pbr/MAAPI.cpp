@@ -212,7 +212,7 @@ COREDLL void maTransform(float transform[4][4])
 	 const ParamSet &params){
 		 verify_options("Film");
 		 render_options->film_name = type;
-		 render_options->filter_params = params;
+		 render_options->film_params = params;
  }
  COREDLL void maSampler(const std::string &name,
 	 const ParamSet &params){
@@ -300,6 +300,7 @@ COREDLL void maTransformEnd(){
 			 if(graphics_state.float_textures_.find(name) != graphics_state.float_textures_.end())
 				 report_warning("Texture \"%s\" being redefined.",name.c_str());
 			 shared_float_texture_t ft = make_float_texture(texname,current_transform,tp);
+			 assert(ft);
 			 if (ft) graphics_state.float_textures_[name] = ft;
 		 }
 		 else if(type == "color")
@@ -308,11 +309,21 @@ COREDLL void maTransformEnd(){
 				 report_warning("Texture \"%s\" being redefined",name.c_str());
 			 shared_spectrum_texture_t st = make_spectrum_texture(texname,
 					 current_transform,tp);
+			 assert(st);
+			 printf("add color texture %s,%d \n",name.c_str(),st.which_type());
 			 if(st) graphics_state.spectrum_textures_[name] = st;
 		 }
 		 else 
 			 report_error("Texture type \"%s\" unknow.",type.c_str());
-
+		if(type == "float")
+		 {
+			 assert(graphics_state.float_textures_[name]);
+		 }
+		 else if(type == "color")
+		 {
+			 assert(graphics_state.spectrum_textures_[name]);
+		 }
+			
  }
  COREDLL void maMaterial(const std::string &name,
 	 const ParamSet &params){

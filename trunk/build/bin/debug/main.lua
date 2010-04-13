@@ -23,7 +23,7 @@ local function camera_param()
 	["shutterclose"]=1,
 	["lensradius"]= 0,
 	["focaldistance"]=1e30,
-	["frameaspectratio"]=3.0/4,
+	["frameaspectratio"]=4/3,
 	}
 	maCamera("perspective",params);
 end
