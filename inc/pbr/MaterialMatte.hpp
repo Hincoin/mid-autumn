@@ -63,7 +63,7 @@ namespace ma{
 			//memory leak here change to be a smart-ptr
 			bsdf_ptr bsdf(new bsdf_t(dgs, dgGeom.normal));
 			// Evaluate textures for _Matte_ material and allocate BRDF
-			spectrum_t r = texture::evaluate(Kd,dgs).Clamp();
+			spectrum_t r = texture::evaluate(Kd,dgs).clamp();
 			assert(!r.black());
 			scalar_t sig = ma::clamp( texture::evaluate(sigma,dgs), scalar_t(0), scalar_t(90));
 			if (sig == scalar_t(0))
