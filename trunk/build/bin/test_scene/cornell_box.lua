@@ -21,11 +21,15 @@ local function create_triangle_mesh(indices,points,uvs)
 	maEndParam()
 end
 
-local function material_param(texname)
-	if texname then
-		maMaterial("matte",{["Kd"]=texname})
+local function material_param(name,texname)
+	if texname  then
+		if name == "matte" then
+			maMaterial(name,{["Kd"]=texname})
+		elseif name == "mirror" then
+			maMaterial(name,{["Kr"] = texname})
+		end
 	else
-		maMaterial("matte",{})
+		maMaterial(name,{})
 	end
 end
 
@@ -39,7 +43,7 @@ local function shape_param()
 	maShape("trianglemesh",{})
 	maEndParam()
 	]]
-	material_param("test_white")
+	material_param("matte","test_white")
 	----------------------------------------
 	local floor_idx={0,1,2,2,3,0}
 	local floor_points = {{552.8,0,0},{0,0,0},{0,0,559.2},{549.6,0,559.2}};
@@ -55,12 +59,12 @@ local function shape_param()
 	--------------------------------------------
 	local right_idx = {0,1,2,2,3,0}
 	local right_points = {{0,0,559.2},{0,0,0},{0,548.8,0},{0,548.8,559.2}}
-	material_param("test_green")
+	material_param("matte","test_green")
 	create_triangle_mesh(right_idx,right_points)
 	-----------------------------------------------
 	local left_idx ={0,1,2,2,3,0}
 	local left_points = {{552.8,0,0},{549.6,0,559.2},{556.0,548.8,559.2},{556.0,548.8,0}}
-	material_param("test_red")
+	material_param("matte","test_red")
 	create_triangle_mesh(left_idx,left_points)
 	-----------------------------------------------
 	--short block
@@ -97,7 +101,7 @@ local function shape_param()
 { 82.0,165.0,225.0},
 { 82.0,  0.0,225.0},
 	};
-	material_param("test_white")
+	material_param("matte","test_white")
 create_triangle_mesh(short_block_idx,short_block_points)
 
 --------------------------------------
@@ -134,6 +138,7 @@ create_triangle_mesh(short_block_idx,short_block_points)
 {423.0, 330.0, 247.0},
 {423.0,   0.0, 247.0},
 }
+material_param("mirror","test_white")
 create_triangle_mesh(tall_block_idx,tall_block_points)
 end
 local function camera_param()
@@ -190,7 +195,7 @@ function main()
 	--light_param(213,548.*0.9,227);
 	maAttributeEnd();
 	--maRotate(3.14/4,1,0,0);
-	material_param();
+	material_param("matte");
 	shape_param();
 	maWorldEnd();
 	maCleanUp();

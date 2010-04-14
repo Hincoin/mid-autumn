@@ -346,6 +346,186 @@ public:
 	CRTP_CONST_METHOD(spectrum_t,evaluate,1,( I_(scalar_t,cosi)))
 END_CRTP_INTERFACE
 
+template<typename C>
+class FresnelNoOp:public Fresnel<FresnelNoOp<C>,typename C::interface_config>
+{
+	public:
+	ADD_SAME_TYPEDEF(C,spectrum_t)
+	ADD_SAME_TYPEDEF(C,scalar_t)
+	public:
+	spectrum_t evaluateImpl(scalar_t)const
+	{return spectrum_t(1);}
+};
+template <typename C>
+class FresnelConductor: public Fresnel<FresnelConductor<C>,typename C::interface_config>
+{
+	public:
+	ADD_SAME_TYPEDEF(C,scalar_t)
+	ADD_SAME_TYPEDEF(C,spectrum_t)
+	public:
+	FresnelConductor(const spectrum_t& e,const spectrum_t& kk)
+		:eta_(e),k_(kk){}
+	spectrum_t evaluateImpl(scalar_t cosi)const;
+	private:
+	spectrum_t eta_,k_;
+};
+template<typename C>
+class FresnelDielectric:public Fresnel<FresnelDielectric<C>,typename C::interface_config>
+{
+	public:
+	ADD_SAME_TYPEDEF(C,scalar_t)
+	ADD_SAME_TYPEDEF(C,spectrum_t)
+	public:
+	FresnelDielectric(const scalar_t& ei,const scalar_t& et)
+		:eta_i_(ei),eta_t_(et){}
+	spectrum_t evaluateImpl(scalar_t cosi)const;
+	private:
+	scalar_t eta_i_,eta_t_;
+};
+template<typename C> 
+class SpecularReflection:public BxDF<SpecularReflection<C>,typename C::interface_config>
+{
+	public:
+		ADD_SAME_TYPEDEF(C,spectrum_t);
+		ADD_SAME_TYPEDEF(C,scalar_t);
+		ADD_SAME_TYPEDEF(C,vector_t);
+		ADD_SAME_TYPEDEF(C,fresnel_ptr);
+		typedef BxDF<SpecularReflection<C>,typename C::interface_config> parent_type;
+	public:
+		SpecularReflection(const spectrum_t& r,fresnel_ptr f)
+			:parent_type(BxDFType(BSDF_REFLECTION | BSDF_SPECULAR)),
+			r_(r),fresnel_(f){}
+		spectrum_t fImpl(const vector_t&,const vector_t&)const
+		{ return spectrum_t(0);}
+		//override
+		spectrum_t sample_f(const vector_t &wo,vector_t &wi,
+				scalar_t u1,scalar_t u2,scalar_t& pdf)const;
+		scalar_t pdfImpl(const vector_t& wo,const vector_t& wi)const{return scalar_t(0);}
+	private:
+		spectrum_t r_;
+		fresnel_ptr fresnel_;
+};
+template<typename C>
+class SpecularTransmission:public BxDF<SpecularTransmission<C>,typename C::interface_config>
+{
+	public:
+		ADD_SAME_TYPEDEF(C,spectrum_t);
+		ADD_SAME_TYPEDEF(C,scalar_t);
+		ADD_SAME_TYPEDEF(C,vector_t);
+		ADD_SAME_TYPEDEF(C,fresnel_dielectric_t);
+		typedef BxDF<SpecularTransmission<C>,typename C::interface_config> parent_type;
+	public:
+		SpecularTransmission(const spectrum_t& t,scalar_t ei,scalar_t et)
+			:parent_type(BxDFType(BSDF_TRANSMISSION | BSDF_SPECULAR)),
+			fresnel_(ei,et),t_(t),etai_(ei),etat_(et){}
+		spectrum_t fImpl(const vector_t&,const vector_t&)const
+		{ return spectrum_t(0);}
+		//override
+		spectrum_t sample_f(const vector_t &wo,vector_t &wi,
+				scalar_t u1,scalar_t u2,scalar_t& pdf)const;
+		scalar_t pdfImpl(const vector_t& wo,const vector_t& wi)const{return scalar_t(0);}
+	
+	public:
+		fresnel_dielectric_t fresnel_;
+		spectrum_t t_;
+		scalar_t etai_,etat_;
+};
+template<typename R,typename C>
+R FrDiel(R cosi,R cost,const C& etai,const C& etat)
+{
+	C Rparl = ((etat*cosi)-(etai * cost)) * reciprocal((etat * cosi)+(etai * cost));
+	C Rperp = ((etai * cosi) - (etat * cost)) * 
+		reciprocal((etai * cosi) + (etat * cost));
+	return (Rparl*Rparl + Rperp * Rperp)* reciprocal(R(2.f));
+}
+template<typename RealType,typename ColorType>
+ColorType FrCond(RealType cosi,
+		const ColorType & eta,
+		const ColorType &k)
+{
+	ColorType tmp = (eta*eta + k*k)*cosi*cosi;
+	ColorType Rparl2 = (tmp -(RealType(2) * eta * cosi)+1) *
+		reciprocal(tmp + (RealType(2) * eta * cosi) + 1);
+	ColorType tmp_f = eta * eta + k * k;
+	ColorType Rperp2 =
+		(tmp_f - (RealType(2) * eta *cosi) + cosi*cosi) *
+		reciprocal(tmp_f + (RealType(2)*eta*cosi) + cosi*cosi);
+	return (Rparl2 + Rperp2) * reciprocal(RealType(2));
+}
+
+template<typename ColorType>
+ColorType FresnelApproxEta(const ColorType& Fr)
+{
+	ColorType reflectance = Fr.clamp(0.f,0.9999f);
+	return (ColorType(1) + reflectance.sqrt()) *
+		reciprocal(ColorType(1) - reflectance.sqrt());
+}
+template<typename ColorType>
+ColorType FresnelApproxK(const ColorType& Fr)
+{
+	ColorType reflectance = Fr.clamp(0.f,0.9999f);
+	return 2.f * (reflectance * reciprocal(ColorType(1)-reflectance)).sqrt();
+}
+
+template<typename C>
+typename C::spectrum_t 
+FresnelConductor<C>::evaluateImpl(typename C::scalar_t cosi)const
+{
+	return FrCond(std::abs(cosi),eta_,k_);
+}
+template<typename C>
+typename C::spectrum_t 
+FresnelDielectric<C>::evaluateImpl(typename C::scalar_t cosi)const
+{
+	typedef typename C::scalar_t scalar_t;
+	cosi = clamp(cosi,scalar_t(-1.f),scalar_t(1.f));
+	bool entering = cosi > 0;
+	scalar_t ei = eta_i_,et = eta_t_;
+	if(!entering)
+		std::swap(ei,et);
+	scalar_t sint = ei * reciprocal(et) * std::sqrt(std::max<scalar_t>(0.,1.-cosi*cosi));
+	if (sint > 1)
+	{return 1;}//total internal reflection
+	else
+	{
+		scalar_t cost = std::sqrt(std::max<scalar_t>(0.,1.-sint*sint));
+		return FrDiel(std::abs(cosi),cost,ei,et);	
+	}
+}
+template<typename C>
+typename C::spectrum_t 
+SpecularReflection<C>::sample_f(const typename C::vector_t& wo,typename C::vector_t& wi, typename C::scalar_t u1,typename C::scalar_t u2,typename C::scalar_t& pdf)const
+{
+	//perfect specular reflection
+	wi = vector_t(-wo[0],-wo[1],wo[2]);
+	pdf = 1;
+	return fresnel::evaluate(fresnel_,CosTheta(wo)) * r_ *
+		reciprocal(CosTheta(wi));
+}
+template<typename C>
+typename C::spectrum_t 
+SpecularTransmission<C>::sample_f(const typename C::vector_t& wo,typename C::vector_t& wi, typename C::scalar_t u1,typename C::scalar_t u2,typename C::scalar_t& pdf)const
+{
+	bool entering = CosTheta(wo) > 0;
+	scalar_t ei = etai_,et = etat_;
+	if(!entering)std::swap(ei,et);
+	scalar_t sini2 = SinTheta2(wo);
+	scalar_t eta = ei * reciprocal(et);
+	scalar_t sint2 = eta * eta * sini2;
+	if( sint2 > 1 ) return 0;//total internal reflection
+	scalar_t cost = std::sqrt(std::max<scalar_t>(0.,1. - sint2));
+	if (entering) cost = - cost;
+	scalar_t sintOverSini = eta;
+	wi = vector_t(sintOverSini * -wo[0],
+			sintOverSini * -wo[1],
+			cost);
+	pdf = 1;
+	spectrum_t F = fresnel::evaluate(fresnel_,
+			CosTheta(wo));
+	return (et*et) * reciprocal(ei*ei) * (spectrum_t(1)-F) * t_
+		* reciprocal(std::abs(CosTheta(wi)));
+}
+
 namespace microfacetdistribution{
 	DECL_FUNC_NEST(scalar_t,d,1)
 	DECL_FUNC(void,sample_f,5)

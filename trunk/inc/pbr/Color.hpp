@@ -138,7 +138,7 @@ namespace ma{
 				ret.c[i] = expf(s.c[i]);
 			return ret;
 		}
-		Spectrum Clamp(sample_type low = sample_type() ,
+		Spectrum clamp(sample_type low = sample_type() ,
 			sample_type high = std::numeric_limits<sample_type>::max()) const {
 				Spectrum ret;
 				for (int i = 0; i < COLOR_SAMPLES; ++i)
