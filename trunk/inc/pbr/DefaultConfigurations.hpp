@@ -42,6 +42,8 @@ namespace ma{
 #include "TriangleMesh.hpp"
 #include "Mitchell.hpp"
 #include "MaterialMirror.hpp"
+#include "MaterialGlass.hpp"
+
 namespace ma{
 	template<typename T=float,int D=3>
 	struct basic_config{
@@ -232,6 +234,16 @@ namespace ma{
 		typedef typename fresnel_types_generator<B>::fresnel_noop_t fresnel_noop_t;
 	};
 	template<typename B>
+	struct glass_material_config:public material_interface_config<B>
+	{
+		typedef material_interface_config<B> interface_config;
+		typedef BSDF<bsdf_config<B> > bsdf_t;
+
+		typedef SpecularReflection<specular_reflection_config<B> > specular_reflection_t;
+		typedef SpecularTransmission<specular_transmission_config<B> > specular_transmission_t;
+		typedef typename fresnel_types_generator<B>::fresnel_dielectric_t fresnel_dielectric_t;
+	};
+	template<typename B>
 	struct primitive_interface_config:B{
 		typedef primitive_interface_config<B> interface_config;
 
@@ -252,6 +264,7 @@ namespace ma{
 		typedef boost::mpl::vector<
 			Matte<matte_material_config<B> >
 			,Mirror<mirror_material_config<B> >
+			,Glass<glass_material_config<B> >
 			> material_types;
 	};
 	template<typename B>

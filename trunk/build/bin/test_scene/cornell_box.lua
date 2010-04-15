@@ -20,13 +20,15 @@ local function create_triangle_mesh(indices,points,uvs)
 	maShape("trianglemesh",{})
 	maEndParam()
 end
-
+--simplfied 
 local function material_param(name,texname)
 	if texname  then
 		if name == "matte" then
 			maMaterial(name,{["Kd"]=texname})
 		elseif name == "mirror" then
 			maMaterial(name,{["Kr"] = texname})
+		elseif name == "glass" then
+			maMaterial(name,{["Kt"] = texname})
 		end
 	else
 		maMaterial(name,{})
@@ -101,7 +103,7 @@ local function shape_param()
 { 82.0,165.0,225.0},
 { 82.0,  0.0,225.0},
 	};
-	material_param("matte","test_white")
+material_param("glass","test_gray");
 create_triangle_mesh(short_block_idx,short_block_points)
 
 --------------------------------------
@@ -148,8 +150,9 @@ local function camera_param()
 	["shutteropen"] = 0,
 	["shutterclose"]=1,
 	["lensradius"]= 0,
-	["focaldistance"]=0.035,
+	["focaldistance"]= 1200,
 	["frameaspectratio"]=4/3,
+	["fov"] = 40,
 	}
 	maCamera("perspective",params);
 end
@@ -158,7 +161,12 @@ function main()
 	maInit();
 	maIdentity();
 	--eye,center,updir
-	maLookAt(278,273,-800,278,273,559,0,1,0);
+	maLookAt(278,273,-800,278,273,400,0,1,0);
+	maFilm("image",{
+	["filename"] = "cornell_box.tga",	
+	["xresolution"]=640,
+	["yresolution"]=480
+	});
 	maSampler("lowdiscrepancy",{});
 	camera_param();
 	maAccelerator("kdtree",{});
@@ -171,6 +179,7 @@ function main()
 	maTexture(name,"color","constant",{})
 	maEndParam()
 	end
+	const_texture("test_gray",{0.5,0.5,0.5})
 	const_texture("test_red",{1,0,0})
 	const_texture("test_green",{0,1,0})
 	const_texture("test_white",{1,1,1});
