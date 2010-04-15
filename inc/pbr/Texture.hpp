@@ -24,7 +24,7 @@ namespace ma{
 	///
 	//texturea mapping2d
 	template<typename Conf>
-	class UVMapping2D:public TextureMapping2D<TextureMapping2D<Conf>,Conf>{
+	class UVMapping2D:public TextureMapping2D<TextureMapping2D<Conf>,typename Conf::interface_config>{
 	public:
 		ADD_SAME_TYPEDEF(Conf,scalar_t);
 		ADD_SAME_TYPEDEF(Conf,differential_geometry_t);
@@ -44,6 +44,49 @@ namespace ma{
 	private:
 		scalar_t su_,sv_,du_,dv_;
 	};
+template<typename Conf>
+	class SphericalMapping2D:public TextureMapping2D<SphericalMapping2D<Conf>,typename Conf::interface_config>
+{
+	public:
+		ADD_SAME_TYPEDEF(Conf,scalar_t);
+		ADD_SAME_TYPEDEF(Conf,differential_geometry_t);
+		ADD_SAME_TYPEDEF(Conf,transform_t);
+		SphericalMapping2D(const transform_t& t):world2texture_(t){}
+		void mappingImpl(const differential_geometry_t& dg,scalar_t& s,scalar_t& t,scalar_t& dsdx,scalar_t& dtdx,
+			scalar_t& dsdy,scalar_t& dtdy);
+	private:
+	transform_t world2texture_;	
+};
+template<typename Conf>
+	class CylindricalMapping2D:public TextureMapping2D<CylindricalMapping2D<Conf>,typename Conf::interface_config>
+{
+	public:
+		ADD_SAME_TYPEDEF(Conf,scalar_t);
+		ADD_SAME_TYPEDEF(Conf,differential_geometry_t);
+		ADD_SAME_TYPEDEF(Conf,transform_t);
+		CylindricalMapping2D(const transform_t& t):world2texture_(t){}
+		void mappingImpl(const differential_geometry_t& dg,scalar_t& s,scalar_t& t,scalar_t& dsdx,scalar_t& dtdx,
+			scalar_t& dsdy,scalar_t& dtdy);
+	private:
+	transform_t world2texture_;	
+};
+template<typename Conf>
+	class PlanarMapping2D:public TextureMapping2D<PlanarMapping2D<Conf>,typename Conf::interface_config>
+{
+	public:
+		ADD_SAME_TYPEDEF(Conf,vector_t);
+		ADD_SAME_TYPEDEF(Conf,scalar_t);
+		ADD_SAME_TYPEDEF(Conf,differential_geometry_t);
+		ADD_SAME_TYPEDEF(Conf,transform_t);
+		PlanarMapping2D(vector_t& v1,vector_t v2,scalar_t du,scalar_t dv)
+		:vs_(v1),vt_(v2),du_(du),dv_(dv){}
+		void mappingImpl(const differential_geometry_t& dg,scalar_t& s,scalar_t& t,scalar_t& dsdx,scalar_t& dtdx,
+			scalar_t& dsdy,scalar_t& dtdy);
+	private:
+	vector_t vs_,vt_;
+	scalar_t du_,dv_;
+};
+
 	//////////////////////////////////////////////////////////////////////////
 	BEGIN_CRTP_INTERFACE(TextureMapping3D)
 	ADD_CRTP_INTERFACE_TYPEDEF(differential_geometry_t)
