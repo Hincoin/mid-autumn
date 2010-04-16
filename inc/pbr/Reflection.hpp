@@ -285,7 +285,6 @@ typename Conf::spectrum_t BxDF<D,Conf>::sample_f(const typename Conf::vector_t &
 							ppdf = pdf(wo, wi);
 							return f(wo, wi);
 }
-const float INV_PI = 0.318309886f;
 template<typename D,typename Conf>
 typename Conf::scalar_t BxDF<D,Conf>::pdf(const typename Conf::vector_t &wo, const typename Conf::vector_t &wi) const {
 	return

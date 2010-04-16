@@ -167,7 +167,7 @@ function main()
 	["xresolution"]=640,
 	["yresolution"]=480
 	});
-	maSampler("lowdiscrepancy",{});
+	maSampler("lowdiscrepancy",{["pixelsamples"]=8});
 	camera_param();
 	maAccelerator("kdtree",{});
 	maSurfaceIntegrator("whitted",{});
