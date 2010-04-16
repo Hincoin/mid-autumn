@@ -66,6 +66,8 @@ namespace ma{
 
 		typedef RayDifferential<vector_t> ray_differential_t;
 
+		typedef DifferentialGeometry<scalar_t,D> differential_geometry_t;
+
 	};
 	//declarations
 	template<typename B>
@@ -174,16 +176,25 @@ namespace ma{
 		//ADD_SAME_TYPEDEF(Conf,volume_integrator_ptr);
 		//typedef void* volume_integrator_ptr;
 	};
+
+	template<typename B>
+	struct texturemapping_config:B{
+		typedef B interface_config;	
+	};	
 	template<typename B,typename S>
 	struct texture_interface_config:B {
-		typedef DifferentialGeometry<typename B::scalar_t,B::dimension> differential_geometry_t;
-		typedef S scalar_t;
+		typedef S color_t;
 	};
 
 	//specific
 	template<typename B,typename S>
 	struct texture_config:texture_interface_config<B,S> {
 		typedef texture_interface_config<B,S> interface_config; 
+		typedef SphericalMapping2D<texturemapping_config<B> > spherical_mapping2d_t;
+		typedef CylindricalMapping2D<texturemapping_config<B> > cylindrical_mapping2d_t;
+		typedef PlanarMapping2D<texturemapping_config<B> > planar_mapping2d_t;
+		typedef UVMapping2D<texturemapping_config<B> > uv_mapping2d_t;
+		typedef ptr_var<spherical_mapping2d_t,cylindrical_mapping2d_t,planar_mapping2d_t,uv_mapping2d_t> texturemap2d_ptr;
 	};
 
 	template<typename B>
@@ -195,13 +206,14 @@ namespace ma{
 	typedef const_texture_spectrum_t default_texture_spectrum_t;
 	typedef const_texture_scalar_t default_texture_scalar_t;
 
+	
+	typedef UVTexture<texture_config<B,typename B::spectrum_t> > uvtexture_spectrum_t;
+	
 	typedef boost::mpl::vector<const_texture_scalar_t> float_texture_types;
-	typedef boost::mpl::vector<const_texture_spectrum_t> spectrum_texture_types;
+	typedef boost::mpl::vector<const_texture_spectrum_t,uvtexture_spectrum_t> spectrum_texture_types;
 
-	//typedef UVTexture<texture_config<B,typename B::spectrum_t> > uvtexture_spectrum_t;
-	//typedef UVTexture<texture_config<B,typename B::scalar_t> > uvtexture_scalar_t;
 
-	typedef shared_ptr_var</*uvtexture_spectrum_t,*/const_texture_spectrum_t> texture_spectrum_ref;
+	typedef shared_ptr_var</*uvtexture_spectrum_t,*/const_texture_spectrum_t,uvtexture_spectrum_t> texture_spectrum_ref;
 	typedef shared_ptr_var</*uvtexture_scalar_t,*/const_texture_scalar_t> texture_scalar_t_ref;
 	//typedef boost::shared_ptr<texture_spectrum_t>  texture_spectrum_ref;
 	//typedef boost::shared_ptr<texture_scalar_t> texture_scalar_t_ref;

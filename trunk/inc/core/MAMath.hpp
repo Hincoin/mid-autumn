@@ -23,6 +23,8 @@
 namespace ma
 {
 
+	static const float INV_TWOPI = 1.f/(M_PI*2);
+	static const float INV_PI = 0.318309886f;
     template<typename T1, typename T2>
     struct select_accurate_type_traits // select bigger type by default
     {

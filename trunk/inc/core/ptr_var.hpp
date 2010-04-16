@@ -943,13 +943,13 @@ BOOST_PP_REPEAT(POINTER_VARIANT_LIMIT_TYPES,PTR_VAR_CALL_FUNC_AUX_CASE,(FUNC,N) 
 	inline R FN(const ObjT& obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
 	{ return details::FN##impl(obj, is_ptr_variant<ObjT>() BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,p));}\
 	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
-	inline R FN##impl(ObjT& obj  BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+	inline R FN(ObjT& obj  BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
 	{ return details::FN##impl(obj, is_ptr_variant<ObjT>() BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,p));}\
 	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
-	inline R FN##impl(const ObjT* obj  BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+	inline R FN(const ObjT* obj  BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
 	{ return details::FN##impl(obj, is_ptr_variant<ObjT>() BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,p));}\
 	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
-	inline R FN##impl(ObjT* obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
+	inline R FN(ObjT* obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_BINARY_PARAMS(PN,T,p) )\
 	{ return details::FN##impl(obj, is_ptr_variant<ObjT>() BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,p));}\
 	
 

@@ -648,7 +648,31 @@ namespace ma{
 				BOOST_STATIC_ASSERT(_Cols == 1 &&  _Rows>= 4);
 				return v[3];
 			}
-
+			template<typename T>
+				inline typename vector_type<T,3>::type
+				spherical_direction(T sintheta,T costheta,T phi,
+						const typename vector_type<T,3>::type& x,
+						const typename vector_type<T,3>::type& y,
+						const typename vector_type<T,3>::type& z
+						)
+						{
+							return sintheta * std::cos(phi) * x + sintheta * std::sin(phi) * y + costheta * z;
+						}
+			template<typename V>
+				inline typename scalar_type<V>::type
+				spherical_theta(const V& v)
+				{
+					typedef typename scalar_type<V>::type s_t;
+					return std::acos(clamp(v[2],(s_t)-1,(s_t)1));
+				}
+			template<typename V>
+				inline typename scalar_type<V>::type
+				spherical_phi(const V& v)
+				{
+					typedef typename scalar_type<V>::type s_t;
+					s_t p = std::atan2(v[1],v[0]);
+					return (p < s_t(0)) ? p + s_t(2) * s_t(M_PI) : p;
+				}
 			//const
 			template<typename T,int _Rows, int _Cols, int _StorageOrder, int _MaxRows, int _MaxCols>
 			inline T x(
@@ -699,6 +723,7 @@ namespace ma{
 		{
 			lhs.swap(rhs);
 		}
+
 
 //template<typename S,int D>
 //typename vector_type<S,D>::type operator *(const typename transform_type<S,D>::type& trans,
