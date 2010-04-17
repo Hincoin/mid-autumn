@@ -7,8 +7,6 @@
 ///  @licence
 ///  This work is licenced under a Creative Commons Licence. \n
 ///  see: \n
-///  http://creativecommons.org/licenses/by-nc-sa/3.0/ \n
-///  and: \n
 ///  http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode \n
 ///  For more details.
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,7 +14,6 @@
 #	define MEMBER_FUNC_HELPER_H_
 
 #	include "lua_includes.h"
-#	include "fwd_push_pull.h"
 # include "oolua_push_pull.h" ///""""""""""""""!!!!!!!!!!!!!!!!*********&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 namespace OOLUA
 {
@@ -29,7 +26,18 @@ namespace OOLUA
 		{
 			static void push(Owner owner,lua_State* const s, T& value)
 			{
+				push(owner,s,value,boost::mpl::int_<is_by_value>());
+			}
+			//by ref
+			static void push(Owner owner,lua_State* const s,T& value,boost::mpl::int_<0>)
+			{
 				OOLUA::INTERNAL::push_pointer<Raw>(s,&value,owner);
+			}
+			//by value
+			static void push(Owner owner,lua_State* const s, T& value,boost::mpl::int_<1>)
+			{
+				Raw* ptr = new Raw(value);//memory leak  or garbage collected by lua?
+				OOLUA::INTERNAL::push_pointer<Raw>(s,ptr,owner);
 			}
 		};
 		template<typename Raw,typename T,int is_by_value >
