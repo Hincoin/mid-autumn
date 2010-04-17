@@ -47,4 +47,5 @@ bool run_test(int argc,char** argv){
 			}
 		}
 	}
+	return result;
 }
