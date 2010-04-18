@@ -16,12 +16,12 @@ configuration "Debug"
 configuration "Release"
 	objdir (root_dir .. "/build/obj/release/")
 	defines {"NDEBUG"}
-	flags {"Optimize","StaticRuntime","FloatFast"}
+	flags {"Symbols","Optimize","StaticRuntime","FloatFast"}
 	targetdir (root_dir .. "/build/bin/release")
 	libdirs(root_dir .. "/build/bin/release")
 
 configuration {"gmake"}
-buildoptions{"-std=c++0x","-fpermissive","-ggdb","-pg"}
+buildoptions{"-std=c++0x","-fpermissive","-g","-pg"}
 defines{"_GNU_C_"}
 
 configuration{"win32"}

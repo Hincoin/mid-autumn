@@ -89,9 +89,10 @@ static int l_maAddSpectrumParam(lua_State* l)
 	luaL_checktype(l,1,LUA_TSTRING);
 	luaL_checktype(l,2,LUA_TTABLE);
 	std::string name = lua_tolstring(l,1,0);
-	basic_config<>::scalar_t numbers[3];
+	static const int color_sample = basic_config<>::color_sample;
+	basic_config<>::scalar_t numbers[color_sample];
 	int i = 0;
-	for(lua_pushnil(l);lua_next(l,-2) && i < 3;lua_pop(l,1))
+	for(lua_pushnil(l);lua_next(l,-2) && i < color_sample;lua_pop(l,1))
 	{
 		luaL_checktype(l,-2,LUA_TNUMBER);
 		switch(lua_type(l,-1))
@@ -103,11 +104,11 @@ static int l_maAddSpectrumParam(lua_State* l)
 		}
 		i++;
 	}
-	assert(i == 3 || i == 1);
+	assert(i == color_sample || i == 1);
 	printf("add spectrum param %d (%f,%f,%f)\n",i,numbers[0],numbers[1],numbers[2]);
 	if ( i == 1)
 		static_param.add(name,basic_config<>::spectrum_t(numbers[0]));
-	else if ( i == 3) 
+	else if ( i == color_sample) 
 		static_param.add(name,basic_config<>::spectrum_t(numbers));
 	return 0;
 }
@@ -188,14 +189,13 @@ static int l_maEndParam(lua_State* l)
 	for(ParamSet::iterator it = static_param.begin();it != static_param.end();++it)
 		std::cerr<<it->first<<std::endl;	
 #endif
-	assert(!static_param.empty());
+	//assert(!static_param.empty());
 	static_param.clear();
 	return 0;
 }
 static ParamSet get_params(lua_State* l)
 {
-	if(! static_param.empty()) return static_param;
-	ParamSet params;
+	ParamSet params(static_param);
 	for(lua_pushnil(l);lua_next(l,-2);lua_pop(l,1))
 	{
 		std::string key_name = lua_tolstring(l,-2,0);

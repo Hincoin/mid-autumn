@@ -38,6 +38,7 @@ namespace ma{
 #include "PerspectiveCamera.hpp"
 #include "PointLight.hpp"
 #include "TextureUV.hpp"
+#include "TextureCheckerBoard.hpp"
 #include "WhittedIntegrator.hpp"
 #include "TriangleMesh.hpp"
 #include "Mitchell.hpp"
@@ -59,7 +60,8 @@ namespace ma{
 		typedef typename normal_type<T,D>::type normal_t;
 		typedef SpaceSegment<vector_t> bbox_t;
 
-		typedef Spectrum< scalar_t> spectrum_t;
+		static const int color_sample = 3;
+		typedef Spectrum< scalar_t,color_sample> spectrum_t;
 		//////////////////////////////////////////////////////////////////////////
 		//temp typedef
 		//typedef ray_t ray_differental_t;
@@ -196,7 +198,8 @@ namespace ma{
 		typedef UVMapping2D<texturemapping_config<B> > uv_mapping2d_t;
 		typedef ptr_var<spherical_mapping2d_t,cylindrical_mapping2d_t,planar_mapping2d_t,uv_mapping2d_t> texturemap2d_ptr;
 	};
-
+	template<typename B,typename S>
+		struct checkerboard_texture_config;
 	template<typename B>
 	struct material_interface_config:public B{
 		typedef boost::shared_ptr<BSDF<bsdf_config<B> > > bsdf_ptr;
@@ -205,23 +208,33 @@ namespace ma{
 	typedef ConstantTexture<texture_config<B,typename B::scalar_t> > const_texture_scalar_t;
 	typedef const_texture_spectrum_t default_texture_spectrum_t;
 	typedef const_texture_scalar_t default_texture_scalar_t;
-
 	
 	typedef UVTexture<texture_config<B,typename B::spectrum_t> > uvtexture_spectrum_t;
+	typedef CheckerBoard2D<checkerboard_texture_config<B,typename B::spectrum_t> > checkerboard_texture_spectrum_t;
+	typedef CheckerBoard2D<checkerboard_texture_config<B,typename B::scalar_t> > checkerboard_texture_scalar_t;
 	
-	typedef boost::mpl::vector<const_texture_scalar_t> float_texture_types;
-	typedef boost::mpl::vector<const_texture_spectrum_t,uvtexture_spectrum_t> spectrum_texture_types;
-
-
-	typedef shared_ptr_var</*uvtexture_spectrum_t,*/const_texture_spectrum_t,uvtexture_spectrum_t> texture_spectrum_ref;
-	typedef shared_ptr_var</*uvtexture_scalar_t,*/const_texture_scalar_t> texture_scalar_t_ref;
+	typedef boost::mpl::vector<const_texture_scalar_t,checkerboard_texture_scalar_t> float_texture_types;
+	typedef boost::mpl::vector<const_texture_spectrum_t,uvtexture_spectrum_t,checkerboard_texture_spectrum_t> spectrum_texture_types;
+	
+	typedef typename make_shared_ptr_var_over_sequence<float_texture_types>::type texture_scalar_t_ref;
+	typedef typename make_shared_ptr_var_over_sequence<spectrum_texture_types>::type texture_spectrum_ref;
 	//typedef boost::shared_ptr<texture_spectrum_t>  texture_spectrum_ref;
 	//typedef boost::shared_ptr<texture_scalar_t> texture_scalar_t_ref;
 
 
 	typedef DifferentialGeometry<typename B::scalar_t,B::dimension> differential_geometry_t;
-
 	};
+	template<typename B,typename S>
+		struct checkerboard_texture_config:texture_config<B,S>
+	{
+		typedef typename boost::mpl::if_<boost::is_same<S,typename B::spectrum_t>,
+			typename material_interface_config<B>::texture_spectrum_ref
+				,
+			typename material_interface_config<B>::texture_scalar_t_ref
+			>::type texture_ref_t; 
+	};
+
+
 	template<typename B> struct lambertian_bxdf_config;
 	template<typename B> struct orennayar_bxdf_config;
 	template<typename B>
@@ -282,10 +295,10 @@ namespace ma{
 	template<typename B>
 	struct geometry_primitive_config:primitive_config<B>{
 	    typedef primitive_config<B> parent_type;
-		typedef MATriangleMesh<> shape_t;
+		typedef MATriangleMesh<short_index_tri_mesh_cfg> shape_t;//65535 vertex supported
 		typedef boost::mpl::vector<shape_t> shape_types;
 		typedef MAGeometryPrimitive<refined_primitive_config<B> > refined_primitive_type;
-		typedef MATriangle<> refined_shape_t;
+		typedef MATriangle<default_tri_cfg<shape_t> > refined_shape_t;
 		typedef boost::shared_ptr<refined_shape_t> refined_shape_ref_t;
 
 
