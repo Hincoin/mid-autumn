@@ -26,7 +26,7 @@ using namespace ma;
 struct RenderOptions{
 	RenderOptions();
 	scene_ptr makeScene()const;
-	~RenderOptions(){lights.clear();primitives.clear();}
+	~RenderOptions(){clear();}
 	//
 	string filter_name;
 	ParamSet filter_params;
@@ -45,6 +45,18 @@ struct RenderOptions{
 	vector <primitive_ref_t> primitives;
 	//AssocVector<string,vector<SharedPrimitive> > instances;
 	//vector<SharedPrimitive> *current_instance;
+	void clear()
+	{
+		filter_params.clear();
+		film_params.clear();
+		sampler_params.clear();
+		accelerator_params.clear();
+		surface_integrator_params.clear();
+		volume_integrator_params.clear();
+		camera_params.clear();
+		lights.clear();
+		primitives.clear();
+	}
 };
 RenderOptions::RenderOptions()
 :filter_name("mitchell"),film_name("image"),

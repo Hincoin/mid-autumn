@@ -45,14 +45,16 @@ local function shape_param()
 	maShape("trianglemesh",{})
 	maEndParam()
 	]]
-	material_param("matte","test_white")
 	----------------------------------------
 	local floor_idx={0,1,2,2,3,0}
 	local floor_points = {{552.8,0,0},{0,0,0},{0,0,559.2},{549.6,0,559.2}};
+	material_param("matte","test_checker");
 	create_triangle_mesh(floor_idx,floor_points)
 	-----------------------------------------------
 	local ceil_idx={0,1,2,2,3,0};
 	local ceil_points = {{556,548.8,0},{556,548.8,559.2},{0,548.8,559.2},{0,548.8,0},}
+
+	material_param("matte","test_white")
 	create_triangle_mesh(ceil_idx,ceil_points)
 	---------------------------------------------
 	local back_idx={0,1,2,2,3,0}
@@ -162,12 +164,14 @@ function main()
 	maIdentity();
 	--eye,center,updir
 	maLookAt(278,273,-800,278,273,400,0,1,0);
+	local xres,yres = 320,240
+	--local xres,yres = 640,480
 	maFilm("image",{
 	["filename"] = "cornell_box.tga",	
-	["xresolution"]=640,
-	["yresolution"]=480
+	["xresolution"]=xres,
+	["yresolution"]=yres
 	});
-	maSampler("lowdiscrepancy",{["pixelsamples"]=8});
+	maSampler("lowdiscrepancy",{["pixelsamples"]=1});
 	camera_param();
 	maAccelerator("kdtree",{});
 	maSurfaceIntegrator("whitted",{});
@@ -179,11 +183,21 @@ function main()
 	maTexture(name,"color","constant",{})
 	maEndParam()
 	end
+	local checker_spectrum_texture = function(name,tex1,tex2)
+		maBeginParam()
+		maTexture(name,"color","checker",{["mapping"]="planar",["tex1"]=tex1,["tex2"] = tex2});
+		maEndParam()
+	end
 	const_texture("test_gray",{0.5,0.5,0.5})
 	const_texture("test_red",{1,0,0})
 	const_texture("test_green",{0,1,0})
 	const_texture("test_white",{1,1,1});
+	checker_spectrum_texture("test_checker","test_red","test_white")
+	maAttributeBegin()
+	maScale(100,100,100)
 	maTexture("test_constant_color","float","constant",{["value"]=2})
+	maAttributeEnd()
+	
 
 	
 	maAttributeBegin();

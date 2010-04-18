@@ -896,9 +896,12 @@ namespace ma{
 					// the page info sits at the end of the page
 					// most of the time it hides in the alignment remainder and ends up costing no memory
 					size_t i = 0;
-					size_t n = ((details::PAGE_SIZE-sizeof(page))/elemSize)*elemSize;
-					for (; i < n-elemSize; i += elemSize)
+					size_t n = size_t((details::PAGE_SIZE-sizeof(page))/elemSize);
+					n *= elemSize;
+					for (; i < int(n-elemSize); i += elemSize)
+					{
 						((free_link*)((char*)mem + i))->mNext = (free_link*)((char*)mem + i + elemSize);
+					}
 					((free_link*)((char*)mem + i))->mNext = NULL;
 					assert(i + elemSize + sizeof(page) <= details::PAGE_SIZE);
 					page* p = ptr_get_page(mem);

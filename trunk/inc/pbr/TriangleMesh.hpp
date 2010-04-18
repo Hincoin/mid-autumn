@@ -18,7 +18,17 @@ namespace ma
     {
         static const int uv_dimension = 2;    /// 2 dimension uv
     };
-    struct default_tri_mesh_cfg:default_config_3d,cfg_not_intersectable,cfg_uv{ };
+    struct default_tri_mesh_cfg:default_config_3d,cfg_not_intersectable,cfg_uv{
+		typedef size_t index_type;
+	};
+	struct short_index_tri_mesh_cfg:default_config_3d,cfg_not_intersectable,cfg_uv
+	{
+		typedef unsigned short index_type;
+	};
+	struct char_index_tri_mesh_cfg:default_config_3d,cfg_not_intersectable,cfg_uv
+	{
+		typedef unsigned char index_type;
+	};
 
     template<typename Cfg = default_tri_mesh_cfg>
     struct MATriangleMesh:public Shape<MATriangleMesh<Cfg>,Cfg >
@@ -156,9 +166,10 @@ private:
 
     };
     //reimplement
+	template<typename TriMeshT = MATriangleMesh<> >	
     struct default_tri_cfg:default_config_3d,cfg_intersectable,cfg_uv
     {
-        typedef MATriangleMesh<> MeshType;
+        typedef TriMeshT MeshType;
         template<typename SHAPE>
         static void getShadingGeometry(const SHAPE& s,const typename ShapeTraits<SHAPE>::transform_t&  obj2world,
                                        const typename ShapeTraits<SHAPE>::differential_geometry& dg,
@@ -248,7 +259,7 @@ private:
         }
     };
 
-    template<typename CFG = default_tri_cfg>
+    template<typename CFG = default_tri_cfg<> >
     struct MATriangle:Shape<MATriangle<CFG>,CFG>
     {
         typedef Shape<MATriangle<CFG>,CFG> parent_type;
@@ -271,8 +282,8 @@ private:
         typedef typename parent_type::ScalarType ScalarType;
         typedef typename parent_type::BBox BBox;
         typedef ScalarType uv_type;
-        typedef typename CFG::index_type index_type;
         typedef typename CFG::MeshType MeshType;
+        typedef typename MeshType::index_type index_type;
         ///
         MATriangle(const transform_t& o2w,bool rev_n,const MeshType& mesh,index_type idx):parent_type(o2w,rev_n),
                 mesh_(&mesh)
@@ -438,6 +449,7 @@ namespace ma{
 				typedef typename mesh_t::vector_t vector_t;
 				typedef typename mesh_t::scalar_t scalar_t;
 				typedef typename mesh_t::normal_t normal_t;
+				typedef typename mesh_t::index_type index_t;
 				typedef mesh_t triangle_mesh;
 				//const int *vi = params.as<int*>("indices", &nvi);
 				//const point_t *P = params.as<point_t*>("P", &npi);
@@ -497,7 +509,14 @@ namespace ma{
 								vi[i], npi);
 						return NULL;
 					}
-					return new triangle_mesh(o2w, reverseOrientation, /*nvi/3, npi,*/ vi, P,
+				std::vector<index_t> vertex_indices(vi.size());
+			   for(size_t i = 0;i < vi.size(); i++)
+			   {
+				   if(vi[i] > std::numeric_limits<index_t>::max())
+					   report_error("triangle index is too small for too many vertices.\n");
+				   vertex_indices[i] = (index_t)vi[i];
+			   }	   
+					return new triangle_mesh(o2w, reverseOrientation, /*nvi/3, npi,*/ vertex_indices, P,
 						N.empty()? 0:&N[0],S.empty()? 0: &S[0],uvs.empty()?0: &uvs[0]);
 			}
 

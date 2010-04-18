@@ -240,6 +240,42 @@ MAKE_TYPE_STR_MAP(1,ConstantTexture,constant)
 namespace details
 {
 	template<typename C>
+		struct texturemap2d_creator
+		{
+			template<typename XF,typename TP>
+			  typename C::texturemap2d_ptr 
+			  operator()(const XF& xform,const TP& tp)const
+				{
+				ADD_SAME_TYPEDEF(C,texturemap2d_ptr);
+				ADD_SAME_TYPEDEF(C,uv_mapping2d_t);
+				ADD_SAME_TYPEDEF(C,spherical_mapping2d_t);
+				ADD_SAME_TYPEDEF(C,cylindrical_mapping2d_t);
+				ADD_SAME_TYPEDEF(C,planar_mapping2d_t);
+				ADD_SAME_TYPEDEF(C,vector_t);
+				ADD_SAME_TYPEDEF(C,scalar_t);
+				texturemap2d_ptr map;
+				std::string type = tp.template as<std::string>(std::string("mapping"),std::string());
+				if (type == "" || type == "uv")
+				{
+					scalar_t su = tp.template as<scalar_t>("uscale",1);
+					scalar_t sv = tp.template as<scalar_t>("vscale",1);
+					scalar_t du = tp.template as<scalar_t>("udelta",0);
+					scalar_t dv = tp.template as<scalar_t>("vdelta",0);
+					map = new uv_mapping2d_t(su,sv,du,dv);
+				}
+				else if (type == "spherical")map = new spherical_mapping2d_t(xform.inverse());
+				else if (type == "cylindrical")map = new cylindrical_mapping2d_t(xform.inverse());
+				else if (type == "planar")
+					map = new planar_mapping2d_t(
+							tp.template as<vector_t>("v1",vector_t(1,0,0)),
+							tp.template as<vector_t>("v2",vector_t(0,1,0)),
+							tp.template as<scalar_t>("udelta",0),
+							tp.template as<scalar_t>("vdelta",0));
+				else map = new uv_mapping2d_t;
+				return map;
+				}
+		};
+	template<typename C>
 		struct texture_creator<ConstantTexture<C> >
 		{
 			typedef ConstantTexture<C> texture_t;

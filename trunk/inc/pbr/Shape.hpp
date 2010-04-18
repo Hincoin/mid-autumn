@@ -121,7 +121,6 @@ namespace ma
 	struct default_config_3d:base_shape_configure{
 		static const int Dimension = 3;
 		typedef float ScalarType;
-		typedef size_t index_type;
 	};
 
 }
