@@ -20,8 +20,9 @@ configuration "Release"
 	targetdir (root_dir .. "/build/bin/release")
 	libdirs(root_dir .. "/build/bin/release")
 
-configuration {"gmake"}
+configuration {"linux","gmake"}
 buildoptions{"-std=c++0x","-fpermissive","-g","-pg"}
+linkoptions{"-pg"}
 defines{"_GNU_C_"}
 
 configuration{"win32"}

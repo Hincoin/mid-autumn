@@ -1,9 +1,6 @@
 #ifndef _MA_INCLUDED_DEFAULT_CONFIGURATIONS_HPP_
 #define _MA_INCLUDED_DEFAULT_CONFIGURATIONS_HPP_
 
-#include "Vector.hpp"
-#include "Ray.hpp"
-
 namespace ma{
 
 
@@ -13,105 +10,32 @@ namespace ma{
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 #include "Camera.hpp"
-#include "Texture.hpp"
 #include "Scene.hpp"
-#include "Color.hpp"
-#include "DifferentialGeometry.hpp"
 #include "Film.hpp"
 #include "Geometry.hpp"
 #include "Intersect.hpp"
 #include "Light.hpp"
-#include "Material.hpp"
 #include "Primitive.hpp"
 #include "Ray.hpp"
 #include "Reflection.hpp"
 #include "Sampling.hpp"
 #include "Scene.hpp"
 #include "Shape.hpp"
-#include "Texture.hpp"
 #include "Transport.hpp"
 #include "Transform.hpp"
 //implementations
 #include "ImageFilm.hpp"
 #include "LDSampler.hpp"
-#include "MaterialMatte.hpp"
 #include "PerspectiveCamera.hpp"
 #include "PointLight.hpp"
-#include "TextureUV.hpp"
-#include "TextureCheckerBoard.hpp"
 #include "WhittedIntegrator.hpp"
 #include "TriangleMesh.hpp"
 #include "Mitchell.hpp"
-#include "MaterialMirror.hpp"
-#include "MaterialGlass.hpp"
 
+#include "TextureConfig.hpp"
+#include "MaterialConfig.hpp"
 namespace ma{
-	template<typename T=float,int D=3>
-	struct basic_config{
-		typedef T scalar_t;
-		static const int dimension = D;
 
-		typedef typename vector_type<T,D>::type vector_t;
-		typedef typename matrix_type<T,D,D>::type matrix_t;
-		typedef typename transform_type<T,D>::type transform_t;
-
-		typedef typename ray_type<T,D>::type ray_t;
-		typedef typename point_type<T,D>::type point_t;
-		typedef typename normal_type<T,D>::type normal_t;
-		typedef SpaceSegment<vector_t> bbox_t;
-
-		static const int color_sample = 3;
-		typedef Spectrum< scalar_t,color_sample> spectrum_t;
-		//////////////////////////////////////////////////////////////////////////
-		//temp typedef
-		//typedef ray_t ray_differental_t;
-
-		typedef RayDifferential<vector_t> ray_differential_t;
-
-		typedef DifferentialGeometry<scalar_t,D> differential_geometry_t;
-
-	};
-	//declarations
-	template<typename B>
-	struct film_config;
-	template<typename B>
-	struct camera_config;
-	template<typename B>
-	struct surface_integrator_config;
-	template<typename B>
-	struct volume_integrator_config ;
-	template<typename B>
-	struct sampler_config;
-	template<typename B>
-	struct sample_config;
-
-	template<typename B>
-	struct primitive_config;
-	template<typename B>
-	struct geometry_primitive_config;
-
-	template<typename B>
-	struct light_config;
-	template<typename B>
-	struct volume_region_config;
-	template<typename B>
-	struct intersection_config;
-	template<typename B>
-	struct bbox_config;
-	template<typename B>
-	struct scene_config;
-	template<typename B>
-	struct visibility_tester_config;
-	template<typename B>
-	struct bsdf_config;
-	template<typename B>
-	struct material_config;
-	template<typename B,typename S>
-	struct texture_config;
-	template<typename B>
-	struct bxdf_config;
-	template<typename B>
-	struct filter_config;
 	//////////////////////////////////////////////////////////////////////////
 	template<typename B>
 	struct filter_config:public B{};
@@ -180,95 +104,6 @@ namespace ma{
 	};
 
 	template<typename B>
-	struct texturemapping_config:B{
-		typedef B interface_config;	
-	};	
-	template<typename B,typename S>
-	struct texture_interface_config:B {
-		typedef S color_t;
-	};
-
-	//specific
-	template<typename B,typename S>
-	struct texture_config:texture_interface_config<B,S> {
-		typedef texture_interface_config<B,S> interface_config; 
-		typedef SphericalMapping2D<texturemapping_config<B> > spherical_mapping2d_t;
-		typedef CylindricalMapping2D<texturemapping_config<B> > cylindrical_mapping2d_t;
-		typedef PlanarMapping2D<texturemapping_config<B> > planar_mapping2d_t;
-		typedef UVMapping2D<texturemapping_config<B> > uv_mapping2d_t;
-		typedef ptr_var<spherical_mapping2d_t,cylindrical_mapping2d_t,planar_mapping2d_t,uv_mapping2d_t> texturemap2d_ptr;
-	};
-	template<typename B,typename S>
-		struct checkerboard_texture_config;
-	template<typename B>
-	struct material_interface_config:public B{
-		typedef boost::shared_ptr<BSDF<bsdf_config<B> > > bsdf_ptr;
-
-	typedef ConstantTexture<texture_config<B,typename B::spectrum_t> > const_texture_spectrum_t;
-	typedef ConstantTexture<texture_config<B,typename B::scalar_t> > const_texture_scalar_t;
-	typedef const_texture_spectrum_t default_texture_spectrum_t;
-	typedef const_texture_scalar_t default_texture_scalar_t;
-	
-	typedef UVTexture<texture_config<B,typename B::spectrum_t> > uvtexture_spectrum_t;
-	typedef CheckerBoard2D<checkerboard_texture_config<B,typename B::spectrum_t> > checkerboard_texture_spectrum_t;
-	typedef CheckerBoard2D<checkerboard_texture_config<B,typename B::scalar_t> > checkerboard_texture_scalar_t;
-	
-	typedef boost::mpl::vector<const_texture_scalar_t,checkerboard_texture_scalar_t> float_texture_types;
-	typedef boost::mpl::vector<const_texture_spectrum_t,uvtexture_spectrum_t,checkerboard_texture_spectrum_t> spectrum_texture_types;
-	
-	typedef typename make_shared_ptr_var_over_sequence<float_texture_types>::type texture_scalar_t_ref;
-	typedef typename make_shared_ptr_var_over_sequence<spectrum_texture_types>::type texture_spectrum_ref;
-	//typedef boost::shared_ptr<texture_spectrum_t>  texture_spectrum_ref;
-	//typedef boost::shared_ptr<texture_scalar_t> texture_scalar_t_ref;
-
-
-	typedef DifferentialGeometry<typename B::scalar_t,B::dimension> differential_geometry_t;
-	};
-	template<typename B,typename S>
-		struct checkerboard_texture_config:texture_config<B,S>
-	{
-		typedef typename boost::mpl::if_<boost::is_same<S,typename B::spectrum_t>,
-			typename material_interface_config<B>::texture_spectrum_ref
-				,
-			typename material_interface_config<B>::texture_scalar_t_ref
-			>::type texture_ref_t; 
-	};
-
-
-	template<typename B> struct lambertian_bxdf_config;
-	template<typename B> struct orennayar_bxdf_config;
-	template<typename B>
-	struct matte_material_config:public material_interface_config<B>{
-		typedef material_interface_config<B> interface_config;
-		//the following is matte material specific config
-		typedef BSDF<bsdf_config<B> > bsdf_t;
-		typedef Lambertian<lambertian_bxdf_config<B> > lambertian_t;
-		typedef OrenNayar<orennayar_bxdf_config<B> > oren_nayar_t;
-	};
-	
-	template<typename B> struct specular_reflection_config;
-	template<typename B> struct specular_transmission_config;
-	template<typename B> struct fresnel_types_generator;
-	template<typename B>
-	struct mirror_material_config:public material_interface_config<B>
-	{
-		typedef material_interface_config<B> interface_config;
-		typedef BSDF<bsdf_config<B> > bsdf_t;
-
-		typedef SpecularReflection<specular_reflection_config<B> > specular_reflection_t;
-		typedef typename fresnel_types_generator<B>::fresnel_noop_t fresnel_noop_t;
-	};
-	template<typename B>
-	struct glass_material_config:public material_interface_config<B>
-	{
-		typedef material_interface_config<B> interface_config;
-		typedef BSDF<bsdf_config<B> > bsdf_t;
-
-		typedef SpecularReflection<specular_reflection_config<B> > specular_reflection_t;
-		typedef SpecularTransmission<specular_transmission_config<B> > specular_transmission_t;
-		typedef typename fresnel_types_generator<B>::fresnel_dielectric_t fresnel_dielectric_t;
-	};
-	template<typename B>
 	struct primitive_interface_config:B{
 		typedef primitive_interface_config<B> interface_config;
 
@@ -335,45 +170,6 @@ namespace ma{
 	template<typename B>
 	struct bxdf_config:public B{
 
-	};
-	template<typename B>
-	struct orennayar_bxdf_config:bxdf_config<B>{
-		typedef bxdf_config<B> interface_config;	
-	};
-	template<typename B>
-	struct lambertian_bxdf_config:bxdf_config<B>{
-		typedef bxdf_config<B> interface_config;	
-	}; 
-	template<typename B>
-		struct fresnel_config:B
-		{
-			typedef B interface_config;
-		};
-	template<typename B>
-		struct fresnel_types_generator
-		{
-			typedef FresnelNoOp<fresnel_config<B> > fresnel_noop_t;
-			typedef FresnelConductor<fresnel_config<B> > fresnel_conductor_t;
-			typedef FresnelDielectric<fresnel_config<B> > fresnel_dielectric_t;
-			typedef boost::mpl::vector<fresnel_noop_t,
-					fresnel_conductor_t,
-					fresnel_dielectric_t> fresnel_types;
-
-			//typedef typename make_shared_ptr_var_over_sequence<fresnel_types>::type shared_fresnel_ptr;
-			typedef typename make_ptr_var_over_sequence<fresnel_types>::type
-				fresnel_ptr;
-		};
-	template<typename B>
-	struct specular_reflection_config:bxdf_config<B>
-	{
-		typedef typename fresnel_types_generator<B>::fresnel_ptr fresnel_ptr;
-		typedef bxdf_config<B> interface_config;
-	};
-	template<typename B>
-		struct specular_transmission_config:bxdf_config<B>
-	{
-		typedef typename fresnel_types_generator<B>::fresnel_dielectric_t fresnel_dielectric_t;
-		typedef bxdf_config<B> interface_config;
 	};
 	template<typename B>
 	struct bsdf_config:public B{
