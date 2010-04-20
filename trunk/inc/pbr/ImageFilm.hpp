@@ -290,6 +290,7 @@ namespace ma{
 	};
 }
 
+#include "TypeMap.hpp"
 namespace ma{
 	MAKE_TYPE_STR_MAP(1,ImageFilm,image)
 namespace details{

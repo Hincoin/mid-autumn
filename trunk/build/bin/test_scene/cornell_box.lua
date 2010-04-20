@@ -185,7 +185,12 @@ function main()
 	end
 	local checker_spectrum_texture = function(name,tex1,tex2)
 		maBeginParam()
-		maTexture(name,"color","checker",{["mapping"]="planar",["tex1"]=tex1,["tex2"] = tex2});
+		--maTexture(name,"color","checker",{["mapping"]="planar",["tex1"]=tex1,["tex2"] = tex2});
+		maTexture(name,"color","checker",{
+			["mapping"]="uv",
+			["uscale"]=10,
+			["vscale"]=10,
+			["tex1"]=tex1,["tex2"] = tex2});
 		maEndParam()
 	end
 	const_texture("test_gray",{0.5,0.5,0.5})
