@@ -325,4 +325,24 @@ void register_all_creators()
 	REGISTER_ALL_TYPES(film_types,register_film_func)
 	REGISTER_ALL_TYPES(filter_types,register_filter_func)
 }
+struct release_memory_func{
+template<typename F>
+	void operator()(F&)const
+	{
+		typedef typename F::type type;
+		type::release_memory();
+	}
+
+};
+
+void release_memory()
+{
+#define RELEASE_MEMORY_TYPES(Types,F)\
+	boost::mpl::for_each<boost::mpl::transform<Types,identity_wrapper<boost::mpl::_1> >::type>(F());\
+	
+	bool is_released = bsdf_t::release_memory();
+	assert(is_released);
+	//release bxdf_types
+	RELEASE_MEMORY_TYPES(bxdf_types,release_memory_func)
+}
 }

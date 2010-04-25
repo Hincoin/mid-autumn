@@ -383,7 +383,7 @@ private:
 			scalar_t divisor = dot(s1, e1);
 			if (divisor == 0.)
 				return false;
-			scalar_t invDivisor = 1.f / divisor;
+			scalar_t invDivisor = reciprocal( divisor );
 			// Compute first barycentric coordinate
 			vector_t d = r.o - p1;
 			scalar_t b1 = dot(d, s1) * invDivisor;

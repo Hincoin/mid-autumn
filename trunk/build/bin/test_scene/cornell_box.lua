@@ -164,7 +164,7 @@ function main()
 	maIdentity();
 	--eye,center,updir
 	maLookAt(278,273,-800,278,273,400,0,1,0);
-	local xres,yres = 320,240
+	local xres,yres = 160,120--320,240
 	--local xres,yres = 640,480
 	maFilm("image",{
 	["filename"] = "cornell_box.tga",	

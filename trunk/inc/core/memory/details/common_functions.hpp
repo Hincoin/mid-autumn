@@ -55,8 +55,8 @@ namespace ma{
 			const size_t VIRTUAL_PAGE_SIZE  = (size_t)1 << VIRTUAL_PAGE_SIZE_LOG2;
 			inline void* virtual_alloc(size_t size) {
 				assert(size / VIRTUAL_PAGE_SIZE * VIRTUAL_PAGE_SIZE == size);
-				unsigned int start = 0;
-				void* ret = mmap(&start, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+				void* ret = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+				if (ret == MAP_FAILED) return 0;
 				return ret;
 			}
 			inline void virtual_free(void* addr, size_t size) {
