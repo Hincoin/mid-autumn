@@ -247,6 +247,7 @@ namespace bxdf{
 	DECL_FUNC_NEST(spectrum_t,rho,3)
 	DECL_FUNC_NEST(spectrum_t,rho,2)
 	DECL_FUNC_NEST(scalar_t,pdf,2)
+	DECL_FUNC_NEST(spectrum_t,f,2)
 	DECL_FUNC(BxDFType,type,0)
 }
 //more bxdf types
@@ -259,6 +260,7 @@ BxDF(BxDFType t):type_(t){}
 bool matchesFlags(BxDFType flags)const{return (type_ & flags) == type_;}
 
 CRTP_CONST_METHOD(spectrum_t,f,2,( I_(const vector_t& , wo), I_(const vector_t& ,wi)));
+//can be overrided
 DECLARE_CONST_METHOD(spectrum_t,sample_f,5,( I_(const vector_t&,wo),
 				   I_(vector_t&, wi),
 				   I_(scalar_t,u1), I_(scalar_t,u2), I_(scalar_t&,pdf)));
@@ -390,6 +392,8 @@ class SpecularReflection:public BxDF<SpecularReflection<C>,typename C::interface
 		ADD_SAME_TYPEDEF(C,vector_t);
 		ADD_SAME_TYPEDEF(C,fresnel_ptr);
 		typedef BxDF<SpecularReflection<C>,typename C::interface_config> parent_type;
+		typedef SpecularReflection<C> class_type;
+		MA_DECLARE_POOL_NEW_DELETE_MT(class_type)
 	public:
 		SpecularReflection(const spectrum_t& r,fresnel_ptr f)
 			:parent_type(BxDFType(BSDF_REFLECTION | BSDF_SPECULAR)),
@@ -413,6 +417,8 @@ class SpecularTransmission:public BxDF<SpecularTransmission<C>,typename C::inter
 		ADD_SAME_TYPEDEF(C,vector_t);
 		ADD_SAME_TYPEDEF(C,fresnel_dielectric_t);
 		typedef BxDF<SpecularTransmission<C>,typename C::interface_config> parent_type;
+		typedef SpecularTransmission<C> class_type;
+		MA_DECLARE_POOL_NEW_DELETE_MT(class_type)
 	public:
 		SpecularTransmission(const spectrum_t& t,scalar_t ei,scalar_t et)
 			:parent_type(BxDFType(BSDF_TRANSMISSION | BSDF_SPECULAR)),
@@ -544,6 +550,60 @@ CRTP_CONST_VOID_METHOD(sample_f,5,(
 CRTP_CONST_METHOD(scalar_t,pdf,2,( I_(const vector_t&,wo), I_(const vector_t&,wi)))
 END_CRTP_INTERFACE
 
+template <typename Conf>
+class Microfacet: public BxDF<Microfacet<Conf>,typename Conf::interface_config>
+{
+	public:
+		ADD_SAME_TYPEDEF(Conf,scalar_t);
+		ADD_SAME_TYPEDEF(Conf,spectrum_t);
+		ADD_SAME_TYPEDEF(Conf,microfacet_distribution_ptr);
+		ADD_SAME_TYPEDEF(Conf,fresnel_ptr);
+		ADD_SAME_TYPEDEF(Conf,vector_t);
+		typedef Microfacet<Conf> class_type;
+		MA_DECLARE_POOL_NEW_DELETE_MT(class_type);
+	public:
+		Microfacet(const spectrum_t &reflectance,fresnel_ptr f,
+				microfacet_distribution_ptr d):
+			r_(reflectance),distribution_(d),fresnel_(f){}
+		spectrum_t fImpl(const vector_t &wo,const vector_t wi)const
+		{
+			scalar_t cos_thetaO = std::abs(CosTheta(wo));
+			scalar_t cos_thetaI = std::abs(CosTheta(wi));
+			vector_t wh = normalize(wi + wo);
+			scalar_t cos_thetaH = dot(wi,wh);
+			spectrum_t F = fresnel::evaluate(fresnel_,cos_thetaH);
+			return r_ * microfacetdistribution::d(distribution_,wh) * G(wo,wi,wh) * F
+				* reciprocal(4 * cos_thetaI * cos_thetaO);
+		}
+
+		scalar_t G(const vector_t &wo,const vector_t &wi,
+				const vector_t &wh)const
+		{
+			scalar_t NdotWh = std::abs(CosTheta(wh));
+			scalar_t NdotWo = std::abs(CosTheta(wo));
+			scalar_t NdotWi = std::abs(CosTheta(wi));
+			scalar_t WodotWh = abs_dot(wo,wh);
+			scalar_t WodotWh_Inv = reciprocal(WodotWh);
+			return std::min(scalar_t(1),std::min((2 * NdotWh * NdotWo * WodotWh_Inv),(2 * NdotWh * NdotWi * WodotWh_Inv)));
+		}
+		spectrum_t sample_f(const vector_t &wo,vector_t& wi,
+				scalar_t u1,scalar_t u2,scalar_t& pdf)const
+		{
+			//
+			microfacetdistribution::sample_f(distribution_,wo,ref(wi),u1,u2,ref(pdf));
+			if (!SameHemisphere(wo,wi))return spectrum_t(0);
+			return f(wo,wi);
+		}
+		scalar_t pdf(const vector_t& wo,const vector_t& wi)const
+		{
+			if(!SameHemisphere(wo,wi))return scalar_t(0);
+			return microfacetdistribution::pdf(distribution_,wo,wi);
+		}
+	private:
+		spectrum_t r_;
+		microfacet_distribution_ptr distribution_;
+		fresnel_ptr fresnel_;
+};
 
 template<typename Conf>
 class Lambertian : public BxDF<Lambertian<Conf>,typename Conf::interface_config> {

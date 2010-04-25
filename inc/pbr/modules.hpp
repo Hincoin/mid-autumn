@@ -49,6 +49,8 @@ template<typename FunT,typename MapT>
 		m.insert(std::make_pair(name,f));
 	}
 void register_all_creators();
+//release all pooled memory
+void release_memory();
 }
 #endif
 

@@ -105,7 +105,7 @@ static int l_maAddSpectrumParam(lua_State* l)
 		i++;
 	}
 	assert(i == color_sample || i == 1);
-	printf("add spectrum param %d (%f,%f,%f)\n",i,numbers[0],numbers[1],numbers[2]);
+	//printf("add spectrum param %d (%f,%f,%f)\n",i,numbers[0],numbers[1],numbers[2]);
 	if ( i == 1)
 		static_param.add(name,basic_config<>::spectrum_t(numbers[0]));
 	else if ( i == color_sample) 
@@ -114,12 +114,12 @@ static int l_maAddSpectrumParam(lua_State* l)
 }
 static int l_maAddPointArrayParam(lua_State* l)
 {
-	printf("point arra xxxxxxxxxxxxxxxxxxxxxxxxxxxx ");
+	//printf("point arra xxxxxxxxxxxxxxxxxxxxxxxxxxxx ");
 	luaL_checktype(l,1,LUA_TSTRING);
 	luaL_checktype(l,2,LUA_TTABLE);
 	std::string name = lua_tolstring(l,1,0);
 	std::vector<basic_config<>::point_t> point_array;
-	printf("point arra  aaaaaaaaaaaaaaaaaaaaa");
+	//printf("point arra  aaaaaaaaaaaaaaaaaaaaa");
 
 	for(lua_pushnil(l);lua_next(l,-2);lua_pop(l,1))
 	{
@@ -200,7 +200,7 @@ static ParamSet get_params(lua_State* l)
 	{
 		std::string key_name = lua_tolstring(l,-2,0);
 		ma::MAny val;
-		printf("key:%s \t",key_name.c_str());
+		//printf("key:%s \t",key_name.c_str());
 		switch(lua_type(l,-1))
 		{
 			case LUA_TNIL:break;

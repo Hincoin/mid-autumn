@@ -114,7 +114,8 @@ namespace ma{
 		//////////////////////////////////////////////////////////////////////////
 		//typedef Intersection<intersection_config<B> > intersection_t;
 		typedef typename scene_config<B>::intersection_t intersection_t;
-		typedef boost::shared_ptr<BSDF<bsdf_config<B> > > bsdf_ptr;
+		typedef BSDF<bsdf_config<B> > bsdf_t;
+		typedef boost::shared_ptr< bsdf_t > bsdf_ptr;
 		typedef DifferentialGeometry<typename B::scalar_t,B::dimension> differential_geometry_t;
 	};
 	template<typename B>
@@ -175,12 +176,13 @@ namespace ma{
 	struct bsdf_config:public B{
 		typedef DifferentialGeometry<typename B::scalar_t,B::dimension> differential_geometry_t;
 		//typedef Lambertian<bxdf_config<B> >* BxDF_ptr;
-		typedef ptr_var<
-		Lambertian<lambertian_bxdf_config<B> >,
-			OrenNayar<orennayar_bxdf_config<B> >,
+		typedef boost::mpl::vector<
+		Lambertian<lambertian_bxdf_config<B> >, 
+		OrenNayar<orennayar_bxdf_config<B> >,
 		SpecularReflection<specular_reflection_config<B> >,
 		SpecularTransmission<specular_transmission_config<B> >
-			   	> BxDF_ptr;
+		> bxdf_types;
+		typedef typename make_ptr_var_over_sequence<bxdf_types>::type BxDF_ptr;
 	};
 	template<typename B>
 	struct intersection_config:B{
@@ -231,6 +233,8 @@ struct scene_config:B{
 	typedef Scene<scene_config<basic_config_t> >* scene_ptr;
 	typedef scene_config<basic_config_t>::light_ptr light_ptr;
 	
+	typedef bsdf_config<basic_config_t>::bxdf_types bxdf_types;
+	typedef BSDF<bsdf_config<basic_config_t> > bsdf_t;
 	typedef material_interface_config<basic_config_t>::float_texture_types float_texture_types;
 	typedef material_interface_config<basic_config_t>::spectrum_texture_types spectrum_texture_types;
 	typedef material_interface_config<basic_config_t>::texture_spectrum_ref shared_spectrum_texture_t;

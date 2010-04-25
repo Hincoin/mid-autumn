@@ -77,6 +77,13 @@ struct GraphicsState{
 	ParamSet area_light_params;
 	string area_light;
 	bool reverse_orientation;
+	void clear()
+	{
+		float_textures_.clear();
+		spectrum_textures_.clear();
+		material_params.clear();
+		area_light_params.clear();
+	}
 };
 
 enum{STATE_UNINITIALIZED=0,STATE_OPTIONS_BLOCK,STATE_WORLD_BLOCK};
@@ -446,6 +453,9 @@ COREDLL void maTransformEnd(){
 	current_state = STATE_OPTIONS_BLOCK;
 	current_transform = transform_t();
 	named_coordinate_sys.clear();
+	graphics_state.clear();
+	//clear memory pool
+	release_memory();
  }
  COREDLL void maFrameEnd(){;}
 
