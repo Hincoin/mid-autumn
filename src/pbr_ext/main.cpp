@@ -2,6 +2,7 @@
 #include "script.hpp"
 #include "oolua_error.h"
 
+#include "ptr_var.hpp"
 
 int main(int argc,char** argv)
 {

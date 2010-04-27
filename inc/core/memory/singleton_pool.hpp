@@ -111,6 +111,9 @@ namespace ma{
 	}
 }
 
+//#define USE_POOL
+#ifdef USE_POOL
+
 //this is why gcc is really greate
 #ifdef __GNUC__
 #define  MA_DECLARE_ARRAY_DELETE(CLASS)\
@@ -195,6 +198,27 @@ namespace ma{
 	return ma::core::generic_singleton_pool<Class,ma::core::details::mutex_t>::alloc(sz);\
 	}\
 	MA_DECLARE_ARRAY_DELETE_MT(Class)
+#else
+
+#define MA_DECLARE_ARRAY_DELETE(X) 
+#define MA_DECLARE_ARRAY_DELETE_MT(X)
+#define MA_DECLARE_POOL_NEW_DELETE(X) \
+	public:\
+	\
+	static bool release_memory()\
+	{\
+		return true;\
+	}\
+
+#define MA_DECLARE_POOL_NEW_DELETE_MT(X)\
+	public:\
+	\
+	static bool release_memory()\
+	{\
+		return true;\
+	}\
+
+#endif
 
 
 #endif

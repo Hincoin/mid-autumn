@@ -404,6 +404,7 @@ class SpecularReflection:public BxDF<SpecularReflection<C>,typename C::interface
 		spectrum_t sample_f(const vector_t &wo,vector_t &wi,
 				scalar_t u1,scalar_t u2,scalar_t& pdf)const;
 		scalar_t pdfImpl(const vector_t& wo,const vector_t& wi)const{return scalar_t(0);}
+		~SpecularReflection(){delete_ptr(fresnel_);}
 	private:
 		spectrum_t r_;
 		fresnel_ptr fresnel_;
@@ -598,6 +599,11 @@ class Microfacet: public BxDF<Microfacet<Conf>,typename Conf::interface_config>
 		{
 			if(!SameHemisphere(wo,wi))return scalar_t(0);
 			return microfacetdistribution::pdf(distribution_,wo,wi);
+		}
+		~Microfacet()
+		{
+			delete_ptr(distribution_);
+			delete_ptr(fresnel_);
 		}
 	private:
 		spectrum_t r_;

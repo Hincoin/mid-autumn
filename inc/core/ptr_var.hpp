@@ -470,6 +470,28 @@ template<typename T0 ,
 		typedef int count_type;
 		typedef ptr_var<POINTER_VARIANT_ENUM_PARAMS(T)> ptr_type;
 		count_type* pn;
+		private:
+		void dispose()
+		{
+			if(--*pn == 0)
+			{
+				if(ptr_type::which >= 0)
+					delete_ptr(static_cast<ptr_type&>(*this));
+				delete pn;
+			}	
+		}
+		void construct(void *rptr,int rwhich, count_type *rpn)
+		{
+			if(pn != rpn)
+			{
+				++*rpn;
+				dispose();
+				ptr_type::ptr = (rptr);
+				ptr_type::which = (rwhich);
+				pn = (rpn);
+			}
+		}
+	
 		public:
 
 		typedef typename ptr_type::types types;
@@ -481,23 +503,17 @@ template<typename T0 ,
 			pn = new count_type(1);
 		}	
 		~shared_ptr_var(){
-			if(--*pn == 0)
-			{
-				if(ptr_type::which > 0)
-					delete_ptr(static_cast<ptr_type&>(*this));
-				delete pn;
-			}	
+			dispose();	
 		}
-		shared_ptr_var(shared_ptr_var const& r)
+		shared_ptr_var (const shared_ptr_var& r)
 		{
-			ptr_type::ptr = (r.ptr);
-			ptr_type::which = (r.which);
-			pn = (r.pn);
-			++*pn;
+			ptr_type::ptr = r.ptr;
+			ptr_type::which = r.which;
+			++*(pn=r.pn);
 		}
 		shared_ptr_var& operator=(shared_ptr_var const& r)
 		{
-			shared_ptr_var(r).swap(*this);
+			construct(get_ptr(r),r.which_type(),r.pn);
 			return *this;
 		}
 
