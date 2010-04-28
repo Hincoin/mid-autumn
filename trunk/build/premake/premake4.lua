@@ -21,10 +21,10 @@ configuration "Release"
 	libdirs(root_dir .. "/build/bin/release")
 
 configuration {"linux","gmake"}
-buildoptions{"-std=c++0x","-fpermissive","-g","-pg"}
+buildoptions{"-std=c++0x","-fpermissive","-g","-pg","-fexcess-precision=fast",}
 linkoptions{"-pg"}
 defines{"_GNU_C_"}
-
+--defines{"_GLIBCXX_PROFILE"}
 configuration{"win32"}
 defines{"WIN32","_WIN32"}
 

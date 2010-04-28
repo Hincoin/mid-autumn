@@ -44,7 +44,7 @@ namespace ma
 			~CheckerBoard2D(){ delete_ptr(mapping_);}
 			color_t evaluateImpl(const differential_geometry_t& dg)const
 			{
-				scalar_t s,t,dsdx,dtdx,dsdy,dtdy;
+				scalar_t s(0),t(0),dsdx(0),dtdx(0),dsdy(0),dtdy(0);
 				texture::mapping(mapping_,dg,ref(s),ref(t),ref(dsdx),ref(dtdx),ref(dsdy),ref(dtdy));
 				if(aa_method_ == CLOSEDFORM)
 				{

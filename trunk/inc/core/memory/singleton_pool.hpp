@@ -111,7 +111,7 @@ namespace ma{
 	}
 }
 
-//#define USE_POOL
+#define USE_POOL
 #ifdef USE_POOL
 
 //this is why gcc is really greate
