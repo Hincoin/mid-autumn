@@ -31,8 +31,11 @@
 #include <boost/mpl/back_inserter.hpp>
 #include <boost/mpl/copy.hpp>
 #include <boost/mpl/transform.hpp>
+#include <boost/mpl/transform_view.hpp>
+#include <boost/type_traits/is_arithmetic.hpp>
 #include <boost/mpl/empty.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/mpl/contains.hpp>
 #include <boost/static_assert.hpp>
 //#include "typelist_structs.h"
 

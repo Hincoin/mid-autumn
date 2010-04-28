@@ -116,8 +116,11 @@ int func_rename(lua_State* const l)mod\
 
 namespace OOLUA{
 	template<typename I,typename T>
+		struct _out_params_add_:boost::mpl::int_<I::value + T::out> {
+		};
+	template<typename I,typename T>
 	struct out_params_add{
-		typedef boost::mpl::int_<I::value + T::out> type;
+		typedef _out_params_add_<I,T> type;
 	};
 	template<typename Seq>
 	struct out_params_count{
@@ -189,10 +192,15 @@ namespace OOLUA{
 	struct func_param_type_list:func_parameter_type_list_impl<FuncT,boost::function_traits<FuncT>::arity>
 	{};
 	template<typename T>
-	struct to_pull_type{
+	struct to_pull_type_{
 		typedef param_type<T> parameter_type;
 		typedef typename parameter_type::pull_type type;
 	};
+	template<typename T>
+	struct to_pull_type:to_pull_type_<T>{
+	};
+
+
 	template<typename T>
 	struct to_param_type{
 		typedef param_type<T> type;
@@ -200,7 +208,7 @@ namespace OOLUA{
 	template<typename TypeSeq>
 	struct internal_param_pull2_cpp_push2_lua{
 		typedef typename boost::mpl::transform<TypeSeq,to_param_type<boost::mpl::_1> >::type param_type_list;
-		typedef typename boost::mpl::transform<TypeSeq,to_pull_type<boost::mpl::_1> >::type pull_type_list;
+		typedef  boost::mpl::transform_view<TypeSeq,to_pull_type<boost::mpl::_1> > pull_type_list;
 		typedef typename  boost::fusion::result_of::as_vector<pull_type_list>::type vector_type;
 		/*static*/ vector_type v;
 		lua_State* const l;

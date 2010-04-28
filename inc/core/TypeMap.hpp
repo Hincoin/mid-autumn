@@ -6,15 +6,15 @@
 #include <boost/preprocessor/seq/for_each_i.hpp>
 #include <boost/preprocessor/punctuation/comma_if.hpp>
 
-#include <boost/functional/hash.hpp>
-
 #include <vector>
+#include <boost/functional/hash.hpp>
 #include <string>
 #include <boost/variant/get.hpp>
 #include <string.h>
 #include <memory>
 #include <boost/unordered_map.hpp>
 #include <boost/type_traits.hpp>
+
 namespace ma{
 template<typename T>
 	std::size_t hash_value(const std::vector<T>& v)

@@ -92,19 +92,33 @@ namespace LVD
 	typedef uint32 size_t;
 
 	template<typename T>
- 	struct is_integral_type
+ 	struct is_integral_type:public boost::is_arithmetic<T>/* mpl::if_<
+							mpl::contains<
+									  	  mpl::vector<
+							        		bool,
+											char,unsigned char, signed char,
+											short,unsigned short, signed short,
+											int,unsigned int, signed int,
+											long, unsigned long, signed long, int64, uint64,
+											float,
+											double, long double
+											> 
+										,T>
+							,boost::true_type
+							,boost::false_type>::type*/
  	{
-		typedef mpl::vector<
+	/*	typedef mpl::vector<
         		bool,
 				char,unsigned char, signed char,
 				short,unsigned short, signed short,
 				int,unsigned int, signed int,
 				long, unsigned long, signed long, int64, uint64,
 				float,
-				double, long double>::type number_sequence;
-		enum {value = !boost::is_same<
-			typename mpl::find<number_sequence,T>::type,
-			typename mpl::end<number_sequence>::type>::value  };
+				double, long double> number_sequence;
+		typedef typename boost::mpl::contains<number_sequence,T> type;
+		enum {value = type::value !boost::is_same<
+			 typename mpl::find<number_sequence,T>::type,
+			 mpl::end<number_sequence>::type >::value  };*/
 	};
 
 
