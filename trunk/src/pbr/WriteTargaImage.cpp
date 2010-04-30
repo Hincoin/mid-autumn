@@ -6,16 +6,17 @@
 namespace ma{
 
 
-	unsigned char ReadByte(FILE *file) {  
+/*	unsigned char ReadByte(FILE *file) {  
 		unsigned char b;
 		size_t success = fread((void*)&b,sizeof(unsigned char),1,file);
 		assert (success == 1);
 		return b;
 	}
-
-	void WriteByte(FILE *file, unsigned char b) {
+*/
+	size_t WriteByte(FILE *file, unsigned char b) {
 		size_t success = fwrite((void*)&b,sizeof(unsigned char),1,file);
 		assert (success == 1);
+		return success;
 	}
 
 	unsigned char ClampColorComponent(float c) {

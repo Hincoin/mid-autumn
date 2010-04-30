@@ -158,8 +158,8 @@ namespace ma
 #ifdef MA_FAST_MATH
         // comes from Nvidia
 #if 1
-        uint32 tmp = (uint32(IEEE_1_0 << 1) + IEEE_1_0 - *(uint32*)((void*)(&x))) >> 1;
-        float y = *(float*)((void*)&tmp);
+        uint32 tmp = (uint32(IEEE_1_0 << 1) + IEEE_1_0 - *(uint32*)(&x)) >> 1;
+        float y = *(float*)(&tmp);
         return y * (1.47f - 0.47f * x * y * y);
 #elif defined(_MSC_VER)
         // an sse2 version
