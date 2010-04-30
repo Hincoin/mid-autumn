@@ -35,28 +35,11 @@
 #include "boost/mpl/at.hpp"
 #include "boost/mpl/list.hpp"
 #include <boost/fusion/container.hpp>
-
-//#include "boost/mpl/accumulate.hpp"
-//#include "boost/mpl/accumulate.hpp"
-//#include "boost/mpl/accumulate.hpp"
-//#include "boost/mpl/accumulate.hpp"
-
 #include "boost/mpl/limits/list.hpp"
 #include "boost/fusion/adapted.hpp"
 #include "boost/fusion/sequence/intrinsic.hpp"
 #include "member_func_helper.h"
-//
-//#define LUA_CLASS_MEMBER_FUNCTION_2(func_name,return_value,func,P1,P2,mod)\
-//	int func_name(lua_State* const l)mod\
-//{\
-//	assert(m_this);\
-//	OOLUA_PARAMS_INTERNAL_2(P1,P2)\
-//	typedef param_type<return_value > R;\
-//	static R::type (class_::*f )(P1_::type,P2_::type)mod  = &class_::func;\
-//	OOLUA::Proxy_caller<R,class_,LVD::is_void< R::type >::value >::call<P1_,P2_>(l,m_this,f,p1,p2);\
-//	OOLUA_BACK_INTERNAL_2\
-//	return total_out_params< Type_list<out_p<return_value >,P1_,P2_ >::type> ::out;\
-//}
+
 #define LUA_EXPORT_FUNC(FT,FN)\
 	static int l_##FN(lua_State* l)\
 	{\

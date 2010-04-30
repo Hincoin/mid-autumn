@@ -339,9 +339,10 @@ void release_memory()
 {
 #define RELEASE_MEMORY_TYPES(Types,F)\
 	boost::mpl::for_each<boost::mpl::transform<Types,identity_wrapper<boost::mpl::_1> >::type>(F());\
-	
-	bool is_released = bsdf_t::release_memory();
-	assert(is_released);
+
+	bsdf_t::release_memory();
+	/*bool is_released = */
+	//assert(is_released);
 	//release bxdf_types
 	RELEASE_MEMORY_TYPES(bxdf_types,release_memory_func)
 }

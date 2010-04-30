@@ -30,9 +30,11 @@ static int l_maCoordSysTransform(lua_State* l)
 static int l_maConcatTransform(lua_State* l)
 {
 		float trans[4][4];
-		for(int i = 0,lua_pushnil(l);(i < 16) && lua_next(l,-2) ;++i , lua_pop(l,1))
+		lua_pushnil(l);
+		for(int i = 0;(i < 16) && ( lua_next(l,-2)) ;++i )
 		{
 			trans[i/4][i%4]=(float)lua_tonumber(l,-1);
+			lua_pop(l,1);
 		}
 		maConcatTransform(trans);
 		return 0;
@@ -41,9 +43,11 @@ static int l_maConcatTransform(lua_State* l)
 static int l_maTransform(lua_State* l)
 {
 		float trans[4][4];
-		for(int i = 0,lua_pushnil(l);(i < 16) && lua_next(l,-2) ;++i , lua_pop(l,1))
+		lua_pushnil(l);
+		for(int i = 0;(i < 16) && ( lua_next(l,-2)) ;++i )
 		{
 			trans[i/4][i%4]=(float)lua_tonumber(l,-1);
+			lua_pop(l,1);
 		}
 		maTransform(trans);
 		return 0;
@@ -310,6 +314,8 @@ void register_api(lua_State* l)
 	REGISTER_FUNC(l,maCleanUp);
 	REGISTER_FUNC(l,maIdentity)
 	REGISTER_FUNC(l,maTranslate)
+	REGISTER_FUNC(l,maConcatTransform);
+	REGISTER_FUNC(l,maTransform);
 	REGISTER_FUNC(l,maRotate)
 	REGISTER_FUNC(l,maScale)
 	REGISTER_FUNC(l,maLookAt)

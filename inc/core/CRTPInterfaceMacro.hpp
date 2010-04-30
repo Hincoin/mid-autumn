@@ -114,27 +114,4 @@ __CRTP_TEMPLATE_FUNCTION_EXPANDED(TARGN,RET,FN,BOOST_PP_TUPLE_TO_SEQ(ARGN,ARGS),
 
 #define END_CRTP_INTERFACE };
 
-/*
-//#define MA_DECLARE_TYPEDEF_TRAITS_TYPE(_TYPE_) \
-//	namespace details { namespace ma_traits{\
-//	template<typename U> struct _typedef_traits_##_TYPE_;} }
-//
-//#define MA_SPECIALIZE_TYPEDEF_TRAITS_TYPE(_TYPE_, _CLASS_NAME , _CONFIG_CLASS_NAME)\
-//	namespace details {namespace ma_traits{\
-//	template<> \
-//	struct _typedef_traits_##_TYPE_ < _CLASS_NAME >\
-//	{\
-//	typedef _CONFIG_CLASS_NAME::_TYPE_ type;\
-//	};}}
-*/
-//	template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
-//	inline R FN(ObjT& obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,T) )\
-//	{\ return obj.FN(BOOST_PP_ENUM_PARAMS(PN,p));}\
-//template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
-//inline R FN(ObjT* obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,T) )\
-//{\ return obj.FN(BOOST_PP_ENUM_PARAMS(PN,p));}\
-//template<typename ObjT BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,typename T)>\
-//inline R FN(const ObjT* obj BOOST_PP_COMMA_IF(PN) BOOST_PP_ENUM_PARAMS(PN,T) )\
-//{\ return obj.FN(BOOST_PP_ENUM_PARAMS(PN,p));}\
-
 #endif

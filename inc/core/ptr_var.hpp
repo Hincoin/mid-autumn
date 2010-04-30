@@ -16,7 +16,9 @@
 #include <boost/mpl/size.hpp>
 #include <boost/ref.hpp>
 #include <boost/variant.hpp>
+#include <boost/detail/atomic_count.hpp>
 #include "PtrTraits.hpp"
+
 
 #define POINTER_VARIANT_LIMIT_TYPES \
 	BOOST_MPL_LIMIT_LIST_SIZE
@@ -467,7 +469,8 @@ protected:
 template<typename T0 ,
 		POINTER_VARIANT_ENUM_SHIFTED_PARAMS(typename T) >
 	class shared_ptr_var:public ptr_var<POINTER_VARIANT_ENUM_PARAMS(T)>{
-		typedef int count_type;
+		//typedef int count_type;
+		typedef boost::detail::atomic_count count_type;//make it thread safe
 		typedef ptr_var<POINTER_VARIANT_ENUM_PARAMS(T)> ptr_type;
 		count_type* pn;
 		private:

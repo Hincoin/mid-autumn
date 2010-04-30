@@ -21,7 +21,7 @@ configuration "Release"
 	libdirs(root_dir .. "/build/bin/release")
 
 configuration {"linux","gmake"}
-buildoptions{"-std=c++0x","-fpermissive","-g","-pg","-fexcess-precision=fast",}
+buildoptions{"-fno-strict-aliasing","-std=c++0x",--[["-fpermissive",]]"-g","-pg","-fexcess-precision=fast","-Wall"}
 linkoptions{"-pg"}
 defines{"_GNU_C_"}
 --defines{"_GLIBCXX_PROFILE"}
