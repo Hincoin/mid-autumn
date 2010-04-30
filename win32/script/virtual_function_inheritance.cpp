@@ -53,6 +53,7 @@ namespace OOLUA{
 			assert(ud.valid());
 			called_ = true;
 			lua_State* l = ud.lua_state();
+			int level = lua_gettop(l);
 			INTERNAL::Lua_ud* user_data = INTERNAL::find_ud_dont_care_about_type_and_clean_stack(l,m_ptr);
 			if (!user_data)//user_data is gc-ed
 			{
@@ -92,6 +93,8 @@ namespace OOLUA{
 			{
 				assert(0);
 			}
+			int nresults = lua_gettop(l) - level;
+			assert(nresults == 1);
 			called_ = false;
 			R r;
 			pull2cpp(l,r);
@@ -202,6 +205,7 @@ MAKE_CPP_PORXY(Derived,ScriptDerived)
 
 LUA_PROXY_CLASS(ScriptDerived)
 OOLUA_NO_TYPEDEFS
+LUA_CTORS()
 LUA_MEM_FUNC_RENAME(int(float,float,float),func0,func0_call_from_script)
 LUA_PROXY_CLASS_END
 
