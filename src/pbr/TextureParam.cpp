@@ -12,7 +12,7 @@ using std::string;
 		std::map<string,shared_spectrum_texture_t>::const_iterator it = spectrum_textures_.find(tname);
 		if (it != spectrum_textures_.end())
 		{
-			assert(spectrum_textures_[tname]);
+			assert(it->second);
 			return it->second;	
 		}
 		else
@@ -31,7 +31,7 @@ using std::string;
 		std::map<string,shared_float_texture_t>::const_iterator it = float_textures_.find(tname);
 		if (it != float_textures_.end())
 		{
-			assert(float_textures_[tname]);
+			assert(it->second);
 			return it->second;	
 		}
 		else

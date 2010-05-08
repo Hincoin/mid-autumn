@@ -77,22 +77,47 @@ includedirs{
 	root_dir .. "/inc/core/",
 	root_dir .. "/inc/pbr/",
 	root_dir .. "/inc/pbr_ext/",
+	root_dir .. "/inc/pbr_net/",
 }
 
 files{ 
 	root_dir .. "/inc/pbr/*.hpp",
 	root_dir .. "/inc/pbr_ext/*.hpp",
 	root_dir .. "/src/pbr_ext/*.cpp",
+	root_dir .. "/inc/pbr_net/*.hpp",
+	root_dir .. "/src/pbr_net/*.cpp",
 }
 
 configuration{"Debug"}
-	links{"pbr","lua","oolua_d" --[[,"pbr"]]}
+	links{"pbr","lua","oolua_d" ,"pthread"--[[,"pbr"]]}
 configuration{"Release"}
-	links{"pbr","lua","oolua"}
+	links{"pbr","lua","oolua", "pthread"}
 
 	
-	
-	
+---------------------------------------------------------------------
+project "pbr_svr"
+kind "ConsoleApp"
+language "C++"
+
+includedirs{
+	root_dir .. "/extern/",
+	root_dir .. "/inc/core/",
+	root_dir .. "/inc/pbr_net/",
+}
+
+files{ 
+	root_dir .. "/inc/core/*.hpp",
+	root_dir .. "/inc/pbr_net/*.hpp",
+	root_dir .. "/src/pbr_net/*.cpp",
+	root_dir .. "/src/pbr_svr/*.cpp",
+}
+
+configuration{"Debug"}
+	links{"pthread"}
+configuration{"Release"}
+	links{"pthread"}
+
+
 -----------------------------------------------------------------------
 cwd = os.getcwd()
 cp_cmd="cp"
