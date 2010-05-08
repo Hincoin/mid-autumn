@@ -421,8 +421,9 @@ namespace ma{
 						assert(blk->prev->used);
 					}
 					assert(blk->next()== cached_block_ || blk->next()->used);
-					if((intptr_t)blk == 0x05479e68)
+					/*if((intptr_t)blk == 0x05479e68)
 						int take_breka= 0;
+						*/
 #endif
 					if( cached_block_ == 0)
 					{	

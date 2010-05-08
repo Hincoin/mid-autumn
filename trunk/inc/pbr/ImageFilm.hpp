@@ -244,7 +244,7 @@ namespace ma{
 #ifdef _DEBUG
 					if(alpha[offset] !=0)
 					{
-						Pixel &pixel = (*pixels)(x - xPixelStart, y - yPixelStart);
+						//Pixel &pixel = (*pixels)(x - xPixelStart, y - yPixelStart);
 						printf("pixel (%d,%d): (%.6f,%.6f,%.6f,%.6f)\n",x,y,rgb[3*offset  ],rgb[3*offset+1],rgb[3*offset+2],
 							alpha[offset] );
 					}
