@@ -158,7 +158,7 @@ local function camera_param()
 	}
 	maCamera("perspective",params);
 end
-function main()
+function main(wcropx_min,wcropx_max,wcropy_min,wcropy_max)
 
 	maInit();
 	maIdentity();
@@ -166,11 +166,16 @@ function main()
 	maLookAt(278,273,-800,278,273,400,0,1,0);
 	local xres,yres = 320,240
 	--local xres,yres = 640,480
+	
+	maBeginParam();
+	maAddFloatArrayParam("cropwindow",{wcropx_min,wcropx_max,wcropy_min,wcropy_max});
 	maFilm("image",{
 	["filename"] = "cornell_box.tga",	
 	["xresolution"]=xres,
 	["yresolution"]=yres
 	});
+	maEndParam()
+
 	maSampler("lowdiscrepancy",{["pixelsamples"]=1});
 	camera_param();
 	maAccelerator("kdtree",{});

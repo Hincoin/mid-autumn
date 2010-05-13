@@ -25,6 +25,18 @@ public:
 		CRTP_METHOD(derived_type*,subdivide,1,(I_(unsigned&,count)));
 	END_CRTP_INTERFACE
 
+ 	template<typename Conf>
+	class ISampler:public Sampler<ISampler<Conf>,typename Conf::interface_config>
+	{
+		public:
+		typedef Sampler<ISampler<Conf>,typename Conf::interface_config> parent_type;
+		ADD_SAME_TYPEDEF(Conf,sample_t);
+		ISampler(int xs,int xe,int ys,int ye,int spp):parent_type(xs,xe,ys,ye,spp){}
+		virtual bool getNextSampleImpl(sample_t& s) = 0;	
+		virtual int totalSamples()const{return parent_type::totalSamples();}
+		virtual int roundSize(int size) = 0;
+		virtual ~ISampler(){}
+	};
 	template<typename Conf>
 	struct CameraSample{
 		ADD_SAME_TYPEDEF(Conf,scalar_t);

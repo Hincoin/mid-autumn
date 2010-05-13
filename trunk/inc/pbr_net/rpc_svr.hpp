@@ -17,7 +17,7 @@ namespace rpc
 		=
 		{
 			//the index is for startup check to ensure the index is same to the index in func_tbl
-			{c2s::rpc_request_render_task_func_info::index,&rpc_function<c2s::rpc_request_render_task_func_info::function_type>,(func_handle_t)&c2s::request_render_task}
+			{c2s::rpc_request_render_task::index,&rpc_function<c2s::rpc_request_render_task::function_type>,(func_handle_t)&c2s::request_render_task}
 			,{-1,0,0}//terminal
 			//,
 		};

@@ -4,8 +4,8 @@
 #include "BasicConfig.hpp"
 #include "TextureConfig.hpp"
 
-#include "Material.hpp"
-#include "MaterialMatte.hpp"
+#include "Material.hpp"
+#include "MaterialMatte.hpp"
 #include "MaterialMirror.hpp"
 #include "MaterialGlass.hpp"
 
@@ -13,8 +13,8 @@
 namespace ma
 {
 
-	template<typename B>
-	struct material_interface_config:public B{
+	template<typename B>
+	struct material_interface_config:public B{
 		typedef boost::shared_ptr<BSDF<bsdf_config<B> > > bsdf_ptr;
 
 	typedef ConstantTexture<texture_config<B,typename B::spectrum_t> > const_texture_spectrum_t;
@@ -36,19 +36,19 @@ namespace ma
 
 
 	typedef DifferentialGeometry<typename B::scalar_t,B::dimension> differential_geometry_t;
-	};
+	};
 
 
 
 	template<typename B> struct lambertian_bxdf_config;
 	template<typename B> struct orennayar_bxdf_config;
-	template<typename B>
-	struct matte_material_config:public material_interface_config<B>{
+	template<typename B>
+	struct matte_material_config:public material_interface_config<B>{
 		typedef material_interface_config<B> interface_config;
-		//the following is matte material specific config
-		typedef BSDF<bsdf_config<B> > bsdf_t;
-		typedef Lambertian<lambertian_bxdf_config<B> > lambertian_t;
-		typedef OrenNayar<orennayar_bxdf_config<B> > oren_nayar_t;
+		//the following is matte material specific config
+		typedef BSDF<bsdf_config<B> > bsdf_t;
+		typedef Lambertian<lambertian_bxdf_config<B> > lambertian_t;
+		typedef OrenNayar<orennayar_bxdf_config<B> > oren_nayar_t;
 	};
 	
 	template<typename B> struct specular_reflection_config;

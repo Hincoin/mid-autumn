@@ -91,6 +91,11 @@ namespace ma{
 		typedef typename scene_config<B>::sample_t sample_t;
 	};
 	template<typename B>
+		struct isampler_config:sampler_config<B>
+	{
+		typedef sampler_config<B> interface_config;
+	};
+	template<typename B>
 	struct ldsampler_config:sampler_config<B>{
 		typedef sampler_config<B> interface_config;
 	};
@@ -211,13 +216,14 @@ struct scene_config:B{
 	typedef boost::mpl::vector<PointLight<point_light_config<B> > > light_types;
 	typedef boost::mpl::vector<WhittedIntegrator<surface_integrator_config<B> > > surface_integrator_types;
 	typedef boost::mpl::vector<LDSampler<ldsampler_config<B> > > sampler_types;
+	typedef typename boost::mpl::push_back<sampler_types,ISampler<isampler_config<B> > >::type sampler_types_with_virtual;
 	typedef Sample<sample_config<B> > sample_t;
 	typedef sample_t* sample_ptr;
 
 	typedef typename make_ptr_var_over_sequence<camera_types>::type camera_ptr;
 	typedef typename make_ptr_var_over_sequence<light_types>::type light_ptr;
 	typedef typename make_ptr_var_over_sequence<surface_integrator_types>::type surface_integrator_ptr;
-	typedef typename make_ptr_var_over_sequence<sampler_types>::type sampler_ptr;
+	typedef typename make_ptr_var_over_sequence<sampler_types_with_virtual>::type sampler_ptr;
 	typedef MAPrimitive<primitive_interface_config<B> >* primitive_ptr; 
 	};
 

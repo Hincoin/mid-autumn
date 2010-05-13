@@ -25,7 +25,7 @@ using std::vector;
 using namespace ma;
 struct RenderOptions{
 	RenderOptions();
-	scene_ptr makeScene()const;
+	scene_ptr makeScene();
 	~RenderOptions(){clear();}
 	//
 	string filter_name;
@@ -43,6 +43,7 @@ struct RenderOptions{
 	transform_t world_to_camera;
 	vector<light_ptr> lights;
 	vector <primitive_ref_t> primitives;
+	scene_ptr scene;
 	//AssocVector<string,vector<SharedPrimitive> > instances;
 	//vector<SharedPrimitive> *current_instance;
 	void clear()
@@ -56,12 +57,27 @@ struct RenderOptions{
 		camera_params.clear();
 		lights.clear();
 		primitives.clear();
+		delete_ptr(scene);
+	}
+	void render()
+	{
+		//process other options here
+		//preprocess or save accelerate data or render
+		if (scene)
+			scene->render();
+		else
+		{
+			makeScene();
+			scene->render();
+		}
+
 	}
 };
 RenderOptions::RenderOptions()
 :filter_name("mitchell"),film_name("image"),
 sampler_name("bestcandidate"),accelerator_name("kdtree"),
 surface_integrator_name("directlighting"),camera_name("perspective")
+,scene(0)
 {
 	//default setup
 	//current_instance=0;
@@ -155,6 +171,8 @@ COREDLL void maCleanUp(){
 	current_state = STATE_UNINITIALIZED;
 	delete render_options;
 	render_options = 0;
+	//clear memory pool
+	release_memory();
 }
 
 
@@ -442,26 +460,25 @@ COREDLL void maTransformEnd(){
 		graphics_state_stack.pop_back();
 		transform_stack.pop_back();
 	}
-	scene_ptr scene = render_options->makeScene();
-	if (scene)
+
+	if(render_options )
 	{
-		scene->render();
+		render_options->render();
 	}
-	delete scene;
+
 	render_options->primitives.clear();
 	render_options->lights.clear();
 	current_state = STATE_OPTIONS_BLOCK;
 	current_transform = transform_t();
 	named_coordinate_sys.clear();
 	graphics_state.clear();
-	//clear memory pool
-	release_memory();
  }
  COREDLL void maFrameEnd(){;}
 
 
 
- scene_ptr RenderOptions::makeScene() const {
+ scene_ptr RenderOptions::makeScene() 
+{
 
 	 typedef Scene<scene_config<basic_config_t> > scene_t;
 	filter_ptr filter = make_filter(filter_name,filter_params);
@@ -476,7 +493,7 @@ COREDLL void maTransformEnd(){
 		report_error("Cannot create Scene!\n");
 		return 0;
 	}
-	scene_ptr scene = new scene_t(camera,si,NULL,sampler,accelerator,lights,NULL);
+	scene = new scene_t(camera,si,NULL,sampler,accelerator,lights,NULL);
 	return scene;
 	 // Create scene objects from API settings
 	 //Filter *filter = MakeFilter(FilterName, FilterParams);

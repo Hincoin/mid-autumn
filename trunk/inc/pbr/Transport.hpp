@@ -2,8 +2,8 @@
 #define _MA_INCLUDED_TRANSPORT_HPP_
 
 
-#include "CRTPInterfaceMacro.hpp"
-#include "ptr_var.hpp"
+#include "CRTPInterfaceMacro.hpp"
+#include "ptr_var.hpp"
 namespace ma{
 	namespace integrator{
 		DECL_FUNC_NEST(spectrum_t,li,4)
