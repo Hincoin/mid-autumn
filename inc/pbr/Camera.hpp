@@ -85,7 +85,7 @@ protected:
 		scalar_t LensRadius, FocalDistance;
 	};
 
-
+
 }
 #include "ParamSet.hpp"
 namespace ma{

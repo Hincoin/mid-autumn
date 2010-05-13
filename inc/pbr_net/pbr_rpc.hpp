@@ -17,11 +17,12 @@ namespace ma
 			};
 	namespace c2s{
 		//caller and callee common typedefs
-		typedef rpc_function_info_t<void(conn_t),0> rpc_request_render_task_func_info;
+		typedef rpc_function_info_t<void(conn_t),0> rpc_request_render_task;
 		//...
 	}	
 	namespace s2c{
-		typedef rpc_function_info_t<void (conn_t),0> rpc_preprocess_func_info;//do preprocess	
+		typedef rpc_function_info_t<void (conn_t),0> rpc_preprocess;//do preprocess	
+		typedef rpc_function_info_t<void (conn_t,float,float,float,float),1> rpc_render_crop;
 	}
 	}
 }

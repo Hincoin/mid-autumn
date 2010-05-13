@@ -2,7 +2,7 @@
 #include "modules.hpp"
 
 
-#include "KdTree.hpp"
+#include "KdTree.hpp"
 namespace ma{
 
 typedef shared_float_texture_t (*create_float_texture_func_t)(const transform_t&,const TextureParam&);
@@ -78,7 +78,7 @@ COREDLL light_ptr make_light(const string& name,const transform_t& light2world,c
 }
 COREDLL surface_integrator_ptr make_surface_integrator(const string& name,const ParamSet& param)
 {
-	 ////////////////////////////////////////////////////////////////////////////
+	 ////////////////////////////////////////////////////////////////////////////
 	std::map<string,create_surface_integrator_func_t>::const_iterator it = surface_integrator_creators.find(name);
 	if (it != surface_integrator_creators.end())
 		return (*it->second)(param);

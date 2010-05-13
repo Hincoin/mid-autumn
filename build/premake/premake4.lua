@@ -103,6 +103,7 @@ includedirs{
 	root_dir .. "/extern/",
 	root_dir .. "/inc/core/",
 	root_dir .. "/inc/pbr_net/",
+	root_dir .. "/inc/pbr_svr/",
 }
 
 files{ 

@@ -74,21 +74,21 @@ namespace ma
 {
 	namespace details{
 	
-		template<typename Conf>
-		struct material_creator<Glass<Conf> >{
-			typedef Glass<Conf> glass_t;
-			typedef typename Glass<Conf>::transform_t transform_t;
-
+		template<typename Conf>
+		struct material_creator<Glass<Conf> >{
+			typedef Glass<Conf> glass_t;
+			typedef typename Glass<Conf>::transform_t transform_t;
+
 			ADD_SAME_TYPEDEF(Glass<Conf>,texture_spectrum_ref);
-			ADD_SAME_TYPEDEF(Glass<Conf>,texture_scalar_t_ref);
+			ADD_SAME_TYPEDEF(Glass<Conf>,texture_scalar_t_ref);
 			ADD_SAME_TYPEDEF(Conf,default_texture_spectrum_t);
-			ADD_SAME_TYPEDEF(Conf,default_texture_scalar_t );
+			ADD_SAME_TYPEDEF(Conf,default_texture_scalar_t );
 			ADD_SAME_TYPEDEF(Conf,spectrum_t);
-			ADD_SAME_TYPEDEF(Conf,scalar_t);
+			ADD_SAME_TYPEDEF(Conf,scalar_t);
 			template<typename ParamT>
-			Glass<Conf>* 
-				operator()(const transform_t& xform,const ParamT& mp)const
-			{
+			Glass<Conf>* 
+				operator()(const transform_t& xform,const ParamT& mp)const
+			{
 				texture_spectrum_ref Kr = (mp.getSpectrumTexture("Kr", 
 					 (spectrum_t(1.f))) );
 				texture_spectrum_ref Kt = mp.getSpectrumTexture("Kt",spectrum_t(1.f));
@@ -100,10 +100,10 @@ namespace ma
 				//	scalar_t(0.f) );
 				//assert(bumpMap);
 				texture_scalar_t_ref bumpMap = texture_scalar_t_ref();
-				return new glass_t(Kr,Kt,index, bumpMap);
-			}
-		};
-	}
+				return new glass_t(Kr,Kt,index, bumpMap);
+			}
+		};
+	}
 
 	MAKE_TYPE_STR_MAP(1,Glass,glass)
 	

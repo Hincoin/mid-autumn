@@ -65,21 +65,21 @@ namespace ma
 {
 	namespace details{
 	
-		template<typename Conf>
-		struct material_creator<Mirror<Conf> >{
-			typedef Mirror<Conf> mirror_t;
-			typedef typename Mirror<Conf>::transform_t transform_t;
-
+		template<typename Conf>
+		struct material_creator<Mirror<Conf> >{
+			typedef Mirror<Conf> mirror_t;
+			typedef typename Mirror<Conf>::transform_t transform_t;
+
 			ADD_SAME_TYPEDEF(Mirror<Conf>,texture_spectrum_ref);
-			ADD_SAME_TYPEDEF(Mirror<Conf>,texture_scalar_t_ref);
+			ADD_SAME_TYPEDEF(Mirror<Conf>,texture_scalar_t_ref);
 			ADD_SAME_TYPEDEF(Conf,default_texture_spectrum_t);
-			ADD_SAME_TYPEDEF(Conf,default_texture_scalar_t );
+			ADD_SAME_TYPEDEF(Conf,default_texture_scalar_t );
 			ADD_SAME_TYPEDEF(Conf,spectrum_t);
-			ADD_SAME_TYPEDEF(Conf,scalar_t);
+			ADD_SAME_TYPEDEF(Conf,scalar_t);
 			template<typename ParamT>
-			Mirror<Conf>* 
-				operator()(const transform_t& xform,const ParamT& mp)const
-			{
+			Mirror<Conf>* 
+				operator()(const transform_t& xform,const ParamT& mp)const
+			{
 				texture_spectrum_ref Kr = (mp.getSpectrumTexture("Kr", 
 					 (spectrum_t(1.f))) );
 				assert(Kr);
@@ -88,10 +88,10 @@ namespace ma
 				//	scalar_t(0.f) );
 				//assert(bumpMap);
 				texture_scalar_t_ref bumpMap = texture_scalar_t_ref();
-				return new mirror_t(Kr, bumpMap);
-			}
-		};
-	}
+				return new mirror_t(Kr, bumpMap);
+			}
+		};
+	}
 
 	MAKE_TYPE_STR_MAP(1,Mirror,mirror)
 	
