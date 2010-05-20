@@ -1,6 +1,7 @@
 #ifndef _MA_INCLUDED_RPC_CLIENT_HPP_
 #define _MA_INCLUDED_RPC_CLIENT_HPP_
 
+#include "DefaultConfigurations.hpp"
 #include "pbr_rpc.hpp"
 namespace ma
 {
@@ -11,7 +12,9 @@ namespace rpc
 		namespace s2c{
 		
 			void preprocess(conn_t);
-			void render_crop(conn_t,float,float,float,float);
+			void render_crop(conn_t,crop_window);
+			void start_frame(conn_t,int);
+			void end_frame(conn_t,int);
 		}
 			
 		struct rpc_func_wrapper const s2c_func_tbl[]
@@ -20,6 +23,8 @@ namespace rpc
 			//the index is for startup check to ensure the index is same to the index in func_tbl
 			{s2c::rpc_preprocess::index,&rpc_function<s2c::rpc_preprocess::function_type>,(func_handle_t)&s2c::preprocess}
 			,{s2c::rpc_render_crop::index,&rpc_function<s2c::rpc_render_crop::function_type>,(func_handle_t)&s2c::render_crop}
+			,{s2c::rpc_start_frame::index,&rpc_function<s2c::rpc_start_frame::function_type>,(func_handle_t)&s2c::start_frame}
+			,{s2c::rpc_end_frame::index,&rpc_function<s2c::rpc_end_frame::function_type>,(func_handle_t)&s2c::end_frame}
 			,{-1,0,0}//terminal
 			//,
 		};

@@ -33,6 +33,9 @@ namespace ma
 		static const int default_sample_grain_size = 256;
 	public:
 		void render();
+		void preRender();
+		void renderCropWindow(scalar_t xmin,scalar_t xmax,scalar_t ymin,scalar_t ymax);
+		void postRender();//do image processing
 		Scene(camera_ptr c,surface_integrator_ptr in,
 			volume_integrator_ptr vi,sampler_ptr s,
 			primitive_ptr accel,const std::vector<light_ptr>& lts,
@@ -58,11 +61,11 @@ namespace ma
 			return L;
 		}
 		std::vector<light_ptr> lights;
+		camera_ptr camera_;
 	protected:
 	private:
 		primitive_ptr aggregate;
 
-		camera_ptr camera_;
 		volume_region_ptr volume_region;
 		surface_integrator_ptr surface_integrator;
 		volume_integrator_ptr volume_integrator;
@@ -76,6 +79,7 @@ namespace ma
 
 
 //implementation
+#include <Film.hpp>
 #include <stdlib.h>
 #include "parallel_compute.hpp"
 
@@ -170,13 +174,6 @@ void Scene<Conf>::render()
 	thread_observer task_observer;
 	tbb::task_scheduler_init init(std::min(hardware_concurrency(),
 		std::min<unsigned>(MAX_PARALLEL,default_sample_grain_size)));
-#endif
-
-	
-	//FILE* fp = fopen("ray.txt","wb");
-	//while(getNextSample(sampler,sample))
-	//parallel this
-#ifdef TBB_PARALLEL
 	 //what if the size is > the height of the image
 	const int extra_room = 8;
 	//size_t reserved_size = 0;
@@ -246,8 +243,8 @@ void Scene<Conf>::render()
 	delete_ptr(sample);
 #endif
 
-	printf("render time before li:%ld do li:%ld clocks ; after parallel: %ld \n",
-		before_parallel,(long)(clock()-tick),(long)after_parallel);
+	//printf("render time before li:%ld do li:%ld clocks ; after parallel: %ld \n",
+	//	before_parallel,(long)(clock()-tick),(long)after_parallel);
 	camera::writeImage(camera_);
 }
 template<typename Conf>
@@ -306,6 +303,49 @@ typename Conf::spectrum_t Scene<Conf>::li(const ray_differential_t& r,
 template <typename Conf>
 typename Conf::spectrum_t Scene<Conf>::transmittance(const ray_t& ray)const{
 	return spectrum_t(1);
+}
+
+
+//do process
+template<typename Conf>
+void Scene<Conf>::preRender()
+{
+	integrator::preprocess(surface_integrator,this);
+	//preprocess(surface_integrator,this);
+	//preprocess(volume_integrator,this);
+	//
+}
+template<typename Conf>
+void Scene<Conf>::postRender()
+{
+	camera::writeImage(camera_);
+}
+
+//todo reset and render crop
+
+template<typename Conf>
+void Scene<Conf>::renderCropWindow(scalar_t xmin,scalar_t xmax,scalar_t ymin,scalar_t ymax)
+{
+	//reset crop
+	film::resetCropWindow(camera::getFilm(camera_),xmin,xmax,ymin,ymax);
+	int xstart,xend,ystart,yend;
+	film::getSampleExtent(camera::getFilm(camera_),ref(xstart),ref(xend),ref(ystart),ref(yend));
+	sampler::resetCropWindow(sampler_,xstart,xend,ystart,yend);
+
+	//do render	
+	sample_ptr sample = sample_t::make_sample(surface_integrator,volume_integrator,this);
+	while(sampler::getNextSample(sampler_,ref(*sample)))
+	{
+		ray_differential_t ray;
+		scalar_t ray_weight = camera::generateRay(camera_,sample->cameraSample(),ref(ray));
+		scalar_t alpha=0;
+		spectrum_t ls;
+		if (ray_weight > 0)
+			ls = ray_weight * li(ray, sample,alpha);
+		camera::addSample(camera_, &sample->cameraSample(),ray,ls,alpha);
+	}
+	delete_ptr(sample);
+
 }
 }
 

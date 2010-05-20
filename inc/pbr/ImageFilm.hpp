@@ -88,13 +88,15 @@ namespace ma{
 	};
 
 	template<typename Conf>
-	class ImageFilm:public Film<ImageFilm<Conf>,typename Conf::interface_config>{
+	class ImageFilm:public IFilm<Conf>//public Film<ImageFilm<Conf>,typename Conf::interface_config>
+	{
 		ADD_SAME_TYPEDEF(Conf,sample_t)
 		ADD_SAME_TYPEDEF(Conf,spectrum_t)
 		ADD_SAME_TYPEDEF(Conf,ray_t)
 		ADD_SAME_TYPEDEF(Conf,scalar_t)
 		ADD_SAME_TYPEDEF(Conf,filter_ptr);
-		typedef Film<ImageFilm<Conf>,typename Conf::interface_config> parent_type;
+		//typedef Film<ImageFilm<Conf>,typename Conf::interface_config> parent_type;
+		typedef IFilm<Conf> parent_type;
 	public:
 		// ImageFilm Public Methods
 		ImageFilm(int xres, int yres,
@@ -263,6 +265,26 @@ namespace ma{
 			delete[] rgb;
 
 		}
+		void resetCropWindowImpl(scalar_t xmin,scalar_t xmax,scalar_t ymin,scalar_t ymax)
+		{
+			//parent_type::writeImage();//flush previous image
+			cropWindow[0] = xmin;
+			cropWindow[1] = xmax;
+			cropWindow[2] = ymin;
+			cropWindow[3] = ymax;
+			xPixelStart = ceil32(parent_type::x_resolution * cropWindow[0]);
+			xPixelCount =
+					ceil32(parent_type::x_resolution * cropWindow[1]) - xPixelStart;
+			yPixelStart =
+					ceil32(parent_type::y_resolution * cropWindow[2]);
+			yPixelCount =
+					ceil32(parent_type::y_resolution * cropWindow[3]) - yPixelStart;
+			if(pixels) delete pixels;
+			// Allocate film image storage
+			pixels = new BlockedArray<Pixel>(xPixelCount, yPixelCount);
+			
+		}
+
 		~ImageFilm(){
 			delete pixels;
 			delete filter;

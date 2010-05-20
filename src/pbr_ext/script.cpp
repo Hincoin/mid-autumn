@@ -11,7 +11,7 @@ LUA_EXPORT_FUNC(void (float,float,float),maTranslate)
 LUA_EXPORT_FUNC(void (float,float,float,float),maRotate)
 LUA_EXPORT_FUNC(void (float,float,float),maScale)
 LUA_EXPORT_FUNC(void (float,float,float, float,float,float, float,float,float),maLookAt)
-LUA_EXPORT_FUNC(void(),maInit);
+LUA_EXPORT_FUNC(void(int),maInit);
 LUA_EXPORT_FUNC(void(),maCleanUp);
 static int l_maCoordinateSystem(lua_State* l)
 {

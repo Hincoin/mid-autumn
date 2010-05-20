@@ -315,6 +315,9 @@ private:
         bool intersectImpl(const ray& r, ScalarType& tHit,
                            typename parent_type::differential_geometry& dg)const
         {
+			assert(mesh_->pointArray().size() > v_[0]);
+			assert(mesh_->pointArray().size() > v_[1]);
+			assert(mesh_->pointArray().size() > v_[2]);
             const PointType& p0 = mesh_->pointArray()[v_[0]];
             const PointType& p1 = mesh_->pointArray()[v_[1]];
             const PointType& p2 = mesh_->pointArray()[v_[2]];
