@@ -20,6 +20,7 @@
 
 #include <string>
 #include <vector>
+enum RENDER_MODE{IMMEDIATE=0,LAZY};
 using std::string;
 using std::vector;
 using namespace ma;
@@ -43,9 +44,11 @@ struct RenderOptions{
 	transform_t world_to_camera;
 	vector<light_ptr> lights;
 	vector <primitive_ref_t> primitives;
+	RENDER_MODE mode;
 	scene_ptr scene;
 	//AssocVector<string,vector<SharedPrimitive> > instances;
 	//vector<SharedPrimitive> *current_instance;
+	//todo not clear everyting when world end 
 	void clear()
 	{
 		filter_params.clear();
@@ -63,6 +66,11 @@ struct RenderOptions{
 	{
 		//process other options here
 		//preprocess or save accelerate data or render
+		if (mode == LAZY)
+		{
+			makeScene();
+			return ;
+		}
 		if (scene)
 			scene->render();
 		else
@@ -77,8 +85,8 @@ RenderOptions::RenderOptions()
 :filter_name("mitchell"),film_name("image"),
 sampler_name("bestcandidate"),accelerator_name("kdtree"),
 surface_integrator_name("directlighting"),camera_name("perspective")
-,scene(0)
-{
+,scene(0){
+	mode = IMMEDIATE;
 	//default setup
 	//current_instance=0;
 }
@@ -136,7 +144,7 @@ void inline verify_world(const char* func)
 }
 
 
-COREDLL void maInit()
+COREDLL void maInit(int mode)
 {
 	// System-wide initialization
 	// Make sure floating point unit's rounding stuff is set
@@ -157,6 +165,7 @@ COREDLL void maInit()
 		report_error("Init() has already been called.");
 	current_state = STATE_OPTIONS_BLOCK;
 	render_options = new RenderOptions;
+	render_options->mode = (RENDER_MODE)mode;
 	graphics_state = GraphicsState();
 	//
 	//
@@ -291,6 +300,11 @@ COREDLL void maFrameBegin(const std::string&,const ParamSet& frameParams){
 	//todo
 }
 COREDLL void maWorldBegin(){
+	if(render_options)
+	{
+		render_options->primitives.clear();
+		render_options->lights.clear();
+	}
 	verify_options("WorldBegin");
 	current_state = STATE_WORLD_BLOCK;
 	current_transform = transform_t().identity();
@@ -465,9 +479,6 @@ COREDLL void maTransformEnd(){
 	{
 		render_options->render();
 	}
-
-	render_options->primitives.clear();
-	render_options->lights.clear();
 	current_state = STATE_OPTIONS_BLOCK;
 	current_transform = transform_t();
 	named_coordinate_sys.clear();
@@ -495,131 +506,25 @@ COREDLL void maTransformEnd(){
 	}
 	scene = new scene_t(camera,si,NULL,sampler,accelerator,lights,NULL);
 	return scene;
-	 // Create scene objects from API settings
-	 //Filter *filter = MakeFilter(FilterName, FilterParams);
-	 //Film *film = MakeFilm(FilmName, FilmParams, filter);
-	 //Camera *camera = MakeCamera(CameraName, CameraParams,
-		// WorldToCamera, film);
-	 //Sampler *sampler = MakeSampler(SamplerName, SamplerParams, film);
-	 //SurfaceIntegrator *surfaceIntegrator = MakeSurfaceIntegrator(SurfIntegratorName,
-		// SurfIntegratorParams);
-	 //VolumeIntegrator *volumeIntegrator = MakeVolumeIntegrator(VolIntegratorName,
-		// VolIntegratorParams);
-	 //Primitive *accelerator = MakeAccelerator(AcceleratorName,
-		// primitives, AcceleratorParams);
-	 //if (!accelerator) {
-		// ParamSet ps;
-		// accelerator = MakeAccelerator("kdtree", primitives, ps);
-	 //}
-	 //if (!accelerator)
-		// Severe("Unable to find \"kdtree\" accelerator");
-	 //// Initialize _volumeRegion_ from volume region(s)
-	 //VolumeRegion *volumeRegion;
-	 //if (volumeRegions.size() == 0)
-		// volumeRegion = NULL;
-	 //else if (volumeRegions.size() == 1)
-		// volumeRegion = volumeRegions[0];
-	 //else
-		// volumeRegion = new AggregateVolume(volumeRegions);
-	 //// Make sure all plugins initialized properly
-	 //if (!camera || !sampler || !film || !accelerator ||
-		// !filter || !surfaceIntegrator || !volumeIntegrator) {
-		//	 Severe("Unable to create scene due "
-		//		 "to missing plug-ins");
-		//	 return NULL;
-	 //}
-	 //Scene *ret = new Scene(camera,
-		// surfaceIntegrator, volumeIntegrator,
-		// sampler, accelerator, lights, volumeRegion);
-	 //// Erase primitives, lights, and volume regions from _RenderOptions_
-	 //primitives.erase(primitives.begin(),
-		// primitives.end());
-	 //lights.erase(lights.begin(),
-		// lights.end());
-	 //volumeRegions.erase(volumeRegions.begin(),
-		// volumeRegions.end());
-	 //return ret;
 
-/*
-	 //////////////////////////////////////////////////////////////////////////
-	 //test
-	 typedef ImageFilm<image_film_config<basic_config_t> > image_film_t;
-	 typedef PointLight<point_light_config<basic_config_t> > light_t;
-	 typedef PerspectiveCamera<perspective_camera_config<basic_config_t> > camera_t;
-	 typedef Sample<sample_config<basic_config_t> > sample_t;
-	 typedef LDSampler<ldsampler_config<basic_config_t> > sampler_t;
-	 typedef MAPrimitive<primitive_interface_config<basic_config_t> > primitive_t;
-	 typedef WhittedIntegrator<surface_integrator_config<basic_config_t> > surface_integrator_t;
-	 typedef Scene<scene_config<basic_config_t> > scene_t;
-	 typedef MitchellFilter<mitchellfilter_config<basic_config_t> > filter_t;
-	 filter_t* filter = new filter_t(0.33f,0.33f,2,2);
-
-	 //////////////////////////////////////////////////////////////////////////
-	//create film
-	 std::string filename =  "pbrt.tga";
-	 bool premultiplyAlpha =  true;
-#ifdef NDEBUG
-	 int xres = 800;
-	 int yres = 600;
-#else
-	 int xres = 80;
-	 int yres = 60;
-#endif
-
-	 float crop[4] = { 0, 1, 0, 1 };
-
-	 int write_frequency = -1;
-	 image_film_t* film = new image_film_t(xres,yres,filter,crop,filename,premultiplyAlpha,write_frequency);
-	 //////////////////////////////////////////////////////////////////////////
-	 // Extract common camera parameters
-	 float hither = 1e-3f;
-	 float yon =  1e30f;
-	 float shutteropen =  0.f;
-	 float shutterclose = 1.f;
-	 float lensradius =  0.f;
-	 float focaldistance =  1e30f;
-	 float frame = xres/float(yres);
-	 float screen[4];
-	 if (frame > 1.f) {
-		 screen[0] = -frame;
-		 screen[1] =  frame;
-		 screen[2] = -1.f;
-		 screen[3] =  1.f;
-	 }
-	 else {
-		 screen[0] = -1.f;
-		 screen[1] =  1.f;
-		 screen[2] = -1.f / frame;
-		 screen[3] =  1.f / frame;
-	 }
-	 float fov =  90;
-	 camera_t* camera = new camera_t(world_to_camera,screen, hither, yon,
-		 shutteropen, shutterclose, lensradius, focaldistance,
-		 fov, film);
-
-	 ////////////////////////////////////////////////////////////////////////////
-	 // Initialize common sampler parameters
-	 int xstart, xend, ystart, yend;
-	 film->getSampleExtent(xstart, xend, ystart, yend);
-	 int nsamp = 4;
-	 sampler_t* sampler = new sampler_t(xstart, xend, ystart, yend, nsamp);
-
-	 //////////////////////////////////////////////////////////////////////////
-	 int isectCost = 80;
-	 int travCost = 1;
-	 float emptyBonus =  0.5f;
-	 int maxPrims = 1;
-	 int maxDepth = -1;
-	 primitive_t* accel = new KdTreeAccel(primitives, isectCost, travCost,
-		 emptyBonus, maxPrims, maxDepth);
-	 
-	 ////////////////////////////////////////////////////////////////////////////
-	 surface_integrator_t* surface_integrator = new surface_integrator_t(5);
-
-	 //////////////////////////////////////////////////////////////////////////
-	 scene_ptr ret = new scene_t(camera,
-		surface_integrator, NULL,
-		 sampler, accel, lights, NULL);
-	 return ret;
-	 */
  }
+namespace ma{
+scene_ptr get_renderer()
+{
+	if(render_options)
+	{
+		if (!render_options->scene)
+			return render_options->makeScene();
+		return render_options->scene;
+	}
+	else return NULL;
+}
+film_ptr get_film()
+{
+	scene_ptr s = get_renderer();
+	if (s)
+		return camera::getFilm(s->camera_);
+	return NULL;
+}
+
+}

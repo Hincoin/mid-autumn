@@ -8,6 +8,7 @@
 namespace ma{
 	namespace camera{
 		DECL_FUNC_NEST(scalar_t,generateRay,2)
+		DECL_FUNC_NEST(film_ptr,getFilm,0)
 		DECL_FUNC(void,addSample,4)
 		DECL_FUNC(void,writeImage,0)
 	}
@@ -36,6 +37,8 @@ namespace ma{
 	void addSample(const sample_t* s,const ray_t& r,const spectrum_t& l,scalar_t alpha)
 	{return film_->addSample(*s,r,l,alpha);}
 	void writeImage(){return film_->writeImage();}
+	film_ptr getFilm()
+	{return film_;}
 protected:
 	film_ptr film_;
 	transform_t world_to_camera,camera_to_world;

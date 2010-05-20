@@ -3,12 +3,14 @@
 
 #include "MAMath.hpp"
 #include "ptr_var.hpp"
+#include "serialization.hpp"
 namespace ma{
 
 	namespace sampler{
 		DECL_FUNC(bool,getNextSample,1)
 		DECL_FUNC(int,totalSamples,0)
 		DECL_FUNC(int,roundSize,1)
+		DECL_FUNC(void,resetCropWindow,4)
 	}
 	BEGIN_CRTP_INTERFACE(Sampler)
 		ADD_CRTP_INTERFACE_TYPEDEF(sample_t)
@@ -23,6 +25,14 @@ public:
 		int totalSamples()const{return samples_per_pixel * (x_pixel_end-x_pixel_start) * (y_pixel_end - y_pixel_start);}
 		CRTP_CONST_METHOD(int,roundSize,1,( I_(int ,size)));
 		CRTP_METHOD(derived_type*,subdivide,1,(I_(unsigned&,count)));
+		void resetCropWindow(int xs,int xe,int ys,int ye)
+		{
+			x_pixel_start = xs;
+			x_pixel_end = xe;
+			y_pixel_start = ys;
+			y_pixel_end = ye;
+			derived().resetCropWindowImpl(xs,xe,ys,ye);
+		}
 	END_CRTP_INTERFACE
 
  	template<typename Conf>
@@ -35,15 +45,34 @@ public:
 		virtual bool getNextSampleImpl(sample_t& s) = 0;	
 		virtual int totalSamples()const{return parent_type::totalSamples();}
 		virtual int roundSize(int size) = 0;
+		virtual void resetCropWindowImpl(int ,int,int,int) = 0;
 		virtual ~ISampler(){}
 	};
 	template<typename Conf>
-	struct CameraSample{
+	struct CameraSample:public serialization::serializable<CameraSample<Conf> >{
 		ADD_SAME_TYPEDEF(Conf,scalar_t);
 		typedef CameraSample<Conf> class_type;
 		scalar_t image_x,image_y;
 		scalar_t lens_u,lens_v;
 		scalar_t time;
+		public:
+		void serializeImpl(std::ostream& out)const
+		{
+			serialization::serialize(image_x,out);
+			serialization::serialize(image_y,out);
+			serialization::serialize(lens_u,out);
+			serialization::serialize(lens_v,out);
+			serialization::serialize(time,out);
+		}
+		void deserializeImpl(std::istream& in)
+		{
+			serialization::deserialize(image_x,in);
+			serialization::deserialize(image_y,in);
+			serialization::deserialize(lens_u,in);
+			serialization::deserialize(lens_v,in);
+			serialization::deserialize(time,in);
+		}	
+
 	};
 	template<typename Conf>
 	struct IntegratorSample{

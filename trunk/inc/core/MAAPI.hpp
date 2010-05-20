@@ -71,6 +71,6 @@ extern COREDLL void maObjectInstance(const std::string &name);
 extern COREDLL void maWorldEnd();
 extern COREDLL void maFrameEnd();
 
-extern COREDLL void maInit();
+extern COREDLL void maInit(int);
 extern COREDLL void maCleanUp();
 #endif

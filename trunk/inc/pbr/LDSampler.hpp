@@ -42,6 +42,7 @@ namespace ma{
 				::free(subdivided_);
 			}
 		}
+		void resetCropWindowImpl(int xs,int xe,int ys,int ye);
 	private:
 		int roundSizeImpl(int size) const {
 			return RoundUpPow2(size);
@@ -81,6 +82,37 @@ namespace ma{
 			lensSamples = imageSamples + 2*pixelSamples;
 			timeSamples = imageSamples + 4*pixelSamples;
 	}
+	template<typename Conf>
+		void LDSampler<Conf>::resetCropWindowImpl(int xs,int xe,int ys,int ye)
+		{
+			//clear up if possible
+			if (imageSamples)
+				delete[] imageSamples;
+			if(oneDSamples)
+			{
+				for (size_t i = 0 ;i < n1D;++i)
+				delete [] oneDSamples[i];
+				delete[] oneDSamples;
+			}
+			if(twoDSamples)
+			{
+				for (size_t i = 0;i < n2D; ++i)
+				delete [] twoDSamples[i];
+				delete[] twoDSamples;
+			}
+			//reinit 
+			xPos = parent_type::x_pixel_start - 1;
+			yPos = parent_type::y_pixel_start;
+		
+			samplePos = pixelSamples;
+			oneDSamples = twoDSamples = NULL;
+			n1D = n2D = 0;
+			
+			imageSamples = new scalar_t[5*pixelSamples];
+			lensSamples = imageSamples + 2*pixelSamples;
+			timeSamples = imageSamples + 4*pixelSamples;
+
+		}
 	template<typename Conf>
 	bool LDSampler<Conf>::getNextSampleImpl(typename Conf::sample_t& sample) {
 		if (!oneDSamples) {

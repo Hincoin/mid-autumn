@@ -3,12 +3,12 @@
 #include <limits>
 #include "Point.hpp"
 #include "CRTPInterfaceMacro.hpp"
-
+#include "serialization.hpp"
 namespace ma{
 
 
 template<typename V>
-struct Ray{
+struct Ray:public serialization::serializable<Ray<V> >{
 	typedef Point<V> point_type;
 	typedef V vector_type;
 	typedef typename scalar_type<V>::type ScalarType;
@@ -31,6 +31,16 @@ struct Ray{
 		std::swap(mint,other.mint);
 		std::swap(maxt,other.maxt);
 	}
+	public:
+		void serializeImpl(std::ostream& out)const
+		{
+			//todo
+		}
+		void deserializeImpl(std::istream& in)
+		{
+			//todo
+		}
+	
 
 	point_type o;
 	vector_type dir;

@@ -21,7 +21,7 @@ configuration "Release"
 	libdirs(root_dir .. "/build/bin/release")
 
 configuration {"linux","gmake"}
-buildoptions{"-fno-strict-aliasing","-std=c++0x",--[["-fpermissive",]]"-g","-pg","-fexcess-precision=fast","-Wall"}
+buildoptions{"-fno-strict-aliasing",--[["-std=c++0x",]]--[["-fpermissive",]]"-g","-pg","-fexcess-precision=fast","-Wall"}
 linkoptions{"-pg"}
 defines{"_GNU_C_"}
 --defines{"_GLIBCXX_PROFILE"}
@@ -56,6 +56,7 @@ includedirs{
 	root_dir .. "/extern/tbb/include/",
 	root_dir .. "/inc/core/",
 	root_dir .. "/inc/pbr/",
+	root_dir .. "/inc/pbr_net/",
 }
 
 files{ 
@@ -67,7 +68,7 @@ defines{"CORE_SOURCE"}
 -----------------------------------------------------------------------
 --an application with extensions
 project "pbr_ext"
-kind "ConsoleApp"
+kind "StaticLib"
 language "C++"
 
 includedirs{
@@ -84,8 +85,6 @@ files{
 	root_dir .. "/inc/pbr/*.hpp",
 	root_dir .. "/inc/pbr_ext/*.hpp",
 	root_dir .. "/src/pbr_ext/*.cpp",
-	root_dir .. "/inc/pbr_net/*.hpp",
-	root_dir .. "/src/pbr_net/*.cpp",
 }
 
 configuration{"Debug"}
@@ -101,9 +100,12 @@ language "C++"
 
 includedirs{
 	root_dir .. "/extern/",
+	root_dir .. "/extern/oolua/include/",
 	root_dir .. "/inc/core/",
+	root_dir .. "/inc/pbr/",
 	root_dir .. "/inc/pbr_net/",
 	root_dir .. "/inc/pbr_svr/",
+	root_dir .. "/inc/pbr_ext/",
 }
 
 files{ 
@@ -114,9 +116,35 @@ files{
 }
 
 configuration{"Debug"}
-	links{"pthread"}
+	links{"pbr","pbr_ext","lua","oolua_d" ,"pthread"--[[,"pbr"]]}
 configuration{"Release"}
-	links{"pthread"}
+	links{"pbr","pbr_ext","lua","oolua", "pthread"}
+
+project "pbr_clnt"
+kind "ConsoleApp"
+language "C++"
+
+includedirs{
+	root_dir .. "/extern/",
+	root_dir .. "/extern/oolua/include/",
+	root_dir .. "/inc/core/",
+	root_dir .. "/inc/pbr/",
+	root_dir .. "/inc/pbr_net/",
+	root_dir .. "/inc/pbr_clnt/",
+	root_dir .. "/inc/pbr_ext/",
+}
+
+files{ 
+	root_dir .. "/inc/core/*.hpp",
+	root_dir .. "/inc/pbr_net/*.hpp",
+	root_dir .. "/src/pbr_net/*.cpp",
+	root_dir .. "/src/pbr_clnt/*.cpp",
+}
+
+configuration{"Debug"}
+	links{"pbr","pbr_ext","lua","oolua_d" ,"pthread"--[[,"pbr"]]}
+configuration{"Release"}
+	links{"pbr","pbr_ext","lua","oolua", "pthread"}
 
 
 -----------------------------------------------------------------------

@@ -5,6 +5,7 @@
 #include <limits>
 #include <cmath>
 #include "MAMath.hpp"
+#include "serialization.hpp"
 namespace ma{
 	template<typename S = float,int C_S = 3>
 	class Spectrum;
@@ -15,8 +16,19 @@ namespace ma{
 
 	// Spectrum Declarations
 	template<typename S ,int C_S>
-	class Spectrum {
+	class Spectrum:public serialization::serializable<Spectrum<S,C_S> > {
 		typedef Spectrum<S,C_S> class_type;
+		public:
+		void serializeImpl(std::ostream& out)const
+		{
+			for(int i = 0;i < COLOR_SAMPLES;++i)
+				serialization::serialize(c[i],out);
+		}
+		void deserializeImpl(std::istream& in)
+		{
+			for(int i = 0;i < COLOR_SAMPLES;++i)
+				serialization::deserialize(c[i],in);
+		}	
 	public:
 		static const int COLOR_SAMPLES = C_S;
 	
