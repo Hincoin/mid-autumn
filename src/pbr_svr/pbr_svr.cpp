@@ -41,8 +41,11 @@ pbr_svr::pbr_svr(OOLUA::Script& lua,boost::asio::io_service& io_service,unsigned
 		render_node* r = &node;
 		float w = (float)get_film()->xResolution();
 		float h = (float)get_film()->yResolution();
-		float crop_stepw = std::max((float)(32)/(float)w,std::min(0.1f,1.f/float(128)));	
-		float crop_steph = std::max((float)(32)/(float)h,std::min(0.1f,1.f/float(128)));	
+		const float min_w = 64.f;
+		const float min_h = 64.f;
+		const float min_fraction = 1/128.f;
+		float crop_stepw = std::max((min_w)/(float)w,min_fraction);	
+		float crop_steph = std::max((min_h)/(float)h,min_fraction);	
 		crop_stepw = std::min(1.f,crop_stepw);
 		crop_steph = std::min(1.f,crop_steph);
 		if(crop_windows_.empty())
@@ -73,7 +76,12 @@ pbr_svr::pbr_svr(OOLUA::Script& lua,boost::asio::io_service& io_service,unsigned
 						printf("get status : %d\n",r->get_status());
 					}
 				}
-				else if (r->get_frame() < next_frame_ || r->get_status() != START_FRAME)
+				else if (r->get_status() == RENDER_CROP)
+				{
+					r->end_current_frame();
+					return false;
+				}
+				else if (r->get_status() == END_FRAME)
 				{
 					if (r->get_frame() == next_frame_) next_frame_++;
 					r->set_frame(next_frame_);
@@ -81,6 +89,8 @@ pbr_svr::pbr_svr(OOLUA::Script& lua,boost::asio::io_service& io_service,unsigned
 					const int max_frame = 1;
 					if (r->get_frame() < max_frame)
 						r->start_current_frame();
+					else
+						r->idle();
 					end_frame();
 					return false;
 				}
@@ -115,6 +125,7 @@ pbr_svr::pbr_svr(OOLUA::Script& lua,boost::asio::io_service& io_service,unsigned
 		if (frame_all_done)
 		{
 			std::vector<crop_window> finished_crops;
+			//todo: checking missing piece and re-render it
 			for(size_t i = 0;i <  crop_windows_.size();++i)
 			{
 				if(crop_windows_[i].frame != cur_frame_)

@@ -29,7 +29,7 @@ class pbr_svr
 	void end_frame();//end current frame
 	private:
 	typedef std::set<render_node_ptr> connection_set_t;
-	std::vector<crop_window> crop_windows_;
+	std::vector<crop_window> crop_windows_;//
 	connection_set_t connections_;
 	int cur_frame_;
 	int next_frame_;

@@ -64,5 +64,11 @@ namespace c2s{
 		status_=START_FRAME;
 		rpc::send_rpc<rpc::s2c::rpc_start_frame>(net::connection_write_handler_ptr(new rpc::svr_send_rpc_handler(*this)),connection_,cur_frame_);
 	}
+
+	void render_node::end_current_frame()
+	{
+		status_ = END_FRAME;
+		rpc::send_rpc<rpc::s2c::rpc_end_frame>(net::connection_write_handler_ptr(new rpc::svr_send_rpc_handler(*this)),connection_,cur_frame_);
+	}
 }
 
