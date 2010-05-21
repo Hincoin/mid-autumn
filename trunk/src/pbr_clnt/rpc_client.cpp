@@ -48,6 +48,7 @@ namespace s2c{
 	}
 	void end_frame(conn_t conn,int n)//destroy world
 	{
+		printf("end frame : %d\n",n);
 	}
 }
 }}

@@ -63,6 +63,8 @@ class render_node:public boost::enable_shared_from_this<render_node>
 	int get_frame()const{return cur_frame_;}
 	rpc::conn_t get_conn()const{return connection_;}
 	void start_current_frame();
+	void end_current_frame();
+	void idle(){status_ = IDLE;}
 	RenderNodeStatus get_status()const{return status_;}
 	void set_status(RenderNodeStatus s){status_ = s;}
 };
