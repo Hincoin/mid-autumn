@@ -25,7 +25,6 @@ namespace ma{
 #include "Transform.hpp"
 //implementations
 #include "ImageFilm.hpp"
-#include "NetImageFilm.hpp"
 #include "LDSampler.hpp"
 #include "PerspectiveCamera.hpp"
 #include "PointLight.hpp"
@@ -61,10 +60,8 @@ namespace ma{
 	struct camera_config:B{
 		typedef CameraSample<sample_config<B> > sample_t;
 		typedef ImageFilm<image_film_config<B> > film_t;
-		typedef NetImageFilm<image_film_config<B> > net_film_t;
-		typedef boost::mpl::vector<film_t,net_film_t> film_types;
+		typedef boost::mpl::vector<film_t> film_types;
 		typedef film_t* film_ptr;
-		typedef net_film_t* net_film_ptr;
 		//ADD_CRTP_INTERFACE_TYPEDEF(film_ptr);
 	};
 	template <typename B>
@@ -282,7 +279,6 @@ struct scene_config:B{
 
 	typedef image_film_config<basic_config_t>::filter_ptr filter_ptr;
 	typedef camera_config<basic_config_t>::film_ptr film_ptr;
-	typedef camera_config<basic_config_t>::net_film_ptr net_film_ptr;
 
 	scene_ptr get_renderer();
 	film_ptr get_film();
@@ -290,23 +286,4 @@ struct scene_config:B{
 }
 
 
-#include "pbr_rpc.hpp"
-#include <time.h>
-namespace ma{
-		//call remote function
-		template<typename Conf>
-		void NetImageFilm<Conf>::addSampleImpl(const sample_t &sample, const ray_t &ray,
-			const spectrum_t &L, scalar_t alpha)
-		{
-			assert(connection_);
-			rpc::send_rpc<rpc::c2s::rpc_add_sample>(net::connection_write_handler_ptr(new rpc::rpc_null_handler()),connection_,sample,ray,L,alpha);
-		}
-		template<typename Conf>
-		void NetImageFilm<Conf>::writeImageImpl()
-		{
-			assert(connection_);
-			rpc::send_rpc<rpc::c2s::rpc_write_image>(net::connection_write_handler_ptr(new rpc::rpc_null_handler()),connection_);
-		}
-	
-}
 #endif

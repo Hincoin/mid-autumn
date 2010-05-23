@@ -1,7 +1,6 @@
 #ifndef _MA_INCLUDED_RPC_CLIENT_HPP_
 #define _MA_INCLUDED_RPC_CLIENT_HPP_
 
-#include "DefaultConfigurations.hpp"
 #include "pbr_rpc.hpp"
 namespace ma
 {

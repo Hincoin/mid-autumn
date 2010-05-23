@@ -3,8 +3,7 @@
 
 #include "net.hpp"
 #include "dispatcher.hpp"
-#include "DefaultConfigurations.hpp"
-
+#include "DefaultConfigurations.hpp"//camera_sample_t,ray_t,spectrum_t...
 namespace ma
 {
 	struct crop_window:public serialization::serializable<crop_window>{
