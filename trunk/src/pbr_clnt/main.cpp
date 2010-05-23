@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "render_client.hpp"
+#include "net_ext.hpp"
 /*
 int main(int argc,char** argv)
 {
@@ -34,10 +35,13 @@ using namespace net;
 using namespace rpc;
 int main(int argc,char* argv[])
 {
+	//register all extensions
+	register_all_net_ext();
+///////////////////////////////////	
 	OOLUA::Script lua ;
 	register_api(lua);
 	register_all_class(lua);
-	
+
 	try
 	{
 		if(argc != 4)

@@ -2,7 +2,6 @@
 #include "dispatcher.hpp"
 #include "serialization.hpp"
 
-#include "DefaultConfigurations.hpp"
 #include "rpc_svr.hpp"
 #include "pbr_svr.hpp"
 #include "render_node.hpp"

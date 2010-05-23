@@ -1,4 +1,3 @@
-#include "DefaultConfigurations.hpp"
 #include "pbr_svr.hpp"
 #include "render_node.hpp"
 namespace ma{

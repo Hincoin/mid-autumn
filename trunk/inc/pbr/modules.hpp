@@ -52,6 +52,48 @@ void register_all_creators();
 //release all pooled memory
 void release_memory();
 }
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+namespace ma{
+
+template<typename T>
+struct identity_wrapper
+{
+	typedef boost::mpl::identity<T> type;
+};
+/////////////////////////////////////////////////////////////////////////////////////////
+typedef shared_float_texture_t (*create_float_texture_func_t)(const transform_t&,const TextureParam&);
+typedef shared_spectrum_texture_t (*create_spectrum_texture_func_t)(const transform_t&,const TextureParam&);
+typedef shape_ref_t (*create_shape_func_t)(const transform_t&,bool,const ParamSet&);
+typedef material_ref_t (*create_material_func_t)(const transform_t&,const TextureParam&);
+typedef light_ptr (*create_light_func_t)(const transform_t&,const ParamSet&);
+typedef surface_integrator_ptr (*create_surface_integrator_func_t)(const ParamSet&);
+typedef primitive_ptr (*create_accelerator_func_t)(const std::vector<primitive_ref_t>&,const ParamSet&);
+typedef camera_ptr (*create_camera_func_t)(const ParamSet&,const transform_t&,film_ptr);
+typedef sampler_ptr (*create_sampler_func_t)(const ParamSet&,const film_ptr);
+typedef filter_ptr (*create_filter_func_t)(const ParamSet&);
+typedef film_ptr (*create_film_func_t)(const ParamSet&,const filter_ptr);
+//////////////////////////////////////////////////////////////////////////////////////////////
+	
+	void register_film_creator(const std::string& name,create_film_func_t fp);
+template<typename S>
+film_ptr film_creator_func_wrapper(const ParamSet& param,const filter_ptr filt)
+{
+	return film_ptr(create_film<S>(param,filt));
+}
+struct register_film_func{
+template<typename S>
+	void operator()(S&)const
+	{
+		typedef typename S::type film_type;
+		register_film_creator(map_type_str<film_type>::type_str(),
+				&film_creator_func_wrapper<film_type>);
+	}
+
+};
+
+}
 #endif
 
 

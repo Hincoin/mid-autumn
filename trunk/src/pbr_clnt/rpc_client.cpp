@@ -17,8 +17,6 @@ namespace s2c{
 	{
 			printf("render crop:[%.6f,%.6f,%.6f,%.6f]\n",crop_win.xmin,crop_win.xmax,crop_win.ymin,crop_win.ymax);
 
-			net_film_ptr net_film = dynamic_cast<net_film_ptr>(get_film());
-			if(net_film)net_film->setConnection(c);
 			render_client* render_node = (render_client*)c->get_context();
 			if(render_node && render_node->render_crop(crop_win.frame,crop_win.id,crop_win.xmin,crop_win.xmax,crop_win.ymin,crop_win.ymax))
 			{

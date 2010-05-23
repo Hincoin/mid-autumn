@@ -1,7 +1,6 @@
 #include <deque>
 #include <set>
 #include <boost/lexical_cast.hpp>
-#include "DefaultConfigurations.hpp"
 #include "rpc_svr.hpp"
 #include "render_node.hpp"
 #include "pbr_svr.hpp"
