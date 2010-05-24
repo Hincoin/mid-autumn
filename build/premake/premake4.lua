@@ -146,6 +146,33 @@ configuration{"Debug"}
 configuration{"Release"}
 	links{"pbr","pbr_ext","lua","oolua", "pthread"}
 
+project "pbr_ctrl"
+kind "ConsoleApp"
+language "C++"
+
+includedirs{
+	root_dir .. "/extern/",
+	root_dir .. "/extern/oolua/include/",
+	root_dir .. "/inc/core/",
+	root_dir .. "/inc/pbr/",
+	root_dir .. "/inc/pbr_net/",
+	root_dir .. "/inc/pbr_ext/",
+	root_dir .. "/inc/pbr_ctrl/",
+}
+
+files{ 
+	root_dir .. "/inc/core/*.hpp",
+	root_dir .. "/src/pbr_net/*.cpp",
+	root_dir .. "/inc/pbr_ctrl/*.hpp",
+	root_dir .. "/src/pbr_ctrl/*.cpp",
+}
+
+configuration{"Debug"}
+	links{"lua","oolua_d" ,"pthread"--[[,"pbr"]]}
+configuration{"Release"}
+	links{"lua","oolua", "pthread"}
+
+
 
 -----------------------------------------------------------------------
 cwd = os.getcwd()

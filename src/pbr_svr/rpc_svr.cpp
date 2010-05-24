@@ -27,6 +27,15 @@ struct svr_send_rpc_handler:net::connection_write_handler_base
 
 
 namespace c2s{
+			void render_scene(conn_t c,std::string scene_file)	
+			{
+				//pull the trigger	
+				std::cerr<<"render_scene("<<scene_file<<")"<<std::endl;
+				printf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");
+				render_node* r = (render_node*)	c->get_context();
+				r->set_type(CONTROLLER);
+				r->get_svr().render_scene(scene_file);
+			}
 
 	void request_render_task(conn_t c)
 		{
@@ -52,7 +61,8 @@ namespace c2s{
 			}
 			void write_image(conn_t conn)
 			{
-				get_film()->writeImage();
+				render_node* r = (render_node*)conn->get_context();
+				r->get_svr().write_image();
 			}
 
 
@@ -69,5 +79,17 @@ namespace c2s{
 		status_ = END_FRAME;
 		rpc::send_rpc<rpc::s2c::rpc_end_frame>(net::connection_write_handler_ptr(new rpc::svr_send_rpc_handler(*this)),connection_,cur_frame_);
 	}
+
+	void render_node::render_scene(const std::string& f)
+	{
+		rpc::send_rpc<rpc::s2c::rpc_start_render_scene>(net::connection_write_handler_ptr(new rpc::svr_send_rpc_handler(*this)),connection_,f);
+		start_current_frame();
+	}
+	void render_node::end_scene()
+	{
+		rpc::send_rpc<rpc::s2c::rpc_end_render_scene>(net::connection_write_handler_ptr(new rpc::svr_send_rpc_handler(*this)),connection_);
+	}
+
 }
+
 

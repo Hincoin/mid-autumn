@@ -116,6 +116,8 @@ class render_client
 		}
 		return false;
 	}
+	void start_render_scene(const std::string& file);
+	void end_render_scene();
 	static render_client& get_client(){assert(self);return *self;}
 	rpc::conn_t get_connection(){return connection_;}
 	private:

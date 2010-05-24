@@ -27,6 +27,9 @@ class pbr_svr
 	//svr logic here
 	bool getNextCropWindow(render_node& r,crop_window* &w);	
 	void end_frame();//end current frame
+	void render_scene(const std::string& f);
+	void end_scene();
+	void write_image();
 	private:
 	typedef std::set<render_node_ptr> connection_set_t;
 	std::vector<crop_window> crop_windows_;//

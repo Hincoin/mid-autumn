@@ -133,10 +133,62 @@ pbr_svr::pbr_svr(OOLUA::Script& lua,boost::asio::io_service& io_service,unsigned
 			finished_crops.swap(crop_windows_);
 
 			//todo get current film write image
-			get_film()->writeImage();
+			write_image();
 	
 			cur_frame_++;		
 			if (next_frame_ < cur_frame_)next_frame_ = cur_frame_;
 		}
+	}
+
+	void pbr_svr::end_scene()
+	{
+		if(!(lua_ && lua_.call("cleanup")))
+		{
+			OOLUA::lua_stack_dump(lua_);
+			return ;
+		}
+		for(connection_set_t::iterator it = connections_.begin();
+				it != connections_.end();++it)
+		{
+			if ((*it)->get_type() != CONTROLLER )
+			{
+				(*it)->end_scene();
+			}
+		}
+
+	}
+
+	void pbr_svr::render_scene(const std::string& f)
+	{
+		std::cerr<<"render scene: "<<f<<std::endl;
+		if (!lua_.run_file(f))
+		{
+			OOLUA::lua_stack_dump(lua_);
+			return;
+		}
+		if(!(lua_ && lua_.call("startup",false)))
+		{
+			OOLUA::lua_stack_dump(lua_);
+			return ;
+		}
+		if(!	get_renderer())
+		{
+			printf("create renderer failed!\n");return;//create renderer
+		}
+		for(connection_set_t::iterator it = connections_.begin();
+				it != connections_.end();++it)
+		{
+			if ((*it)->get_type() != CONTROLLER && (*it)->get_status() == IDLE)
+			{
+				(*it)->render_scene(f);
+			}
+		}
+	
+	}
+	void pbr_svr::write_image()
+	{
+		get_film()->writeImage();
+		//todo:
+		//send image back to controller
 	}
 }
