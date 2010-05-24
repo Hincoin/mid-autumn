@@ -1,6 +1,7 @@
 #ifndef _MA_INCLUDED_PBR_RPC_HPP_
 #define _MA_INCLUDED_PBR_RPC_HPP_ 
-
+#include <vector>
+#include <string>
 #include "net.hpp"
 #include "dispatcher.hpp"
 #include "DefaultConfigurations.hpp"//camera_sample_t,ray_t,spectrum_t...
@@ -53,6 +54,7 @@ namespace ma
 		typedef rpc_function_info_t<void(conn_t,camera_sample_t,ray_t,spectrum_t,float),1> rpc_add_sample;
 		typedef rpc_function_info_t<void(conn_t),2> rpc_write_image;
 	
+		typedef rpc_function_info_t<void (conn_t, std::string),3> rpc_render_scene;//scene_file	
 		//...
 	}	
 	namespace s2c{
@@ -60,8 +62,13 @@ namespace ma
 		typedef rpc_function_info_t<void (conn_t, crop_window),1> rpc_render_crop;
 		typedef rpc_function_info_t<void(conn_t,int),2> rpc_start_frame;
 		typedef rpc_function_info_t<void(conn_t,int),3> rpc_end_frame;
+		typedef rpc_function_info_t<void(conn_t,std::string),4> rpc_start_render_scene;
+		typedef rpc_function_info_t<void(conn_t),5> rpc_end_render_scene;
 }
+	namespace s2ctrl{
+		typedef rpc_function_info_t<void (conn_t ,std::string,std::string),0> rpc_write_image;	//filename,data	
 	}
+}
 }
 
 

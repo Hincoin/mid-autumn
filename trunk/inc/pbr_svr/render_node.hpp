@@ -6,6 +6,7 @@
 namespace ma
 {
 enum RenderNodeStatus{IDLE,START_FRAME,RENDER_CROP,END_FRAME};
+enum ClientType{CONTROLLER,RENDERER};
 
 class render_node:public boost::enable_shared_from_this<render_node>
 {
@@ -15,14 +16,17 @@ class render_node:public boost::enable_shared_from_this<render_node>
 	//this client status
 	int cur_frame_;
 	RenderNodeStatus status_;
+	ClientType type_;
+	std::string render_scene_;
 	public:
 	explicit render_node(rpc::conn_t conn,pbr_svr& svr ,int cur_frame):connection_(conn),svr_(svr),cur_frame_(cur_frame),status_(IDLE){
+		set_type (RENDERER);
 		connection_->set_context(this);
 	}
 	void start()
 	{
 		svr_.add_render_node(shared_from_this());
-		start_current_frame();
+		status_ = IDLE;
 		connection_->async_read(msg_.size,msg_.buff,boost::bind(&render_node::handle_read,this,
 							boost::asio::placeholders::error
 						));		
@@ -67,6 +71,12 @@ class render_node:public boost::enable_shared_from_this<render_node>
 	void idle(){status_ = IDLE;}
 	RenderNodeStatus get_status()const{return status_;}
 	void set_status(RenderNodeStatus s){status_ = s;}
+	ClientType get_type()const{return type_;}
+	void set_type(ClientType type){type_ = type;}
+	void set_render_scene(const std::string& s){render_scene_ = s;}
+	const std::string& get_render_scene()const{return render_scene_;}
+	void render_scene(const std::string& f);
+	void end_scene();
 };
 
 

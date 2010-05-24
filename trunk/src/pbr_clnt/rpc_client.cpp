@@ -48,6 +48,18 @@ namespace s2c{
 	{
 		printf("end frame : %d\n",n);
 	}
+
+	void start_render_scene(conn_t conn,std::string file)
+	{
+		//clean up and start up new	
+		render_client* client = (render_client*)conn->get_context();
+		client->start_render_scene(file);
+	}
+	void end_render_scene(conn_t conn)
+	{
+		render_client* client = (render_client*)conn->get_context();
+		client->end_render_scene();
+	}
 }
 }}
 
