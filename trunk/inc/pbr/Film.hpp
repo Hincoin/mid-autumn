@@ -26,6 +26,7 @@ public:
 	CRTP_CONST_VOID_METHOD(getSampleExtent,4,( I_(int&,xs), I_(int&,xe), I_(int&,ys), I_(int&,ye)));
 	int xResolution()const{return x_resolution;}
 	int yResolution()const{return y_resolution;}
+	CRTP_CONST_METHOD(derived_type*,clone,1,(I_(const std::string&,f)));
 protected:
 	const int x_resolution,y_resolution;
 	END_CRTP_INTERFACE
@@ -40,11 +41,13 @@ protected:
 
 		public:
 		typedef Film<IFilm<Conf>,typename Conf::interface_config> parent_type;
+		typedef IFilm<Conf> class_type;
 		IFilm(int xr,int yr):parent_type(xr,yr){}
 		virtual void addSampleImpl(const sample_t&,const ray_t&,const spectrum_t& ,scalar_t) = 0;
 		virtual void writeImageImpl() = 0;
 		virtual void resetCropWindowImpl(scalar_t ,scalar_t,scalar_t,scalar_t) = 0;
 		virtual void getSampleExtentImpl(int&,int&,int&,int&)const = 0;
+		virtual class_type* cloneImpl(const std::string& image)const=0;
 		virtual ~IFilm(){}
 	};
 }

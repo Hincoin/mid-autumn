@@ -27,14 +27,13 @@ struct svr_send_rpc_handler:net::connection_write_handler_base
 
 
 namespace c2s{
-			void render_scene(conn_t c,std::string scene_file)	
+			void render_scene(conn_t c,std::string scene_file,int b,int e)	
 			{
 				//pull the trigger	
 				std::cerr<<"render_scene("<<scene_file<<")"<<std::endl;
-				printf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");
 				render_node* r = (render_node*)	c->get_context();
 				r->set_type(CONTROLLER);
-				r->get_svr().render_scene(scene_file);
+				r->get_svr().render_scene(scene_file,b,e);
 			}
 
 	void request_render_task(conn_t c)
@@ -57,12 +56,13 @@ namespace c2s{
 		}
 			void add_sample(conn_t conn,camera_sample_t sample,ray_t ray,spectrum_t l,float alpha)
 			{
-				get_film()->addSample(sample,ray,l,alpha);
+				render_node* r = (render_node*)conn->get_context();
+				r->get_svr().get_film(r->get_frame())->addSample(sample,ray,l,alpha);
 			}
 			void write_image(conn_t conn)
 			{
 				render_node* r = (render_node*)conn->get_context();
-				r->get_svr().write_image();
+				r->get_svr().write_image(r->get_frame());
 			}
 
 

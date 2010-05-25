@@ -98,6 +98,13 @@ namespace ma{
 		//typedef Film<ImageFilm<Conf>,typename Conf::interface_config> parent_type;
 		typedef IFilm<Conf> parent_type;
 	public:
+		typedef ImageFilm<Conf> class_type;
+		class_type*
+			cloneImpl(const std::string& file)const
+			{
+				return new class_type(this->xResolution(),this->yResolution(),
+						filter::clone(filter),cropWindow,file,premultiplyAlpha,writeFrequency);
+			}
 		// ImageFilm Public Methods
 		ImageFilm(int xres, int yres,
 			filter_ptr filt, const scalar_t crop[4],

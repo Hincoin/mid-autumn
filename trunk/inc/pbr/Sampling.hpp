@@ -148,6 +148,7 @@ public:
 	};
 	namespace filter{
 		DECL_FUNC_NEST(scalar_t,evaluate,2)
+		DECL_FUNC_NEST(derived_type*,clone,0)
 	}
 	BEGIN_CRTP_INTERFACE(Filter)
 public:
@@ -158,6 +159,7 @@ public:
 			invYWidth(reciprocal(yw)) {
 		}
 		CRTP_CONST_METHOD(scalar_t,evaluate,2,( I_(scalar_t,x), I_(scalar_t , y)));
+		CRTP_CONST_METHOD(derived_type* ,clone,0,());
 		// Filter Public Data
 		const scalar_t xWidth, yWidth;
 		const scalar_t invXWidth, invYWidth;

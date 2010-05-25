@@ -8,10 +8,12 @@ namespace ma{
 		typedef Filter<MitchellFilter<Conf>,typename Conf::interface_config> parent_type;
 		ADD_SAME_TYPEDEF(Conf,scalar_t)
 	public:
+		typedef MitchellFilter<Conf> class_type;
 		// MitchellFilter Public Methods
 		MitchellFilter(scalar_t b, scalar_t c, scalar_t xw, scalar_t yw)
 			: parent_type(xw, yw) { B = b; C = c; }
 		scalar_t evaluateImpl(scalar_t x, scalar_t y) const;
+		class_type* cloneImpl()const{return new class_type(*this);}
 	private:
 		scalar_t Mitchell1D(scalar_t x) const {
 			x = fabsf(2.f * x);
