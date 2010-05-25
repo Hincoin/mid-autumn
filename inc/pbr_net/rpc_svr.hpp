@@ -15,7 +15,7 @@ namespace rpc
 			void add_sample(conn_t,camera_sample_t,ray_t,spectrum_t,float);
 			void write_image(conn_t);
 
-			void render_scene(conn_t,std::string scene_file)	;
+			void render_scene(conn_t,std::string scene_file,int,int)	;
 		}
 			
 		struct rpc_func_wrapper const c2s_func_tbl[]

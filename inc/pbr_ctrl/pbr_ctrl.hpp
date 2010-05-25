@@ -93,7 +93,7 @@ class pbr_ctrl
 		}
 	}
 	static pbr_ctrl& get_controller(){assert(self_);return *self_;}
-	void render_scene(const char* scene_desc);
+	void render_scene(const char* scene_desc,int,int);
 	private:
 	OOLUA::Script& lua_;
 	rpc::conn_t connection_;

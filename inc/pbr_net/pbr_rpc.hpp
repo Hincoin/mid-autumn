@@ -54,7 +54,7 @@ namespace ma
 		typedef rpc_function_info_t<void(conn_t,camera_sample_t,ray_t,spectrum_t,float),1> rpc_add_sample;
 		typedef rpc_function_info_t<void(conn_t),2> rpc_write_image;
 	
-		typedef rpc_function_info_t<void (conn_t, std::string),3> rpc_render_scene;//scene_file	
+		typedef rpc_function_info_t<void (conn_t, std::string,int,int),3> rpc_render_scene;//scene_file	
 		//...
 	}	
 	namespace s2c{
