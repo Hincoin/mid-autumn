@@ -1,11 +1,6 @@
 #include <iostream>
 #include "ptr_var.hpp"
 
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
-#include <vector>
-
-#include "render_client.hpp"
 /*
 int main(int argc,char** argv)
 {
@@ -29,6 +24,13 @@ int main(int argc,char** argv)
 	return 0;
 }
 */
+/*
+#include <boost/asio.hpp>
+#include <boost/bind.hpp>
+#include <vector>
+
+
+#include "render_client.hpp"
 using namespace ma;
 using namespace net;
 using namespace rpc;
@@ -56,4 +58,4 @@ int main(int argc,char* argv[])
 	return 0;
 }
 
-
+*/
