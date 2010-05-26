@@ -12,6 +12,7 @@ all:	$T luac
 
 $T:	$(OBJS)
 	$(CC) -o $@ $(OBJS) -lm
+	ar -rcs liblua.a $(OBJS) -lm
 
 luac:	$(OBJS2)
 	$(CC) -o $@ $(OBJS2) -lm

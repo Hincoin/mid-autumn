@@ -8,6 +8,8 @@ configuration {}
 files { "include/*.h", "src/*.cpp" }
 includedirs 
 					{
+							"../",
+							"../lua/",
 						"include/lua/",
 						"include/",
 						"/usr/local/include",

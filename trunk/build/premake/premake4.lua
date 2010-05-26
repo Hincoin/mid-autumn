@@ -21,7 +21,7 @@ configuration "Release"
 	libdirs(root_dir .. "/build/bin/release")
 
 configuration {"linux","gmake"}
-buildoptions{"-fno-strict-aliasing",--[["-std=c++0x",]]--[["-fpermissive",]]"-g","-pg","-fexcess-precision=fast","-Wall"}
+buildoptions{"-fno-strict-aliasing",--[["-std=c++0x",]]--[["-fpermissive",]]"-g","-pg",--[["-fexcess-precision=fast",]]"-Wall"}
 linkoptions{"-pg"}
 defines{"_GNU_C_"}
 --defines{"_GLIBCXX_PROFILE"}
@@ -29,6 +29,19 @@ configuration{"win32"}
 defines{"WIN32","_WIN32"}
 
 location (root_dir .. "/build/premake/projects")
+--------------------------------------------------------------------
+project "lua"
+kind "StaticLib"
+language "C"
+
+includedirs{
+	root_dir .. "/extern/lua",
+}
+files{
+	root_dir .. "/extern/lua/*.h",
+	root_dir .. "/extern/lua/*.c",
+}
+
 --------------------------------------------------------------------
 project "core"
 kind "ConsoleApp"
@@ -75,6 +88,7 @@ includedirs{
 	root_dir .. "/extern/",
 	root_dir .. "/extern/tbb/include/",
 	root_dir .. "/extern/oolua/include/",
+	root_dir .. "/extern/lua/",
 	root_dir .. "/inc/core/",
 	root_dir .. "/inc/pbr/",
 	root_dir .. "/inc/pbr_ext/",
@@ -101,6 +115,8 @@ language "C++"
 includedirs{
 	root_dir .. "/extern/",
 	root_dir .. "/extern/oolua/include/",
+
+	root_dir .. "/extern/lua/",
 	root_dir .. "/inc/core/",
 	root_dir .. "/inc/pbr/",
 	root_dir .. "/inc/pbr_net/",
@@ -116,9 +132,9 @@ files{
 }
 
 configuration{"Debug"}
-	links{"pbr","pbr_ext","lua","oolua_d" ,"pthread"--[[,"pbr"]]}
+	links{"pbr","pbr_ext","oolua_d" ,"lua","pthread"--[[,"pbr"]]}
 configuration{"Release"}
-	links{"pbr","pbr_ext","lua","oolua", "pthread"}
+	links{"pbr","pbr_ext","oolua" ,"lua","pthread"--[[,"pbr"]]}
 
 project "pbr_clnt"
 kind "ConsoleApp"
@@ -127,6 +143,8 @@ language "C++"
 includedirs{
 	root_dir .. "/extern/",
 	root_dir .. "/extern/oolua/include/",
+
+	root_dir .. "/extern/lua/",
 	root_dir .. "/inc/core/",
 	root_dir .. "/inc/pbr/",
 	root_dir .. "/inc/pbr_net/",
@@ -142,9 +160,9 @@ files{
 }
 
 configuration{"Debug"}
-	links{"pbr","pbr_ext","lua","oolua_d" ,"pthread"--[[,"pbr"]]}
+	links{"pbr","pbr_ext","oolua_d","lua" ,"pthread",--[[,"pbr"]]}
 configuration{"Release"}
-	links{"pbr","pbr_ext","lua","oolua", "pthread"}
+	links{"pbr","pbr_ext","oolua","lua" ,"pthread",--[[,"pbr"]]}
 
 project "pbr_ctrl"
 kind "ConsoleApp"
@@ -153,6 +171,8 @@ language "C++"
 includedirs{
 	root_dir .. "/extern/",
 	root_dir .. "/extern/oolua/include/",
+
+	root_dir .. "/extern/lua/",
 	root_dir .. "/inc/core/",
 	root_dir .. "/inc/pbr/",
 	root_dir .. "/inc/pbr_net/",
@@ -168,9 +188,9 @@ files{
 }
 
 configuration{"Debug"}
-	links{"lua","oolua_d" ,"pthread"--[[,"pbr"]]}
+	links{"oolua_d" ,"lua","pthread"--[[,"pbr"]]}
 configuration{"Release"}
-	links{"lua","oolua", "pthread"}
+	links{"oolua" ,"lua","pthread"--[[,"pbr"]]}
 
 
 

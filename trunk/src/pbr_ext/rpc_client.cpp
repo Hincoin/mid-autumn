@@ -1,4 +1,4 @@
-#include "rpc_client.hpp"
+/*#include "rpc_client.hpp"
 
 #include "dispatcher.hpp"
 #include "render_client.hpp"
@@ -26,4 +26,4 @@ namespace s2c{
 	}
 }
 }}
-
+*/
