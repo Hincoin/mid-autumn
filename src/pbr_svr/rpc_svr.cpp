@@ -81,6 +81,7 @@ namespace c2s{
 	void render_node::render_scene(const std::string& f)
 	{
 		rpc::send_rpc<rpc::s2c::rpc_start_render_scene>(net::connection_write_handler_ptr(new rpc::svr_send_rpc_handler(*this)),connection_,f);
+		printf("render_scene render_node getframe: %d\n",get_frame());
 		start_current_frame();
 	}
 	void render_node::end_scene()
