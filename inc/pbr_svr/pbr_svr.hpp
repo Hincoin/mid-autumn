@@ -27,7 +27,7 @@ namespace ma{
 			for(int i = begin_frame ;i < end_frame; ++i)
 			{
 				std::stringstream ss;
-				ss<<file<<i;
+				ss<<file<<"."<<i << "."<<".tga";
 				films[i-begin_frame] = static_cast<film_ptr>(film->clone(ss.str()));
 			}
 		}
