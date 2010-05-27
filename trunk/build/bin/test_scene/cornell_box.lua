@@ -213,8 +213,8 @@ function main(frame,id,wcropx_min,wcropx_max,wcropy_min,wcropy_max)
 	
 	maAttributeBegin();
 	--simulate area light 
-	local add_i = 10 
-	local add_j= 10 
+	local add_i = 20 
+	local add_j= 20 
 	local light_cnt = 0;
 	for i=213,343,add_i do
 		for j=227,332,add_j do
@@ -299,8 +299,8 @@ function frame(n)
 	
 	maAttributeBegin();
 	--simulate area light 
-	local add_i = 10 
-	local add_j= 10 
+	local add_i = 20 
+	local add_j= 20 
 	local light_cnt = 0;
 	for i=213,343,add_i do
 		for j=227,332,add_j do
