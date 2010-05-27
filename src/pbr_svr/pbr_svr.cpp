@@ -63,6 +63,7 @@ pbr_svr::pbr_svr(OOLUA::Script& lua,boost::asio::io_service& io_service,unsigned
 			if(xmin >= xmax && ymin >= ymax)
 			{
 				assert(r->get_frame() <= next_frame_);
+				printf("get status : %d\n",r->get_status());
 				if (r->get_frame() == next_frame_ && r->get_status() == START_FRAME)
 				{
 					//request crop
@@ -87,6 +88,7 @@ pbr_svr::pbr_svr(OOLUA::Script& lua,boost::asio::io_service& io_service,unsigned
 					end_frame();
 					//if not exceeds max frame
 					const job_desc& cur_job= job_files_.front();
+					printf("cur frame:%d end_frame: %d",r->get_frame(),cur_job.end_frame);
 					if (r->get_frame() < cur_job.end_frame)
 						r->start_current_frame();
 					else
@@ -124,6 +126,7 @@ pbr_svr::pbr_svr(OOLUA::Script& lua,boost::asio::io_service& io_service,unsigned
 			if ( (*it)->get_frame() <= cur_frame_)
 				frame_all_done = false;
 		}
+		printf("frame_all_done : %d\n",frame_all_done);
 		if (frame_all_done)
 		{
 			std::vector<crop_window> finished_crops;
@@ -141,6 +144,7 @@ pbr_svr::pbr_svr(OOLUA::Script& lua,boost::asio::io_service& io_service,unsigned
 			cur_frame_++;		
 			if (next_frame_ < cur_frame_)next_frame_ = cur_frame_;
 		}
+		printf("crop_windows_ size: %d",crop_windows_.size());
 	}
 
 	void pbr_svr::end_scene()
@@ -154,12 +158,12 @@ pbr_svr::pbr_svr(OOLUA::Script& lua,boost::asio::io_service& io_service,unsigned
 				return;
 			}
 		}
-
 		if(!(lua_ && lua_.call("cleanup")))
 		{
 			OOLUA::lua_stack_dump(lua_);
 			return ;
 		}
+		printf("end scene \n");
 		for(connection_set_t::iterator it = connections_.begin();
 				it != connections_.end();++it)
 		{
@@ -193,6 +197,7 @@ pbr_svr::pbr_svr(OOLUA::Script& lua,boost::asio::io_service& io_service,unsigned
 			printf("create renderer failed!\n");return;//create renderer
 		}
 		job_files_.front().initFilms(ma::get_film());
+		printf("start render scene : %s,%d,%d \n",job_files_.front().file.c_str(),job_files_.front().begin_frame,job_files_.front().end_frame);
 		for(connection_set_t::iterator it = connections_.begin();
 				it != connections_.end();++it)
 		{
