@@ -50,8 +50,6 @@ namespace c2s{
 			{
 				//end frame
 				//remove the crop window of finished
-				pbr_svr& svr = r->get_svr();
-				svr.end_frame();	
 			}
 		}
 			void add_sample(conn_t conn,camera_sample_t sample,ray_t ray,spectrum_t l,float alpha)
