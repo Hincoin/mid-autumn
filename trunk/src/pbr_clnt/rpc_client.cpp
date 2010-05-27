@@ -47,6 +47,7 @@ namespace s2c{
 	void end_frame(conn_t conn,int n)//destroy world
 	{
 		printf("end frame : %d\n",n);
+		rpc::send_rpc<rpc::c2s::rpc_request_render_task>(net::connection_write_handler_ptr(new rpc::rpc_null_handler()),conn);
 	}
 
 	void start_render_scene(conn_t conn,std::string file)

@@ -38,8 +38,8 @@ pbr_svr::pbr_svr(OOLUA::Script& lua,boost::asio::io_service& io_service,unsigned
 		//take the w,h resolution of the image
 		//todo test client code	
 		render_node* r = &node;
-		float w = (float)get_film(next_frame_)->xResolution();
-		float h = (float)get_film(next_frame_)->yResolution();
+		float w = (float)get_film(r->get_frame())->xResolution();
+		float h = (float)get_film(r->get_frame())->yResolution();
 		const float min_w = 64.f;
 		const float min_h = 64.f;
 		const float min_fraction = 1/128.f;
@@ -83,6 +83,7 @@ pbr_svr::pbr_svr(OOLUA::Script& lua,boost::asio::io_service& io_service,unsigned
 				}
 				else if (r->get_status() == END_FRAME)
 				{
+						printf("cur_frame_ next_Frame_ %d ,%d\n",cur_frame_,next_frame_);
 					if (r->get_frame() == next_frame_) next_frame_++;
 					r->set_frame(next_frame_);
 					end_frame();
@@ -123,7 +124,7 @@ pbr_svr::pbr_svr(OOLUA::Script& lua,boost::asio::io_service& io_service,unsigned
 		for(connection_set_t::iterator it = connections_.begin();
 				it != connections_.end();++it)
 		{
-			if ( (*it)->get_frame() <= cur_frame_)
+			if ((*it) ->get_type() == RENDERER &&  (*it)->get_frame() <= cur_frame_)
 				frame_all_done = false;
 		}
 		printf("frame_all_done : %d\n",frame_all_done);
@@ -150,6 +151,7 @@ pbr_svr::pbr_svr(OOLUA::Script& lua,boost::asio::io_service& io_service,unsigned
 	void pbr_svr::end_scene()
 	{
 		//try to end cur_scene
+		printf("try to end scene\n");
 		for(connection_set_t::iterator it = connections_.begin();
 				it != connections_.end();++it)
 		{
@@ -181,6 +183,7 @@ pbr_svr::pbr_svr(OOLUA::Script& lua,boost::asio::io_service& io_service,unsigned
 	{
 		if (job_files_.empty())return;
 		const std::string& f = job_files_.front().file;
+		const job_desc& job = job_files_.front();
 		next_frame_ = cur_frame_ = job_files_.front().begin_frame;
 		if (!lua_.run_file(f))
 		{
@@ -203,6 +206,7 @@ pbr_svr::pbr_svr(OOLUA::Script& lua,boost::asio::io_service& io_service,unsigned
 		{
 			if ((*it)->get_type() != CONTROLLER && (*it)->get_status() == IDLE)
 			{
+					(*it)->set_frame(job.begin_frame);
 				(*it)->render_scene(f);
 			}
 		}
@@ -211,10 +215,12 @@ pbr_svr::pbr_svr(OOLUA::Script& lua,boost::asio::io_service& io_service,unsigned
 	}
 	void pbr_svr::render_scene(const std::string& f,int begin,int end)
 	{
-		std::cerr<<"render scene: "<<f<<std::endl;
-		job_files_.push_back(job_desc(f,begin,end));
-		if(job_files_.size() > 1) return;
-		do_render_scene();
+		if ( begin < end)
+		{
+			job_files_.push_back(job_desc(f,begin,end));
+			if(job_files_.size() > 1) return;
+			do_render_scene();
+		}
 	}
 	void pbr_svr::write_image(int frame)
 	{
