@@ -24,19 +24,30 @@
 #include <cassert>
 #define MA_ASSERT(X) assert(X);
 
-
-#ifdef WIN32
-#ifdef CORE_SOURCE
-#define COREDLL __declspec(dllexport)
-#else
-#define COREDLL __declspec(dllimport)
+#if defined(BOOST_MSVC)
+	#ifdef CORE_SOURCE
+		#define COREDLL __declspec(dllexport)
+	#else
+		#define COREDLL __declspec(dllimport)
+	#endif
+	#define DLLEXPORT __declspec(dllexport)
+#elif defined(__GNUC__)
+	#define COREDLL
+	#define DLLEXPORT
 #endif
-#define DLLEXPORT __declspec(dllexport)
-#else
-#define COREDLL
-#define DLLEXPORT
-#endif
 
+/*#ifdef WIN32
+	#ifdef CORE_SOURCE
+		#define COREDLL __declspec(dllexport)
+	#else
+		#define COREDLL __declspec(dllimport)
+	#endif
+	#define DLLEXPORT __declspec(dllexport)
+#else
+	#define COREDLL
+	#define DLLEXPORT
+#endif
+*/
 
 //#define TBB_PARALLEL
 //#define OMP_PARALLEL

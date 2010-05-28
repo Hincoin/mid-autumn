@@ -20,13 +20,17 @@ configuration "Release"
 	targetdir (root_dir .. "/build/bin/release")
 	libdirs(root_dir .. "/build/bin/release")
 
-configuration {"linux","gmake"}
+configuration {"gmake"}
 buildoptions{"-fno-strict-aliasing",--[["-std=c++0x",]]--[["-fpermissive",]]"-g","-pg",--[["-fexcess-precision=fast",]]"-Wall"}
 linkoptions{"-pg"}
 defines{"_GNU_C_"}
+if os.is("windows") then
+defines{"WIN32","_WIN32","_WIN32_"}
+end
 --defines{"_GLIBCXX_PROFILE"}
-configuration{"win32"}
+configuration{"gmake","win32"}
 defines{"WIN32","_WIN32"}
+links{"wsock32","ws2_32"--[[,"pbr"]]}
 
 location (root_dir .. "/build/premake/projects")
 --------------------------------------------------------------------
@@ -130,6 +134,9 @@ files{
 	root_dir .. "/src/pbr_net/*.cpp",
 	root_dir .. "/src/pbr_svr/*.cpp",
 }
+if os.is("windows") then
+links{"wsock32","ws2_32"}
+end
 
 configuration{"Debug"}
 	links{"pbr","pbr_ext","oolua_d" ,"lua","pthread"--[[,"pbr"]]}
@@ -159,8 +166,13 @@ files{
 	root_dir .. "/src/pbr_clnt/*.cpp",
 }
 
+
+if os.is("windows") then
+links{"wsock32","ws2_32"}
+end
+
 configuration{"Debug"}
-	links{"pbr","pbr_ext","oolua_d","lua" ,"pthread",--[[,"pbr"]]}
+	links{"pbr_ext","pbr","oolua_d","lua" ,"pthread",--[[,"pbr"]]}
 configuration{"Release"}
 	links{"pbr","pbr_ext","oolua","lua" ,"pthread",--[[,"pbr"]]}
 
@@ -186,6 +198,10 @@ files{
 	root_dir .. "/inc/pbr_ctrl/*.hpp",
 	root_dir .. "/src/pbr_ctrl/*.cpp",
 }
+
+if os.is("windows") then
+links{"wsock32","ws2_32"}
+end
 
 configuration{"Debug"}
 	links{"oolua_d" ,"lua","pthread"--[[,"pbr"]]}
