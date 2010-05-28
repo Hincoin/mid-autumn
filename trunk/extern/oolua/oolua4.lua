@@ -17,5 +17,5 @@ includedirs
 				} 
 					
 defines {"OOLUA_STORE_ERROR"}
-configuration { "linux", "gmake" }
+configuration { "gmake" }
   buildoptions { "-std=c++0x"}

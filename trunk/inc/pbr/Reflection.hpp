@@ -8,6 +8,8 @@
 
 #include "ptr_var.hpp"
 #include "pool.hpp"
+#include "malloc.h"
+
 namespace ma{
 
 	// BSDF Inline Functions
