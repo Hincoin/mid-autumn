@@ -7,7 +7,7 @@ namespace ma{
 
 	// WhittedIntegrator Declarations
 	template<typename Conf>
-	class WhittedIntegrator : public Integrator<WhittedIntegrator<Conf>,Conf> {
+	class WhittedIntegrator : public Integrator<WhittedIntegrator<Conf>,typename Conf::interface_config> {
 	public:
 		ADD_SAME_TYPEDEF(Conf,spectrum_t);
 		ADD_SAME_TYPEDEF(Conf,scene_ptr);

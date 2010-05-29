@@ -71,8 +71,8 @@ namespace ma{
 		PointLight<Conf>::sample_lImpl(const scene_ptr scene, scalar_t u1,
 		scalar_t u2, scalar_t u3, scalar_t u4,
 		ray_t &ray, scalar_t& pdf) const {
-			ray.origin() = light_pos;
-			ray.direction() = UniformSampleSphere(u1, u2);
+			ray.o = light_pos;
+			ray.dir = UniformSampleSphere(u1, u2);
 			pdf = UniformSpherePdf<scalar_t>();
 			return intensity;
 	}

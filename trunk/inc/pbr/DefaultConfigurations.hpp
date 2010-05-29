@@ -28,7 +28,10 @@ namespace ma{
 #include "LDSampler.hpp"
 #include "PerspectiveCamera.hpp"
 #include "PointLight.hpp"
+
 #include "WhittedIntegrator.hpp"
+#include "BidirectionalIntegrator.hpp"
+
 #include "TriangleMesh.hpp"
 #include "Mitchell.hpp"
 
@@ -84,6 +87,17 @@ namespace ma{
 		typedef boost::shared_ptr<BSDF<bsdf_config<B> > > bsdf_ptr;
 		typedef VisibilityTester<visibility_tester_config<B> > visibility_tester_t;
 	};
+	template<typename B>
+		struct whitted_integrator_config:surface_integrator_config<B>
+	{
+		typedef surface_integrator_config<B> interface_config;
+	};
+	template<typename B>
+		struct bidirectional_integrator_config:surface_integrator_config<B>
+	{
+		typedef surface_integrator_config<B> interface_config;
+	};
+
 	template<typename B>
 	struct volume_integrator_config:B{};
 	template<typename B>
@@ -214,7 +228,11 @@ struct scene_config:B{
 	//type array
 	typedef boost::mpl::vector<PerspectiveCamera<perspective_camera_config<B> > > camera_types;
 	typedef boost::mpl::vector<PointLight<point_light_config<B> > > light_types;
-	typedef boost::mpl::vector<WhittedIntegrator<surface_integrator_config<B> > > surface_integrator_types;
+	typedef boost::mpl::vector<
+		WhittedIntegrator<whitted_integrator_config<B> >
+		,	BidirectionalIntegrator<bidirectional_integrator_config<B> >
+	   	> surface_integrator_types;
+
 	typedef boost::mpl::vector<LDSampler<ldsampler_config<B> > > sampler_types;
 	typedef typename boost::mpl::push_back<sampler_types,ISampler<isampler_config<B> > >::type sampler_types_with_virtual;
 	typedef Sample<sample_config<B> > sample_t;
