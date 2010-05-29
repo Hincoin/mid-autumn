@@ -188,7 +188,7 @@ template<typename Conf>
 typename Conf::scalar_t BSDF<Conf>::pdf(const vector_t &woW, const vector_t &wiW,
 				BxDFType flags) const {
 					if (nBxDFs == 0.) return 0.;
-					vector_t wo = WorldToLocal(woW), wi = WorldToLocal(wiW);
+					vector_t wo = worldToLocal(woW), wi = worldToLocal(wiW);
 					scalar_t pdf = scalar_t();
 					int matchingComps = 0;
 					for (int i = 0; i < nBxDFs; ++i)

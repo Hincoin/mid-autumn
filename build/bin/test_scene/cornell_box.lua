@@ -242,8 +242,9 @@ function startup(is_client)
 	--eye,center,updir
 	maLookAt(278,273,-800,278,273,400,0,1,0);
 	--local xres,yres = 160/2,120/2--320,240
-	local xres,yres = 640,480
-	
+	--debug configuration
+	local xres,yres = 80,60--640,480
+	local spp = 1--128 
 	maBeginParam();
 	--maAddFloatArrayParam("cropwindow",{wcropx_min or 0,wcropx_max or 1,wcropy_min or 0,wcropy_max or 1});
 	local image_type= "image"
@@ -255,10 +256,11 @@ function startup(is_client)
 	});
 	maEndParam()
 
-	maSampler("lowdiscrepancy",{["pixelsamples"]=1});
+	maSampler("lowdiscrepancy",{["pixelsamples"]=spp});
 	camera_param();
 	maAccelerator("kdtree",{});
-	maSurfaceIntegrator("whitted",{});
+	--maSurfaceIntegrator("whitted",{});
+	maSurfaceIntegrator("bidirectional",{});
 
 end
 --exit
@@ -299,8 +301,8 @@ function frame(n)
 	
 	maAttributeBegin();
 	--simulate area light 
-	local add_i = 20 
-	local add_j= 20 
+	local add_i = 10 
+	local add_j= 10 
 	local light_cnt = 0;
 	for i=213,343,add_i do
 		for j=227,332,add_j do
