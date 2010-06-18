@@ -40,7 +40,7 @@ public:
 	void RequestSamples(Sample *sample, const Scene *scene);
 private:
 	// BidirIntegrator Private Methods
-	int generatePath(const Scene *scene, const Ray &r, const Sample *sample,
+	int generatePath(const Spectrum& alpha,const Scene *scene, const Ray &r, const Sample *sample,
 		const int *bsdfOffset, const int *bsdfCompOffset,
 		BidirVertex *vertices, int maxVerts) const;
 	float weightPath(BidirVertex *eye,int iEye, int nEye, BidirVertex *light,int iLight, int nLight) const;
@@ -51,8 +51,15 @@ private:
 
 	void computeWeight(BidirVertex *eye, int nEye,
 	BidirVertex *light, int nLight)const;
+
+	Spectrum LiBidir(const Scene* scene,
+		const RayDifferential& ray,const Sample* sample,
+		BidirVertex* eyePath,int nEye,
+		BidirVertex* lightPath,int nLight
+		)const;
+
 	// BidirIntegrator Data
-	#define MAX_VERTS 4
+	#define MAX_VERTS 8
 	#define MAX_WEIGHTS (MAX_VERTS+1)
 	int eyeBSDFOffset[MAX_VERTS], eyeBSDFCompOffset[MAX_VERTS];
 	int lightBSDFOffset[MAX_VERTS], lightBSDFCompOffset[MAX_VERTS];
@@ -63,7 +70,7 @@ private:
 };
 struct BidirVertex {
 	BidirVertex() { add_cumulative = cumulative=0.f;bsdfWeight = dAWeight = 0.; rrWeight = 1.;
-		flags = BxDFType(0); bsdf = NULL; }
+		flags = BxDFType(0); bsdf = NULL;specularBounce=false;nSpecularComponents=0; }
 	BSDF *bsdf;
 	Point p;
 	Normal ng, ns;
@@ -72,6 +79,10 @@ struct BidirVertex {
 	BxDFType flags;
 	Spectrum cumulative;
 	Spectrum add_cumulative;
+	bool specularBounce;
+	Intersection isect;
+	Spectrum alpha;
+	int nSpecularComponents;
 };
 // Bidirectional Method Definitions
 void BidirIntegrator::RequestSamples(Sample *sample, const Scene *scene) {
@@ -91,6 +102,76 @@ void BidirIntegrator::RequestSamples(Sample *sample, const Scene *scene) {
 }
 static bool debug_pixel = false;
 static FILE* fptr=NULL;
+
+Spectrum BidirIntegrator::LiBidir(const Scene* scene,
+		const RayDifferential& ray,const Sample* sample,
+		BidirVertex* eyePath,int nEye,
+		BidirVertex* lightPath,int nLight
+		)const
+{
+	Spectrum L =0.f;
+	bool previousSpecular=true,allSpecular=true;
+	int nVerts = nEye + nLight + 2;
+	int *nSpecularVertices=(int*)alloca(nVerts * sizeof(int));
+	memset(nSpecularVertices,0,nVerts * sizeof(int));
+	for (int i = 0;i < nEye;++i)
+		for(int j = 0;j < nLight;++j)
+			if(eyePath[i].specularBounce || 
+					lightPath[j].specularBounce)
+				++nSpecularVertices[i+j+2];
+	for(int i = 0;i < nEye;++i)
+	{
+		const BidirVertex &vc = eyePath[i];
+		const Point& pc = vc.bsdf->dgShading.p;
+		const Normal& nc=vc.bsdf->dgShading.nn;
+
+		if (i==0 || (previousSpecular && !allSpecular))
+			L += vc.cumulative/vc.rrWeight * vc.isect.Le(vc.wi);
+		Spectrum Ld(0.f);
+		if(!allSpecular)
+		{
+			Ld =vc.cumulative/vc.rrWeight * UniformSampleOneLight(scene, eyePath[i-1].p, eyePath[i-1].ng, eyePath[i-1].wi,
+			eyePath[i-1].bsdf, sample, directLightOffset[i-1], directLightNumOffset[i-1],
+			directBSDFOffset[i-1], directBSDFCompOffset[i-1]);
+		 	
+		}
+		previousSpecular=vc.specularBounce;
+		allSpecular &=previousSpecular;
+		L += Ld /(nLight==0? 1.f : (i+1-nSpecularVertices[i+1]));//path weight
+		if(!vc.specularBounce)
+		{
+			for(int j = 0;j < nLight;++j)
+			{
+				const BidirVertex& vl=
+					lightPath[j];
+				const Point &pl=vl.bsdf->dgShading.p;
+				const Normal &nl =vl.bsdf->dgShading.nn;
+				if(!vl.specularBounce)
+				{
+					Vector w= Normalize(pl-pc);
+					Spectrum fc=
+						vc.bsdf->f(vc.wi,w)*(1+vc.nSpecularComponents);
+					Spectrum fl = vl.bsdf->f(-w,vl.wi)
+						* (1+vl.nSpecularComponents);
+					if(fc.Black() || fl.Black())continue;
+					Ray r(pc,pl-pc,1e-3f,.999f);
+					if(!scene->IntersectP(r))
+					{
+						float pathWt = 
+							1.f/(i+j+2- nSpecularVertices[i+j+2]);
+						float G = AbsDot(nc,w)*AbsDot(nl,w)/DistanceSquared(pc,pl);
+						L +=vc.cumulative * fc * fl * vl.cumulative * G * pathWt;
+					}
+				}
+			}
+		}
+	}
+	
+	if (previousSpecular && !allSpecular )
+		for (int i = 0; i < scene->lights.size();++i)
+			L += scene->lights[i]->Le(ray);
+	return L;
+}
 Spectrum BidirIntegrator::Li(const Scene *scene,
 		const RayDifferential &ray,
 		const Sample *sample, float *alpha) const {
@@ -101,11 +182,13 @@ Spectrum BidirIntegrator::Li(const Scene *scene,
 	else
 		debug_pixel = false;
 
+	debug_pixel=false;
+	if(fptr)fclose(fptr);
 	fptr = fopen(debug_pixel? "debug.txt":"no_debug.txt","a");
 	Spectrum L(0.);
 	// Generate eye and light sub-paths
-	BidirVertex eyePath[MAX_VERTS], lightPath[MAX_VERTS];
-	int nEye = generatePath(scene, ray, sample, eyeBSDFOffset,
+	BidirVertex eyePath[MAX_VERTS*2], lightPath[MAX_VERTS*2];
+	int nEye = generatePath(Spectrum(1.f),scene, ray, sample, eyeBSDFOffset,
 		eyeBSDFCompOffset, eyePath, MAX_VERTS);
 	if(debug_pixel)fprintf(fptr,"eye path length:%d\n",nEye);
 	if (nEye == 0) {
@@ -130,15 +213,37 @@ Spectrum BidirIntegrator::Li(const Scene *scene,
 	u[1] = sample->twoD[lightPosOffset][1];
 	u[2] = sample->twoD[lightDirOffset][0];
 	u[3] = sample->twoD[lightDirOffset][1];
+	Normal Nl;
 	Spectrum Le = light->Sample_L(scene, u[0], u[1], u[2], u[3],
-		&lightRay, &lightPdf);
-	if (lightPdf == 0.) return 0.f;
-	Le *= lightWeight / lightPdf;
-	int nLight = generatePath(scene, lightRay, sample, lightBSDFOffset,
+		&lightRay, &lightPdf,&Nl);
+	int nLight = 0;
+	if (Le.Black() || lightPdf == 0.); 
+	else
+	{
+		Le *=AbsDot(Normalize(Nl),Normalize(lightRay.d)) * lightWeight / lightPdf;
+		nLight = generatePath(1.f,scene, lightRay, sample, lightBSDFOffset,
 		lightBSDFCompOffset, lightPath, MAX_VERTS);
+	}
+/*	{
+
+		fclose(fptr);
+		fptr=NULL;
+		return LiBidir(scene,ray,sample,eyePath,nEye,lightPath,nLight);
+	}
+	*/
 	// Connect bidirectional path prefixes and evaluate throughput
 
 //	computeWeight(eyePath,nEye,lightPath,nLight);	
+
+	int nVerts = nEye + nLight +2;
+	int *nSpecularVertices=(int*)alloca(nVerts * sizeof(int));
+	memset(nSpecularVertices,0,nVerts * sizeof(int));
+	for (int i = 0;i < nEye;++i)
+		for(int j = 0;j < nLight;++j)
+			if(eyePath[i].specularBounce || 
+					lightPath[j].specularBounce)
+				++nSpecularVertices[i+j+2];
+	
 	Spectrum directWt(1.0);
 	for (int i = 1; i <= nEye; ++i) {
 		// Handle direct lighting for bidirectional integrator
@@ -153,7 +258,7 @@ Spectrum BidirIntegrator::Li(const Scene *scene,
 			localLe *=eyePath[i-1].bsdf->f(eyePath[i-1].wi, eyePath[i-1].wo) *
 				AbsDot(eyePath[i-1].wo, eyePath[i-1].ng)/eyePath[i-1].bsdfWeight;
 				*/
-		L +=	weightPath(eyePath, i,nEye, lightPath, 0,nLight)* (localLe + eyePath[i-1].add_cumulative);
+		L +=/*	weightPath(eyePath, i,nEye, lightPath, 0,nLight)*/1.f/(i-nSpecularVertices[i]) * (localLe + eyePath[i-1].add_cumulative);
 		/*L += localLe   * eyePath[i-1].bsdf->f(eyePath[i-1].wi, eyePath[i-1].wo) *
 			AbsDot(eyePath[i-1].wo, eyePath[i-1].ng) /
 			eyePath[i-1].bsdfWeight*/;;
@@ -168,17 +273,22 @@ Spectrum BidirIntegrator::Li(const Scene *scene,
 
 			if (debug_pixel)fprintf(fptr,"eye visible %d,%d,%d\n",i,j,visible(scene, eyePath[i-1].p, lightPath[j-1].p));
 			L += Le * evalPath(scene, eyePath, i, lightPath, j) *
-				weightPath(eyePath, i,nEye, lightPath, j,nLight);
+			1.f/(i+j - nSpecularVertices[i+j])	;
+			//	weightPath(eyePath, i,nEye, lightPath, j,nLight);
 		}
 	}
+//	fprintf(stderr,"L : %f\t",L.y());
+	return L;
+	L=Spectrum(0.f);
 	if(debug_pixel)
 		fprintf(fptr,"add_cumulative : %f L: %f\n",eyePath[0].add_cumulative.y(),L.y());
 	directWt=1.f;
 	//do light tracing
 	for (int i = 1; i <= nLight; ++i)
 	{
+	//	if(nSpecularVertices[i]==0)continue;
 		const BidirVertex& lv = lightPath[i-1];
-		directWt /= lv.rrWeight;
+		//directWt /= lv.rrWeight;
 		if(visible(scene,lv.p,scene->camera->GetPosition()))
 		{
 			Spectrum localLe = Le;	
@@ -190,18 +300,21 @@ Spectrum BidirIntegrator::Li(const Scene *scene,
 			
 			if (i > 1)
 				localLe *= lightPath[i-2].cumulative;
-			float x,y;
-			if (!localLe.Black() && scene->camera->GetSamplePosition(lv.p,lv.wi,distance,&x,&y))
+			Sample s;
+			float factor=1.f;
+			if (!localLe.Black() && scene->camera->GetSample(lv.p,s,factor))
 			{
-				Sample s;
 				//camera sample
-				s.imageX=x;
-				s.imageY=y;
+				//s.imageX=x;
+				//s.imageY=y;
 				//lensU,lensV etc
-				localLe*=weightPath(eyePath,0,nEye,lightPath,i,nLight);
+	//			fprintf(stderr,"factor : %f\n",factor);
+	//			localLe*= 1.f/(i-nSpecularVertices[i]);//weightPath(eyePath,0,nEye,lightPath,i,nLight);
 				localLe *= directWt * lv.bsdf->f(lv.wi,wo)* AbsDot(wo,lv.ng)/ (lengthSquared );
+				if(localLe.y() < 0)fprintf(stderr,"negative le\n");
 				float a = 1.f;
-				scene->camera->film->AddSample(s, ray,localLe , a);
+				//fprintf(stderr,"localLe: %f\n",localLe.y());
+				scene->camera->film->AddSample(s, ray,localLe * 8.f, a);
 			}
 		}
 	}
@@ -265,13 +378,13 @@ void BidirIntegrator::computeWeight(BidirVertex *eye, int nEye,
 	}
 }
 	
-int BidirIntegrator::generatePath(const Scene *scene, const Ray &r,
+int BidirIntegrator::generatePath(const Spectrum& alpha,const Scene *scene, const Ray &r,
 		const Sample *sample, const int *bsdfOffset,
 		const int *bsdfCompOffset,
 		BidirVertex *vertices, int maxVerts) const {
 	int nVerts = 0;
 	RayDifferential ray(r.o, r.d);
-	Spectrum cumulative(1.0f);// = scene->Transmittance(ray);
+	Spectrum cumulative(alpha);// = scene->Transmittance(ray);
 	//for eye
 	bool specularBounce = false;
 	Spectrum add_cumulative(0.f);
@@ -286,6 +399,7 @@ int BidirIntegrator::generatePath(const Scene *scene, const Ray &r,
 		v.ng = isect.dg.nn;
 		v.ns = v.bsdf->dgShading.nn;
 		v.wi = -ray.d;
+		v.isect = isect;
 		//eye path
 		if(nVerts == 0 || specularBounce)
 		{
@@ -313,7 +427,8 @@ int BidirIntegrator::generatePath(const Scene *scene, const Ray &r,
 	
 		cumulative *= v.bsdf->Sample_f(v.wi, &v.wo, u1, u2, u3,
 			 &v.bsdfWeight, BSDF_ALL, &v.flags);
-
+		v.specularBounce = (v.flags & BSDF_SPECULAR) != 0;
+		v.nSpecularComponents = v.bsdf->NumComponents(BxDFType(BSDF_SPECULAR | BSDF_TRANSMISSION|BSDF_REFLECTION));
 		if (cumulative.Black() && v.bsdfWeight == 0.f)
 			break;
 		cumulative *= AbsDot(v.wo,v.ng) / (v.bsdfWeight);
@@ -365,7 +480,7 @@ Spectrum BidirIntegrator::evalPath(const Scene *scene, BidirVertex *eye, int nEy
 	Spectrum lf = lv.bsdf->f(-wl,lv.wi);
 	if(lf.Black())return 0.f;
 
-	L *= G(ev,lv) * ef * lf/(ev.rrWeight * lv.rrWeight);
+	L *= (ev.nSpecularComponents + 1) * (lv.nSpecularComponents+1) * G(ev,lv) * ef * lf/(ev.rrWeight * lv.rrWeight);
 	if(debug_pixel && fptr)
 	{
 		fprintf(fptr,"evalPath luminance=evbsdf * g * lvbsdf: %f =%f * %f * %f \n",L.y(),ev.bsdf->f(ev.wi,w).y(),G(ev,lv),(lv.bsdf->f(-w,lv.wi)).y());
