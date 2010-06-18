@@ -243,7 +243,7 @@ function startup(is_client)
 	maLookAt(278,273,-800,278,273,400,0,1,0);
 	--local xres,yres = 160/2,120/2--320,240
 	--debug configuration
-	local xres,yres = 80,60--640,480
+	local xres,yres = 160,120--640,480
 	local spp = 1--128 
 	maBeginParam();
 	--maAddFloatArrayParam("cropwindow",{wcropx_min or 0,wcropx_max or 1,wcropy_min or 0,wcropy_max or 1});

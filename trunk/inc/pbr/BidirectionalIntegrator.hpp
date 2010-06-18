@@ -169,9 +169,10 @@ namespace ma
 		float u1 = sample->twoD[bsdfOffset[nVerts-1]][0];
 		float u2 = sample->twoD[bsdfOffset[nVerts-1]][1];
 		float u3 = sample->oneD[bsdfCompOffset[nVerts-1]][0];
+
+		BxDFType flag = BxDFType(BSDF_ALL);	
 		spectrum_t fr = v.bsdf->sample_f(v.wi, ref(v.wo), u1, u2, u3,
-			 ref(v.bsdfWeight), BSDF_ALL, &v.flags);
-		printf("is relfection %d,%d",v.bsdf->type()&(BSDF_REFLECTION | BSDF_SPECULAR),fr.black());
+			 ref(v.bsdfWeight), flag, &v.flags);
 		if (fr.black() && v.bsdfWeight == 0.f)
 			break;
 		ray = ray_differential_t(v.p, v.wo);
@@ -196,18 +197,24 @@ namespace ma
 		{
 			spectrum_t L(1.);
 			for (int i = 0; i < nEye-1; ++i)
-				L *= eye[i].bsdf->f(eye[i].wi, eye[i].wo) *
+			{
+					L *= eye[i].bsdf->f(eye[i].wi, eye[i].wo) *
 					abs_dot(eye[i].wo, eye[i].ng) /
 						(eye[i].bsdfWeight * eye[i].rrWeight);
+			}
 			vector_t w = lght[nLight-1].p - eye[nEye-1].p;
 			L *= eye[nEye-1].bsdf->f(eye[nEye-1].wi, w) *
 				G(eye[nEye-1], lght[nLight-1]) *
 				lght[nLight-1].bsdf->f(-w, lght[nLight-1].wi) /
 				(eye[nEye-1].rrWeight * lght[nLight-1].rrWeight);
+
 			for (int i = nLight-2; i >= 0; --i)
+			{
+
 				L *= lght[i].bsdf->f(lght[i].wi, lght[i].wo) *
 				abs_dot(lght[i].wo, lght[i].ng) /
 				(lght[i].bsdfWeight * lght[i].rrWeight);
+			}
 			if (L.black())
 				return L;
 			if (!visible(scene, eye[nEye-1].p, lght[nLight-1].p))
