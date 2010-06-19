@@ -59,7 +59,7 @@ private:
 		)const;
 
 	// BidirIntegrator Data
-	#define MAX_VERTS 8
+	#define MAX_VERTS 4
 	#define MAX_WEIGHTS (MAX_VERTS+1)
 	int eyeBSDFOffset[MAX_VERTS], eyeBSDFCompOffset[MAX_VERTS];
 	int lightBSDFOffset[MAX_VERTS], lightBSDFCompOffset[MAX_VERTS];
@@ -258,7 +258,8 @@ Spectrum BidirIntegrator::Li(const Scene *scene,
 			localLe *=eyePath[i-1].bsdf->f(eyePath[i-1].wi, eyePath[i-1].wo) *
 				AbsDot(eyePath[i-1].wo, eyePath[i-1].ng)/eyePath[i-1].bsdfWeight;
 				*/
-		L +=/*	weightPath(eyePath, i,nEye, lightPath, 0,nLight)*/1.f/(i-nSpecularVertices[i]) * (localLe + eyePath[i-1].add_cumulative);
+		float pw = i==1? 1 :  1.f/(i-nSpecularVertices[i]);
+		L +=/*	weightPath(eyePath, i,nEye, lightPath, 0,nLight)*/pw * (localLe + eyePath[i-1].add_cumulative);
 		/*L += localLe   * eyePath[i-1].bsdf->f(eyePath[i-1].wi, eyePath[i-1].wo) *
 			AbsDot(eyePath[i-1].wo, eyePath[i-1].ng) /
 			eyePath[i-1].bsdfWeight*/;;
@@ -278,18 +279,19 @@ Spectrum BidirIntegrator::Li(const Scene *scene,
 		}
 	}
 //	fprintf(stderr,"L : %f\t",L.y());
-	return L;
-	L=Spectrum(0.f);
+	//return L;
+	//L=Spectrum(0.f);//only light tracing
 	if(debug_pixel)
 		fprintf(fptr,"add_cumulative : %f L: %f\n",eyePath[0].add_cumulative.y(),L.y());
 	directWt=1.f;
 	//do light tracing
-	for (int i = 1; i <= nLight; ++i)
+	for (int i = 2; i <= nLight; ++i)
 	{
 	//	if(nSpecularVertices[i]==0)continue;
 		const BidirVertex& lv = lightPath[i-1];
-		//directWt /= lv.rrWeight;
-		if(visible(scene,lv.p,scene->camera->GetPosition()))
+		directWt /= lv.rrWeight;
+		if( !lv.specularBounce && visible(scene,lv.p,scene->camera->GetPosition())
+				)
 		{
 			Spectrum localLe = Le;	
 			Point p = scene->camera->GetPosition();
@@ -309,12 +311,12 @@ Spectrum BidirIntegrator::Li(const Scene *scene,
 				//s.imageY=y;
 				//lensU,lensV etc
 	//			fprintf(stderr,"factor : %f\n",factor);
-	//			localLe*= 1.f/(i-nSpecularVertices[i]);//weightPath(eyePath,0,nEye,lightPath,i,nLight);
+				localLe*= 1.f/(i-nSpecularVertices[i]);//weightPath(eyePath,0,nEye,lightPath,i,nLight);
 				localLe *= directWt * lv.bsdf->f(lv.wi,wo)* AbsDot(wo,lv.ng)/ (lengthSquared );
 				if(localLe.y() < 0)fprintf(stderr,"negative le\n");
 				float a = 1.f;
 				//fprintf(stderr,"localLe: %f\n",localLe.y());
-				scene->camera->film->AddSample(s, ray,localLe * 8.f, a);
+				scene->camera->film->AddSample(s, ray,localLe * factor, a);
 			}
 		}
 	}

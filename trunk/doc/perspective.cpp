@@ -51,6 +51,10 @@ public:
 		//if(/*cosi <= 0.f ||*/ (!isinf(distance) && (distance * cosi < ClipHither || distance * cosi > ClipYon)))
 		if(cosi <=0 ||( !isinf(distance) && (distance < ClipHither || distance > ClipYon)))
 			return false;
+		Point pa(640,480,1);
+		pa = RasterToCameraBidir(pa);
+		pa = CameraToWorld(pa);
+	//	fprintf(stderr,"w,h:%f,%f\t",pa.x,pa.y);
 		if (LensRadius > 0.f)
 		{
 			/*
@@ -68,7 +72,7 @@ public:
 			if(normal.z * p0.z<0.f)return false;
 			s.imageX = p0.x;
 			s.imageY = p0.y;	
-			factor = 1.f/(cosi*cosi*cosi * tanf(Radians(fov_)/2.f) * tanf(Radians(fov_)/2.f));
+			factor =(640*480)/fabs(pa.x * pa.y) * 1.f/(cosi*cosi*cosi*cosi);//1.f/(cosi*cosi*cosi * tanf(Radians(fov_)/2.f) * tanf(Radians(fov_)/2.f));
 		}
 		return true;
 
