@@ -91,7 +91,7 @@ namespace boost{
 			private:
 
 				typedef typename transform1<
-					S, vector3< begin<_1>, begin<_1>, end<_1> >
+					S, vector3< boost::mpl::begin<_1>, boost::mpl::begin<_1>, boost::mpl::end<_1> >
 				>::type
 				begin_impl;
 
