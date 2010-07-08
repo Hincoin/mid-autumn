@@ -29,7 +29,7 @@ includedirs
 					
 defines 
 {
-	"USING_CPPUNIT",
+#	"USING_CPPUNIT",
 	"USING_GMOCK",
 	"OOLUA_STORE_ERROR"
 }

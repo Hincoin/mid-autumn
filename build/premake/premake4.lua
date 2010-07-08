@@ -46,7 +46,28 @@ files{
 	root_dir .. "/extern/lua/*.c",
 }
 
+----------------------------------------------------------------------
+project "oolua_test"
+kind "ConsoleApp"
+language "C++"
+
+includedirs{
+	root_dir .. "/extern/",
+	root_dir .. "/extern/lua/",
+	root_dir .. "/extern/oolua/include/",
+}
+files{
+	root_dir .. "/extern/oolua/simple_test/*.cpp"
+}
+
+configuration{"Debug"}
+	links{"oolua_d" ,"lua",--[[,"pbr"]]}
+configuration{"Release"}
+	links{"oolua" ,"lua",--[[,"pbr"]]}
+
+
 --------------------------------------------------------------------
+
 project "core"
 kind "ConsoleApp"
 language "C++"

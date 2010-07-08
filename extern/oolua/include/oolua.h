@@ -49,6 +49,7 @@ struct lua_State;
 #	include "param_traits.h"
 #	include "export_func_to_lua.h"
 #	include "cpp_member_func.h"
+#   include "cpp_virtual_func.h"
 #	include "lua_operator.h"
 #	include "proxy_class.h"
 #	include "class_public_member.h"
