@@ -31,6 +31,7 @@ namespace ma{
 
 #include "WhittedIntegrator.hpp"
 #include "BidirectionalIntegrator.hpp"
+#include "IGIIntegrator.hpp"
 
 #include "TriangleMesh.hpp"
 #include "Mitchell.hpp"
@@ -97,6 +98,13 @@ namespace ma{
 	{
 		typedef surface_integrator_config<B> interface_config;
 	};
+	template<typename B>
+		struct igi_integrator_config:surface_integrator_config<B>
+	{
+		typedef surface_integrator_config<B> interface_config;
+	};
+
+
 
 	template<typename B>
 	struct volume_integrator_config:B{};
@@ -231,6 +239,7 @@ struct scene_config:B{
 	typedef boost::mpl::vector<
 		WhittedIntegrator<whitted_integrator_config<B> >
 		,	BidirectionalIntegrator<bidirectional_integrator_config<B> >
+		,   IGIIntegrator<igi_integrator_config<B> >
 	   	> surface_integrator_types;
 
 	typedef boost::mpl::vector<LDSampler<ldsampler_config<B> > > sampler_types;

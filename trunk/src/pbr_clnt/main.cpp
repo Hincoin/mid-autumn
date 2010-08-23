@@ -44,6 +44,18 @@ int main(int argc,char* argv[])
 
 	try
 	{
+		if(argc == 2)
+		{
+				if(!(lua.run_file(argv[1]) && lua.call("main"))) 
+				{
+						fprintf(stderr,"Failed to run file:%s \n",argv[1]);
+						OOLUA::lua_stack_dump(lua);
+						return 1;
+				}
+				printf("run standalone \n");
+				return 0;
+
+		}
 		if(argc != 3)
 		{
 			std::cerr << "Usage: pbr_ext <host> <port>"<<std::endl;

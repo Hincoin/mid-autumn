@@ -12,7 +12,10 @@ class AbstractBase{
 
 class DefaultDerivedBase:public AbstractBase
 {
+		int a_;
 		public:
+		DefaultDerivedBase(int a):a_(a){}
+
 		virtual int foo(float a,char b,int c){
 				std::cout<<"default function foo called: "<<a<<" " << b << " "<< std::endl;
 				return 100;
@@ -28,20 +31,17 @@ class ScriptDerived:public DefaultDerivedBase, public cpp_acquire_base_ptr<Scrip
 
 		typedef DefaultDerivedBase parent_type;
 		typedef ScriptDerived class_type;
-	friend ScriptDerived* Construtor<ScriptDerived,boost::mpl::vector<> >::call_construct<boost::mpl::vector<> >(lua_State* , boost::fusion::vector0<>&);
-	OOLUA_MAKE_SCRIPT_DERIVED(ScriptDerived)
-
+		OOLUA_MAKE_SCRIPT_DERIVED(ScriptDerived,DefaultDerivedBase,1,(I_(int ,a)))
 		public:	
-		
-			VFUNC_METHOD(DefaultDerivedBase,ScriptDerived,int,foo,3,(I_(float,a),I_(char,b),I_(int,c)))
-			VFUNC_METHOD(parent_type,class_type,void,bar,1,(I_(float,f)));
+		VFUNC_METHOD(DefaultDerivedBase,ScriptDerived,int,foo,3,(I_(float,a),I_(char,b),I_(int,c)))
+		VFUNC_METHOD(parent_type,class_type,void,bar,1,(I_(float,f)));
 };
 
 MAKE_CPP_PORXY(DefaultDerivedBase,ScriptDerived)
 
 LUA_PROXY_CLASS(ScriptDerived)
 OOLUA_NO_TYPEDEFS
-LUA_CTORS()
+LUA_CTORS(mpl::vector<int>)
 LUA_MEM_FUNC_RENAME(int(float,char ,int),foo,VFUNC_TO_CPP_IMPL(foo))
 LUA_MEM_FUNC_RENAME(void(float),bar,VFUNC_TO_CPP_IMPL(bar))
 LUA_PROXY_CLASS_END
@@ -64,7 +64,7 @@ int main()
 {
 		OOLUA::Script* lua = new OOLUA::Script;
 		lua->register_class<ScriptDerived>(); //--
-		const char* trunk =	"function  ScriptDerived:bar(f)print(\"lua: \",f)end function ScriptDerived:foo(x,y,z) print(\"lua \",x,y,z);return 1000; end  function func() local x = ScriptDerived:new();x:foo(11.1,22.2,33.3); return x; end";
+		const char* trunk =	"function  ScriptDerived:bar(f)print(\"lua: \",f)end function ScriptDerived:foo(x,y,z) print(\"lua \",x,y,z);return 1000; end  function func() local x = ScriptDerived:new(1);x:foo(11.1,22.2,33.3); return x; end";
 		if(lua->run_chunk(trunk))
 		{
 			int k = 0;

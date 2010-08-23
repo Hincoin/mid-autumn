@@ -14,7 +14,7 @@ struct Ray:public serialization::serializable<Ray<V> >{
 	typedef typename scalar_type<V>::type ScalarType;
 	static const ScalarType epsilon;
 	typedef Ray<V> class_type;
-	Ray(){}
+	Ray():mint(epsilon),maxt(std::numeric_limits<ScalarType>::max()){}
 	Ray(const point_type& p,const vector_type& v,
 	ScalarType s=epsilon,
 	ScalarType e=std::numeric_limits<ScalarType>::max())
@@ -60,6 +60,8 @@ struct RayDifferential:public Ray<V>{
 	typedef V vector_t;
 	typedef RayDifferential<V> class_type;
 	typedef Ray<V> parent_type;
+
+	typedef typename scalar_type<V>::type ScalarType;
 private:
 public:
 	class_type& operator=(class_type other)
@@ -68,8 +70,12 @@ public:
 		return *this;
 	}
 	RayDifferential(){has_differential= false;}
-	RayDifferential(const point_t& org,const vector_t& dir)
-		:Ray<V>(org,dir){has_differential=false;}
+	RayDifferential(
+					const point_t& org,const vector_t& dir,
+					ScalarType s=parent_type::epsilon,
+					ScalarType e=std::numeric_limits<ScalarType>::max()
+					)
+		:Ray<V>(org,dir,s,e){has_differential=false;}
 	explicit RayDifferential(const Ray<V>& r):Ray<V>(r){
 		has_differential = false;
 	}

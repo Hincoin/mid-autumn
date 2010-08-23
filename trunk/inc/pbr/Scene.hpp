@@ -60,6 +60,11 @@ namespace ma
 				L +=  light::le(lights[i],r);
 			return L;
 		}
+
+		sampler_ptr getSampler()const
+		{
+				return sampler_;
+		}
 		std::vector<light_ptr> lights;
 		camera_ptr camera_;
 	protected:
@@ -169,83 +174,9 @@ namespace ma{
 template<typename Conf>
 void Scene<Conf>::render()
 {
-	clock_t tick = clock();
-#ifdef TBB_PARALLEL
-	thread_observer task_observer;
-	tbb::task_scheduler_init init(std::min(hardware_concurrency(),
-		std::min<unsigned>(MAX_PARALLEL,default_sample_grain_size)));
-	 //what if the size is > the height of the image
-	const int extra_room = 8;
-	//size_t reserved_size = 0;
-	//size_t base_offsets [default_sample_grain_size+1] = {0};
-
-	typedef parallel::input_sample<class_type,default_sample_grain_size> input_sample_t;
-	input_sample_t sampled_rays;
-	MA_ASSERT( default_sample_grain_size >= hardware_concurrency());
-	unsigned concurrency = default_sample_grain_size;//std::min<unsigned>(default_grain_size,hardware_concurrency());
-	sampler_ptr sampler_divided = sampler::subdivide(sampler_,concurrency);
-	for (unsigned i = 0;i < concurrency; ++i)
-	{
-		sampled_rays.samples[i] = sample_t::make_sample(surface_integrator,volume_integrator,this);
-		sampled_rays.samplers[i] = sampler_divided+i;
-		//base_offsets[i] = reserved_size;
-		//reserved_size += sampled_rays.samplers[i]->totalSamples() + extra_room;
-	}
-	//base_offsets [concurrency] = reserved_size;
-	
-
-	surface_integrator->preprocess(this);
-
-	//typedef parallel::output_info<class_type> output_info_t;
-	//output_info_t* outputs = new output_info_t[reserved_size];
-	//size_t sample_count = reserved_size;
-#endif
-
-	//exit(0);
-	clock_t before_parallel = clock()-tick;
-	clock_t after_parallel = 0;
-#ifdef TBB_PARALLEL
-	//do compute
-	typedef parallel::ray_tracing<class_type> ray_tracing_func_t;
-	ray_tracing_func_t tracing_f(sampled_rays,this,camera_ );
-	parallel_for::run(tracing_f,concurrency);
-	after_parallel = clock();
-	//for (size_t i = 0;i < sample_count; ++i)
-	//{
-	//	if(outputs[i].processed)
-	//		camera->addSample( outputs[i].camera_sample,outputs[i].ray,outputs[i].ls,outputs[i].alpha);
-	//}
-	after_parallel = clock() - after_parallel;
-#else
-	sample_ptr sample = sample_t::make_sample(surface_integrator,volume_integrator,this);
-
-	integrator::preprocess(surface_integrator,this);
-	//preprocess(surface_integrator,this);
-	//preprocess(volume_integrator,this);
-	//while(sampler->getNextSample(*sample))
-	while(sampler::getNextSample(sampler_,ref(*sample)))
-	{
-		ray_differential_t ray;
-		scalar_t ray_weight = camera::generateRay(camera_,sample->cameraSample(),ref(ray));//generateRay(camera,*sample,ray);
-		scalar_t alpha=0;
-		spectrum_t ls;
-		if (ray_weight > 0)
-			ls = ray_weight * li(ray, sample,alpha);
-		//if (alpha != 0 && !ls.black())
-		//{
-		//		printf("intersect %.2f,%.2f ! \n",sample->image_x,sample->image_y);
-		//}
-		camera::addSample(camera_, &sample->cameraSample(),ray,ls,alpha);
-	}
-/**/
-	//fflush(fp);
-	//fclose(fp);
-	delete_ptr(sample);
-#endif
-
-	//printf("render time before li:%ld do li:%ld clocks ; after parallel: %ld \n",
-	//	before_parallel,(long)(clock()-tick),(long)after_parallel);
-	camera::writeImage(camera_);
+	preRender();
+	renderCropWindow(0,1.f,0.f,1.f);
+	postRender();
 }
 template<typename Conf>
 Scene<Conf>::~Scene(){

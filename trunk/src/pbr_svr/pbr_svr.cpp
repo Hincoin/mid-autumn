@@ -40,8 +40,8 @@ pbr_svr::pbr_svr(OOLUA::Script& lua,boost::asio::io_service& io_service,unsigned
 		render_node* r = &node;
 		float w = (float)get_film(r->get_frame())->xResolution();
 		float h = (float)get_film(r->get_frame())->yResolution();
-		const float min_w = 64.f;
-		const float min_h = 64.f;
+		const float min_w = 256.f;
+		const float min_h = 256.f;
 		const float min_fraction = 1/128.f;
 		float crop_stepw = std::max((min_w)/(float)w,min_fraction);	
 		float crop_steph = std::max((min_h)/(float)h,min_fraction);	
