@@ -40,6 +40,8 @@ namespace ma{
 			vRes = nv;
 			uBlocks = RoundUp(uRes) >> logBlockSize;
 			int nAlloc = RoundUp(uRes) * RoundUp(vRes);
+			if( nAlloc == 0 ) {data = NULL;return;}
+
 			data = (T *)AllocAligned(nAlloc * sizeof(T));
 			for (int i = 0; i < nAlloc; ++i)
 				new (&data[i]) T();

@@ -14,6 +14,7 @@ namespace ma
 		DECL_FUNC_NEST(spectrum_t,le,1)
 		DECL_FUNC_NEST(scalar_t,pdf,2)
 		DECL_FUNC_NEST(scalar_t,pdf,3)
+		DECL_FUNC(int,numSamples,0)
 	}
 	BEGIN_CRTP_INTERFACE(Light)
 		//type dependencies
@@ -65,6 +66,7 @@ public:
 	{
 		return pdf(p,wi);
 	}
+	int numSamples()const{return num_samples;}
 protected:
 	const int num_samples;
 	const transform_t light_to_world,world_to_light;

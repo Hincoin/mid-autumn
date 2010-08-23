@@ -44,8 +44,8 @@ namespace ma{
 		MAKE_VISITOR(f,2)
 		MAKE_VISITOR(sample_f,5)
 		MAKE_VISITOR(rho,3)
-		MAKE_VISITOR(rho,2)
 		MAKE_VISITOR(pdf,2)
+		
 	}
 
 
@@ -97,9 +97,9 @@ class BSDF{
 			sn.z() * v.x() + tn.z() * v.y() + nn.z() * v.z());}
 		spectrum_t f(const vector_t& woW,const vector_t& wiW,
 				BxDFType flags = BSDF_ALL)const;
-		spectrum_t rho(BxDFType flags = BSDF_ALL)const;
+		spectrum_t rho(BxDFType flags = BSDF_ALL, int nSamples = 6*6)const;
 		spectrum_t rho(const vector_t& wo,
-				BxDFType flags = BSDF_ALL)const;
+				BxDFType flags = BSDF_ALL, int nSamples = 6*6)const;
 		const differential_geometry_t dg_shading;
 		const scalar_t eta;
 
@@ -226,19 +226,26 @@ typename Conf::spectrum_t BSDF<Conf>::f(const vector_t &woW,
 					 return f;
 }
 template<typename Conf>
-typename Conf::spectrum_t BSDF<Conf>::rho(BxDFType flags) const {
+typename Conf::spectrum_t BSDF<Conf>::rho(BxDFType flags,int nSamples) const {
+		scalar_t *s1 = (scalar_t*)alloca(sizeof(scalar_t) * nSamples * 2);
+		LatinHypercube(s1, nSamples, 2);
+		scalar_t *s2 = (scalar_t*)alloca(sizeof(scalar_t) * nSamples * 2);
+		LatinHypercube(s2, nSamples, 2);
 	spectrum_t ret(0.);
+	
 	for (int i = 0; i < nBxDFs; ++i)
 		if (bxdf::matchesFlags_ref<bool>(bxdfs[i],flags)/*bxdfs[i]->MatchesFlags(flags)*/)
-			ret += bxdf::rho_ref<spectrum_t>(bxdfs[i]);//bxdfs[i]->rho();
+			ret += bxdf::rho<spectrum_t(int,scalar_t*,scalar_t*)>(bxdfs[i],nSamples,s1,s2);//bxdfs[i]->rho();
 	return ret;
 }
 template<typename Conf>
-typename Conf::spectrum_t BSDF<Conf>::rho(const vector_t &wo, BxDFType flags) const {
+typename Conf::spectrum_t BSDF<Conf>::rho(const vector_t &wo, BxDFType flags,int nSamples) const {
+		scalar_t *s1 = (scalar_t*)(alloca(sizeof(scalar_t) * 2 * nSamples));
+		LatinHypercube(s1, nSamples, 2);
 	spectrum_t ret(0.);
 	for (int i = 0; i < nBxDFs; ++i)
 		if (bxdf::matchesFlags_ref<bool>(bxdfs[i],flags) /*bxdfs[i]->MatchesFlags(flags)*/)
-			ret += bxdf::rho_ref<spectrum_t>(bxdfs[i],wo);//bxdfs[i]->rho(wo);
+			ret += bxdf::rho<spectrum_t(const vector_t&,int,scalar_t*)>(bxdfs[i],wo,nSamples, s1);//bxdfs[i]->rho(wo);
 	return ret;
 }
 //////////////////////////////////////////////////////////////////////////
@@ -247,7 +254,6 @@ namespace bxdf{
 	DECL_FUNC(bool,matchesFlags,1)
 	DECL_FUNC_NEST(spectrum_t,sample_f,5)
 	DECL_FUNC_NEST(spectrum_t,rho,3)
-	DECL_FUNC_NEST(spectrum_t,rho,2)
 	DECL_FUNC_NEST(scalar_t,pdf,2)
 	DECL_FUNC_NEST(spectrum_t,f,2)
 	DECL_FUNC(BxDFType,type,0)
@@ -267,8 +273,8 @@ DECLARE_CONST_METHOD(spectrum_t,sample_f,5,( I_(const vector_t&,wo),
 				   I_(vector_t&, wi),
 				   I_(scalar_t,u1), I_(scalar_t,u2), I_(scalar_t&,pdf)));
 DECLARE_CONST_METHOD(spectrum_t,rho,3,( I_(const vector_t&,wo),
-				   I_(int , nSamples), I_(scalar_t&,samples)));
-DECLARE_CONST_METHOD(spectrum_t,rho,2,( I_(int , nSamples), I_(scalar_t* ,samples)))
+				   I_(int , nSamples), I_(scalar_t*,samples)));
+DECLARE_CONST_METHOD(spectrum_t,rho,3,( I_(int , nSamples), I_(scalar_t* , s1), I_(scalar_t* ,samples2)))
 
 DECLARE_CONST_METHOD(scalar_t,pdf,2,( I_(const vector_t& ,wi), I_(const vector_t&,wo)))
 
@@ -286,8 +292,8 @@ typename Conf::spectrum_t BxDF<D,Conf>::sample_f(const typename Conf::vector_t &
 							// Cosine-sample the hemisphere, flipping the direction if necessary
 							wi = CosineSampleHemisphere(u1, u2);
 							if (wo.z() < 0.) wi.z() *= -1.f;
-							ppdf = pdf(wo, wi);
-							return f(wo, wi);
+							ppdf = derived().pdf(wo, wi);
+							return derived().f(wo, wi);
 }
 template<typename D,typename Conf>
 typename Conf::scalar_t BxDF<D,Conf>::pdf(const typename Conf::vector_t &wo, const typename Conf::vector_t &wi) const {
@@ -297,7 +303,7 @@ typename Conf::scalar_t BxDF<D,Conf>::pdf(const typename Conf::vector_t &wo, con
 
 template<typename D,typename Conf>
 typename Conf::spectrum_t BxDF<D,Conf>::rho(const typename Conf::vector_t &w, int nSamples,
-				   scalar_t &samples) const {
+				   scalar_t *samples) const {
 					   if (!samples) {
 						   samples =
 							   (scalar_t *)alloca(2 * nSamples * sizeof(scalar_t));
@@ -309,27 +315,32 @@ typename Conf::spectrum_t BxDF<D,Conf>::rho(const typename Conf::vector_t &w, in
 						   vector_t wi;
 						   scalar_t pdf = 0.f;
 						   spectrum_t f =
-							   sample_f(w, wi, samples[2*i], samples[2*i+1], pdf);
-						   if (pdf > 0.) r += f * fabsf(wi.z) / pdf;
+							   derived().sample_f(w, wi, samples[2*i], samples[2*i+1], pdf);
+						   if (pdf > 0.) r += f * fabsf(vector_op::z(wi)) / pdf;
 					   }
-					   return r / (M_PI * nSamples);
+					   return r / ( nSamples );
 }
 template<typename D,typename Conf>
-typename Conf::spectrum_t BxDF<D,Conf>::rho(int nSamples, scalar_t *samples) const {
-	if (!samples) {
-		samples =
-			(scalar_t *)alloca(4 * nSamples * sizeof(scalar_t));
-		LatinHypercube(samples, nSamples, 4);
+typename Conf::spectrum_t BxDF<D,Conf>::rho(int nSamples,scalar_t* s1, scalar_t *s2) const {
+	if (!s1) {
+		s1 =
+			(scalar_t *)alloca(2 * nSamples * sizeof(scalar_t));
+		LatinHypercube(s1, nSamples, 2);
+	}
+	if (!s2) {
+		s2 =
+			(scalar_t *)alloca(2 * nSamples * sizeof(scalar_t));
+		LatinHypercube(s2, nSamples, 2);
 	}
 	spectrum_t r = 0.;
 	for (int i = 0; i < nSamples; ++i) {
 		// Estimate one term of $\rho_{hh}$
 		vector_t wo, wi;
-		wo = UniformSampleHemisphere(samples[4*i], samples[4*i+1]);
+		wo = UniformSampleHemisphere(s1[2*i], s1[2*i+1]);
 		const float INV_TWOPI = INV_PI/2;
 		scalar_t pdf_o = INV_TWOPI, pdf_i = 0.f;
 		spectrum_t f =
-			sample_f(wo,  wi, samples[4*i+2], samples[4*i+3],
+			derived().sample_f(wo,  wi, s2[2*i], s2[2*i+1],
 			 pdf_i);
 		if (pdf_i > 0.)
 			r += f * fabsf(wi.z * wo.z) / (pdf_o * pdf_i);
@@ -507,8 +518,11 @@ SpecularReflection<C>::sample_f(const typename C::vector_t& wo,typename C::vecto
 	//perfect specular reflection
 	wi = vector_t(-wo[0],-wo[1],wo[2]);
 	pdf = 1;
+//	spectrum_t  sp = 
 	return fresnel::evaluate(fresnel_,CosTheta(wo)) * r_ *
-		reciprocal(CosTheta(wi));
+		reciprocal(std::abs(CosTheta(wi)));
+//	printf("relfection sample_f: %f",sp.y());
+//	return sp;
 }
 template<typename C>
 typename C::spectrum_t 
@@ -530,6 +544,7 @@ SpecularTransmission<C>::sample_f(const typename C::vector_t& wo,typename C::vec
 	pdf = 1;
 	spectrum_t F = fresnel::evaluate(fresnel_,
 			CosTheta(wo));
+
 	return (et*et) * reciprocal(ei*ei) * (spectrum_t(1)-F) * t_
 		* reciprocal(std::abs(CosTheta(wi)));
 }

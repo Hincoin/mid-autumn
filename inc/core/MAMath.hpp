@@ -562,13 +562,22 @@ namespace ma{
 	//[0,1)
 	template<typename RealT>
 	inline RealT genrand_real2(){
-		typedef boost::random::lagged_fibonacci_01<RealT, 48, 607, 273> lagged_fibonacci607_t;
+		typedef boost::mt19937 generator_t;
+		typedef boost::uniform_real<RealT> uniform_real_t;
+		static uniform_real_t uni_dist(0,1);
+		static generator_t generator(5489UL);
+		static boost::variate_generator<generator_t&, uniform_real_t> uni(generator, uni_dist);
+
+		return uni();
+
+/*		typedef boost::random::lagged_fibonacci_01<RealT, 48, 607, 273> lagged_fibonacci607_t;
 		typedef boost::uniform_real<RealT> uniform_real_t;
 		static uniform_real_t uni_dist(0,1);
 		static lagged_fibonacci607_t generator(5489UL);//default seed
 		static boost::variate_generator<lagged_fibonacci607_t&, uniform_real_t > uni(generator, uni_dist);
 
 		return uni();
+		*/
 	}
 	//[m,M]
 	inline unsigned long genrand_int32()

@@ -66,7 +66,7 @@ namespace ma{
 				RealType c,
 				RealType nSteps,RealType u,RealType &pdf)
 		{
-			RealType *ptr = std::lower_bound(cdf,cdf+nSteps+1,u);
+			RealType *ptr = std::lower_bound(cdf,cdf+(int)nSteps+1,u);
 			int offset = (int)(ptr-cdf-1);
 			u = (u - cdf[offset])/(cdf[offset + 1] - cdf[offset]);
 			pdf = f[offset] / c;

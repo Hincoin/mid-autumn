@@ -211,12 +211,6 @@ namespace OOLUA
 		lua_pop( s, 1);
 	}
 
-#define OOLUA_MAKE_SCRIPT_DERIVED(SD)\
-	private:\
-	SD(){}\
-	friend class OOLUA::cpp_acquire_base_ptr<SD>;\
-	friend int OOLUA::INTERNAL::create_type<SD>(lua_State * );\
-
 
 
 
@@ -281,6 +275,14 @@ namespace OOLUA
 #define __VFUNC_DECL_I_(TYPE,NAME) TYPE NAME
 
 #define __VFUNC_CALL_I_(TYPE,NAME) NAME
+
+#define __VFUNC_TYPE_I_(TYPE,NAME) TYPE
+
+#define OOLUA_MAKE_SCRIPT_DERIVED(SD,SB,NARGS,ARGS)\
+	private:\
+	SD(__VFUNC_PROCESS_ARGS(DECL_,BOOST_PP_TUPLE_TO_SEQ(NARGS,ARGS))):SB(__VFUNC_PROCESS_ARGS(CALL_,BOOST_PP_TUPLE_TO_SEQ(NARGS,ARGS))){}\
+	friend class OOLUA::cpp_acquire_base_ptr<SD>;\
+	friend SD* Construtor<SD,boost::mpl::vector<__VFUNC_PROCESS_ARGS(TYPE_,BOOST_PP_TUPLE_TO_SEQ(NARGS,ARGS)) > >::call_construct<boost::mpl::vector<__VFUNC_PROCESS_ARGS(TYPE_,BOOST_PP_TUPLE_TO_SEQ(NARGS,ARGS))>  >(lua_State* , boost::fusion::vector##NARGS<__VFUNC_PROCESS_ARGS(TYPE_,BOOST_PP_TUPLE_TO_SEQ(NARGS,ARGS)) >&);\
 
 
 
