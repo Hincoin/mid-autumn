@@ -34,21 +34,19 @@ namespace fp
             {
                 typedef cf<R(Args...)> result_type;
                 typedef typename result_type::function_type result_function;
-                result_function f = [=](Args... args){return this->f_(x,args... );};
-                return result_type(f);
+                return result_type(result_function([=](Args... args){return this->f_(x,args... );}));
             }
-
             private:
             std::function<R(T,Args...)> f_;
         };
     namespace detail{
         template<typename R>
-            R curry_apply(cf<R()> f)
+            R curry_apply(const cf<R()>& f)
             {
                 return f();
             }
         template<typename R,typename A,typename... Args>
-            R curry_apply(cf<R(A,Args...)> f, A a1, Args... args)
+            R curry_apply(const cf<R(A,Args...)>& f, A a1, Args... args)
             {
                return curry_apply(f(a1),args...);
             }
@@ -56,7 +54,7 @@ namespace fp
 
     //compose
     template<typename T,typename U,typename... Args>
-        cf<T(Args...)> operator*(cf<T(U)> f0,cf<U(Args...)> f1)
+        cf<T(Args...)> operator*(const cf<T(U)>& f0, const cf<U(Args...)>& f1)
         {
             typedef std::function<T(Args...)> f_t;
             f_t f = [=](Args... args){return f0(detail::curry_apply(f1,args...))();};
