@@ -43,7 +43,6 @@ namespace ma{
 		MAKE_VISITOR(matchesFlags,1)
 		MAKE_VISITOR(f,2)
 		MAKE_VISITOR(sample_f,5)
-		MAKE_VISITOR(rho,3)
 		MAKE_VISITOR(pdf,2)
 		
 	}
@@ -59,6 +58,14 @@ BSDF_ALL_REFLECTION = BSDF_REFLECTION | BSDF_ALL_TYPES,
 BSDF_ALL_TRANSMISSION = BSDF_TRANSMISSION | BSDF_ALL_TYPES,
 BSDF_ALL = BSDF_ALL_REFLECTION | BSDF_ALL_TRANSMISSION};
 
+namespace bxdf{
+	DECL_FUNC(bool,matchesFlags,1)
+	DECL_FUNC_NEST(spectrum_t,sample_f,5)
+	DECL_FUNC_NEST(spectrum_t,rho,3)
+	DECL_FUNC_NEST(scalar_t,pdf,2)
+	DECL_FUNC_NEST(spectrum_t,f,2)
+	DECL_FUNC(BxDFType,type,0)
+}
 template<typename Conf>
 class BSDF{
 	typedef BSDF<Conf> class_type;
@@ -235,7 +242,7 @@ typename Conf::spectrum_t BSDF<Conf>::rho(BxDFType flags,int nSamples) const {
 	
 	for (int i = 0; i < nBxDFs; ++i)
 		if (bxdf::matchesFlags_ref<bool>(bxdfs[i],flags)/*bxdfs[i]->MatchesFlags(flags)*/)
-			ret += bxdf::rho<spectrum_t(int,scalar_t*,scalar_t*)>(bxdfs[i],nSamples,s1,s2);//bxdfs[i]->rho();
+			ret += bxdf::rho/*<spectrum_t(int,scalar_t*,scalar_t*)>*/(bxdfs[i],nSamples,s1,s2);//bxdfs[i]->rho();
 	return ret;
 }
 template<typename Conf>
@@ -245,19 +252,12 @@ typename Conf::spectrum_t BSDF<Conf>::rho(const vector_t &wo, BxDFType flags,int
 	spectrum_t ret(0.);
 	for (int i = 0; i < nBxDFs; ++i)
 		if (bxdf::matchesFlags_ref<bool>(bxdfs[i],flags) /*bxdfs[i]->MatchesFlags(flags)*/)
-			ret += bxdf::rho<spectrum_t(const vector_t&,int,scalar_t*)>(bxdfs[i],wo,nSamples, s1);//bxdfs[i]->rho(wo);
+			ret += bxdf::rho/*<spectrum_t(const vector_t&,int,scalar_t*)>*/(bxdfs[i],wo,nSamples, s1);//bxdfs[i]->rho(wo);
 	return ret;
 }
 //////////////////////////////////////////////////////////////////////////
 
-namespace bxdf{
-	DECL_FUNC(bool,matchesFlags,1)
-	DECL_FUNC_NEST(spectrum_t,sample_f,5)
-	DECL_FUNC_NEST(spectrum_t,rho,3)
-	DECL_FUNC_NEST(scalar_t,pdf,2)
-	DECL_FUNC_NEST(spectrum_t,f,2)
-	DECL_FUNC(BxDFType,type,0)
-}
+
 //more bxdf types
 BEGIN_CRTP_INTERFACE(BxDF)
 public:
