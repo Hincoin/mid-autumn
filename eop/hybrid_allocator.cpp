@@ -21,7 +21,24 @@ namespace detail{
     //single-extent: single_ended, double_ended, circular
     //segmented: single-extent index, segmented index, slanted index
     //
-
+            template<typename T, int bsz,typename HeapAllocator>
+            struct impl:public HeapAllocator
+            {
+                boost::aligned_storage<bsz, boost::alignment_of<T>::value> buffer;
+                void* address()const
+                {
+                    return const_cast<void*>(buffer.address());
+                }
+           };
+            template<typename T, typename HeapAllocator>
+                struct impl<T, 0, HeapAllocator>:public HeapAllocator{
+                    void* address()const
+                    {
+                        return 0;
+                    }
+                };
+ 
+}
 template<int N>
 struct stack_n_objects_policy{
     //
@@ -68,17 +85,10 @@ struct compute_stack_buffer_size<stack_n_bytes_policy<N>, T>
 
     template<typename T, typename StackPolicy ,typename HeapAllocator >
         class hybrid_allocator{
-            struct impl:public HeapAllocator
-            {
-                enum{BufferSize = compute_stack_buffer_size<StackPolicy, T>::value};
-                boost::aligned_storage<BufferSize , boost::alignment_of<T>::value> buffer;
-                void* address()const
-                {
-                    return const_cast<void*>(buffer.address());
-                }
-           };
-            enum{ObjectCount = compute_stack_object_size<StackPolicy, T>::value};
-            impl impl_;
+
+            enum{BufferSize = compute_stack_buffer_size<StackPolicy, T>::value};
+           enum{ObjectCount = compute_stack_object_size<StackPolicy, T>::value};
+           detail::impl<T, BufferSize, HeapAllocator> impl_;
             public:
             typedef std::size_t size_type;
             typedef std::ptrdiff_t difference_type;
@@ -134,6 +144,7 @@ struct compute_stack_buffer_size<stack_n_bytes_policy<N>, T>
             private:
             bool is_in_stack(pointer p)const
             {
+                if(BufferSize < 1) return false;
                 const_pointer s = (const_pointer)(impl_.address());
                 return (s <= p && p < s + ObjectCount);
             }
@@ -153,7 +164,6 @@ bool operator != (const hybrid_allocator<T0>&,
     return false;
 }
 
-}
 /*
 template<typename T,typename StackPolicy=stack_n_objects_policy<T,256>,typename SizePolicy = detail::fibonacci_size,typename Allocator = std::allocator<T> >
 class ruto_buffer{
@@ -211,9 +221,9 @@ struct test{
     int a ;
     test():a(0){}
 };
-int main()
+template<typename V>
+void simple_test(V& v)
 {
-    std::vector<test,detail::hybrid_allocator<test> > v;
     for(int i = 0;i < 100000;i++)
     {
         v.push_back(test());
@@ -227,5 +237,12 @@ int main()
 //        v.pop_front();
     }
     
+}
+int main()
+{
+   std::vector<test,hybrid_allocator<test> > v;
+   simple_test(v);
+   std::vector<test,hybrid_allocator<test, stack_n_objects_policy<0> > > std_vector;    
+   simple_test(std_vector);
     return 0;
 }
