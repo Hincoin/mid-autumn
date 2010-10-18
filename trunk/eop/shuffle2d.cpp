@@ -1,3 +1,11 @@
+#include <utility>
+#include <algorithm>
+#include <vector>
+#include <stack>
+#include <set>
+#include <cassert>
+
+#include <cstdlib>
 
 
     template<typename T, typename P, typename F>
@@ -9,45 +17,41 @@ inline void loop_action(T& v, P& p,F& f)
     }
 }
 
-#include <utility>
-#include <algorithm>
-#include <vector>
-#include <stack>
-#include <set>
-#include <cassert>
+
 //left,right,up,down
 enum ConnectorType{
-    L=0,R,U,D, 
-    UR,RD,DL,LU,LR,UD, 
-    LUR,DLU,RDL,URD,
-    LURD,
-    UnknownOrCount
+    UnknownConnector=0x0,
+    L=0x01,R = L << 1,U = R << 1,D = U << 1, 
+    UR = U | R, RD = R | D, DL = D|L, LU = L|U , LR = L|R, UD = U|D, 
+    LUR = L|UR,DLU = D|LU ,RDL = R|DL,URD=U|RD,
+    LURD = LUR | D
 };
+
 //for print
 static const char* ConnectTypeStr[] = 
-{   "L    ",
-    "R    ",
-    "U    ",
-    "D    ", 
-    "UR   ",
-    "RD   ",
-    "DL   ",
-    "LU   ",
-    "LR   ",
-    "UD   ", 
-    "LUR  ",
-    "DLU  ",
-    "RDL  ",
-    "URD  ",
-    "LURD ",
-    "UnknownOrCount"
+{ 
+    "UnknownOrCount",
+    "L    ",//01
+    "R    ",//02
+    "LR   ",//03
+    "U    ",//04
+    "LU   ",//05
+    "UR   ",//06
+    "LUR  ",//07
+    "D    ",//08
+    "DL   ",//09
+    "RD   ",//10
+    "RDL  ",//11
+    "UD   ",//12 
+    "DLU  ",//13
+    "URD  ",//14
+    "LURD ",//15
 };
-    template<int _0, int _1, int _2, int _3, int _4, int _5, int _6, int _7>
+    template<int C>
 bool is_one_of(ConnectorType c)
 {
-    return _0 == c || _1 == c || _2 == c || _3 == c || _4 == c || _5 == c || _6 == c || _7 == c;
+    return (C & c) != 0;
 }
-
 struct check_connection
 {
     template<typename Array2D>
@@ -99,126 +103,52 @@ struct check_connection
                 if (coords.find(std::make_pair(t.first,t.second)) != coords.end())
                     continue;
                 coords.insert(std::make_pair(t.first,t.second));
-                switch(array[t.first][t.second])
+                ConnectorType conn = array[t.first][t.second];
+                if (is_one_of<L>(conn))
+                    coord_stack.push(go_left(array,t));
+                if (is_one_of<U>(conn))
+                    coord_stack.push(go_up(array,t));
+                if (is_one_of<R>(conn))
+                    coord_stack.push(go_right(array,t));
+                if (is_one_of<D>(conn))
+                    coord_stack.push(go_down(array,t));
+                if (conn == UnknownConnector)
                 {
-                    case L:
-                        {
-                            coord_stack.push(go_left(array,t));
-                        }
-                        break;
-                    case U:
+                    if (t.first > 0)
+                    {
+                        ConnectorType c = array[t.first - 1][t.second];
+                        if(c == UnknownConnector|| 
+                                is_one_of<D>(c))
                         {
                             coord_stack.push(go_up(array,t));
                         }
-                        break;
-                    case R:
+                    }
+                    if (t.first+1 < array.size())
+                    {
+                        ConnectorType c = array[t.first + 1][t.second];
+                        if (c == UnknownConnector|| 
+                                is_one_of<U>(c))
+                            coord_stack.push(go_down(array,t));
+                    }
+                    if (t.second > 0)
+                    {
+                        ConnectorType c = array[t.first][t.second - 1];
+                        if (c == UnknownConnector|| 
+                                is_one_of<R>(c))
+                            coord_stack.push(go_left(array,t));
+                    }
+                    if (t.second + 1 < array[t.first].size())
+                    {
+                        ConnectorType c = array[t.first][t.second + 1];
+                        if (c == UnknownConnector || 
+                                is_one_of<L>(c))
                         {
                             coord_stack.push(go_right(array,t));
                         }
-                        break;
-                    case D:
-                        {
-                            coord_stack.push(go_down(array,t));
-                        }
-                        break;
-                    case LU:
-                        {
-                            coord_stack.push(go_left(array,t));
-                            coord_stack.push(go_up(array,t));
-                        }
-                        break;
-                    case LR:
-                        {
-                            coord_stack.push(go_left(array,t));
-                            coord_stack.push(go_right(array,t));
-                        }
-                        break;
-                    case DL:
-                        {
-                            coord_stack.push(go_left(array,t));
-                            coord_stack.push(go_down(array,t));
-                        }
-                        break;
-                    case UR:
-                        {
-                            coord_stack.push(go_up(array,t));
-                            coord_stack.push(go_right(array,t));
-                        }
-                        break;
-                    case UD:
-                        {
-                            coord_stack.push(go_up(array,t));
-                            coord_stack.push(go_down(array,t));
-                        }
-                        break;
-                    case RD:
-                        coord_stack.push(go_right(array,t));
-                        coord_stack.push(go_down(array,t));
-                        break;
-                    case LUR:
-                        coord_stack.push(go_left(array,t));
-                        coord_stack.push(go_up(array,t));
-                        coord_stack.push(go_right(array,t));
-                        break;
-                    case URD:
-                        coord_stack.push(go_up(array,t));
-                        coord_stack.push(go_right(array,t));
-                        coord_stack.push(go_down(array,t));
-                        break;
-                    case RDL:
-                        coord_stack.push(go_right(array,t));
-                        coord_stack.push(go_down(array,t));
-                        coord_stack.push(go_left(array,t));
-                        break;
-                    case DLU:
-                        coord_stack.push(go_down(array,t));
-                        coord_stack.push(go_left(array,t));
-                        coord_stack.push(go_up(array,t));
-                        break;
-                    case LURD:
-                        coord_stack.push(go_left(array,t));
-                        coord_stack.push(go_up(array,t));
-                        coord_stack.push(go_right(array,t));
-                        coord_stack.push(go_down(array,t));
-                        break;
+                    }
 
-                    case UnknownOrCount:
-                        if (t.first > 0)
-                        {
-                            ConnectorType c = array[t.first - 1][t.second];
-                            if(c == UnknownOrCount || 
-                                    is_one_of<D,DL,UD,RD,URD,RDL,DLU,LURD>(c))
-                            {
-                                coord_stack.push(go_up(array,t));
-                            }
-                        }
-                        if (t.first+1 < array.size())
-                        {
-                            ConnectorType c = array[t.first + 1][t.second];
-                            if (c == UnknownOrCount || 
-                                    is_one_of<U,LU,UR,UD,LUR,URD,DLU,LURD>(c))
-                                coord_stack.push(go_down(array,t));
-                        }
-                        if (t.second > 0)
-                        {
-                            ConnectorType c = array[t.first][t.second - 1];
-                            if (c == UnknownOrCount || 
-                                    is_one_of<R,LR,UR,RD,LUR,URD,RDL,LURD>(c))
-                                coord_stack.push(go_left(array,t));
-                        }
-                        if (t.second + 1 < array[t.first].size())
-                        {
-                            ConnectorType c = array[t.first][t.second + 1];
-                            if (c == UnknownOrCount || 
-                                    is_one_of<L,LR,LU,DL,LUR,RDL,DLU,LURD>(c))
-                            {
-                                coord_stack.push(go_right(array,t));
-                            }
-                        }
-                        break;
-                    default:assert(false);
-                            break;
                 }
+
             }
             for (i = 0;i < array.size(); ++i)
                 for(j = 0;j < array[i].size(); ++j)
@@ -244,204 +174,201 @@ struct is_complete{
             for(size_type i = 0;i < array.size(); ++i)
                 for(size_type j = 0;j < array[i].size(); ++j)
                 {
-                    if (array[i][j] == UnknownOrCount) return false;
+                    if (array[i][j] == UnknownConnector) return false;
                 }
-            return true;
+            return check_connection()(array);
         }
 };
-
-template<typename Array2D>
+struct default_random_policy{
+    typedef std::ptrdiff_t value_type;
+    //returns a value belongs to [0,m)
+    value_type operator()(value_type m)
+    {
+        double tmp ;
+        tmp = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
+        return static_cast<value_type>(tmp * m);
+    }
+};
+template<typename Array2D, typename RNG = default_random_policy>
 struct place_step
 {
+    enum NeighborRelation{NoPath, HasPath, NoNeighbor, RelationCount}; 
+    typedef typename Array2D::size_type size_type;
+    typedef std::vector<ConnectorType> connector_array_t;
+    typedef place_step<Array2D, RNG> class_type;
+    public:
+    explicit place_step(RNG* r = 0):x(0),z(0),rng(r){
+        init_condition_map();
+    }
+    void operator()(Array2D& array)
+    {
+        assert(z < array.size());
+        if( x < array[z].size() )
+        {
+            //keep trying place at z x
+            if ( array[z][x] == UnknownConnector)
+                try_place(array);
+            x += 1;
+        }
+        else if( z < array.size() )
+        {
+            //keep trying place at z x
+            if (x < array[z].size() &&  array[z][x] == UnknownConnector)
+                try_place(array);
+            z += 1; 
+            x = 0;
+        }
+    }
     private:
-        typedef typename Array2D::size_type size_type;
-        typedef place_step<Array2D> class_type;
-        size_type x,z;
-
-        enum NeighborRelation{NoPath, HasPath, NoNeighbor, RelationCount}; 
-        typedef std::vector<ConnectorType> connector_array_t;
-        connector_array_t condition_map[RelationCount][RelationCount][RelationCount][RelationCount];
-
-        template<int _0,int _1,int _2,int _3,int _4,int _5,int _6,int _7>
-            connector_array_t filter_by_conn(bool bHasPath, const connector_array_t& a)
-            {
-                connector_array_t ret;
-                for (connector_array_t::const_iterator it = a.begin(); it != a.end();++it)
-                {
-                    if( is_one_of<_0,_1,_2,_3,_4,_5,_6,_7>(*it))
+    void init_condition_map()
+    {
+        ConnectorType all_cs[]=
+        {
+            L,R,U,D, 
+            UR,RD,DL,LU,LR,UD, 
+            LUR,DLU,RDL,URD,
+            LURD
+        };
+        connector_array_t all_connectors(all_cs,all_cs + sizeof(all_cs)/sizeof(ConnectorType));
+        NeighborRelation nr[] = {NoPath, HasPath,  NoNeighbor};
+        size_t count = sizeof(nr)/sizeof(NeighborRelation);
+        for (size_t li = 0;li < count; ++li)
+            for (size_t ui = 0; ui < count; ++ui)
+                for(size_t ri = 0; ri < count; ++ri)
+                    for (size_t di = 0; di < count; ++di)
                     {
-                        if (bHasPath)
-                            ret.push_back(*it);
+                        NeighborRelation l,u,r,d;
+                        l = nr[li];
+                        u = nr[ui];
+                        r = nr[ri];
+                        d = nr[di];
+
+                        connector_array_t cs ( all_connectors ); 
+                        if (l != NoNeighbor)
+                            filter_by_conn<L>(l == HasPath, cs).swap(cs);
+                        if (u != NoNeighbor)
+                            filter_by_conn<U>(u == HasPath, cs).swap(cs);
+                        if (r != NoNeighbor)
+                            filter_by_conn<R>(r == HasPath, cs).swap(cs);
+                        if (d != NoNeighbor)
+                            filter_by_conn<D>(d ==HasPath, cs).swap(cs);
+                        condition_map[l][u][r][d].swap(cs);
                     }
-                    else if (!bHasPath)
+    }
+    template<int _0>
+        connector_array_t filter_by_conn(bool bHasPath, const connector_array_t& a)
+        {
+            connector_array_t ret;
+            for (connector_array_t::const_iterator it = a.begin(); it != a.end();++it)
+            {
+                if( is_one_of<_0>(*it))
+                {
+                    if (bHasPath)
                         ret.push_back(*it);
                 }
-
-                return ret;
-
+                else if (!bHasPath)
+                    ret.push_back(*it);
             }
-        connector_array_t filter_by_left_conn(bool bHasPath, const connector_array_t& a)
-        {
-            return filter_by_conn<L,LU,LR,DL,LUR,RDL,DLU,LURD>(bHasPath,a);
-        }
-        connector_array_t filter_by_up_conn(bool bHasPath, const connector_array_t& a)
-        {
-            return filter_by_conn<U,LU,UR,UD,LUR,URD,DLU,LURD>(bHasPath,a);
-        }
-        connector_array_t filter_by_down_conn(bool bHasPath, const connector_array_t& a)
-        {
-            return filter_by_conn<D,DL,UD,RD,URD,RDL,DLU,LURD>(bHasPath,a);
-        }
-        connector_array_t filter_by_right_conn(bool bHasPath, const connector_array_t& a)
-        {
-            return filter_by_conn<R,LR,UR,RD,LUR,URD,RDL,LURD>(bHasPath,a);
-        }
-
-        void init_condition_map()
-        {
-            ConnectorType all_cs[]={L,R,U,D, 
-                UR,RD,DL,LU,LR,UD, 
-                LUR,DLU,RDL,URD,
-                LURD};
-            connector_array_t all_connectors(all_cs,all_cs + sizeof(all_cs)/sizeof(ConnectorType));
-            NeighborRelation nr[] = {NoPath, HasPath,  NoNeighbor};
-            size_t count = sizeof(nr)/sizeof(NeighborRelation);
-            for (size_t li = 0;li < count; ++li)
-                for (size_t ui = 0; ui < count; ++ui)
-                    for(size_t ri = 0; ri < count; ++ri)
-                        for (size_t di = 0; di < count; ++di)
-                        {
-                            NeighborRelation l,u,r,d;
-                            l = nr[li];
-                            u = nr[ui];
-                            r = nr[ri];
-                            d = nr[di];
-
-                            connector_array_t cs ( all_connectors ); 
-                            if (l != NoNeighbor)
-                                cs = (filter_by_left_conn( l == HasPath, cs));
-                            if (u != NoNeighbor)
-                                cs = (filter_by_up_conn( u == HasPath, cs));
-                            if (r != NoNeighbor)
-                                cs = (filter_by_right_conn( r == HasPath, cs));
-                            if (d != NoNeighbor)
-                                cs = (filter_by_down_conn( d == HasPath, cs));
-                            condition_map[l][u][r][d].swap(cs);
-                        }
-        }
-
-        struct advance_it{
-            template<typename I>
-                void operator()(I& it)const
-                {
-                    ++it ;
-                }
-        };
-        struct check_end{
-            const Array2D& array;
-            connector_array_t& cs;
-            size_type x,z;
-            check_end(size_type x, size_type z,const Array2D& a, connector_array_t& c):
-                x(x),z(z),array(a),cs(c){}
-            bool operator()(connector_array_t::iterator& it)const
-            {
-                if (it == cs.end())
-                {
-                    return true;
-                }
-                Array2D tmp ( array );
-                tmp[z][x] = *it;
-                return *it == LURD || check_connection()(tmp);
-            }
-        };
-        ConnectorType pick_current_connector(const Array2D& array, 
-                NeighborRelation left, NeighborRelation up, NeighborRelation right, NeighborRelation down
-                ) const
-        {
-            connector_array_t& a = const_cast<connector_array_t&>(condition_map[left][up][right][down]) ;
-            if (a.empty() ){ assert(false); return UnknownOrCount;}   
-
-            //shuffle a
-            std::random_shuffle(a.begin(), a.end());
-
-            connector_array_t::iterator it = a.begin(); 
-            check_end p(x,z,array,a);
-            advance_it step;
-            loop_action(it ,p,step);
-            if (it == a.end()) { assert(false); return UnknownOrCount;}
-            ConnectorType ret = *it;
             return ret;
         }
+    private:
+    void try_place(Array2D& array)const
+    {
+        if (array.empty()) return ;
+        array[z][x] = pick_current_connector(array, get_left_relation(array),get_up_relation(array),get_right_relation(array),get_down_relation(array));
+        return;
+    }
+    NeighborRelation get_left_relation(const Array2D& array)const
+    {
+        if (x == 0) return class_type::NoPath;
+        ConnectorType left = array[z][x-1];
+        if (left == UnknownConnector) return class_type::NoNeighbor;
+        if (is_one_of<R>(left))
+            return class_type::HasPath;
+        return class_type::NoPath;
+    }
+    NeighborRelation get_up_relation(const Array2D& array)const
+    {
+        if ( z == 0) return class_type::NoPath;
+        ConnectorType up = array[z-1][x];
+        if (up == UnknownConnector) return class_type::NoNeighbor;
+        if (is_one_of<D>(up)
+           )
+            return class_type::HasPath;
+        return class_type::NoPath;
+    }
+    NeighborRelation get_right_relation(const Array2D& array)const
+    {
+        if (x == array[z].size() - 1) return class_type::NoPath;
+        ConnectorType right = array[z][x+1];
+        if(right == UnknownConnector) return class_type::NoNeighbor;
+        if (is_one_of<L>(right))
+            return class_type::HasPath;
+        return class_type::NoPath;
 
-        NeighborRelation get_left_relation(const Array2D& array)const
-        {
-            if (x == 0) return class_type::NoPath;
-            ConnectorType left = array[z][x-1];
-            if (left == UnknownOrCount) return class_type::NoNeighbor;
-            if (is_one_of<R,UR,LR,RD,LUR,URD,RDL,LURD>(left))
-                return class_type::HasPath;
-            return class_type::NoPath;
-        }
-        NeighborRelation get_up_relation(const Array2D& array)const
-        {
-            if ( z == 0) return class_type::NoPath;
-            ConnectorType up = array[z-1][x];
-            if (up == UnknownOrCount) return class_type::NoNeighbor;
-            if (is_one_of<D,DL,UD,RD,URD,RDL,DLU,LURD>(up)
-               )
-                return class_type::HasPath;
-            return class_type::NoPath;
-        }
-        NeighborRelation get_right_relation(const Array2D& array)const
-        {
-            if (x == array[z].size() - 1) return class_type::NoPath;
-            ConnectorType right = array[z][x+1];
-            if(right == UnknownOrCount) return class_type::NoNeighbor;
-            if (is_one_of<L,LU,DL,LR,LUR,RDL,DLU,LURD>(right))
-                return class_type::HasPath;
-            return class_type::NoPath;
+    }
+    NeighborRelation get_down_relation(const Array2D& array)const
+    {
+        if ( z == array.size() - 1) return class_type::NoPath;
+        ConnectorType down = array[z+1][x];
+        if (down == UnknownConnector) return class_type::NoNeighbor;
+        if (is_one_of<U>(down))
+            return class_type::HasPath;
+        return class_type::NoPath;
+    }
+    private:
+    ConnectorType pick_current_connector(const Array2D& array, 
+            NeighborRelation left, NeighborRelation up, NeighborRelation right, NeighborRelation down
+            ) const
+    {
+        connector_array_t& a = const_cast<connector_array_t&>(condition_map[left][up][right][down]) ;
+        if (a.empty() ){ assert(false); return UnknownConnector;}   
 
-        }
-        NeighborRelation get_down_relation(const Array2D& array)const
-        {
-            if ( z == array.size() - 1) return class_type::NoPath;
-            ConnectorType down = array[z+1][x];
-            if (down == UnknownOrCount) return class_type::NoNeighbor;
-            if (is_one_of<U,LU,UR,UD,LUR,URD,DLU,LURD>(down))
-                return class_type::HasPath;
-            return class_type::NoPath;
-        }
+        //shuffle a
+        if(rng)
+            std::random_shuffle(a.begin(), a.end(), *rng);
+        else
+            std::random_shuffle(a.begin(), a.end());
 
-        void try_place(Array2D& array)const
-        {
-            if (array.empty()) return ;
-            array[z][x] = pick_current_connector(array, get_left_relation(array),get_up_relation(array),get_right_relation(array),get_down_relation(array));
-            return;
-        }
-    public:
-        place_step():x(0),z(0){
-            init_condition_map();
-        }
-
-
-        void operator()(Array2D& array)
-        {
-            if( x < array[z].size() )
+        connector_array_t::iterator it = a.begin(); 
+        check_end p(x,z,array,a);
+        advance_it step;
+        loop_action(it, p, step);
+        if (it == a.end()) { assert(false); return UnknownConnector;}
+        return *it;
+    }
+    struct advance_it{
+        template<typename I>
+            void operator()(I& it)const
             {
-                //keep trying place at z x
-                if ( array[z][x] == UnknownOrCount)
-                    try_place(array);
-                x += 1;
+                ++it ;
             }
-            else if( z < array.size() )
+    };
+    struct check_end{
+        const Array2D& array;
+        const connector_array_t& cs;
+        size_type x,z;
+        check_end(size_type x, size_type z,const Array2D& a,const connector_array_t& c):
+            x(x),z(z),array(a),cs(c){}
+        bool operator()(const connector_array_t::iterator& it)const
+        {
+            if (it == cs.end())
             {
-                //keep trying place at z x
-                if (x < array[z].size() &&  array[z][x] == UnknownOrCount)
-                    try_place(array);
-                z += 1; 
-                x = 0;
+                return true;
             }
+            Array2D& tmp = const_cast<Array2D&> ( array );
+            ConnectorType t = array[z][x];
+            tmp[z][x] = *it;
+            bool ret = *it == LURD || check_connection()(tmp);
+            //restore back
+            tmp[z][x] = t;
+            return ret;
         }
+    };
+    private:
+    size_type x,z;
+    RNG* rng;
+    connector_array_t condition_map[RelationCount][RelationCount][RelationCount][RelationCount];
 };
 
 
@@ -452,9 +379,10 @@ void test(int width,int height)
     typedef std::vector<std::vector<ConnectorType> > array2d_t;
     array2d_t array;
     std::vector<ConnectorType> elem;
-    elem.resize(width,UnknownOrCount);
+    elem.resize(width,UnknownConnector);
     array.resize(height, elem);
-    place_step<array2d_t> step;
+    default_random_policy rng;
+    place_step<array2d_t> step(&rng);
     is_complete p;
     loop_action(array,p,step);
     for(size_t i = 0;i < array.size(); ++i)
@@ -466,7 +394,7 @@ void test(int width,int height)
         printf("\n");
     }
 }
-int main()
+void exaust_test()
 {
     for(size_t i = 2;i < 20;++i)
     {
@@ -475,6 +403,15 @@ int main()
             test(i,j);
             printf("\n\n");
         }
+    }
+    printf("\n");
+}
+int main()
+{
+    for(int i = 0;i < 10000; i++)
+    {
+        srand(i);
+        exaust_test();
     }
     return 0;
 
