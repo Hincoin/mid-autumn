@@ -374,44 +374,54 @@ struct place_step
 
 #include <iostream>
 #include <cstdio>
-void test(int width,int height)
+void test(int width,int height, int seed)
 {
     typedef std::vector<std::vector<ConnectorType> > array2d_t;
     array2d_t array;
     std::vector<ConnectorType> elem;
     elem.resize(width,UnknownConnector);
     array.resize(height, elem);
+
+    srand(seed);
     default_random_policy rng;
     place_step<array2d_t> step(&rng);
+
     is_complete p;
+
     loop_action(array,p,step);
     for(size_t i = 0;i < array.size(); ++i)
     {
         for(size_t j = 0; j < array[i].size(); ++j)
         {
-            printf("%s",ConnectTypeStr[array[i][j]] );
+            if ( array[i][j] != UnknownConnector)
+                ;//printf("%s",ConnectTypeStr[array[i][j]] );
+            else
+            {
+                printf("Error : (%d,%d)-%d\n",width,height,seed);
+                exit(1);
+                return;
+            }
         }
-        printf("\n");
+        //printf("\n");
     }
 }
-void exaust_test()
+void exaust_test(int seed)
 {
+    printf("seed : %d\n",seed);
     for(size_t i = 2;i < 20;++i)
     {
         for(size_t j = 2; j < 20; ++j)
         {
-            test(i,j);
-            printf("\n\n");
+            test(i,j,seed);
+            //printf("\n\n");
         }
     }
-    printf("\n");
 }
 int main()
 {
     for(int i = 0;i < 10000; i++)
     {
-        srand(i);
-        exaust_test();
+        exaust_test(i);
     }
     return 0;
 
