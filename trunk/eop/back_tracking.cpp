@@ -223,6 +223,7 @@ bool is_connected(const ConnectorMatrix& m)
                 return false;
         }
     }
+     return true;
 }
 bool is_solution(const ConnectorMatrix& m)
 {
