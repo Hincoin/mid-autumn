@@ -381,6 +381,11 @@ ConnectorMatrix construct_matrix(size_t z, size_t x, const ConnectorMatrix& m, c
     return m;
 }
 
+template<>
+    back_tracking(Status cur, P p)
+{
+    
+}
 ConnectorMatrix test(int width,int height, int seed, const std::vector<Connector*>& normal_connectors)
 {
     std::vector<Connector*> input_connectors = normal_connectors;
