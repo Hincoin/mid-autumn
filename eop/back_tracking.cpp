@@ -381,65 +381,6 @@ ConnectorMatrix construct_matrix(size_t z, size_t x, const ConnectorMatrix& m, c
     return m;
 }
 
-namespace back_tracking{
-	struct no_shuffle{
-		template<typename I>
-			void operator()(I , I )const
-			{}
-	};
-
-	template<typename R, typename TI>
-	inline void back_tracking_step(R& state, TI& f, TI tf)
-	{
-		if (acceptable(state, *f))
-		{
-			successor_action(state, *f);
-			f = tf;
-			return;
-		}
-		predecessor_action(state, *f);
-		++f;
-	}
-	template<typename R, typename TI, typename S>
-		bool back_tracking_iterate(R& state, TI tf, TI tl, S shuffle)
-		{
-			TI f = tf;
-			while(f != tl)
-			{
-				back_tracking_step(state, f, tf);
-				if (f == tf && is_solution(state)) return true;
-				if ( f != tf) shuffle(f, tl);
-			}
-			return false;
-		}
-	//EOP:this is an action that will change the input value
-	//bidirectional state required(reversable)
-template<typename R,typename TI, typename S>
-bool back_tracking_recursive(R& state,TI tf, TI tl,S shuffle)
-{
-	if(detail::is_solution(state)) return true;
-	TI f = tf;
-	while(f != tl )
-	{
-		if(detail::acceptable(state, *f))
-		{
-			detail::successor_action(state,*f);
-			if(back_tracking_recursive(state,tf,tl))
-				return true;
-			detail::predecessor_action(state,*f);
-		}
-		++f;	
-		shuffle(f,tl);
-	}
-	return false;//empty result
-}
-	//this is an action change the input value
-template<typename R,typename TI>
-inline bool back_tracking_recursive(R& state,TI tf, TI tl)
-{
-	return back_tracking_recursive(state, tf, tl, no_shuffle());
-}
-}
 ConnectorMatrix test(int width,int height, int seed, const std::vector<Connector*>& normal_connectors)
 {
     std::vector<Connector*> input_connectors = normal_connectors;
