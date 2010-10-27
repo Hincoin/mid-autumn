@@ -195,21 +195,13 @@ std::vector<Connector*> filter_by_path_strict(int P, const std::vector<Connector
     return ret;
 }
 
-std::vector<Connector*> filter_by_path_not(int P, const std::vector<Connector*>& cs)
-{
-    std::vector<Connector*> ret;
-    for(std::vector<Connector*>::const_iterator it = cs.begin(); it != cs.end(); ++it)
-    {
-        if (!( ((*it)->get_path_type()) & P)) ret.push_back(*it);
-    }
-    return ret;
-}
 
-
+static int match_call_count = 0;
     template<int CT1, int CT0>
 bool is_connector_match(const Connector* a, const Connector* b)
 {
     assert(CT0 == opposite_dir<CT1>::value);
+    match_call_count ++;
     return std::find_if(a->get_connector_1d<CT0>().begin(),
             a->get_connector_1d<CT0>().end(),unary_equal_by_key(b)) != a->get_connector_1d<CT0>().end()
         && std::find_if(b->get_connector_1d<CT1>().begin(),
@@ -362,7 +354,7 @@ ConnectorMatrix construct_matrix(size_t z, size_t x, const ConnectorMatrix& m, c
     }
     else rc = m[z][x+1];
     std::vector<Connector*> cs = filter_by_path_strict(pt, intersect_filter(lc,uc,rc,dc,normal_connectors));
-    std::random_shuffle(cs.begin(),cs.end());
+    //std::random_shuffle(cs.begin(),cs.end());
     ConnectorMatrix cur = m;
     //filter by neibor 
     for(size_t i = 0;i < cs.size();++i)
@@ -384,8 +376,11 @@ ConnectorMatrix construct_matrix(size_t z, size_t x, const ConnectorMatrix& m, c
         ConnectorMatrix m;
         size_t x,z;//2d coord visitor
         Connector* unknown_connector;
+        //cache path type ?
+        int pt_prev;
+        int pt_cur;
         public:
-        connector_matrix_state(const ConnectorMatrix& cm, Connector* u):m(cm),x(0),z(0),unknown_connector(u){}
+        connector_matrix_state(const ConnectorMatrix& cm, Connector* u):m(cm),x(0),z(0),unknown_connector(u),pt_prev(-1),pt_cur(-1){}
         void next(Connector* c){
             assert(z < m.size() && x < m[z].size());
             m[z][x] = c;
@@ -415,7 +410,8 @@ ConnectorMatrix construct_matrix(size_t z, size_t x, const ConnectorMatrix& m, c
     };
 
 namespace back_tracking{
-    bool acceptable(connector_matrix_state& state, Connector* c)
+
+    inline bool try_next(connector_matrix_state& state, Connector* c)
     {
         size_t x = state.get_x();
         size_t z = state.get_z();
@@ -462,21 +458,20 @@ namespace back_tracking{
         {
             //test connectivity 
             state.next(c);
-            bool ret = is_connected(m);
+            if (is_connected(m))
+            {
+                return true;
+            }
             state.prev();
-            return ret;
         } 
         return false;
+ 
     }
-    void successor_action(connector_matrix_state& state, Connector* c)
-    {
-        state.next(c);
-    }
-    void predecessor_action(connector_matrix_state& state)
+    inline void predecessor_action(connector_matrix_state& state)
     {
         state.prev();
     }
-    bool is_solution(const connector_matrix_state& state)
+    inline bool is_solution(const connector_matrix_state& state)
     {
         return is_solution_matrix(state.get_matrix());
     }
@@ -491,7 +486,7 @@ namespace back_tracking{
 		template<typename I>
 			void operator()(I f, I l)const
 			{
-                std::random_shuffle(f,l);
+               // std::random_shuffle(f,l);
             }
 	};
 
@@ -499,9 +494,8 @@ namespace back_tracking{
 	template<typename R, typename TI>
 	inline void back_tracking_step(R& state, TI& f, TI tf, TI tl, std::stack<TI>& s)
 	{
-		if (acceptable(state, *f))//change this to try_next
+        if (try_next(state, *f))
 		{
-			successor_action(state, *f);
             s.push(++f);//store next start pos
 			f = tf;
 			return;
@@ -523,7 +517,6 @@ namespace back_tracking{
 			{
 				back_tracking_step(state, f, tf, tl, s);
 				if (f == tf && is_solution(state)) return true;
-				if ( f == tf) shuffle(f, tl);
 			}
 			return false;
 		}
@@ -534,13 +527,10 @@ bool back_tracking_recursive(R& state,TI tf, TI tl,S shuffle)
 {
 	if(is_solution(state)) return true;
 	TI f = tf;
-	shuffle(f,tl);
 	while(f != tl )
 	{
-        assert(!is_solution(state));
-		if(acceptable(state, *f)) //change this to try_next
+        if( try_next(state, *f))
 		{
-			successor_action(state,*f);
 			if(back_tracking_recursive(state,tf,tl,shuffle))
 				return true;
 			predecessor_action(state);
@@ -557,8 +547,29 @@ inline bool back_tracking_recursive(R& state,TI tf, TI tl)
 }
 }
 
+struct bt_rec{
+    ConnectorMatrix operator()(ConnectorMatrix& m, Connector* u,std::vector<Connector*>& input_connectors)const{
+        connector_matrix_state s(m,u); 
+        back_tracking::back_tracking_recursive(s, input_connectors.begin(), input_connectors.end(),back_tracking::default_shuffle());
+        return s.get_matrix(); 
+    }
+};
+struct bt_iter{
+    ConnectorMatrix operator()(ConnectorMatrix& m, Connector* u,std::vector<Connector*>& input_connectors)const{
+        connector_matrix_state s(m,u); 
+        back_tracking::back_tracking_iterate(s, input_connectors.begin(), input_connectors.end(),back_tracking::default_shuffle());
+        return s.get_matrix(); 
+    }
 
-ConnectorMatrix test(int width,int height, int seed, const std::vector<Connector*>& normal_connectors)
+};
+struct cons_m{
+    ConnectorMatrix operator()(ConnectorMatrix& m, Connector* ,std::vector<Connector*>& input_connectors)const{
+        return construct_matrix(0, 0, m, input_connectors);
+    }
+
+};
+template<typename TF>
+ConnectorMatrix test(int width,int height, int seed, const std::vector<Connector*>& normal_connectors,TF tf)
 {
     std::vector<Connector*> input_connectors = normal_connectors;
     srand(seed);
@@ -571,11 +582,7 @@ ConnectorMatrix test(int width,int height, int seed, const std::vector<Connector
 
     std::vector<Connector*> row(width, unknown);
     ConnectorMatrix inited_matrix(height,row);
-    //
-    connector_matrix_state s(inited_matrix,unknown); 
-    //back_tracking::back_tracking_recursive(s, input_connectors.begin(), input_connectors.end(),back_tracking::default_shuffle());
-    back_tracking::back_tracking_iterate(s, input_connectors.begin(), input_connectors.end(), back_tracking::default_shuffle());
-    return s.get_matrix();
+    return tf(inited_matrix,unknown,input_connectors);
 }
 //left,right,up,down
 enum TestConnectorType{
@@ -731,29 +738,39 @@ void output_matrix(const ConnectorMatrix& m)
                 printf("\n");
  
 }
+template<typename TF>
 void test_case()
 {
     std::vector<Connector*> cs = init_connectors();
-    int z = 14;
-    int x = 3;
-    ConnectorMatrix m = test(z,x,z*20 + x,cs);
-    assert(is_solution_matrix(m));
-    output_matrix(m); 
-    for(int i = 2;i < 10; ++i)
-        for(int j = 2;j < 10; ++j)
+    for(int i = 2;i < 13; ++i)
+        for(int j = 2;j < 13; ++j)
         {
-            ConnectorMatrix m = test(i,j,i*20 + j,cs);
-            assert(is_solution_matrix(m));
-            if(is_solution_matrix(m))
+            ConnectorMatrix m = test<TF>(i,j,i*20 + j,cs,TF());
+            if(!is_solution_matrix(m))
             {   //output 
-                output_matrix(m);
+                //output_matrix(m);
+                throw "no solution found!";
+            }
+            else{
+//                output_matrix(m);
             }
         }
 
 }
+#include <ctime>
 int main()
 {
-    test_case();
+    clock_t t0 = clock();
+    test_case<bt_rec>();
+    printf("bt_rec: %ld match_calls: %d \n",long(clock() - t0),match_call_count);
+    match_call_count = 0;
+    t0 = clock();
+    test_case<bt_iter>();
+    printf("bt_iter: %ld match_calls: %d \n",long(clock() - t0),match_call_count );
+    match_call_count = 0;
+    t0 = clock();
+    test_case<cons_m>();
+    printf("cons_m: %ld match_calls: %d \n",long(clock() - t0),match_call_count);
     return 0;
 }
 
