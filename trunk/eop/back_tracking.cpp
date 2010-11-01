@@ -141,18 +141,7 @@ struct equal_by_key{
         return a->get_key() == b->get_key();
     }
 };
-    template<int Dir> 
-std::vector<Connector*> filter_by_impl(const std::vector<Connector*>& cs)
-{
-    if(Dir == 0) return cs;
-    std::vector<Connector*> ret;
-    for(std::vector<Connector*>::const_iterator it = cs.begin(); it != cs.end(); ++it)
-    {
-        if(! (*it)->get_connector_1d<Dir>().empty())
-            ret.push_back(*it);
-    }
-    return ret;
-}
+
 std::vector<Connector*> filter_by_key(int K, const std::vector<Connector*>& cs)
 {
     if(K == 0) return cs;
@@ -176,32 +165,13 @@ std::vector<Connector*> filter_by_not_key(int K, const std::vector<Connector*>& 
     return ret;
 }
 
-//filter_by_path< (~R & ~D) & (L | U)>
-std::vector<Connector*> filter_by_path(int P, const std::vector<Connector*>& cs)
-{
-    std::vector<Connector*> ret;
-    for(std::vector<Connector*>::const_iterator it = cs.begin(); it != cs.end(); ++it)
-    {
-        if (( ((*it)->get_path_type()) & P)) ret.push_back(*it);
-    }
-    return ret;
-}
+
 std::vector<Connector*> filter_by_path_strict(int P, const std::vector<Connector*>& cs)
 {
     std::vector<Connector*> ret;
     for(std::vector<Connector*>::const_iterator it = cs.begin(); it != cs.end(); ++it)
     {
         if (( ((*it)->get_path_type()) & P) == (*it)->get_path_type()) ret.push_back(*it);
-    }
-    return ret;
-}
-
-std::vector<Connector*> filter_by_path_not(int P, const std::vector<Connector*>& cs)
-{
-    std::vector<Connector*> ret;
-    for(std::vector<Connector*>::const_iterator it = cs.begin(); it != cs.end(); ++it)
-    {
-        if (!( ((*it)->get_path_type()) & P)) ret.push_back(*it);
     }
     return ret;
 }
