@@ -489,14 +489,20 @@ namespace back_tracking{
                // std::random_shuffle(f,l);
             }
 	};
+    struct default_next{
+        template<typename I>
+            I operator()(I f) const
+            {
+                return ++f;
+            }
+    };
 
-
-	template<typename R, typename TI>
-	inline void back_tracking_step(R& state, TI& f, TI tf, TI tl, std::stack<TI>& s)
+	template<typename R, typename TI, typename N>
+	inline void back_tracking_step(R& state, TI& f, TI tf, TI tl, std::stack<TI>& s,const N& next)
 	{
         if (try_next(state, *f))
 		{
-            s.push(++f);//store next start pos
+            s.push(next(f));//store next start pos
 			f = tf;
 			return;
 		}
@@ -508,22 +514,22 @@ namespace back_tracking{
             predecessor_action(state);
         }
 	}
-	template<typename R, typename TI, typename S>
-		bool back_tracking_iterate(R& state, TI tf, TI tl, S shuffle)
+	template<typename R, typename TI, typename N>
+		bool back_tracking_iterate(R& state, TI tf, TI tl,const N& next)
 		{
 			TI f = tf;
             std::stack<TI> s;
 			while(f != tl)
 			{
-				back_tracking_step(state, f, tf, tl, s);
+				back_tracking_step(state, f, tf, tl, s, next);
 				if (f == tf && is_solution(state)) return true;
 			}
 			return false;
 		}
 	//EOP:this is an action that will change the input value
 	//bidirectional state required(reversable)
-template<typename R,typename TI, typename S>
-bool back_tracking_recursive(R& state,TI tf, TI tl,S shuffle)
+template<typename R,typename TI, typename N>
+bool back_tracking_recursive(R& state,TI tf, TI tl,const N& next)
 {
 	if(is_solution(state)) return true;
 	TI f = tf;
@@ -531,11 +537,11 @@ bool back_tracking_recursive(R& state,TI tf, TI tl,S shuffle)
 	{
         if( try_next(state, *f))
 		{
-			if(back_tracking_recursive(state,tf,tl,shuffle))
+			if(back_tracking_recursive(state,tf,tl,next))
 				return true;
 			predecessor_action(state);
 		}
-		++f;	
+		f = next(f);	
 	}
 	return false;//empty result
 }
@@ -543,21 +549,21 @@ bool back_tracking_recursive(R& state,TI tf, TI tl,S shuffle)
 template<typename R,typename TI>
 inline bool back_tracking_recursive(R& state,TI tf, TI tl)
 {
-	return back_tracking_recursive(state, tf, tl, no_shuffle());
+	return back_tracking_recursive(state, tf, tl, default_next());
 }
 }
 
 struct bt_rec{
     ConnectorMatrix operator()(ConnectorMatrix& m, Connector* u,std::vector<Connector*>& input_connectors)const{
         connector_matrix_state s(m,u); 
-        back_tracking::back_tracking_recursive(s, input_connectors.begin(), input_connectors.end(),back_tracking::default_shuffle());
+        back_tracking::back_tracking_recursive(s, input_connectors.begin(), input_connectors.end(),back_tracking::default_next());
         return s.get_matrix(); 
     }
 };
 struct bt_iter{
     ConnectorMatrix operator()(ConnectorMatrix& m, Connector* u,std::vector<Connector*>& input_connectors)const{
         connector_matrix_state s(m,u); 
-        back_tracking::back_tracking_iterate(s, input_connectors.begin(), input_connectors.end(),back_tracking::default_shuffle());
+        back_tracking::back_tracking_iterate(s, input_connectors.begin(), input_connectors.end(),back_tracking::default_next());
         return s.get_matrix(); 
     }
 
