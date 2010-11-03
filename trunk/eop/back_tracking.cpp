@@ -1,5 +1,29 @@
 #include "construct_by_connection.hpp"
 
+std::vector<Connector*> filter_by_key(int K, const std::vector<Connector*>& cs)
+{
+    if(K == 0) return cs;
+    std::vector<Connector*> ret;
+    for(std::vector<Connector*>::const_iterator it = cs.begin(); it != cs.end(); ++it)
+    {
+        if((*it)->get_key() & K)
+            ret.push_back(*it);
+    }
+    return ret;
+}
+std::vector<Connector*> filter_by_not_key(int K, const std::vector<Connector*>& cs)
+{
+    if(K == 0) return cs;
+    std::vector<Connector*> ret;
+    for(std::vector<Connector*>::const_iterator it = cs.begin(); it != cs.end(); ++it)
+    {
+        if(!((*it)->get_key() & K))
+            ret.push_back(*it);
+    }
+    return ret;
+}
+
+
 
 //left,right,up,down
 enum TestConnectorType{

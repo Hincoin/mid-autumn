@@ -118,7 +118,7 @@ class Connector{
 struct unary_equal_by_key{
     typedef bool result_type;
     const Connector* c;
-    unary_equal_by_key(const Connector* cc):c(cc){}
+    explicit unary_equal_by_key(const Connector* cc):c(cc){}
     bool operator()(const Connector* x)const
     {
         return c->get_key() == x->get_key();
@@ -132,8 +132,8 @@ void Connector::add_connector_1d(Connector* v)
     if(std::find_if(a.begin(),a.end(),unary_equal_by_key(v)) != a.end())
         return;
     assert(N == L || N == U || N == R || N == D);//or static_assert
-    connectors[log2_n<N>::value].push_back(v);
-    assert(check_connection<N>(connectors[log2_n<N>::value]));
+    a.push_back(v);
+    assert(check_connection<N>(a));
     v->add_connector_1d<opposite_dir<N>::value>(this);
 }
 
@@ -144,30 +144,6 @@ struct equal_by_key{
         return a->get_key() == b->get_key();
     }
 };
-
-std::vector<Connector*> filter_by_key(int K, const std::vector<Connector*>& cs)
-{
-    if(K == 0) return cs;
-    std::vector<Connector*> ret;
-    for(std::vector<Connector*>::const_iterator it = cs.begin(); it != cs.end(); ++it)
-    {
-        if((*it)->get_key() & K)
-            ret.push_back(*it);
-    }
-    return ret;
-}
-std::vector<Connector*> filter_by_not_key(int K, const std::vector<Connector*>& cs)
-{
-    if(K == 0) return cs;
-    std::vector<Connector*> ret;
-    for(std::vector<Connector*>::const_iterator it = cs.begin(); it != cs.end(); ++it)
-    {
-        if(!((*it)->get_key() & K))
-            ret.push_back(*it);
-    }
-    return ret;
-}
-
 
 std::vector<Connector*> filter_by_path_strict(int P, const std::vector<Connector*>& cs)
 {
@@ -287,6 +263,7 @@ inline bool is_connected(const ConnectorMatrix& m)
 }
 inline bool is_solution(const ConnectorMatrix& m)
 {
+    if(m.empty()) return false;
     for(size_t i= 0 ;i < m.size(); ++i)
     {
         for (size_t j = 0; j < m[i].size(); ++j)
@@ -339,7 +316,7 @@ inline ConnectorMatrix construct_matrix(size_t z, size_t x, const ConnectorMatri
     std::vector<Connector*> cs = filter_by_path_strict(pt, intersect_filter(lc,uc,rc,dc,normal_connectors));
     std::random_shuffle(cs.begin(),cs.end());
     ConnectorMatrix cur = m;
-    //filter by neibor 
+    //filter by neighbor 
     for(size_t i = 0;i < cs.size();++i)
     {
         cur[z][x] = cs[i];
@@ -351,7 +328,7 @@ inline ConnectorMatrix construct_matrix(size_t z, size_t x, const ConnectorMatri
                 return ret;
         }
     }
-    return m;
+    return ConnectorMatrix();
 }
 
 inline ConnectorMatrix construct_by_connection(int width,int height, int seed, const std::vector<Connector*>& normal_connectors)
@@ -368,7 +345,9 @@ inline ConnectorMatrix construct_by_connection(int width,int height, int seed, c
     ConnectorMatrix inited_matrix(height,row);
     //
 
-    return construct_matrix(0,0,inited_matrix,input_connectors);
+    ConnectorMatrix ret = construct_matrix(0,0,inited_matrix,input_connectors);
+    delete unknown;
+    return ret;
 }
 
 #endif

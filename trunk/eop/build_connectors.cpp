@@ -152,7 +152,7 @@ void test_case()
                 {
                     for(size_t x = 0; x < m[z].size(); ++x)
                     {
-                        printf("%5.5s",all[m[z][x]->get_key()].c_str());
+                        printf("%-5.5s",all[m[z][x]->get_key()].c_str());
                     }
                     printf("\n");
                 }
