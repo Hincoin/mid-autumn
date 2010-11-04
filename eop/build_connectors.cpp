@@ -126,10 +126,66 @@ std::vector<std::string> init_scene_string(
             cuds.push_back(std::make_pair(ds[i],us[j]));
         }
 
+		clrs.push_back(std::make_pair("DLU","URD"));
+		clrs.push_back(std::make_pair("DLU","UD"));
+		clrs.push_back(std::make_pair("DLU","UR"));
+		clrs.push_back(std::make_pair("DLU","RD"));
+
+		clrs.push_back(std::make_pair("UD","URD"));
+		clrs.push_back(std::make_pair("UD","UD"));
+		clrs.push_back(std::make_pair("UD","UR"));
+		clrs.push_back(std::make_pair("UD","RD"));
+		
+		clrs.push_back(std::make_pair("DL","URD"));
+		clrs.push_back(std::make_pair("DL","UD"));
+		clrs.push_back(std::make_pair("DL","UR"));
+		clrs.push_back(std::make_pair("DL","RD"));
+
+
+		clrs.push_back(std::make_pair("LU","URD"));
+		clrs.push_back(std::make_pair("LU","UD"));
+		clrs.push_back(std::make_pair("LU","UR"));
+		clrs.push_back(std::make_pair("LU","RD"));
+
+		cuds.push_back(std::make_pair("LUR","RDL"));
+		cuds.push_back(std::make_pair("LUR","LR"));
+		cuds.push_back(std::make_pair("LUR","RD"));
+		cuds.push_back(std::make_pair("LUR","DL"));
+
+
+		cuds.push_back(std::make_pair("LR","RDL"));
+		cuds.push_back(std::make_pair("LR","LR"));
+		cuds.push_back(std::make_pair("LR","RD"));
+		cuds.push_back(std::make_pair("LR","DL"));
+
+
+		cuds.push_back(std::make_pair("UR","RDL"));
+		cuds.push_back(std::make_pair("UR","LR"));
+		cuds.push_back(std::make_pair("UR","RD"));
+		cuds.push_back(std::make_pair("UR","DL"));
+
+
+		cuds.push_back(std::make_pair("LU","RDL"));
+		cuds.push_back(std::make_pair("LU","LR"));
+		cuds.push_back(std::make_pair("LU","RD"));
+		cuds.push_back(std::make_pair("LU","DL"));
     return all;
 }
 
-
+#include <set>
+#include <map>
+void output(const ConnectorMatrix& m,const std::vector<std::string>& all)
+{
+	for(size_t z = 0; z < m.size(); ++z)
+	{
+		for(size_t x = 0; x < m[z].size(); ++x)
+		{
+			printf("%-5.5s",all[m[z][x]->get_key()].c_str());
+		}
+		printf("\n");
+	}
+	printf("\n");
+}
 void test_case()
 {
     std::vector<std::string> ls;
@@ -141,35 +197,38 @@ void test_case()
 
     std::vector<std::string> all = init_scene_string(ls,us,rs,ds,clrs,cuds);
     std::vector<Connector*> cs = build_from_string(all,ls,us,rs,ds,clrs,cuds);
-    for(int i = 2;i < 20; ++i)
-        for(int j = 2;j < 20; ++j)
+	std::set<ConnectorMatrix> all_results;
+	std::map<ConnectorMatrix,size_t> statistic;
+	for(int seed = 0; seed < 10000; ++seed)
+	{ 
+		printf("seed %d\n",seed);
+		for(int i = 5;i < 6; ++i)
+        for(int j = 5;j < 6; ++j)
         {
-            ConnectorMatrix m = construct_by_connection(i,j,i*20 + j,cs);
-            assert(is_solution(m));
-            if(is_solution(m))
-            {   //output 
-                for(size_t z = 0; z < m.size(); ++z)
-                {
-                    for(size_t x = 0; x < m[z].size(); ++x)
-                    {
-                        printf("%-5.5s",all[m[z][x]->get_key()].c_str());
-                    }
-                    printf("\n");
-                }
-                printf("\n");
-            }
+            ConnectorMatrix m = construct_by_connection(i,j,seed,cs);
+			if (is_solution(m))
+			{
+				//output(m,all);
+				all_results.insert(m);
+				statistic[m] ++;
+			}
         }
+	}
 
     for(size_t i = 0;i < cs.size(); ++i)
     {
         delete cs[i];
     }
+	printf("statistic count: %d\n",all_results.size());
+	for (std::map<ConnectorMatrix,size_t>::iterator it = statistic.begin();it != statistic.end();++it)
+	{
+		printf("repeated: %d \t",it->second);
+	}
 }
 int main()
 {
     test_case();
     return 0;
 }
-
 
 
