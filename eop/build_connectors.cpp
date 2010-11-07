@@ -199,11 +199,11 @@ void test_case()
     std::vector<Connector*> cs = build_from_string(all,ls,us,rs,ds,clrs,cuds);
 	std::set<ConnectorMatrix> all_results;
 	std::map<ConnectorMatrix,size_t> statistic;
-	for(int seed = 0; seed < 10000; ++seed)
+	for(int seed = 0; seed < 100; ++seed)
 	{ 
-		printf("seed %d\n",seed);
-		for(int i = 5;i < 6; ++i)
-        for(int j = 5;j < 6; ++j)
+		//printf("seed %d\n",seed);
+		for(int i = 15;i < 16; ++i)
+        for(int j = 15;j < 16; ++j)
         {
             ConnectorMatrix m = construct_by_connection(i,j,seed,cs);
 			if (is_solution(m))
@@ -219,7 +219,7 @@ void test_case()
     {
         delete cs[i];
     }
-	printf("statistic count: %d\n",all_results.size());
+    printf("statistic count: %d\n",all_results.size());
 	for (std::map<ConnectorMatrix,size_t>::iterator it = statistic.begin();it != statistic.end();++it)
 	{
 		printf("repeated: %d \t",it->second);
