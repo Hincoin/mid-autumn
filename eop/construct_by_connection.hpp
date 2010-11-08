@@ -214,87 +214,8 @@ std::vector<Connector*> intersect_filter(Connector* const lc,
 	return ret;
 }
 
-
 typedef std::vector< std::vector<Connector* > > ConnectorMatrix;
-inline bool is_connected(const ConnectorMatrix& m)
-{
-	if(m.size() == 0 || m[0].size() == 0) return true;
-	typedef std::pair<size_t , size_t > coord2d_t;
-	std::stack<coord2d_t> connector_stack;
-    std::vector<std::vector<bool> > visited;
-    //init visited flags
-    std::vector<bool> visited_row(m[0].size(),false);
-    visited.resize(m.size(),visited_row);
-	//std::set<coord2d_t> visited;
-	coord2d_t coord(0,0);
-	connector_stack.push(coord);
-	while(!connector_stack.empty())
-	{
-		coord = connector_stack.top();
-		connector_stack.pop();
-		if(visited[coord.first][coord.second])
-			continue;
-		visited[coord.first][coord.second] = true;
-		Connector* t = m[coord.first][coord.second];
-		if (t -> get_path_type() == UnknownPath)
-		{
-			if( coord.first > 0 && 
-				((m[coord.first-1][coord.second]->get_path_type() & PD) ||
-				m[coord.first-1][coord.second]->get_path_type() == UnknownPath))
-			{
-				connector_stack.push(std::make_pair(coord.first - 1, coord.second ));
-			}
-			if( coord.first < m.size() - 1 && 
-				((m[coord.first+1][coord.second]->get_path_type() & PU) ||
-				m[coord.first+1][coord.second]->get_path_type() == UnknownPath
-				))
-			{
-				connector_stack.push(std::make_pair(coord.first + 1, coord.second ));
-			}
-			if( coord.second > 0 && 
-				((m[coord.first][coord.second-1]->get_path_type() & PR) ||
-				m[coord.first][coord.second-1]->get_path_type() == UnknownPath
-				))
-			{
-				connector_stack.push(std::make_pair(coord.first, coord.second - 1));
-			}
-			if( coord.second < m[coord.first].size()-1&& 
-				((m[coord.first][coord.second+1]->get_path_type() & PL) ||
-				m[coord.first][coord.second+1]->get_path_type() == UnknownPath 
-				))
-			{
-				connector_stack.push(std::make_pair(coord.first, coord.second + 1));
-			}
-            continue;
-		}
-		if (t -> get_path_type() & PL)
-		{
-			connector_stack.push(std::make_pair(coord.first, coord.second - 1));
-		}
-		if (t -> get_path_type() & PU)
-		{
-			connector_stack.push(std::make_pair(coord.first - 1, coord.second ));
-		}
-		if (t -> get_path_type() & PR)
-		{
-			connector_stack.push(std::make_pair(coord.first, coord.second + 1));
-		}
-		if (t -> get_path_type() & PD)
-		{
-			connector_stack.push(std::make_pair(coord.first + 1, coord.second ));
-		}
 
-	}
-	for(size_t i= 0 ;i < visited.size(); ++i)
-	{
-		for (size_t j = 0; j < visited[i].size(); ++j)
-		{
-			if(!visited[i][j])
-				return false;
-		}
-	}
-	return true;
-}
 inline bool is_solution(const ConnectorMatrix& m)
 {
 	if(m.empty()) return false;
