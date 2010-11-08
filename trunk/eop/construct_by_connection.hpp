@@ -48,66 +48,81 @@ struct opposite_dir<D>{enum {value = U};};
 
 class Connector;
 
+struct less_than_by_key{
+    bool operator()(const Connector* a, const Connector* b)const;
+};
 class Connector{
-	typedef std::vector<Connector*> element_array;
-	element_array connectors[4];//allowable neighbors
+	//typedef std::vector<Connector*> element_array;
+	typedef std::set<Connector*, less_than_by_key> element_set;
+	element_set connectors[4];//allowable neighbors
 	int key_;//identifier of this element
 	int path_;
 private:
 
-	template<int N>
-	bool check_connection(const std::vector<Connector*>& v)const
+	template< int N, typename I >
+	bool check_connection(I f, I l)const
 	{
 		if(( path_ & PL ) && (N & L))
 		{
-			for(size_t i = 0;i < v.size(); ++i)
+            I i = f;
+            while(i != l)
 			{
-				if(!(v[i]->get_path_type() & PR))return false;
+				if(!((*i)->get_path_type() & PR))return false;
+                ++i;
 			}
 		}
 		if(( path_ & PU ) && (N & U))
 		{
-			for(size_t i = 0;i < v.size(); ++i)
+            I i = f;
+            while(i != l)
 			{
-				if(!(v[i]->get_path_type() & PD))return false;
+				if(!((*i)->get_path_type() & PD))return false;
+                ++i;
 			}
 		}
 		if(( path_ & PR ) && (N & R))
 		{
-			for(size_t i = 0;i < v.size(); ++i)
+            I i = f;
+            while(i != l)
 			{
-				if(!(v[i]->get_path_type() & PL))return false;
+				if(!((*i)->get_path_type() & PL))return false;
+                ++i;
 			}
 		}
 		if(( path_ & PD ) && (N & D))
 		{
-			for(size_t i = 0;i < v.size(); ++i)
+            I i = f;
+            while(i != l)
 			{
-				if(!(v[i]->get_path_type() & PU))return false;
+				if(!((*i)->get_path_type() & PU))return false;
+                ++i;
 			}
 		}
 		return true;
 	}
 public:
 	Connector(int key,int path):key_(key),path_(path){}
-	template<int N>
-	void set_connector_1d(const std::vector<Connector*>& v)
+	template<int N, typename I>
+	void set_connector_1d(I f, I l)
 	{
 		assert(N == L || N == U || N == R || N == D);//or static_assert
-		connectors[log2_n<N>::value] = v;
-		assert(check_connection<N>(v));
+		element_set(f,l).swap(connectors[log2_n<N>::value]) ;
+		assert(check_connection<N>(f,l));
 	}
 	template<int N> 
 	void add_connector_1d(Connector* v);
-	template<int N> 
-	void add_connector_1d(const std::vector<Connector*>& v)
+	template<int N, typename I > 
+	void add_connector_1d(I f, I l)
 	{
-		for(size_t i = 0;i < v.size(); ++i)
-			add_connector_1d<N>(v[i]);
+        while(f != l)
+        {
+            add_connector_1d<N>(*f);
+            ++f;
+        }
 	}
 
 	template<int N>
-	const std::vector<Connector*>& get_connector_1d()const
+	const element_set& get_connector_1d()const
 	{
 		assert(N == L || N == U || N == R || N == D);//or static_assert
 		return connectors[log2_n<N>::value];
@@ -116,6 +131,10 @@ public:
 	int get_path_type()const{return path_;}
 };
 
+bool less_than_by_key::operator()(const Connector* a, const Connector* b)const
+{
+    return a->get_key() < b->get_key();
+}
 struct unary_equal_by_key{
 	typedef bool result_type;
 	const Connector* c;
@@ -129,12 +148,12 @@ struct unary_equal_by_key{
 template<int N>
 void Connector::add_connector_1d(Connector* v)
 {
-	std::vector<Connector*>& a = connectors[log2_n<N>::value];
+    element_set& a = connectors[log2_n<N>::value];
 	if(std::find_if(a.begin(),a.end(),unary_equal_by_key(v)) != a.end())
 		return;
 	assert(N == L || N == U || N == R || N == D);//or static_assert
-	a.push_back(v);
-	assert(check_connection<N>(a));
+	a.insert(v);
+	assert(check_connection<N>(a.begin(),a.end()));
 	v->add_connector_1d<opposite_dir<N>::value>(this);
 }
 
@@ -161,10 +180,19 @@ template<int CT1, int CT0>
 bool is_connector_match(const Connector* a, const Connector* b)
 {
 	assert(CT0 == opposite_dir<CT1>::value);
-	return std::find_if(a->get_connector_1d<CT0>().begin(),
+    /*assert(a->get_connector_1d<CT0>().find(const_cast<Connector*>(b)) == a->get_connector_1d<CT0>().end()
+            && b->get_connector_1d<CT1>().find(const_cast<Connector*>(a)) == b->get_connector_1d<CT1>().end()
+            ||
+            a->get_connector_1d<CT0>().find(const_cast<Connector*>(b)) != a->get_connector_1d<CT0>().end()
+            && b->get_connector_1d<CT1>().find(const_cast<Connector*>(a)) != b->get_connector_1d<CT1>().end()
+            );
+            */
+    return a->get_connector_1d<CT0>().find(const_cast<Connector*>(b)) != a->get_connector_1d<CT0>().end();
+	/*return std::find_if(a->get_connector_1d<CT0>().begin(),
 		a->get_connector_1d<CT0>().end(),unary_equal_by_key(b)) != a->get_connector_1d<CT0>().end()
 		&& std::find_if(b->get_connector_1d<CT1>().begin(),
 		b->get_connector_1d<CT1>().end(),unary_equal_by_key(a)) != b->get_connector_1d<CT1>().end();
+        */
 }
 std::vector<Connector*> intersect_filter(Connector* const lc,
 										 Connector* const uc,
@@ -319,7 +347,7 @@ inline ConnectorMatrix construct_matrix(size_t z, size_t x, const ConnectorMatri
 	}
 	else rc = m[z][x+1];
 
-	std::vector<Connector*> cs = filter_by_path_strict(pt, intersect_filter(lc,uc,rc,dc,normal_connectors));
+	std::vector<Connector*> cs = intersect_filter(lc,uc,rc,dc,filter_by_path_strict(pt,normal_connectors));//filter_by_path_strict(pt, intersect_filter(lc,uc,rc,dc,normal_connectors));
 	std::random_shuffle(cs.begin(),cs.end());
 	ConnectorMatrix cur = m;
 	//filter by neighbor 
@@ -342,10 +370,10 @@ inline ConnectorMatrix construct_by_connection(int width,int height, int seed, c
 	std::vector<Connector*> input_connectors = normal_connectors;
 	srand(seed);
 	Connector unknown(UnknownConnector, UnknownPath);
-	unknown.set_connector_1d<L>(normal_connectors);
-	unknown.set_connector_1d<U>(normal_connectors);
-	unknown.set_connector_1d<R>(normal_connectors);
-	unknown.set_connector_1d<D>(normal_connectors);
+	unknown.set_connector_1d<L>(normal_connectors.begin(),normal_connectors.end());
+	unknown.set_connector_1d<U>(normal_connectors.begin(),normal_connectors.end());
+	unknown.set_connector_1d<R>(normal_connectors.begin(),normal_connectors.end());
+	unknown.set_connector_1d<D>(normal_connectors.begin(),normal_connectors.end());
 
 	std::vector<Connector*> row(width, &unknown);
 	ConnectorMatrix inited_matrix(height,row);
