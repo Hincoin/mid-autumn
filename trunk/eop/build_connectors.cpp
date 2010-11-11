@@ -180,7 +180,10 @@ void output(const ConnectorMatrix& m,const std::vector<std::string>& all)
 	{
 		for(size_t x = 0; x < m[z].size(); ++x)
 		{
-			printf("%-5.5s",all[m[z][x]->get_key()].c_str());
+            if (m[z][x])
+    			printf("%-5.5s",all[m[z][x]->get_key()].c_str());
+            else
+                printf("%-5.5s","EPTY");
 		}
 		printf("\n");
 	}
@@ -199,7 +202,7 @@ void test_case()
     std::vector<Connector*> cs = build_from_string(all,ls,us,rs,ds,clrs,cuds);
 	std::set<ConnectorMatrix> all_results;
 	std::map<ConnectorMatrix,size_t> statistic;
-	for(int seed = 0; seed < 100; ++seed)
+	for(int seed = 0; seed < 10; ++seed)
 	{ 
 		//printf("seed %d\n",seed);
 		for(int i = 15;i < 16; ++i)
@@ -208,7 +211,7 @@ void test_case()
             ConnectorMatrix m = construct_by_connection(i,j,seed,cs);
 			if (is_solution(m))
 			{
-				//output(m,all);
+				output(m,all);
 				all_results.insert(m);
 				statistic[m] ++;
 			}
