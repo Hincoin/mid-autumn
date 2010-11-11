@@ -223,7 +223,7 @@ inline bool is_solution(const ConnectorMatrix& m)
 	{
 		for (size_t j = 0; j < m[i].size(); ++j)
 		{
-			if(m[i][j]->get_key() == UnknownConnector)
+			if(m[i][j] && m[i][j]->get_key() == UnknownConnector)
 				return false;
 		}
 	}
@@ -239,34 +239,32 @@ inline ConnectorMatrix construct_matrix(size_t z, size_t x, const ConnectorMatri
 	size_t next_x,next_z;
 	next_x = x;
 	next_z = z;
-	if( x == 0)
+	if( x != 0 )
 	{
-		pt = pt & ~PL;
-	}
-	else{
 		lc = (m[z][x-1]);
 	}
-	if( z == 0)
-	{
-		pt = pt & ~PU;
-	}
-	else
+	if( z != 0 )
 	{
 		uc = (m[z-1][x]);
 	}
-	if( z == m.size() - 1)
+	if( z < m.size() - 1 )
 	{
-		pt = pt & ~PD;
+        dc = m[z+1][x];
 	}
-	else dc = m[z+1][x];
-	next_x ++;
-	if ( x == m[z].size() -1)
-	{
-		pt = pt & ~PR;
-		next_z++;
-		next_x = 0;
-	}
-	else rc = m[z][x+1];
+    if ( x < m[z].size() - 1)
+    {
+        next_x ++;
+        rc = m[z][x+1];
+    }
+    else
+    {
+        next_z++;
+        next_x = 0;
+    }
+    if( lc == 0 ) pt = pt & ~PL;
+    if( uc == 0 ) pt = pt & ~PU;
+    if( rc == 0 ) pt = pt & ~PR;
+    if( dc == 0 ) pt = pt & ~PD;
 
 	std::vector<Connector*> cs = intersect_filter(lc,uc,rc,dc,filter_by_path_strict(pt,normal_connectors));//filter_by_path_strict(pt, intersect_filter(lc,uc,rc,dc,normal_connectors));
 	std::random_shuffle(cs.begin(),cs.end());
@@ -274,7 +272,8 @@ inline ConnectorMatrix construct_matrix(size_t z, size_t x, const ConnectorMatri
 	//filter by neighbor 
 	for(size_t i = 0;i < cs.size();++i)
 	{
-		cur[z][x] = cs[i];
+        if(cur[z][x] && cur[z][x]->get_key() == UnknownConnector)
+    		cur[z][x] = cs[i];
 		//if(is_connected(cur))
 		{
 			ConnectorMatrix ret;
