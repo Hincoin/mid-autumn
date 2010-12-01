@@ -133,126 +133,127 @@ namespace RandomMap
 			size_t size_hint ,
 			ModelInfo& p
 			)
+		{
+			const vector<ModelInfo>& models = outmost_str_map_coords_.find(make_pair(z,x)) != outmost_str_map_coords_.end() ? out_most_border_models:inner_barrier_border_models;
+			size_t ret_idx = size_t(-1);
+			size_t diff_size = size_t (-1);
+			for (size_t i = 0;i < models.size(); ++i)
 			{
-				const vector<ModelInfo>& models = outmost_str_map_coords_.find(make_pair(z,x)) != outmost_str_map_coords_.end() ? out_most_border_models:inner_barrier_border_models;
-				size_t ret_idx = size_t(-1);
-				size_t diff_size = size_t (-1);
-				for (size_t i = 0;i < models.size(); ++i)
+				const ModelInfo& picked = models[i];
+				if(t == models[i].model_type)
 				{
-					const ModelInfo& picked = models[i];
-					if(t == models[i].model_type)
+					size_t length = 0;
+					if(t == FacePX)
 					{
-						size_t length = 0;
-						if(t == FacePX)
+						size_t ix = picked.x_grid_length;
+						size_t iz = 0;
+						size_t tlength = 0;
+						for (;ix > 0 && length == 0;ix--)
 						{
-							size_t ix = picked.x_grid_length;
-							size_t iz = 0;
-							size_t tlength = 0;
-							for (;ix > 0 && length == 0;ix--)
+							for (;iz < picked.z_grid_length; iz++)
 							{
-								for (;iz < picked.z_grid_length; iz++)
+								if (picked.barrier_info[iz * picked.x_grid_length + ix] == kBarrier)
 								{
-									if (picked.barrier_info[iz * picked.x_grid_length + ix] == kBarrier)
-									{
-										tlength ++;
-										length = tlength;
-									}
-									else if (length > 0)
-									{
-										tlength ++;
-									}
+									tlength ++;
+									length = tlength;
 								}
-							}
-						}
-						if(t == FacePZ)
-						{
-							size_t iz = picked.z_grid_length;
-							size_t ix = 0;
-							size_t tlength = 0;
-							for (;iz > 0 && length == 0;iz--)
-							{
-								for (;ix < picked.x_grid_length; ix++)
+								else if (length > 0)
 								{
-									if (picked.barrier_info[iz * picked.x_grid_length + ix] == kBarrier)
-									{
-										tlength ++;
-										length = tlength;
-									}
-									else if (length > 0)
-									{
-										tlength ++;
-									}
+									tlength ++;
 								}
-							}
-						}
-						if(t == FaceNX)
-						{
-							size_t ix = 0;
-							size_t iz = 0;
-							size_t tlength = 0;
-							for (;ix < picked.x_grid_length && length == 0;ix++)
-							{
-								for (;iz < picked.z_grid_length; iz++)
-								{
-									if (picked.barrier_info[iz*picked.x_grid_length+ix] == kBarrier)
-									{
-										tlength ++;
-										length = tlength;
-									}
-									else if (length > 0)
-									{
-										tlength ++;
-									}
-								}
-							}
-						}
-						if(t == FaceNZ)
-						{
-							size_t ix = 0;
-							size_t iz = 0;
-							size_t tlength = 0;
-							for (;iz < picked.z_grid_length && length == 0;iz++)
-							{
-								for (;ix < picked.x_grid_length; ix++)
-								{
-									if (picked.barrier_info[iz*picked.x_grid_length+ix] == kBarrier)
-									{
-										tlength ++;
-										length = tlength;
-									}
-									else if (length > 0)
-									{
-										tlength ++;
-									}
-								}
-							}
-						}
-
-						if(length < size_hint)
-						{
-							if (diff_size > size_hint - length)
-							{
-								diff_size = size_hint - length;
-								ret_idx = i;
 							}
 						}
 					}
-				}
-				if(ret_idx != size_t (-1))
-				{
-					p = models[ret_idx];
-					return true;
-				}
-				return false;
-			}
+					if(t == FacePZ)
+					{
+						size_t iz = picked.z_grid_length;
+						size_t ix = 0;
+						size_t tlength = 0;
+						for (;iz > 0 && length == 0;iz--)
+						{
+							for (;ix < picked.x_grid_length; ix++)
+							{
+								if (picked.barrier_info[iz * picked.x_grid_length + ix] == kBarrier)
+								{
+									tlength ++;
+									length = tlength;
+								}
+								else if (length > 0)
+								{
+									tlength ++;
+								}
+							}
+						}
+					}
+					if(t == FaceNX)
+					{
+						size_t ix = 0;
+						size_t iz = 0;
+						size_t tlength = 0;
+						for (;ix < picked.x_grid_length && length == 0;ix++)
+						{
+							for (;iz < picked.z_grid_length; iz++)
+							{
+								if (picked.barrier_info[iz*picked.x_grid_length+ix] == kBarrier)
+								{
+									tlength ++;
+									length = tlength;
+								}
+								else if (length > 0)
+								{
+									tlength ++;
+								}
+							}
+						}
+					}
+					if(t == FaceNZ)
+					{
+						size_t ix = 0;
+						size_t iz = 0;
+						size_t tlength = 0;
+						for (;iz < picked.z_grid_length && length == 0;iz++)
+						{
+							for (;ix < picked.x_grid_length; ix++)
+							{
+								if (picked.barrier_info[iz*picked.x_grid_length+ix] == kBarrier)
+								{
+									tlength ++;
+									length = tlength;
+								}
+								else if (length > 0)
+								{
+									tlength ++;
+								}
+							}
+						}
+					}
 
-		ModelInfo pick_model_for_corner(ModelType t,size_t z,size_t x,
-			const vector<ModelInfo>& out_most_border_models,
-			const vector<ModelInfo>& inner_barrier_border_models
-			)
-			{
-				const vector<ModelInfo>& models = outmost_str_map_coords_.find(make_pair(z,x)) != outmost_str_map_coords_.end() ? out_most_border_models:inner_barrier_border_models;
+					if(length < size_hint)
+					{
+						if (diff_size > size_hint - length)
+						{
+							diff_size = size_hint - length;
+							ret_idx = i;
+						}
+					}
+				}
 			}
+			if(ret_idx != size_t (-1))
+			{
+				p = models[ret_idx];
+				return true;
+			}
+			return false;
+		}
+
+		bool pick_model_for_corner(ModelType t,size_t z,size_t x,
+			const vector<ModelInfo>& out_most_border_models,
+			const vector<ModelInfo>& inner_barrier_border_models,
+			ModelInfo& picked
+			)
+		{
+			const vector<ModelInfo>& models = outmost_str_map_coords_.find(make_pair(z,x)) != outmost_str_map_coords_.end() ? out_most_border_models:inner_barrier_border_models;
+		}
 		void place_at(size_t z,size_t x, size_t iz,size_t ix,const ModelInfo& picked,MapModelPosition& mmp)
 		{
 			int pixel_offset_x = picked.x_pixel_length/2 - ix * eGridSpan ;
@@ -276,7 +277,7 @@ namespace RandomMap
 			for (size_t z = start;z< end;)
 			{
 				ModelInfo picked;
-					
+
 				if (pick_model_for_border(FacePX,z,x,out_most_border_models,inner_barrier_border_models,end-z,picked) && picked.x_grid_length > 0)
 				{
 					bool find_place = false;
@@ -324,15 +325,15 @@ namespace RandomMap
 				}
 			}
 		}
-	void place_nx_border(size_t start,size_t end,size_t x,
+		void place_nx_border(size_t start,size_t end,size_t x,
 			const vector<ModelInfo>& out_most_border_models,
 			const vector<ModelInfo>& inner_barrier_border_models,
 			StringMap& processed_str_map_,
 			vector<MapModelPosition>& ret
 			)
-	{
-		for (size_t z = start; z < end;)
 		{
+			for (size_t z = start; z < end;)
+			{
 				ModelInfo picked;
 				if (!pick_model_for_border(FaceNX,z,x,out_most_border_models,inner_barrier_border_models,end-z,picked))
 				{
@@ -377,9 +378,9 @@ namespace RandomMap
 					}
 					px ++;
 				}
+			}
 		}
-	}
-	
+
 		void place_nz_border(size_t z,size_t start,size_t end,
 			const vector<ModelInfo>& out_most_border_models,
 			const vector<ModelInfo>& inner_barrier_border_models,
@@ -511,7 +512,7 @@ namespace RandomMap
 				break;
 			case CornerPXNZ1:
 				{
-					
+
 				}
 				break;
 			case CornerNXNZ0:
@@ -537,7 +538,24 @@ namespace RandomMap
 			}
 			return false;
 		}
-		void place_model_in_cornerpxpz1(size_t z,size_t x,const StringMap& str_map,
+
+		void post_process_str_map(size_t z,size_t x,size_t zi,size_t xi,const ModelInfo& picked,StringMap& str_map)
+		{
+			size_t pz = z - zi;
+			size_t px = x - xi;
+			str_map[pz][px] = -picked.model_idx;
+			for (zi = 0; zi < picked.z_grid_length; ++zi)
+			{
+				for(xi = 0; xi < picked.x_grid_length ; ++xi)
+				{
+					if (picked.barrier_info[zi*picked.x_grid_length + xi] == kBarrier)
+					{
+						str_map[pz+zi][px+xi] = -picked.model_idx;
+					}
+				}
+			}
+		}
+		void place_model_in_cornerpxpz(ModelType t,size_t z,size_t x,const StringMap& str_map,
 			const vector<ModelInfo>& out_most,
 			const vector<ModelInfo>& inner,
 			StringMap& processed,
@@ -546,7 +564,14 @@ namespace RandomMap
 		{
 			ModelInfo picked;
 			//pick model
+			if (!pick_model_for_corner(t,z,x,out_most,inner,picked))
+			{
+				return;
+			}
+			//todo
 
+			//  ##
+			//  @#
 			bool find_place = false;
 			size_t zi = 0;
 			size_t xi = 0;
@@ -566,24 +591,46 @@ namespace RandomMap
 			MapModelPosition mmp;
 			place_at(z,x,zi,xi,picked,mmp);
 			r.push_back(mmp);
-			processed_str_map_[mmp.z][mmp.x] = -mmp.model_idx;
-			int px = x;
-			int pz = z;
-			for (;zi<picked.z_grid_length;++zi)
+			post_process_str_map(z,x,zi,xi,picked,processed);
+		}
+		void place_model_in_cornerpxnz(size_t z,size_t x,const StringMap& str_map,
+			const vector<ModelInfo>& out_most,
+			const vector<ModelInfo>& inner,
+			StringMap& processed,
+			vector<MapModelPosition>& r
+			)
+		{
+			// @##
+			// ##
+			// #
+			ModelInfo picked;
+			//todo
+
+			bool find_corner = false;
+			size_t zi = picked.z_grid_length - 1,xi=0;
+			for (; zi > 0 && !find_corner; --zi)
 			{
-				for(;xi < picked.x_grid_length; ++xi)
-				{
-					if (picked.barrier_info[zi*picked.x_grid_length + xi] == kBarrier)
+				for(; xi < picked.x_grid_length && !find_corner; ++xi)
+					if (picked.barrier_info[zi*picked.x_grid_length + xi] == kBarrier
+						)
 					{
-						processed_str_map_[pz][px] = -mmp.model_idx;	
+						find_corner = true;
 					}
-					px++;
-				}
-				pz++;
 			}
+
+			if(!find_corner)
+			{
+				assert(false);
+				return ;
+			}
+			MapModelPosition mmp;
+			place_at(z,x,zi,xi,picked,mmp);
+			r.push_back(mmp);
+			post_process_str_map(z,x,zi,xi,picked,processed);
 		}
 
-		void place_model_in_cornerpxpz0(size_t z,size_t x,const StringMap& str_map,
+
+		void place_model_in_cornernxnz(size_t z,size_t x,const StringMap& str_map,
 			const vector<ModelInfo>& out_most,
 			const vector<ModelInfo>& inner,
 			StringMap& processed,
@@ -591,82 +638,71 @@ namespace RandomMap
 			)
 		{
 			ModelInfo picked;
+			//todo
+
+			//##@
+			// ##
+			// 
 			bool find_corner = false;
-			size_t zi = 1,xi=1;
-			for (; zi < picked.z_grid_length && !find_corner; ++zi)
+			size_t zi = picked.z_grid_length - 1 ;
+			size_t xi = picked.x_grid_length - 1;
+			for (; zi>0 && !find_corner; --zi)
 			{
-				for(; xi < picked.x_grid_length && !find_corner; ++xi)
-					if (picked.barrier_info[zi*picked.x_grid_length + xi] == kBarrier &&
-						picked.barrier_info[(zi-1) * picked.x_grid_length + xi -1] == kPath &&
-						picked.barrier_info[(zi-1) * picked.x_grid_length + xi ] == kBarrier &&
-						picked.barrier_info[(zi) * picked.x_grid_length + xi-1 ] == kBarrier 
-					)
+				for(; xi>0 && !find_corner; --xi)
+					if (picked.barrier_info[zi*picked.x_grid_length + xi] == kBarrier
+						)
 					{
 						find_corner = true;
 					}
 			}
+			if(!find_corner)
+			{
+				assert(false);
+				return ;
+			}
 			MapModelPosition mmp;
 			place_at(z,x,zi,xi,picked,mmp);
 			r.push_back(mmp);
-			processed_str_map_[mmp.z][mmp.x] = -mmp.model_idx;
-			int px = x-xi;
-			int pz = z-zi;
-			xi=zi=0;
-			for (;zi<picked.z_grid_length;++zi)
+			post_process_str_map(z,x,zi,xi,picked,processed_str_map_);
+		}
+
+		void place_model_in_cornernxpz(size_t z,size_t x,const StringMap& str_map,
+			const vector<ModelInfo>& out_most,
+			const vector<ModelInfo>& inner,
+			StringMap& processed,
+			vector<MapModelPosition>& r
+			)
+		{
+			ModelInfo picked;
+			//todo
+
+			//###
+			//##@
+			// 
+				
+			bool find_corner = false;
+			size_t zi = 0 ;
+			size_t xi = picked.x_grid_length - 1;
+			for (; zi < picked.z_grid_length && !find_corner; --zi)
 			{
-				for(;xi < picked.x_grid_length; ++xi)
-				{
-					if (picked.barrier_info[zi*picked.x_grid_length + xi] == kBarrier)
+				for(; xi>0 && !find_corner; --xi)
+					if (picked.barrier_info[zi*picked.x_grid_length + xi] == kBarrier
+						)
 					{
-						processed_str_map_[pz][px] = -mmp.model_idx;	
+						find_corner = true;
 					}
-					px++;
-				}
-				pz++;
 			}
-		};
+			if(!find_corner)
+			{
+				assert(false);
+				return ;
+			}
+			MapModelPosition mmp;
+			place_at(z,x,zi,xi,picked,mmp);
+			r.push_back(mmp);
+			post_process_str_map(z,x,zi,xi,picked,processed_str_map_);
 
-		void place_model_in_cornerpxnz1(size_t z,size_t x,const StringMap& str_map,
-			const vector<ModelInfo>& out_most,
-			const vector<ModelInfo>& inner,
-			StringMap& processed,
-			vector<MapModelPosition>& r
-			);
-
-		void place_model_in_cornerpxnz0(size_t z,size_t x,const StringMap& str_map,
-			const vector<ModelInfo>& out_most,
-			const vector<ModelInfo>& inner,
-			StringMap& processed,
-			vector<MapModelPosition>& r
-			);
-
-		void place_model_in_cornernxnz1(size_t z,size_t x,const StringMap& str_map,
-			const vector<ModelInfo>& out_most,
-			const vector<ModelInfo>& inner,
-			StringMap& processed,
-			vector<MapModelPosition>& r
-			);
-
-		void place_model_in_cornernxnz0(size_t z,size_t x,const StringMap& str_map,
-			const vector<ModelInfo>& out_most,
-			const vector<ModelInfo>& inner,
-			StringMap& processed,
-			vector<MapModelPosition>& r
-			);
-
-		void place_model_in_cornernxpz0(size_t z,size_t x,const StringMap& str_map,
-			const vector<ModelInfo>& out_most,
-			const vector<ModelInfo>& inner,
-			StringMap& processed,
-			vector<MapModelPosition>& r
-			);
-
-		void place_model_in_cornernxpz1(size_t z,size_t x,const StringMap& str_map,
-			const vector<ModelInfo>& out_most,
-			const vector<ModelInfo>& inner,
-			StringMap& processed,
-			vector<MapModelPosition>& r
-			);
+		}
 		void place_model_in_corner(size_t z,size_t x,const StringMap& str_map,
 			vector<ModelInfo>& out_most,vector<ModelInfo>& inner,StringMap& processed,vector<MapModelPosition>& r)
 		{
