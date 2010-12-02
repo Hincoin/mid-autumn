@@ -49,21 +49,32 @@ namespace RandomMap
 			preprocess(str_map_input,str_map);
 			processed_str_map_ = str_map;
 			//build outmost barrier str map
-			size_t start_x=0,start_z=0;
 			stack<pair<size_t,size_t> > visit_stack;
-			visit_stack.push(make_pair(start_x,start_z));
+			visit_stack.push(make_pair(0,0));
+            set<pair<size_t,size_t> > visited_set;
+            //dfs
 			while (!visit_stack.empty())
 			{
-				//todo
 				pair<size_t,size_t> cur = visit_stack.top();
 				visit_stack.pop();
+                if(visited_set.find(cur) != visited_set.end())
+                    continue;
+
+                size_t start_z=cur.first;
+			    size_t start_x=cur.second;
 				if (str_map[start_z][start_x] == kBarrier)
 				{
-					outmost_str_map_coords_.insert(make_pair(start_z,start_x));
+					outmost_str_map_coords_.insert(cur);
 				}
-				if (start_x < str_map[start_z].size())
-				{
-				}
+				if (start_x + 1 < str_map[start_z].size() && str_map[start_z][start_x+1] == kBarrier)
+                    visit_stack.push(make_pair(start_z,start_x + 1));
+                if (start_x > 1 && str_map[start_z][start_x-1] == kBarrier)
+                    visit_stack.push(make_pair(start_z,start_x-1));
+                if (start_z + 1 < str_map.size() && str_map[start_z + 1][start_x] == kBarrier)
+                    visit_stack.push(make_pair(start_z+1,start_x));
+                if (start_z > 1 && str_map[start_z -1][start_x])
+                    visit_stack.push(make_pair(start_z -1,start_x));
+                visited_set.insert(cur);
 			}
 			//search for corners
 			for (size_t i = 1;i + 1 < str_map.size(); ++i)
@@ -253,6 +264,33 @@ namespace RandomMap
 			)
 		{
 			const vector<ModelInfo>& models = outmost_str_map_coords_.find(make_pair(z,x)) != outmost_str_map_coords_.end() ? out_most_border_models:inner_barrier_border_models;
+            size_t barrier_count = size_t(-1);
+            size_t selected_idx = 0;
+            //minimize the barrier count
+            for(size_t i = 0;i < models.size(); ++i)
+            {
+                const ModelInfo& cur = models[i];
+                size_t tb_cnt = 0;
+                if(cur.model_type == t)
+                {
+                    for(size_t mi = 0;mi < cur.barrier_info.size(); ++mi)
+                    {
+                        if(cur.barrier_info[mi] == kBarrier)
+                        {
+                           tb_cnt ++; 
+                        }
+                    }
+                }
+                if(tb_cnt < barrier_count )
+                {
+                    selected_idx = i;
+                    barrier_count = tb_cnt;
+                }
+            }
+            if(barrier_count == size_t(-1))
+                return false;
+            picked = models[selected_idx];
+            return true;
 		}
 		void place_at(size_t z,size_t x, size_t iz,size_t ix,const ModelInfo& picked,MapModelPosition& mmp)
 		{
@@ -568,7 +606,6 @@ namespace RandomMap
 			{
 				return;
 			}
-			//todo
 
 			//  ##
 			//  @#
@@ -604,7 +641,11 @@ namespace RandomMap
 			// ##
 			// #
 			ModelInfo picked;
-			//todo
+				//pick model
+			if (!pick_model_for_corner(t,z,x,out_most,inner,picked))
+			{
+				return;
+			}
 
 			bool find_corner = false;
 			size_t zi = picked.z_grid_length - 1,xi=0;
@@ -638,7 +679,10 @@ namespace RandomMap
 			)
 		{
 			ModelInfo picked;
-			//todo
+			if (!pick_model_for_corner(t,z,x,out_most,inner,picked))
+			{
+				return;
+			}
 
 			//##@
 			// ##
@@ -674,7 +718,10 @@ namespace RandomMap
 			)
 		{
 			ModelInfo picked;
-			//todo
+            if (!pick_model_for_corner(t,z,x,out_most,inner,picked))
+			{
+				return;
+			}
 
 			//###
 			//##@
@@ -710,65 +757,39 @@ namespace RandomMap
 			{
 				return;
 			}
-			switch(get_needed_model_type(z,x,str_map))
+            ModelType mt = get_needed_model_type(z,x,str_map);
+			switch(mt)
 			{
 			case CornerPXPZ1:
+            case CornerPXPZ0:
 				{
-					place_model_in_cornerpxpz1(z,x,str_map,out_most,inner,processed,r);
+					place_model_in_cornerpxpz(mt,z,x,str_map,out_most,inner,processed,r);
 				}
 				break;
 			case CornerNXNZ0:
+            case CornerNXNZ1:
 				{
+                    place_model_in_cornernxnz(mt,z,x,str_map,out_most,inner,processed,r);
 				}
 				break;
 			case CornerNXPZ0:
+			case CornerNXPZ1:
 				{
-					ModelInfo picked;
-					bool find_corner = false;
-					size_t zi = 0,xi=0;
-					for (; zi < picked.z_grid_length && !find_corner; ++zi)
-					{
-						for(; xi < picked.x_grid_length && !find_corner; ++xi)
-							if (picked.barrier_info[zi*picked.x_grid_length + xi] == kBarrier)
-							{
-								find_corner = true;
-							}
-					}
-
-					MapModelPosition mmp;
-					place_at(z,x,zi,xi,picked,mmp);
-					r.push_back(mmp);
-					processed_str_map_[mmp.z][mmp.x] = -mmp.model_idx;
-					int px = x;
-					int pz = z;
-					for (;zi<picked.z_grid_length;++zi)
-					{
-						for(;xi < picked.x_grid_length; ++xi)
-						{
-							if (picked.barrier_info[zi*picked.x_grid_length + xi] == kBarrier)
-							{
-								processed_str_map_[pz][px] = -mmp.model_idx;	
-							}
-							px++;
-						}
-						pz++;
-					}
+                    place_model_in_cornernxpz(mt,z,x,str_map,out_most,inner,processed,r);
 				}
 				break;
 			case CornerPXNZ0:
+			case CornerPXNZ1:
 				{
-
+                    place_model_in_cornerpxnz(mt,z,x,str_map,out_most,inner,processed,r);
 				}
 				break;
 			case CornerPXPZ0:
+			case CornerPXPZ1:
 				{
-
+                    place_model_in_cornerpxpz(mt,z,x,str_map,out_most,inner,processed,r);
 				}
 				break;
-			case CornerNXNZ1:{}break;
-			case CornerNXPZ1:{}break;
-			case CornerPXNZ1:{}break;
-			case CornerPXPZ1:{}break;
 			case UnknownModel:break;
 			default:break;
 			}
@@ -817,6 +838,8 @@ namespace RandomMap
 		ModelType get_needed_model_type(size_t i,size_t j,const StringMap& str_map)const
 		{
 			//todo
+            assert(i > 1 && i + 1 < str_map.size());
+            assert(j > 1 && j + 1 < str_map[i].size());
 			if(str_map[i][j] == kBarrier)
 			{
 				if (str_map[i][j] str_map[i-1][j-1] == kBarrier &&
