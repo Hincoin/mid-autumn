@@ -1,5 +1,4 @@
 #include <fstream>
-/*
 #include "place_model_street.h"
 int main()
 {
@@ -161,8 +160,4 @@ int main()
     //
     //
 }
-*/
-int main()
-{
-    return 0;
-}
+
