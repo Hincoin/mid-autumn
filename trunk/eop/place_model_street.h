@@ -13,6 +13,14 @@ namespace RandomMap
 	//corner 0-1 means it enclose path or barrier
 	enum ModelType{FacePX,FacePZ,FaceNX,FaceNZ,CornerPXPZ0,CornerPXNZ0,CornerNXNZ0,CornerNXPZ0,CornerPXPZ1,CornerPXNZ1,CornerNXNZ1,CornerNXPZ1,UnknownModel};
 	struct ModelInfo{
+        ModelInfo():model_idx(-1),
+        x_grid_length(0),
+        z_grid_length(0),
+        x_pixel_length(0),
+        z_pixel_length(0),
+        x_pixel_offset(0),
+        z_pixel_offset(0),
+        model_type(UnknownModel){}
 		int model_idx;
 		int x_grid_length,z_grid_length;
 		int x_pixel_length,z_pixel_length;
@@ -347,7 +355,7 @@ namespace RandomMap
 						{
 							if (picked.barrier_info[iz*picked.x_grid_length + ix] & eBarrier)
 							{
-								processed_str_map_[pz][px] = - mmp.model_idx;
+								processed_str_map_[pz][px] = mmp.model_idx << 16;
 								if (pz == z)
 								{
 									z = pz + 1;	
@@ -407,7 +415,7 @@ namespace RandomMap
 					{
 						if (picked.barrier_info[iz * picked.x_grid_length + ix] & eBarrier)
 						{
-							processed_str_map_[pz][px] = - picked.model_idx;
+							processed_str_map_[pz][px] = picked.model_idx << 16;
 							if (px == x)
 							{
 								z = pz+1;
@@ -456,7 +464,7 @@ namespace RandomMap
 						{
 							if (picked.barrier_info[iz * picked.x_grid_length + ix] & eBarrier)
 							{
-								processed_str_map_[pz][px] = - picked.model_idx;
+								processed_str_map_[pz][px] = picked.model_idx << 16;
 								if (pz == z)
 								{
 									x = px+1;
@@ -515,7 +523,7 @@ namespace RandomMap
 						{
 							if (picked.barrier_info[iz*picked.x_grid_length + ix] & eBarrier)
 							{
-								processed_str_map_[pz][px] = - mmp.model_idx;
+								processed_str_map_[pz][px] = mmp.model_idx << 16;
 								if (pz == z)
 								{
 									x = px + 1;	
@@ -536,14 +544,14 @@ namespace RandomMap
 		{
 			size_t pz = z - zi;
 			size_t px = x - xi;
-			str_map[pz][px] = -picked.model_idx;
+			str_map[pz][px] = picked.model_idx << 16;
 			for (zi = 0; zi < picked.z_grid_length; ++zi)
 			{
 				for(xi = 0; xi < picked.x_grid_length ; ++xi)
 				{
 					if (picked.barrier_info[zi*picked.x_grid_length + xi] & eBarrier)
 					{
-						str_map[pz+zi][px+xi] = -picked.model_idx;
+						str_map[pz+zi][px+xi] = picked.model_idx << 16;
 					}
 				}
 			}
