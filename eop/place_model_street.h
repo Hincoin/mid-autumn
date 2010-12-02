@@ -1,6 +1,10 @@
 #ifndef PLACE_MODEL_STREET_H
 #define PLACE_MODEL_STREET_H
 
+#include <vector>
+#include <set>
+#include <stack>
+#include <cassert>
 namespace RandomMap
 {
 	enum EGridType{ePath = 0x01,eBarrier = ePath << 1};
@@ -8,6 +12,10 @@ namespace RandomMap
 	const int eGridSpan = 64;
 
 	using std::vector;
+    using std::set;
+    using std::pair;
+    using std::stack;
+    using std::make_pair;
 	//P for positive
 	//N for negative
 	//corner 0-1 means it enclose path or barrier
@@ -41,6 +49,10 @@ namespace RandomMap
 		set<pair<size_t,size_t> > outmost_str_map_coords_;
 		StringMap processed_str_map_;
 	public:
+        const StringMap& GetProcessedMap()const
+        {
+            return processed_str_map_;
+        }
 		vector<MapModelPosition> PlaceModel(const StringMap& str_map_input,
 			const vector<ModelInfo>& out_most_border_models,
 			const vector<ModelInfo>& out_most_corner_models,
@@ -48,7 +60,7 @@ namespace RandomMap
 			const vector<ModelInfo>& inner_barrier_corner_models)
 		{
 			vector<MapModelPosition> ret;
-			if (str_map.empty())
+			if (str_map_input.empty())
 			{
 				return ret;
 			}
@@ -89,7 +101,7 @@ namespace RandomMap
 			{
 				for (size_t j = 1; j + 1 < str_map[i].size(); ++j)
 				{
-					place_model_in_corner(processed_str_map_,i,j,str_map,ret,out_most_corner_models,inner_barrier_corner_models);
+					place_model_in_corner(i,j,str_map,out_most_corner_models,inner_barrier_corner_models,processed_str_map_,ret);
 				}
 			}
 			//scan row lines
@@ -593,7 +605,7 @@ namespace RandomMap
 			r.push_back(mmp);
 			post_process_str_map(z,x,zi,xi,picked,processed);
 		}
-		void place_model_in_cornerpxnz(size_t z,size_t x,const StringMap& str_map,
+		void place_model_in_cornerpxnz(ModelType t,size_t z,size_t x,const StringMap& str_map,
 			const vector<ModelInfo>& out_most,
 			const vector<ModelInfo>& inner,
 			StringMap& processed,
@@ -634,7 +646,7 @@ namespace RandomMap
 		}
 
 
-		void place_model_in_cornernxnz(size_t z,size_t x,const StringMap& str_map,
+		void place_model_in_cornernxnz(ModelType t,size_t z,size_t x,const StringMap& str_map,
 			const vector<ModelInfo>& out_most,
 			const vector<ModelInfo>& inner,
 			StringMap& processed,
@@ -673,7 +685,7 @@ namespace RandomMap
 			post_process_str_map(z,x,zi,xi,picked,processed_str_map_);
 		}
 
-		void place_model_in_cornernxpz(size_t z,size_t x,const StringMap& str_map,
+		void place_model_in_cornernxpz(ModelType t,size_t z,size_t x,const StringMap& str_map,
 			const vector<ModelInfo>& out_most,
 			const vector<ModelInfo>& inner,
 			StringMap& processed,
@@ -714,7 +726,7 @@ namespace RandomMap
 
 		}
 		void place_model_in_corner(size_t z,size_t x,const StringMap& str_map,
-			vector<ModelInfo>& out_most,vector<ModelInfo>& inner,StringMap& processed,vector<MapModelPosition>& r)
+			const vector<ModelInfo>& out_most,const vector<ModelInfo>& inner,StringMap& processed,vector<MapModelPosition>& r)
 		{
 			if ( (processed_str_map_[z][x] & eBarrier) == 0)
 			{
@@ -747,13 +759,7 @@ namespace RandomMap
                     place_model_in_cornerpxnz(mt,z,x,str_map,out_most,inner,processed,r);
 				}
 				break;
-			case CornerPXPZ0:
-			case CornerPXPZ1:
-				{
-                    place_model_in_cornerpxpz(mt,z,x,str_map,out_most,inner,processed,r);
-				}
-				break;
-			case UnknownModel:break;
+    		case UnknownModel:break;
 			default:break;
 			}
 		}
@@ -789,7 +795,7 @@ namespace RandomMap
 						}
 						if (path_count < 3)
 						{
-							tmp[i][j] = str_map[i][j]
+							tmp[i][j] = str_map[i][j];
 						}
 						else
 							tmp[i][j] = ePath;
@@ -803,6 +809,7 @@ namespace RandomMap
 		int _10,int _11,int _12,
 		int _20,int _21,int _22
 		)
+            const
 		{
 			return (str_map[z+1][x-1] & _00 )
 					&&
