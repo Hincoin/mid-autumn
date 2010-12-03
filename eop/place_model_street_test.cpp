@@ -7,23 +7,31 @@ int main()
     std::ifstream i_scene_file("place_model_test.txt");
     char c;
     StringMap str_map;
-    while(i_scene_file >> c)
-    {
-        vector<int> row;
-        switch(c){
+
+	const int COL_COUNT = 20;
+	const int ROW_COUNT = 20;
+	int col_count = COL_COUNT;
+	int row_count = ROW_COUNT;
+	while (row_count --)
+	{
+		vector<int> row;
+		col_count = COL_COUNT;
+		while(col_count --)
+		{
+			i_scene_file >> c;
+
+			switch(c){
             case '#':
                 row.push_back(eBarrier);
                 break;
             case '.':
                 row.push_back(ePath);
                 break;
-            case '\n':
-                str_map.push_back(row);
-                row.clear();
-                break; 
             default:assert(false);
-        }
-    }
+			}
+		}
+		str_map.push_back(row);
+	}
     //read test models
     std::ifstream i_model_file("place_model_test_models.txt");
     std::vector<ModelInfo> v;
@@ -38,6 +46,7 @@ int main()
         m.x_pixel_length = x_length * eGridSpan + 20;
         while(z_length--)
         {
+			x_length = m.x_grid_length;
             while(x_length--)
             {
                 i_model_file >> c;
@@ -50,8 +59,8 @@ int main()
                     m.barrier_info.push_back(ePath);
                 }
             }
-            i_model_file >> c;
         }
+		v.push_back(m);
     }
     vector<ModelInfo> border_models;
     vector<ModelInfo> corner_models;
@@ -144,8 +153,10 @@ int main()
     {
         for(size_t j = 0; j < psm[i].size(); ++j)
         {
-            if(psm[i][j] & (ePath | eBarrier))
-                printf("%5d",-psm[i][j]);
+            if(psm[i][j] & (ePath ))
+                printf("%5s",".");
+            else if(psm[i][j] & (eBarrier))
+                printf("%5s","#");
             else
             {
                 int midx = psm[i][j]>>16;
