@@ -177,12 +177,12 @@ namespace RandomMap
 					size_t length = 0;
 					if(t == FacePX)
 					{
-						size_t ix = picked.x_grid_length;
+						size_t ix = picked.x_grid_length-1;
 						size_t iz = 0;
 						size_t tlength = 0;
 						for (;ix > 0 && length == 0;ix--)
 						{
-							for (;iz < picked.z_grid_length; iz++)
+							for (iz = 0;iz < picked.z_grid_length; iz++)
 							{
 								if (picked.barrier_info[iz * picked.x_grid_length + ix] & eBarrier)
 								{
@@ -198,12 +198,12 @@ namespace RandomMap
 					}
 					if(t == FacePZ)
 					{
-						size_t iz = picked.z_grid_length;
+						size_t iz = picked.z_grid_length-1;
 						size_t ix = 0;
 						size_t tlength = 0;
 						for (;iz > 0 && length == 0;iz--)
 						{
-							for (;ix < picked.x_grid_length; ix++)
+							for (ix = 0;ix < picked.x_grid_length; ix++)
 							{
 								if (picked.barrier_info[iz * picked.x_grid_length + ix] & eBarrier)
 								{
@@ -224,7 +224,7 @@ namespace RandomMap
 						size_t tlength = 0;
 						for (;ix < picked.x_grid_length && length == 0;ix++)
 						{
-							for (;iz < picked.z_grid_length; iz++)
+							for (iz = 0;iz < picked.z_grid_length; iz++)
 							{
 								if (picked.barrier_info[iz*picked.x_grid_length+ix] & eBarrier)
 								{
@@ -245,7 +245,7 @@ namespace RandomMap
 						size_t tlength = 0;
 						for (;iz < picked.z_grid_length && length == 0;iz++)
 						{
-							for (;ix < picked.x_grid_length; ix++)
+							for (ix = 0;ix < picked.x_grid_length; ix++)
 							{
 								if (picked.barrier_info[iz*picked.x_grid_length+ix] & eBarrier)
 								{
@@ -260,7 +260,7 @@ namespace RandomMap
 						}
 					}
 
-					if(length < size_hint)
+					if(length <= size_hint)
 					{
 						if (diff_size > size_hint - length)
 						{
@@ -301,11 +301,11 @@ namespace RandomMap
                            tb_cnt ++; 
                         }
                     }
-                }
-                if(tb_cnt < barrier_count )
-                {
-                    selected_idx = i;
-                    barrier_count = tb_cnt;
+					if(tb_cnt < barrier_count )
+					{
+						selected_idx = i;
+						barrier_count = tb_cnt;
+					}
                 }
             }
             if(barrier_count == size_t(-1))
@@ -340,16 +340,19 @@ namespace RandomMap
 				if (pick_model_for_border(FacePX,z,x,out_most_border_models,inner_barrier_border_models,end-z,picked) && picked.x_grid_length > 0)
 				{
 					bool find_place = false;
-					size_t ix=picked.x_grid_length,iz=0;
-					for (;ix > 0 && !find_place; --ix)
+					size_t ix=picked.x_grid_length-1,iz=0;
+					for (;ix != -1 ; --ix)
 					{
-						for (;iz < picked.z_grid_length && !find_place; ++iz)
+						for (iz = 0;iz < picked.z_grid_length; ++iz)
 						{
-							if (processed_str_map_[iz][ix] & eBarrier)
+							if (picked.barrier_info[iz*picked.x_grid_length + ix] & eBarrier)
 							{
 								find_place = true;
+								break;
 							}
 						}
+						if (find_place)
+							break;
 					}
 					if (!find_place)
 					{
@@ -360,21 +363,23 @@ namespace RandomMap
 					place_at(z,x,iz,ix,picked,mmp);
 					ret.push_back(mmp);
 					size_t px = x;
-					size_t pz = z;
-					for (;ix > 0;ix--)
+					size_t pz = z - iz;
+					z = pz + 1;	
+					for (;ix != -1;ix--)
 					{
-						for (; iz < picked.z_grid_length;iz++)
+						for (iz = 0; iz < picked.z_grid_length;iz++)
 						{
 							if (picked.barrier_info[iz*picked.x_grid_length + ix] & eBarrier)
 							{
 								processed_str_map_[pz][px] = mmp.model_idx << 16;
-								if (pz == z)
+								if (px == x && z < pz + 1)
 								{
 									z = pz + 1;	
 								}
 							}
 							pz++;
 						}
+						pz -= iz;
 						px--;
 					}
 				}
@@ -402,15 +407,17 @@ namespace RandomMap
 				bool find_place = false;
 				size_t ix = 0;
 				size_t iz = 0;
-				for (;ix < picked.x_grid_length && !find_place; ++ix)
+				for (;ix < picked.x_grid_length; ++ix)
 				{
-					for (;iz < picked.z_grid_length && !find_place; ++iz)
+					for (iz = 0;iz < picked.z_grid_length; ++iz)
 					{
 						if (picked.barrier_info[iz * picked.x_grid_length + ix] & eBarrier)
 						{
 							find_place = true;
+							break;
 						}
 					}
+					if(find_place) break;
 				}
 				if (!find_place)
 				{
@@ -420,21 +427,23 @@ namespace RandomMap
 				MapModelPosition mmp;
 				place_at(z,x,iz,ix,picked,mmp);
 				size_t px = x;
-				size_t pz = z;
+				size_t pz = z - iz;
+				z = pz + 1;
 				for (;ix < picked.x_grid_length; ++ix)
 				{
-					for (;iz < picked.z_grid_length ; ++iz)
+					for (iz = 0;iz < picked.z_grid_length ; ++iz)
 					{
 						if (picked.barrier_info[iz * picked.x_grid_length + ix] & eBarrier)
 						{
 							processed_str_map_[pz][px] = picked.model_idx << 16;
-							if (px == x)
+							if (px == x && z < pz + 1)
 							{
 								z = pz+1;
 							}
 						}
 						pz ++;
 					}
+					pz -= iz;
 					px ++;
 				}
 			}
@@ -456,34 +465,40 @@ namespace RandomMap
 				}
 				size_t iz=0,ix=0;
 				bool find_place = false;
-				for(iz = 0;iz<picked.z_grid_length && !find_place;++iz)
+				for(iz = 0;iz<picked.z_grid_length ;++iz)
 				{
-					for (ix = 0;ix < picked.x_grid_length && !find_place;++ix)
+					for (ix = 0;ix < picked.x_grid_length ;++ix)
 					{
 						if(picked.barrier_info[iz * picked.x_grid_length + ix] & eBarrier)
+						{
 							find_place = true;
+							break;
+						}
 					}
+					if(find_place) break;
 				}
 				if (find_place)
 				{
 					MapModelPosition mmp;
 					place_at(z,x,iz,ix,picked,mmp);
-					size_t px = x;
+					size_t px = x - ix;
 					size_t pz = z;
+					x = px + 1;
 					for (;iz < picked.z_grid_length; ++iz)
 					{
-						for (;ix < picked.x_grid_length ; ++ix)
+						for (ix = 0;ix < picked.x_grid_length ; ++ix)
 						{
 							if (picked.barrier_info[iz * picked.x_grid_length + ix] & eBarrier)
 							{
 								processed_str_map_[pz][px] = picked.model_idx << 16;
-								if (pz == z)
+								if (pz == z && x < px + 1)
 								{
 									x = px+1;
 								}
 							}
 							px ++;
 						}
+						px -= ix;
 						pz ++;
 					}
 				}
@@ -497,7 +512,7 @@ namespace RandomMap
 			StringMap& processed_str_map_,
 			vector<MapModelPosition>& ret)
 		{
-			for (size_t x = start; x < end; x ++)
+			for (size_t x = start; x < end; )
 			{
 				ModelInfo picked;
 				if (!pick_model_for_border(FacePZ,z,x,out_most_border_models,inner_barrier_border_models,end-x,picked))
@@ -509,15 +524,17 @@ namespace RandomMap
 				bool find_place=false;
 				if(picked.z_grid_length>0)
 				{
-					for (iz=picked.z_grid_length;iz > 0 && !find_place;iz--)
+					for (iz=picked.z_grid_length-1;iz != -1 ;iz--)
 					{
-						for (ix = 0; ix < picked.x_grid_length && !find_place;ix++)
+						for (ix = 0; ix < picked.x_grid_length ;ix++)
 						{
 							if (picked.barrier_info[iz*picked.x_grid_length + ix] & eBarrier)
 							{
 								find_place = true;
+								break;
 							}
 						}
+						if(find_place) break;
 					}
 					if(!find_place)
 					{
@@ -527,22 +544,24 @@ namespace RandomMap
 					MapModelPosition mmp;
 					place_at(z,x,iz,ix,picked,mmp);
 					ret.push_back(mmp);
-					size_t px = x;
+					size_t px = x - ix;
 					size_t pz = z;
-					for (;iz > 0;iz--)
+					x = px + 1;
+					for (;iz != -1;iz--)
 					{
-						for (; ix < picked.x_grid_length;ix++)
+						for (ix = 0; ix < picked.x_grid_length;ix++)
 						{
 							if (picked.barrier_info[iz*picked.x_grid_length + ix] & eBarrier)
 							{
 								processed_str_map_[pz][px] = mmp.model_idx << 16;
-								if (pz == z)
+								if (pz == z && x < px + 1)
 								{
 									x = px + 1;	
 								}
 							}
 							px++;
 						}
+						px -= ix;
 						pz--;
 					}
 				}
@@ -556,7 +575,6 @@ namespace RandomMap
 		{
 			size_t pz = z - zi;
 			size_t px = x - xi;
-			str_map[pz][px] = picked.model_idx << 16;
 			for (zi = 0; zi < picked.z_grid_length; ++zi)
 			{
 				for(xi = 0; xi < picked.x_grid_length ; ++xi)
@@ -587,13 +605,16 @@ namespace RandomMap
 			bool find_place = false;
 			size_t zi = 0;
 			size_t xi = 0;
-			for (; zi < picked.z_grid_length  && !find_place; ++zi)
+			for (; zi < picked.z_grid_length ; ++zi)
 			{
-				for(; xi < picked.x_grid_length && !find_place ; ++xi)
+				for(xi=0; xi < picked.x_grid_length  ; ++xi)
 					if (picked.barrier_info[zi*picked.x_grid_length + xi] & eBarrier)
 					{
 						find_place = true;
+						break;
 					}
+				if(find_place)
+					break;
 			}
 			if (!find_place)
 			{
@@ -624,14 +645,19 @@ namespace RandomMap
 
 			bool find_corner = false;
 			size_t zi = picked.z_grid_length - 1,xi=0;
-			for (; zi > 0 && !find_corner; --zi)
+			for (; zi != -1 ; --zi)
 			{
-				for(; xi < picked.x_grid_length && !find_corner; ++xi)
+				for(; xi < picked.x_grid_length ; ++xi)
 					if (picked.barrier_info[zi*picked.x_grid_length + xi] & eBarrier
 						)
 					{
 						find_corner = true;
+						break;
 					}
+				if (find_corner)
+				{
+					break;
+				}
 			}
 
 			if(!find_corner)
@@ -665,14 +691,19 @@ namespace RandomMap
 			bool find_corner = false;
 			size_t zi = picked.z_grid_length - 1 ;
 			size_t xi = picked.x_grid_length - 1;
-			for (; zi>0 && !find_corner; --zi)
+			for (; zi != -1 ; --zi)
 			{
-				for(; xi>0 && !find_corner; --xi)
+				for(; xi != -1 ; --xi)
 					if (picked.barrier_info[zi*picked.x_grid_length + xi] & eBarrier
 						)
 					{
 						find_corner = true;
+						break;
 					}
+				if (find_corner)
+				{
+					break;
+				}
 			}
 			if(!find_corner)
 			{
@@ -705,14 +736,19 @@ namespace RandomMap
 			bool find_corner = false;
 			size_t zi = 0 ;
 			size_t xi = picked.x_grid_length - 1;
-			for (; zi < picked.z_grid_length && !find_corner; --zi)
+			for (; zi < picked.z_grid_length; --zi)
 			{
-				for(; xi>0 && !find_corner; --xi)
+				for(; xi != -1 ; --xi)
 					if (picked.barrier_info[zi*picked.x_grid_length + xi] & eBarrier
 						)
 					{
 						find_corner = true;
+						break;
 					}
+				if (find_corner)
+				{
+					break;
+				}
 			}
 			if(!find_corner)
 			{
@@ -728,7 +764,7 @@ namespace RandomMap
 		void place_model_in_corner(size_t z,size_t x,const StringMap& str_map,
 			const vector<ModelInfo>& out_most,const vector<ModelInfo>& inner,StringMap& processed,vector<MapModelPosition>& r)
 		{
-			if ( (processed_str_map_[z][x] & eBarrier) == 0)
+			if ( (str_map[z][x] & eBarrier) == 0)
 			{
 				return;
 			}
@@ -829,10 +865,11 @@ namespace RandomMap
 					&&
 					(str_map[z-1][x+1] & _22);
 		}
+		//strict
 		ModelType get_needed_corner_model_type(size_t i,size_t j,const StringMap& str_map)const
 		{
-            assert(i > 1 && i + 1 < str_map.size());
-            assert(j > 1 && j + 1 < str_map[i].size());
+            assert(i > 0 && i + 1 < str_map.size());
+            assert(j > 0 && j + 1 < str_map[i].size());
 			if(str_map[i][j] & eBarrier)
 			{
 				if (
@@ -847,30 +884,12 @@ namespace RandomMap
 				if(
 				is_sat_3x3(
 				i,j,str_map,
-				eBarrier,      eBarrier,      eBarrier|ePath,
-				eBarrier,      eBarrier,      eBarrier|ePath,
-				eBarrier|ePath,eBarrier|ePath,eBarrier|ePath
-				)
-				)
-					return CornerNXPZ1;
-				if(
-				is_sat_3x3(
-				i,j,str_map,
 				eBarrier|ePath,eBarrier|ePath,eBarrier|ePath,
 				eBarrier,      eBarrier,      eBarrier|ePath,
-				eBarrier|ePath,eBarrier,      eBarrier|ePath
+				ePath,         eBarrier,      eBarrier|ePath
 				)
 				)
 					return CornerNXNZ0;
-				if(
-				is_sat_3x3(
-				i,j,str_map,
-				eBarrier|ePath,eBarrier|ePath,eBarrier|ePath,
-				eBarrier,      eBarrier,      eBarrier|ePath,
-				eBarrier,      eBarrier,      eBarrier|ePath
-				)
-				)
-					return CornerNXNZ1;
 				if(
 				is_sat_3x3(
 				i,j,str_map,
@@ -881,15 +900,6 @@ namespace RandomMap
 				)
 					return CornerPXNZ0;
 				if(
-				is_sat_3x3
-				(i,j,str_map,
-				eBarrier|ePath,eBarrier|ePath,eBarrier|ePath,
-				eBarrier|ePath,eBarrier,      eBarrier,
-				eBarrier|ePath,eBarrier,      eBarrier
-				)
-				)
-					return CornerPXNZ1;
-				if(
 				is_sat_3x3(i,j,str_map,
 				eBarrier|ePath,eBarrier,      ePath,
 				eBarrier|ePath,eBarrier,      eBarrier,
@@ -897,11 +907,39 @@ namespace RandomMap
 				)
 				)
 					return CornerPXPZ0;
+
+				if(
+				is_sat_3x3(
+				i,j,str_map,
+				eBarrier,      eBarrier,      ePath,
+				eBarrier,      eBarrier,      ePath,
+				ePath,         ePath,         ePath
+				)
+				)
+					return CornerNXPZ1;
+				if(
+				is_sat_3x3(
+				i,j,str_map,
+				ePath,         ePath,         ePath,
+				eBarrier,      eBarrier,      ePath,
+				eBarrier,      eBarrier,      ePath
+				)
+				)
+					return CornerNXNZ1;
+				if(
+				is_sat_3x3
+				(i,j,str_map,
+				ePath,ePath,         ePath,
+				ePath,eBarrier,      eBarrier,
+				ePath,eBarrier,      eBarrier
+				)
+				)
+					return CornerPXNZ1;
 				if(
 				is_sat_3x3(i,j,str_map,
-				eBarrier|ePath,eBarrier,      eBarrier,
-				eBarrier|ePath,eBarrier,      eBarrier,
-				eBarrier|ePath,eBarrier|ePath,eBarrier|ePath
+				ePath,eBarrier,      eBarrier,
+				ePath,eBarrier,      eBarrier,
+				ePath,ePath,         ePath
 				)
 				)
 					return CornerPXPZ1;
