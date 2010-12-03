@@ -100,17 +100,17 @@ int main()
     t1.push_back(v[1]);
     t1[t1.size()-1].model_type = FaceNZ;
 
-    t1.push_back(v[2]);
-    t1[t1.size()-1].model_type = CornerNXNZ0;
+    //t1.push_back(v[2]);
+    //t1[t1.size()-1].model_type = CornerNXNZ0;
 
-    t1.push_back(v[3]);
-    t1[t1.size()-1].model_type = CornerPXNZ0;
+    //t1.push_back(v[3]);
+    //t1[t1.size()-1].model_type = CornerPXNZ0;
 
     t1.push_back(v[4]);
     t1[t1.size()-1].model_type = CornerPXPZ0;
 
-    t1.push_back(v[5]);
-    t1[t1.size()-1].model_type = CornerPXPZ0;
+  //  t1.push_back(v[5]);
+  //  t1[t1.size()-1].model_type = CornerPXPZ0;
 
     t1.push_back(v[6]);
     t1[t1.size()-1].model_type = CornerNXPZ0;
@@ -135,7 +135,10 @@ int main()
     t1[t1.size()-1].model_type = FacePZ;
  
     t1.push_back(v[10]);
-    t1[t1.size()-1].model_type = FaceNZ;
+    t1[t1.size()-1].model_type = CornerNXNZ0;
+ 
+    t1.push_back(v[10]);
+    t1[t1.size()-1].model_type = CornerPXNZ0;
     
     for(size_t i = 0;i < t1.size(); ++i)
     {
