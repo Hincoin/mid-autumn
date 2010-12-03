@@ -1,5 +1,7 @@
 #include <fstream>
 #include "place_model_street.h"
+
+#define TEST_CASE3
 int main()
 {
 	using namespace RandomMap;   
@@ -66,7 +68,9 @@ int main()
 	vector<ModelInfo> corner_models;
 	//set model type explicitly
 	//case 1
+
 	std::vector<ModelInfo> t1;
+#ifdef TEST_CASE1
 	t1.push_back(v[0]);
 	t1[t1.size()-1].model_type = FacePX;
 
@@ -146,6 +150,132 @@ int main()
 
 	t1.push_back(v[10]);
 	t1[t1.size()-1].model_type = CornerPXPZ0;
+#endif
+#ifdef TEST_CASE2
+	t1.push_back(v[0]);
+	t1[t1.size()-1].model_type = FacePX;
+
+	t1.push_back(v[0]);
+	t1[t1.size()-1].model_type = FacePZ;
+
+	t1.push_back(v[0]);
+	t1[t1.size()-1].model_type = FaceNX;
+
+	t1.push_back(v[0]);
+	t1[t1.size()-1].model_type = FaceNZ;
+
+	t1.push_back(v[0]);
+	t1[t1.size()-1].model_type = CornerNXNZ1;
+	t1.push_back(v[0]);
+	t1[t1.size()-1].model_type = CornerNXPZ1;
+	t1.push_back(v[0]);
+	t1[t1.size()-1].model_type = CornerPXPZ1;
+	t1.push_back(v[0]);
+	t1[t1.size()-1].model_type = CornerPXNZ1;
+
+	t1.push_back(v[1]);
+	t1[t1.size()-1].model_type = FacePX;
+
+	t1.push_back(v[1]);
+	t1[t1.size()-1].model_type = FacePZ;
+
+	t1.push_back(v[1]);
+	t1[t1.size()-1].model_type = FaceNX;
+
+	t1.push_back(v[1]);
+	t1[t1.size()-1].model_type = FaceNZ;
+
+	t1.push_back(v[2]);
+	t1[t1.size()-1].model_type = CornerNXNZ0;
+
+	t1.push_back(v[3]);
+	t1[t1.size()-1].model_type = CornerPXNZ0;
+
+	t1.push_back(v[4]);
+	t1[t1.size()-1].model_type = CornerPXPZ0;
+
+	t1.push_back(v[5]);
+	t1[t1.size()-1].model_type = CornerPXPZ0;
+
+	t1.push_back(v[6]);
+	t1[t1.size()-1].model_type = CornerNXPZ0;
+
+	t1.push_back(v[7]);
+	t1[t1.size()-1].model_type = CornerNXPZ0;
+
+	t1.push_back(v[8]);
+	t1[t1.size()-1].model_type = FacePZ;
+
+	t1.push_back(v[8]);
+	t1[t1.size()-1].model_type = FaceNZ;
+
+	t1.push_back(v[9]);
+	t1[t1.size()-1].model_type = FacePX;
+
+	t1.push_back(v[9]);
+	t1[t1.size()-1].model_type = FaceNX;
+
+
+	t1.push_back(v[10]);
+	t1[t1.size()-1].model_type = CornerNXNZ0;
+
+	t1.push_back(v[10]);
+	t1[t1.size()-1].model_type = CornerPXNZ0;
+
+
+	t1.push_back(v[10]);
+	t1[t1.size()-1].model_type = CornerNXPZ0;
+
+	t1.push_back(v[10]);
+	t1[t1.size()-1].model_type = CornerPXPZ0;
+
+#endif
+#ifdef TEST_CASE3
+	t1.push_back(v[1]);
+	t1[t1.size()-1].model_type = FacePX;
+
+	t1.push_back(v[1]);
+	t1[t1.size()-1].model_type = FacePZ;
+
+	t1.push_back(v[1]);
+	t1[t1.size()-1].model_type = FaceNX;
+
+	t1.push_back(v[1]);
+	t1[t1.size()-1].model_type = FaceNZ;
+
+	t1.push_back(v[2]);
+	t1[t1.size()-1].model_type = CornerNXNZ0;
+	t1.push_back(v[2]);
+	t1[t1.size()-1].model_type = CornerNXNZ1;
+
+	t1.push_back(v[3]);
+	t1[t1.size()-1].model_type = CornerPXNZ0;
+	t1.push_back(v[3]);
+	t1[t1.size()-1].model_type = CornerPXNZ1;
+
+	t1.push_back(v[4]);
+	t1[t1.size()-1].model_type = CornerPXPZ0;
+	t1.push_back(v[4]);
+	t1[t1.size()-1].model_type = CornerPXPZ1;
+   
+    t1.push_back(v[6]);
+	t1[t1.size()-1].model_type = CornerNXPZ0;
+    t1.push_back(v[6]);
+	t1[t1.size()-1].model_type = CornerNXPZ1;
+
+    t1.push_back(v[8]);
+	t1[t1.size()-1].model_type = FacePZ;
+
+	t1.push_back(v[8]);
+	t1[t1.size()-1].model_type = FaceNZ;
+
+	t1.push_back(v[9]);
+	t1[t1.size()-1].model_type = FacePX;
+
+	t1.push_back(v[9]);
+	t1[t1.size()-1].model_type = FaceNX;
+
+#endif
 
 	for(size_t i = 0;i < t1.size(); ++i)
 	{
@@ -157,6 +287,7 @@ int main()
 	}
 	PlaceModelStreet pms;
 	vector<MapModelPosition> ms = pms.PlaceModel(str_map,border_models, corner_models,border_models, corner_models);
+
 
 	const StringMap& psm = pms.GetProcessedMap();
 	for(size_t i = 0;i < psm.size(); ++i)
