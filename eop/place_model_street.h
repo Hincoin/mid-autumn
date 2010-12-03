@@ -12,23 +12,23 @@ namespace RandomMap
 	const int eGridSpan = 64;
 
 	using std::vector;
-    using std::set;
-    using std::pair;
-    using std::stack;
-    using std::make_pair;
+	using std::set;
+	using std::pair;
+	using std::stack;
+	using std::make_pair;
 	//P for positive
 	//N for negative
 	//corner 0-1 means it enclose path or barrier
 	enum ModelType{FacePX,FacePZ,FaceNX,FaceNZ,CornerPXPZ0,CornerPXNZ0,CornerNXNZ0,CornerNXPZ0,CornerPXPZ1,CornerPXNZ1,CornerNXNZ1,CornerNXPZ1,UnknownModel};
 	struct ModelInfo{
-        ModelInfo():model_idx(-1),
-        x_grid_length(0),
-        z_grid_length(0),
-        x_pixel_length(0),
-        z_pixel_length(0),
-        x_pixel_offset(0),
-        z_pixel_offset(0),
-        model_type(UnknownModel){}
+		ModelInfo():model_idx(-1),
+			x_grid_length(0),
+			z_grid_length(0),
+			x_pixel_length(0),
+			z_pixel_length(0),
+			x_pixel_offset(0),
+			z_pixel_offset(0),
+			model_type(UnknownModel){}
 		int model_idx;
 		int x_grid_length,z_grid_length;
 		int x_pixel_length,z_pixel_length;
@@ -49,10 +49,10 @@ namespace RandomMap
 		set<pair<size_t,size_t> > outmost_str_map_coords_;
 		StringMap processed_str_map_;
 	public:
-        const StringMap& GetProcessedMap()const
-        {
-            return processed_str_map_;
-        }
+		const StringMap& GetProcessedMap()const
+		{
+			return processed_str_map_;
+		}
 		vector<MapModelPosition> PlaceModel(const StringMap& str_map_input,
 			const vector<ModelInfo>& out_most_border_models,
 			const vector<ModelInfo>& out_most_corner_models,
@@ -71,30 +71,30 @@ namespace RandomMap
 			//build outmost barrier str map
 			stack<pair<size_t,size_t> > visit_stack;
 			visit_stack.push(make_pair(0,0));
-            set<pair<size_t,size_t> > visited_set;
-            //dfs
+			set<pair<size_t,size_t> > visited_set;
+			//dfs
 			while (!visit_stack.empty())
 			{
 				pair<size_t,size_t> cur = visit_stack.top();
 				visit_stack.pop();
-                if(visited_set.find(cur) != visited_set.end())
-                    continue;
+				if(visited_set.find(cur) != visited_set.end())
+					continue;
 
-                size_t start_z=cur.first;
-			    size_t start_x=cur.second;
+				size_t start_z=cur.first;
+				size_t start_x=cur.second;
 				if (str_map[start_z][start_x] & eBarrier)
 				{
 					outmost_str_map_coords_.insert(cur);
 				}
 				if (start_x + 1 < str_map[start_z].size() &&( str_map[start_z][start_x+1] & eBarrier))
-                    visit_stack.push(make_pair(start_z,start_x + 1));
-                if (start_x > 1 &&(  str_map[start_z][start_x-1] & eBarrier))
-                    visit_stack.push(make_pair(start_z,start_x-1));
-                if (start_z + 1 < str_map.size() && (str_map[start_z + 1][start_x] & eBarrier))
-                    visit_stack.push(make_pair(start_z+1,start_x));
-                if (start_z > 1 && (str_map[start_z -1][start_x] & eBarrier))
-                    visit_stack.push(make_pair(start_z -1,start_x));
-                visited_set.insert(cur);
+					visit_stack.push(make_pair(start_z,start_x + 1));
+				if (start_x > 1 &&(  str_map[start_z][start_x-1] & eBarrier))
+					visit_stack.push(make_pair(start_z,start_x-1));
+				if (start_z + 1 < str_map.size() && (str_map[start_z + 1][start_x] & eBarrier))
+					visit_stack.push(make_pair(start_z+1,start_x));
+				if (start_z > 1 && (str_map[start_z -1][start_x] & eBarrier))
+					visit_stack.push(make_pair(start_z -1,start_x));
+				visited_set.insert(cur);
 			}
 			//search for corners
 			for (size_t i = 1;i + 1 < str_map.size(); ++i)
@@ -285,33 +285,33 @@ namespace RandomMap
 			)
 		{
 			const vector<ModelInfo>& models = outmost_str_map_coords_.find(make_pair(z,x)) != outmost_str_map_coords_.end() ? out_most_border_models:inner_barrier_border_models;
-            size_t barrier_count = size_t(-1);
-            size_t selected_idx = 0;
-            //minimize the barrier count
-            for(size_t i = 0;i < models.size(); ++i)
-            {
-                const ModelInfo& cur = models[i];
-                size_t tb_cnt = 0;
-                if(cur.model_type == t)
-                {
-                    for(size_t mi = 0;mi < cur.barrier_info.size(); ++mi)
-                    {
-                        if(cur.barrier_info[mi] & eBarrier)
-                        {
-                           tb_cnt ++; 
-                        }
-                    }
+			size_t barrier_count = size_t(-1);
+			size_t selected_idx = 0;
+			//minimize the barrier count
+			for(size_t i = 0;i < models.size(); ++i)
+			{
+				const ModelInfo& cur = models[i];
+				size_t tb_cnt = 0;
+				if(cur.model_type == t)
+				{
+					for(size_t mi = 0;mi < cur.barrier_info.size(); ++mi)
+					{
+						if(cur.barrier_info[mi] & eBarrier)
+						{
+							tb_cnt ++; 
+						}
+					}
 					if(tb_cnt < barrier_count )
 					{
 						selected_idx = i;
 						barrier_count = tb_cnt;
 					}
-                }
-            }
-            if(barrier_count == size_t(-1))
-                return false;
-            picked = models[selected_idx];
-            return true;
+				}
+			}
+			if(barrier_count == size_t(-1))
+				return false;
+			picked = models[selected_idx];
+			return true;
 		}
 		void place_at(size_t z,size_t x, size_t iz,size_t ix,const ModelInfo& picked,MapModelPosition& mmp)
 		{
@@ -586,181 +586,87 @@ namespace RandomMap
 				}
 			}
 		}
-		void place_model_in_cornerpxpz(ModelType t,size_t z,size_t x,const StringMap& str_map,
-			const vector<ModelInfo>& out_most,
-			const vector<ModelInfo>& inner,
-			StringMap& processed,
-			vector<MapModelPosition>& r
-			)
+		bool is_pxpz_corner(const ModelInfo& picked,size_t zi,size_t xi)
 		{
-			ModelInfo picked;
-			//pick model
-			if (!pick_model_for_corner(t,z,x,out_most,inner,picked))
-			{
-				return;
-			}
-
 			//  ##
 			//  @#
-			bool find_place = false;
-			size_t zi = 0;
-			size_t xi = 0;
-			for (; zi < picked.z_grid_length ; ++zi)
-			{
-				for(xi=0; xi < picked.x_grid_length  ; ++xi)
-					if (picked.barrier_info[zi*picked.x_grid_length + xi] & eBarrier)
-					{
-						find_place = true;
-						break;
-					}
-				if(find_place)
-					break;
-			}
-			if (!find_place)
-			{
-				assert(false);
-				return ;
-			}
-			MapModelPosition mmp;
-			place_at(z,x,zi,xi,picked,mmp);
-			r.push_back(mmp);
-			post_process_str_map(z,x,zi,xi,picked,processed);
+			return (picked.barrier_info[zi*picked.x_grid_length + xi] & eBarrier)
+				&&
+				( zi == picked.z_grid_length-1 &&
+				xi == picked.x_grid_length-1 
+				||
+				zi == picked.z_grid_length-1 &&
+				(picked.barrier_info[zi*picked.x_grid_length + xi+1] & eBarrier)
+				|| 
+				xi == picked.x_grid_length-1 &&
+				(picked.barrier_info[(zi+1)*picked.x_grid_length+xi] & eBarrier)
+				||
+				(picked.barrier_info[zi*picked.x_grid_length + xi+1] & eBarrier) &&
+				(picked.barrier_info[(zi+1)*picked.x_grid_length+xi] & eBarrier)
+				);
 		}
-		void place_model_in_cornerpxnz(ModelType t,size_t z,size_t x,const StringMap& str_map,
-			const vector<ModelInfo>& out_most,
-			const vector<ModelInfo>& inner,
-			StringMap& processed,
-			vector<MapModelPosition>& r
-			)
+		bool is_pxnz_corner(const ModelInfo& picked,size_t zi,size_t xi)
 		{
 			// @##
 			// ##
 			// #
-			ModelInfo picked;
-				//pick model
-			if (!pick_model_for_corner(t,z,x,out_most,inner,picked))
-			{
-				return;
-			}
-
-			bool find_corner = false;
-			size_t zi = picked.z_grid_length - 1,xi=0;
-			for (; zi != -1 ; --zi)
-			{
-				for(; xi < picked.x_grid_length ; ++xi)
-					if (picked.barrier_info[zi*picked.x_grid_length + xi] & eBarrier
-						)
-					{
-						find_corner = true;
-						break;
-					}
-				if (find_corner)
-				{
-					break;
-				}
-			}
-
-			if(!find_corner)
-			{
-				assert(false);
-				return ;
-			}
-			MapModelPosition mmp;
-			place_at(z,x,zi,xi,picked,mmp);
-			r.push_back(mmp);
-			post_process_str_map(z,x,zi,xi,picked,processed);
+			return (picked.barrier_info[zi*picked.x_grid_length + xi] & eBarrier)
+				&&
+				( zi == 0 &&
+				xi == picked.x_grid_length-1 
+				||
+				zi == 0 &&
+				(picked.barrier_info[zi*picked.x_grid_length + xi+1] & eBarrier)
+				|| 
+				xi == picked.x_grid_length-1 &&
+				(picked.barrier_info[(zi-1)*picked.x_grid_length+xi] & eBarrier)
+				||
+				(picked.barrier_info[zi*picked.x_grid_length + xi+1] & eBarrier) &&
+				(picked.barrier_info[(zi-1)*picked.x_grid_length+xi] & eBarrier)
+				);
 		}
-
-
-		void place_model_in_cornernxnz(ModelType t,size_t z,size_t x,const StringMap& str_map,
-			const vector<ModelInfo>& out_most,
-			const vector<ModelInfo>& inner,
-			StringMap& processed,
-			vector<MapModelPosition>& r
-			)
+	
+		bool is_nxnz_corner(const ModelInfo& picked,size_t zi,size_t xi)
 		{
-			ModelInfo picked;
-			if (!pick_model_for_corner(t,z,x,out_most,inner,picked))
-			{
-				return;
-			}
-
 			//##@
 			// ##
 			// 
-			bool find_corner = false;
-			size_t zi = picked.z_grid_length - 1 ;
-			size_t xi = picked.x_grid_length - 1;
-			for (; zi != -1 ; --zi)
-			{
-				for(; xi != -1 ; --xi)
-					if (picked.barrier_info[zi*picked.x_grid_length + xi] & eBarrier
-						)
-					{
-						find_corner = true;
-						break;
-					}
-				if (find_corner)
-				{
-					break;
-				}
-			}
-			if(!find_corner)
-			{
-				assert(false);
-				return ;
-			}
-			MapModelPosition mmp;
-			place_at(z,x,zi,xi,picked,mmp);
-			r.push_back(mmp);
-			post_process_str_map(z,x,zi,xi,picked,processed_str_map_);
+			return (picked.barrier_info[zi*picked.x_grid_length + xi] & eBarrier)
+				&&
+				( zi == 0 &&
+				xi == 0 
+				||
+				zi == 0 &&
+				(picked.barrier_info[zi*picked.x_grid_length + xi-1] & eBarrier)
+				|| 
+				xi == 0 &&
+				(picked.barrier_info[(zi-1)*picked.x_grid_length+xi] & eBarrier)
+				||
+				(picked.barrier_info[zi*picked.x_grid_length + xi-1] & eBarrier) &&
+				(picked.barrier_info[(zi-1)*picked.x_grid_length+xi] & eBarrier)
+				);
 		}
-
-		void place_model_in_cornernxpz(ModelType t,size_t z,size_t x,const StringMap& str_map,
-			const vector<ModelInfo>& out_most,
-			const vector<ModelInfo>& inner,
-			StringMap& processed,
-			vector<MapModelPosition>& r
-			)
+		bool is_nxpz_corner(const ModelInfo& picked,size_t zi,size_t xi)
 		{
-			ModelInfo picked;
-            if (!pick_model_for_corner(t,z,x,out_most,inner,picked))
-			{
-				return;
-			}
-
 			//###
 			//##@
 			// 
-				
-			bool find_corner = false;
-			size_t zi = 0 ;
-			size_t xi = picked.x_grid_length - 1;
-			for (; zi < picked.z_grid_length; --zi)
-			{
-				for(; xi != -1 ; --xi)
-					if (picked.barrier_info[zi*picked.x_grid_length + xi] & eBarrier
-						)
-					{
-						find_corner = true;
-						break;
-					}
-				if (find_corner)
-				{
-					break;
-				}
-			}
-			if(!find_corner)
-			{
-				assert(false);
-				return ;
-			}
-			MapModelPosition mmp;
-			place_at(z,x,zi,xi,picked,mmp);
-			r.push_back(mmp);
-			post_process_str_map(z,x,zi,xi,picked,processed_str_map_);
-
+			return (picked.barrier_info[zi*picked.x_grid_length + xi] & eBarrier)
+				&&
+				( zi == picked.z_grid_length -1 &&
+				xi == 0 
+				||
+				zi == picked.z_grid_length -1 &&
+				(picked.barrier_info[zi*picked.x_grid_length + xi-1] & eBarrier)
+				|| 
+				xi == 0 &&
+				(picked.barrier_info[(zi+1)*picked.x_grid_length+xi] & eBarrier)
+				||
+				(picked.barrier_info[zi*picked.x_grid_length + xi-1] & eBarrier) &&
+				(picked.barrier_info[(zi+1)*picked.x_grid_length+xi] & eBarrier)
+				);
 		}
+
 		void place_model_in_corner(size_t z,size_t x,const StringMap& str_map,
 			const vector<ModelInfo>& out_most,const vector<ModelInfo>& inner,StringMap& processed,vector<MapModelPosition>& r)
 		{
@@ -768,36 +674,163 @@ namespace RandomMap
 			{
 				return;
 			}
-            ModelType mt = get_needed_corner_model_type(z,x,str_map);
-			switch(mt)
+			ModelType t = get_needed_corner_model_type(z,x,str_map);
+			ModelInfo picked;
+			if (!pick_model_for_corner(t,z,x,out_most,inner,picked))
+			{
+				return;
+			}
+			bool find_corner = false;
+			size_t zi ;
+			size_t xi ;
+			switch(t)
 			{
 			case CornerPXPZ1:
-            case CornerPXPZ0:
 				{
-					place_model_in_cornerpxpz(mt,z,x,str_map,out_most,inner,processed,r);
+					for (zi = 0; zi < picked.z_grid_length ; ++zi)
+					{
+						for(xi=0; xi < picked.x_grid_length  ; ++xi)
+						{
+							if(is_pxpz_corner(picked,zi,xi))
+							{
+								find_corner = true;
+								break;
+							}
+						}
+						if(find_corner)
+							break;
+					}
+				}		break;
+			case CornerPXPZ0:
+				{
+					for(zi = picked.z_grid_length -1;zi != -1; --zi)
+					{
+						for (xi = picked.x_grid_length - 1; xi != -1; --xi)
+						{
+							if(is_pxpz_corner(picked,zi,xi))	
+							{
+								find_corner = true;
+								break;
+							}
+						}
+						if(find_corner)
+							break;
+					}
 				}
 				break;
 			case CornerNXNZ0:
-            case CornerNXNZ1:
 				{
-                    place_model_in_cornernxnz(mt,z,x,str_map,out_most,inner,processed,r);
+					for (zi = 0; zi < picked.z_grid_length ; ++zi)
+					{
+						for(xi = 0; xi < picked.x_grid_length ; ++xi)
+							if (is_nxnz_corner(picked,zi,xi))
+							{
+								find_corner = true;
+								break;
+							}
+							if (find_corner)
+							{
+								break;
+							}
+					}
+				}		break;
+			case CornerNXNZ1:
+				{
+					for (zi = picked.z_grid_length - 1; zi != -1 ; --zi)
+					{
+						for(xi = picked.x_grid_length - 1; xi != -1 ; --xi)
+							if (is_nxnz_corner(picked,zi,xi))
+							{
+								find_corner = true;
+								break;
+							}
+							if (find_corner)
+							{
+								break;
+							}
+					}
 				}
 				break;
 			case CornerNXPZ0:
+				{
+					{
+						for(zi = picked.z_grid_length - 1; zi != -1; --zi)
+						{
+							for (xi = 0; xi < picked.x_grid_length;++xi)
+								if (is_nxpz_corner(picked,zi,xi))
+								{
+									find_corner = true;
+									break;
+								}
+								if (find_corner)
+								{
+									break;
+								}
+						}
+					}
+				}		break;
 			case CornerNXPZ1:
 				{
-                    place_model_in_cornernxpz(mt,z,x,str_map,out_most,inner,processed,r);
+					for (zi = 0; zi < picked.z_grid_length; ++zi)
+					{
+						for(xi = picked.x_grid_length - 1; xi != -1 ; --xi)
+							if (is_nxpz_corner(picked,zi,xi))
+							{
+								find_corner = true;
+								break;
+							}
+							if (find_corner)
+							{
+								break;
+							}
+					}
 				}
 				break;
 			case CornerPXNZ0:
+				{
+					for(zi = 0; zi < picked.z_grid_length; ++zi)
+					{
+						for (xi = picked.x_grid_length -1; xi != -1; --xi)
+							if (is_pxnz_corner(picked,zi,xi))
+							{
+								find_corner = true;
+								break;
+							}
+							if (find_corner)
+							{
+								break;
+							}
+					}
+				}		break;
 			case CornerPXNZ1:
 				{
-                    place_model_in_cornerpxnz(mt,z,x,str_map,out_most,inner,processed,r);
+					for (zi = picked.z_grid_length - 1; zi != -1 ; --zi)
+					{
+						for(xi = 0; xi < picked.x_grid_length ; ++xi)
+							if (is_pxnz_corner(picked,zi,xi))
+							{
+								find_corner = true;
+								break;
+							}
+							if (find_corner)
+							{
+								break;
+							}
+					}
 				}
 				break;
-    		case UnknownModel:break;
+			case UnknownModel:break;
 			default:break;
 			}
+			if(!find_corner)
+			{
+				assert(false);
+				return ;
+			}
+			MapModelPosition mmp;
+			place_at(z,x,zi,xi,picked,mmp);
+			r.push_back(mmp);
+			post_process_str_map(z,x,zi,xi,picked,processed);
 		}
 
 		void preprocess(const StringMap& str_map_input,StringMap& str_map)
@@ -817,15 +850,15 @@ namespace RandomMap
 						{
 							path_count++;
 						}
-						if (str_map[i][j-1] == ePath)
+						if (str_map[i][j-1] & ePath)
 						{
 							path_count++;
 						}
-						if (str_map[i+1][j] == ePath)
+						if (str_map[i+1][j] & ePath)
 						{
 							path_count++;
 						}
-						if (str_map[i][j+1] == ePath)
+						if (str_map[i][j+1] & ePath)
 						{
 							path_count++;
 						}
@@ -841,107 +874,107 @@ namespace RandomMap
 			str_map.swap(tmp);
 		}
 		bool is_sat_3x3(size_t z,size_t x, const StringMap& str_map,
-		int _00,int _01,int _02,
-		int _10,int _11,int _12,
-		int _20,int _21,int _22
-		)
-            const
+			int _00,int _01,int _02,
+			int _10,int _11,int _12,
+			int _20,int _21,int _22
+			)
+			const
 		{
 			return (str_map[z+1][x-1] & _00 )
-					&&
-					(str_map[z+1][x] & _01 )
-					&&
-					(str_map[z+1][x+1] & _02)
-					&&
-					(str_map[z][x-1] & _10 )
-					&&
-					(str_map[z][x] & _11 )
-					&&
-					(str_map[z][x+1] & _12)
-					&&
-					(str_map[z-1][x-1] & _20)
-					&&
-					(str_map[z-1][x] & _21 )
-					&&
-					(str_map[z-1][x+1] & _22);
+				&&
+				(str_map[z+1][x] & _01 )
+				&&
+				(str_map[z+1][x+1] & _02)
+				&&
+				(str_map[z][x-1] & _10 )
+				&&
+				(str_map[z][x] & _11 )
+				&&
+				(str_map[z][x+1] & _12)
+				&&
+				(str_map[z-1][x-1] & _20)
+				&&
+				(str_map[z-1][x] & _21 )
+				&&
+				(str_map[z-1][x+1] & _22);
 		}
 		//strict
 		ModelType get_needed_corner_model_type(size_t i,size_t j,const StringMap& str_map)const
 		{
-            assert(i > 0 && i + 1 < str_map.size());
-            assert(j > 0 && j + 1 < str_map[i].size());
+			assert(i > 0 && i + 1 < str_map.size());
+			assert(j > 0 && j + 1 < str_map[i].size());
 			if(str_map[i][j] & eBarrier)
 			{
 				if (
-				is_sat_3x3(
-				i,j,str_map,
-				ePath,         eBarrier,      eBarrier|ePath,
-				eBarrier,      eBarrier,      eBarrier|ePath,
-				eBarrier|ePath,eBarrier|ePath,eBarrier|ePath
-				)
-				)
+					is_sat_3x3(
+					i,j,str_map,
+					ePath,         eBarrier,      eBarrier|ePath,
+					eBarrier,      eBarrier,      eBarrier|ePath,
+					eBarrier|ePath,eBarrier|ePath,eBarrier|ePath
+					)
+					)
 					return CornerNXPZ0;
 				if(
-				is_sat_3x3(
-				i,j,str_map,
-				eBarrier|ePath,eBarrier|ePath,eBarrier|ePath,
-				eBarrier,      eBarrier,      eBarrier|ePath,
-				ePath,         eBarrier,      eBarrier|ePath
-				)
-				)
+					is_sat_3x3(
+					i,j,str_map,
+					eBarrier|ePath,eBarrier|ePath,eBarrier|ePath,
+					eBarrier,      eBarrier,      eBarrier|ePath,
+					ePath,         eBarrier,      eBarrier|ePath
+					)
+					)
 					return CornerNXNZ0;
 				if(
-				is_sat_3x3(
-				i,j,str_map,
-				eBarrier|ePath,eBarrier|ePath,eBarrier|ePath,
-				eBarrier|ePath,eBarrier,      eBarrier,
-				eBarrier|ePath,eBarrier,      ePath
-				)
-				)
+					is_sat_3x3(
+					i,j,str_map,
+					eBarrier|ePath,eBarrier|ePath,eBarrier|ePath,
+					eBarrier|ePath,eBarrier,      eBarrier,
+					eBarrier|ePath,eBarrier,      ePath
+					)
+					)
 					return CornerPXNZ0;
 				if(
-				is_sat_3x3(i,j,str_map,
-				eBarrier|ePath,eBarrier,      ePath,
-				eBarrier|ePath,eBarrier,      eBarrier,
-				eBarrier|ePath,eBarrier|ePath,eBarrier|ePath
-				)
-				)
+					is_sat_3x3(i,j,str_map,
+					eBarrier|ePath,eBarrier,      ePath,
+					eBarrier|ePath,eBarrier,      eBarrier,
+					eBarrier|ePath,eBarrier|ePath,eBarrier|ePath
+					)
+					)
 					return CornerPXPZ0;
 
 				if(
-				is_sat_3x3(
-				i,j,str_map,
-				eBarrier,      eBarrier,      ePath,
-				eBarrier,      eBarrier,      ePath,
-				ePath,         ePath,         ePath
-				)
-				)
+					is_sat_3x3(
+					i,j,str_map,
+					eBarrier,      eBarrier,      ePath,
+					eBarrier,      eBarrier,      ePath,
+					ePath,         ePath,         ePath
+					)
+					)
 					return CornerNXPZ1;
 				if(
-				is_sat_3x3(
-				i,j,str_map,
-				ePath,         ePath,         ePath,
-				eBarrier,      eBarrier,      ePath,
-				eBarrier,      eBarrier,      ePath
-				)
-				)
+					is_sat_3x3(
+					i,j,str_map,
+					ePath,         ePath,         ePath,
+					eBarrier,      eBarrier,      ePath,
+					eBarrier,      eBarrier,      ePath
+					)
+					)
 					return CornerNXNZ1;
 				if(
-				is_sat_3x3
-				(i,j,str_map,
-				ePath,ePath,         ePath,
-				ePath,eBarrier,      eBarrier,
-				ePath,eBarrier,      eBarrier
-				)
-				)
+					is_sat_3x3
+					(i,j,str_map,
+					ePath,ePath,         ePath,
+					ePath,eBarrier,      eBarrier,
+					ePath,eBarrier,      eBarrier
+					)
+					)
 					return CornerPXNZ1;
 				if(
-				is_sat_3x3(i,j,str_map,
-				ePath,eBarrier,      eBarrier,
-				ePath,eBarrier,      eBarrier,
-				ePath,ePath,         ePath
-				)
-				)
+					is_sat_3x3(i,j,str_map,
+					ePath,eBarrier,      eBarrier,
+					ePath,eBarrier,      eBarrier,
+					ePath,ePath,         ePath
+					)
+					)
 					return CornerPXPZ1;
 			}
 			return UnknownModel;
