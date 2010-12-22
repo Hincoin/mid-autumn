@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using System.IO;
 
 namespace RandomMapShell
 {
@@ -29,14 +30,10 @@ namespace RandomMapShell
 
         }
 
-        private void LoadFileToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OnOpenFile(object sender, EventArgs e)
         {
-            if(!can_work()) return;
-
-            this.openRMFileDialog.InitialDirectory = cfg_artist_resource_dir + "\\map"; 
-            this.openRMFileDialog.ShowDialog();
-           
             string file_name = this.openRMFileDialog.FileName;
+            if(!File.Exists(file_name)) return ;
             IniFile ini_file = new IniFile(file_name);
             tex_model_resource = ini_file.IniReadValue("resources","decorators");
             string wall = ini_file.IniReadValue("resources","wall");
@@ -55,7 +52,7 @@ namespace RandomMapShell
 
             this.WaterResFileText.Text = water_tex_resource;
             this.ResourceSetText.Text = tex_model_resource;
-            //简化参数，统一设置，不支持时间变化
+            //简化参数，统一设置，不支持时间变化，要是不嫌参数多的话可以支持一下
             string sun_color = ini_file.IniReadValue("mapinfo", "sceneInfo[0].dwSunColor");
             this.SunColorBtn.BackColor = HexToColor(sun_color);
             this.EnvColorBtn.BackColor = HexToColor(ini_file.IniReadValue("mapinfo", "sceneInfo[0].dwAmbientColor"));
@@ -63,6 +60,17 @@ namespace RandomMapShell
             this.FogNearText.Text = ini_file.IniReadValue("mapinfo", "sceneInfo[0].fFogStart");
             this.FogFarText.Text =  ini_file.IniReadValue("mapinfo", "sceneInfo[0].fFogEnd");
             this.SceneMusicText.Text = ini_file.IniReadValue("Music", "SceneMusic");
+            this.WaterHeightText.Text = ini_file.IniReadValue("WaterParameters","height");
+            this.WaterReflectionCmb.SelectedIndex = Convert.ToInt32(ini_file.IniReadValue("WaterParameters","reflection"));
+        }
+        private void LoadFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if(!can_work()) return;
+
+            this.openRMFileDialog.FileOk += OnOpenFile;
+            this.openRMFileDialog.InitialDirectory = cfg_artist_resource_dir + "\\map"; 
+            this.openRMFileDialog.ShowDialog();
+           
         }
         private bool can_work()
         {
@@ -80,11 +88,6 @@ namespace RandomMapShell
             int g = ((x & 0x0000ff00) >> 8 );
             int b = ((x & 0x000000ff));
             return Color.FromArgb(r, g, b);
-        }
-
-        private void Barrier_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }
