@@ -82,6 +82,25 @@
             this.openRMFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.openERSFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveRMFileAsDialog = new System.Windows.Forms.SaveFileDialog();
+            this.CmbTextureMethod = new System.Windows.Forms.ComboBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.PathColorBtn = new System.Windows.Forms.Button();
+            this.PathBorderColorBtn = new System.Windows.Forms.Button();
+            this.BarrierColorBtn = new System.Windows.Forms.Button();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.textBox5 = new System.Windows.Forms.TextBox();
+            this.textBox6 = new System.Windows.Forms.TextBox();
+            this.textBox7 = new System.Windows.Forms.TextBox();
+            this.textBox8 = new System.Windows.Forms.TextBox();
+            this.textBox9 = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label15 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
+            this.GroundSetting.SuspendLayout();
             this.WaterSetting.SuspendLayout();
             this.EnvironmentSetting.SuspendLayout();
             this.ResourceSetting.SuspendLayout();
@@ -89,10 +108,20 @@
             this.ModelSetting.SuspendLayout();
             this.AllTabs.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // GroundSetting
             // 
+            this.GroundSetting.Controls.Add(this.groupBox1);
+            this.GroundSetting.Controls.Add(this.comboBox1);
+            this.GroundSetting.Controls.Add(this.label12);
+            this.GroundSetting.Controls.Add(this.label11);
+            this.GroundSetting.Controls.Add(this.BarrierColorBtn);
+            this.GroundSetting.Controls.Add(this.PathBorderColorBtn);
+            this.GroundSetting.Controls.Add(this.PathColorBtn);
+            this.GroundSetting.Controls.Add(this.label10);
+            this.GroundSetting.Controls.Add(this.CmbTextureMethod);
             this.GroundSetting.Location = new System.Drawing.Point(4, 21);
             this.GroundSetting.Name = "GroundSetting";
             this.GroundSetting.Padding = new System.Windows.Forms.Padding(3);
@@ -468,26 +497,26 @@
             this.SaveToolStripMenuItem,
             this.SaveAsToolStripMenuItem});
             this.FileToolStripMenuItem.Name = "FileToolStripMenuItem";
-            this.FileToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
+            this.FileToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
             this.FileToolStripMenuItem.Text = "文件";
             // 
             // LoadFileToolStripMenuItem
             // 
             this.LoadFileToolStripMenuItem.Name = "LoadFileToolStripMenuItem";
-            this.LoadFileToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
+            this.LoadFileToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.LoadFileToolStripMenuItem.Text = "载入";
             this.LoadFileToolStripMenuItem.Click += new System.EventHandler(this.LoadFileToolStripMenuItem_Click);
             // 
             // SaveToolStripMenuItem
             // 
             this.SaveToolStripMenuItem.Name = "SaveToolStripMenuItem";
-            this.SaveToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
+            this.SaveToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.SaveToolStripMenuItem.Text = "保存";
             // 
             // SaveAsToolStripMenuItem
             // 
             this.SaveAsToolStripMenuItem.Name = "SaveAsToolStripMenuItem";
-            this.SaveAsToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
+            this.SaveAsToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.SaveAsToolStripMenuItem.Text = "另存为";
             // 
             // SettingToolStripMenuItem
@@ -495,13 +524,13 @@
             this.SettingToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.PathCfgToolStripMenuItem});
             this.SettingToolStripMenuItem.Name = "SettingToolStripMenuItem";
-            this.SettingToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
+            this.SettingToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
             this.SettingToolStripMenuItem.Text = "设置";
             // 
             // PathCfgToolStripMenuItem
             // 
             this.PathCfgToolStripMenuItem.Name = "PathCfgToolStripMenuItem";
-            this.PathCfgToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
+            this.PathCfgToolStripMenuItem.Size = new System.Drawing.Size(120, 22);
             this.PathCfgToolStripMenuItem.Text = "路径设置";
             // 
             // RunToolStripMenuItem
@@ -510,19 +539,19 @@
             this.PreviewToolStripMenuItem,
             this.BatchRunToolStripMenuItem});
             this.RunToolStripMenuItem.Name = "RunToolStripMenuItem";
-            this.RunToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
+            this.RunToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
             this.RunToolStripMenuItem.Text = "运行";
             // 
             // PreviewToolStripMenuItem
             // 
             this.PreviewToolStripMenuItem.Name = "PreviewToolStripMenuItem";
-            this.PreviewToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
+            this.PreviewToolStripMenuItem.Size = new System.Drawing.Size(120, 22);
             this.PreviewToolStripMenuItem.Text = "预览调试";
             // 
             // BatchRunToolStripMenuItem
             // 
             this.BatchRunToolStripMenuItem.Name = "BatchRunToolStripMenuItem";
-            this.BatchRunToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
+            this.BatchRunToolStripMenuItem.Size = new System.Drawing.Size(120, 22);
             this.BatchRunToolStripMenuItem.Text = "批量生成";
             // 
             // HelpToolStripMenuItem
@@ -531,19 +560,19 @@
             this.QuestionAndFeedbackToolStripMenuItem,
             this.AboutToolStripMenuItem});
             this.HelpToolStripMenuItem.Name = "HelpToolStripMenuItem";
-            this.HelpToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
+            this.HelpToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
             this.HelpToolStripMenuItem.Text = "帮助";
             // 
             // QuestionAndFeedbackToolStripMenuItem
             // 
             this.QuestionAndFeedbackToolStripMenuItem.Name = "QuestionAndFeedbackToolStripMenuItem";
-            this.QuestionAndFeedbackToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
+            this.QuestionAndFeedbackToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
             this.QuestionAndFeedbackToolStripMenuItem.Text = "问题与反馈";
             // 
             // AboutToolStripMenuItem
             // 
             this.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem";
-            this.AboutToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
+            this.AboutToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
             this.AboutToolStripMenuItem.Text = "关于。。。";
             // 
             // openRMFileDialog
@@ -556,6 +585,173 @@
             // 
             this.openERSFileDialog.FileName = "openERSFileDialog";
             // 
+            // CmbTextureMethod
+            // 
+            this.CmbTextureMethod.FormattingEnabled = true;
+            this.CmbTextureMethod.Items.AddRange(new object[] {
+            "三种混合（道路，道路边缘，障碍）",
+            "两种混合（道路，障碍）"});
+            this.CmbTextureMethod.Location = new System.Drawing.Point(109, 19);
+            this.CmbTextureMethod.Name = "CmbTextureMethod";
+            this.CmbTextureMethod.Size = new System.Drawing.Size(193, 20);
+            this.CmbTextureMethod.TabIndex = 0;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(7, 22);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(77, 12);
+            this.label10.TabIndex = 1;
+            this.label10.Text = "地表贴图方式";
+            // 
+            // PathColorBtn
+            // 
+            this.PathColorBtn.Location = new System.Drawing.Point(109, 65);
+            this.PathColorBtn.Name = "PathColorBtn";
+            this.PathColorBtn.Size = new System.Drawing.Size(78, 27);
+            this.PathColorBtn.TabIndex = 2;
+            this.PathColorBtn.Text = "道路";
+            this.PathColorBtn.UseVisualStyleBackColor = true;
+            // 
+            // PathBorderColorBtn
+            // 
+            this.PathBorderColorBtn.Location = new System.Drawing.Point(204, 65);
+            this.PathBorderColorBtn.Name = "PathBorderColorBtn";
+            this.PathBorderColorBtn.Size = new System.Drawing.Size(75, 27);
+            this.PathBorderColorBtn.TabIndex = 3;
+            this.PathBorderColorBtn.Text = "路边";
+            this.PathBorderColorBtn.UseVisualStyleBackColor = true;
+            // 
+            // BarrierColorBtn
+            // 
+            this.BarrierColorBtn.Location = new System.Drawing.Point(294, 65);
+            this.BarrierColorBtn.Name = "BarrierColorBtn";
+            this.BarrierColorBtn.Size = new System.Drawing.Size(64, 27);
+            this.BarrierColorBtn.TabIndex = 4;
+            this.BarrierColorBtn.Text = "障碍";
+            this.BarrierColorBtn.UseVisualStyleBackColor = true;
+            this.BarrierColorBtn.Click += new System.EventHandler(this.Barrier_Click);
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(19, 72);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(65, 12);
+            this.label11.TabIndex = 5;
+            this.label11.Text = "地表顶点色";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(17, 128);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(53, 12);
+            this.label12.TabIndex = 6;
+            this.label12.Text = "地表高度";
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Items.AddRange(new object[] {
+            "山谷",
+            "光滑",
+            "平地"});
+            this.comboBox1.Location = new System.Drawing.Point(109, 120);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(209, 20);
+            this.comboBox1.TabIndex = 7;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.label16);
+            this.groupBox1.Controls.Add(this.label15);
+            this.groupBox1.Controls.Add(this.label14);
+            this.groupBox1.Controls.Add(this.label13);
+            this.groupBox1.Controls.Add(this.textBox9);
+            this.groupBox1.Controls.Add(this.textBox8);
+            this.groupBox1.Controls.Add(this.textBox7);
+            this.groupBox1.Controls.Add(this.textBox6);
+            this.groupBox1.Controls.Add(this.textBox5);
+            this.groupBox1.Location = new System.Drawing.Point(21, 168);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(296, 197);
+            this.groupBox1.TabIndex = 8;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "山谷/平滑";
+            // 
+            // textBox5
+            // 
+            this.textBox5.Location = new System.Drawing.Point(88, 20);
+            this.textBox5.Name = "textBox5";
+            this.textBox5.Size = new System.Drawing.Size(100, 21);
+            this.textBox5.TabIndex = 0;
+            // 
+            // textBox6
+            // 
+            this.textBox6.Location = new System.Drawing.Point(88, 52);
+            this.textBox6.Name = "textBox6";
+            this.textBox6.Size = new System.Drawing.Size(99, 21);
+            this.textBox6.TabIndex = 1;
+            // 
+            // textBox7
+            // 
+            this.textBox7.Location = new System.Drawing.Point(89, 83);
+            this.textBox7.Name = "textBox7";
+            this.textBox7.Size = new System.Drawing.Size(97, 21);
+            this.textBox7.TabIndex = 2;
+            // 
+            // textBox8
+            // 
+            this.textBox8.Location = new System.Drawing.Point(88, 110);
+            this.textBox8.Name = "textBox8";
+            this.textBox8.Size = new System.Drawing.Size(95, 21);
+            this.textBox8.TabIndex = 3;
+            // 
+            // textBox9
+            // 
+            this.textBox9.Location = new System.Drawing.Point(189, 110);
+            this.textBox9.Name = "textBox9";
+            this.textBox9.Size = new System.Drawing.Size(79, 21);
+            this.textBox9.TabIndex = 4;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(9, 24);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(47, 12);
+            this.label13.TabIndex = 5;
+            this.label13.Text = "label13";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(13, 56);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(47, 12);
+            this.label14.TabIndex = 6;
+            this.label14.Text = "label14";
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(12, 85);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(47, 12);
+            this.label15.TabIndex = 7;
+            this.label15.Text = "label15";
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(12, 113);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(47, 12);
+            this.label16.TabIndex = 8;
+            this.label16.Text = "label16";
+            // 
             // RMapShell
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -567,6 +763,8 @@
             this.Name = "RMapShell";
             this.Text = "随机地图";
             this.Load += new System.EventHandler(this.RMapShell_Load);
+            this.GroundSetting.ResumeLayout(false);
+            this.GroundSetting.PerformLayout();
             this.WaterSetting.ResumeLayout(false);
             this.WaterSetting.PerformLayout();
             this.EnvironmentSetting.ResumeLayout(false);
@@ -578,6 +776,8 @@
             this.AllTabs.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -639,6 +839,24 @@
         private System.Windows.Forms.OpenFileDialog openRMFileDialog;
         private System.Windows.Forms.OpenFileDialog openERSFileDialog;
         private System.Windows.Forms.SaveFileDialog saveRMFileAsDialog;
+        private System.Windows.Forms.ComboBox CmbTextureMethod;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Button PathColorBtn;
+        private System.Windows.Forms.Button BarrierColorBtn;
+        private System.Windows.Forms.Button PathBorderColorBtn;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.TextBox textBox9;
+        private System.Windows.Forms.TextBox textBox8;
+        private System.Windows.Forms.TextBox textBox7;
+        private System.Windows.Forms.TextBox textBox6;
+        private System.Windows.Forms.TextBox textBox5;
     }
 }
 
