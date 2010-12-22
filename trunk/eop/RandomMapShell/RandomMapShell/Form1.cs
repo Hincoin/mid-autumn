@@ -81,5 +81,10 @@ namespace RandomMapShell
             int b = ((x & 0x000000ff));
             return Color.FromArgb(r, g, b);
         }
+
+        private void Barrier_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
