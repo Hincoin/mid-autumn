@@ -30,55 +30,58 @@
         {
             this.GroundSetting = new System.Windows.Forms.TabPage();
             this.WaterSetting = new System.Windows.Forms.TabPage();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.textBox4 = new System.Windows.Forms.TextBox();
+            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.WaterHeightText = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.EnvironmentSetting = new System.Windows.Forms.TabPage();
+            this.label9 = new System.Windows.Forms.Label();
+            this.SceneMusicText = new System.Windows.Forms.TextBox();
+            this.FogFarText = new System.Windows.Forms.TextBox();
+            this.FogNearText = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.FogColorBtn = new System.Windows.Forms.Button();
+            this.EnvColorBtn = new System.Windows.Forms.Button();
+            this.SunColorBtn = new System.Windows.Forms.Button();
             this.ResourceSetting = new System.Windows.Forms.TabPage();
+            this.ResSetFileBrowseBtn = new System.Windows.Forms.Button();
+            this.WaterResFileBrowseFileBtn = new System.Windows.Forms.Button();
+            this.ResourceSetText = new System.Windows.Forms.TextBox();
+            this.WaterResFileText = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
             this.CommonSettingTabSetting = new System.Windows.Forms.TabControl();
             this.ModelSetting = new System.Windows.Forms.TabPage();
             this.AllTabs = new System.Windows.Forms.TabControl();
             this.Maze = new System.Windows.Forms.TabPage();
             this.Rooms = new System.Windows.Forms.TabPage();
             this.Ravine = new System.Windows.Forms.TabPage();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
             this.Room = new System.Windows.Forms.TabPage();
             this.TabMaze = new System.Windows.Forms.TabPage();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.文件ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.载入ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.保存ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.另存为ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.设置ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.路径设置ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.FileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.LoadFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.SaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.SaveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.SettingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.PathCfgToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.RunToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.PreviewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.BatchRunToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.HelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.QuestionAndFeedbackToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.AboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.PickColorDialog = new System.Windows.Forms.ColorDialog();
-            this.SunColorBtn = new System.Windows.Forms.Button();
-            this.EnvColorBtn = new System.Windows.Forms.Button();
-            this.FogColorBtn = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this.FogNearText = new System.Windows.Forms.TextBox();
-            this.FogFarText = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.WaterHeightText = new System.Windows.Forms.TextBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.textBox3 = new System.Windows.Forms.TextBox();
-            this.textBox4 = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.调试ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.预览ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.批量生成ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.label7 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
-            this.WaterResFileText = new System.Windows.Forms.TextBox();
-            this.ResourceSetText = new System.Windows.Forms.TextBox();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.WaterResFileBrowseFileBtn = new System.Windows.Forms.Button();
-            this.ResSetFileBrowseBtn = new System.Windows.Forms.Button();
-            this.帮助ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.关于ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.问题与反馈ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.textBox5 = new System.Windows.Forms.TextBox();
-            this.label9 = new System.Windows.Forms.Label();
+            this.openRMFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.openERSFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.saveRMFileAsDialog = new System.Windows.Forms.SaveFileDialog();
             this.WaterSetting.SuspendLayout();
             this.EnvironmentSetting.SuspendLayout();
             this.ResourceSetting.SuspendLayout();
@@ -118,10 +121,90 @@
             this.WaterSetting.Text = "水面设置";
             this.WaterSetting.UseVisualStyleBackColor = true;
             // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(15, 173);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(53, 12);
+            this.label6.TabIndex = 9;
+            this.label6.Text = "透明深度";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(11, 130);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(53, 12);
+            this.label5.TabIndex = 8;
+            this.label5.Text = "水波密度";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(10, 93);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(53, 12);
+            this.label4.TabIndex = 7;
+            this.label4.Text = "水波周期";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(12, 57);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(53, 12);
+            this.label3.TabIndex = 6;
+            this.label3.Text = "水波波长";
+            // 
+            // textBox4
+            // 
+            this.textBox4.Location = new System.Drawing.Point(70, 170);
+            this.textBox4.Name = "textBox4";
+            this.textBox4.Size = new System.Drawing.Size(100, 21);
+            this.textBox4.TabIndex = 5;
+            // 
+            // textBox3
+            // 
+            this.textBox3.Location = new System.Drawing.Point(71, 129);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(99, 21);
+            this.textBox3.TabIndex = 4;
+            // 
+            // textBox2
+            // 
+            this.textBox2.Location = new System.Drawing.Point(71, 92);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(99, 21);
+            this.textBox2.TabIndex = 3;
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(72, 58);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(98, 21);
+            this.textBox1.TabIndex = 2;
+            // 
+            // WaterHeightText
+            // 
+            this.WaterHeightText.Location = new System.Drawing.Point(70, 21);
+            this.WaterHeightText.Name = "WaterHeightText";
+            this.WaterHeightText.Size = new System.Drawing.Size(101, 21);
+            this.WaterHeightText.TabIndex = 1;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(11, 24);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(53, 12);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "水面高度";
+            // 
             // EnvironmentSetting
             // 
             this.EnvironmentSetting.Controls.Add(this.label9);
-            this.EnvironmentSetting.Controls.Add(this.textBox5);
+            this.EnvironmentSetting.Controls.Add(this.SceneMusicText);
             this.EnvironmentSetting.Controls.Add(this.FogFarText);
             this.EnvironmentSetting.Controls.Add(this.FogNearText);
             this.EnvironmentSetting.Controls.Add(this.label1);
@@ -135,6 +218,72 @@
             this.EnvironmentSetting.TabIndex = 1;
             this.EnvironmentSetting.Text = "环境设置";
             this.EnvironmentSetting.UseVisualStyleBackColor = true;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(20, 208);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(53, 12);
+            this.label9.TabIndex = 7;
+            this.label9.Text = "场景音乐";
+            // 
+            // SceneMusicText
+            // 
+            this.SceneMusicText.Location = new System.Drawing.Point(103, 205);
+            this.SceneMusicText.Name = "SceneMusicText";
+            this.SceneMusicText.Size = new System.Drawing.Size(175, 21);
+            this.SceneMusicText.TabIndex = 6;
+            // 
+            // FogFarText
+            // 
+            this.FogFarText.Location = new System.Drawing.Point(199, 164);
+            this.FogFarText.Name = "FogFarText";
+            this.FogFarText.Size = new System.Drawing.Size(83, 21);
+            this.FogFarText.TabIndex = 5;
+            // 
+            // FogNearText
+            // 
+            this.FogNearText.Location = new System.Drawing.Point(103, 164);
+            this.FogNearText.Name = "FogNearText";
+            this.FogNearText.Size = new System.Drawing.Size(72, 21);
+            this.FogNearText.TabIndex = 4;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(20, 167);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(77, 12);
+            this.label1.TabIndex = 3;
+            this.label1.Text = "雾的近远平面";
+            // 
+            // FogColorBtn
+            // 
+            this.FogColorBtn.Location = new System.Drawing.Point(22, 106);
+            this.FogColorBtn.Name = "FogColorBtn";
+            this.FogColorBtn.Size = new System.Drawing.Size(116, 35);
+            this.FogColorBtn.TabIndex = 2;
+            this.FogColorBtn.Text = "雾的颜色";
+            this.FogColorBtn.UseVisualStyleBackColor = true;
+            // 
+            // EnvColorBtn
+            // 
+            this.EnvColorBtn.Location = new System.Drawing.Point(22, 63);
+            this.EnvColorBtn.Name = "EnvColorBtn";
+            this.EnvColorBtn.Size = new System.Drawing.Size(117, 30);
+            this.EnvColorBtn.TabIndex = 1;
+            this.EnvColorBtn.Text = "环境光颜色";
+            this.EnvColorBtn.UseVisualStyleBackColor = true;
+            // 
+            // SunColorBtn
+            // 
+            this.SunColorBtn.Location = new System.Drawing.Point(21, 20);
+            this.SunColorBtn.Name = "SunColorBtn";
+            this.SunColorBtn.Size = new System.Drawing.Size(119, 29);
+            this.SunColorBtn.TabIndex = 0;
+            this.SunColorBtn.Text = "太阳光颜色";
+            this.SunColorBtn.UseVisualStyleBackColor = true;
             // 
             // ResourceSetting
             // 
@@ -151,6 +300,56 @@
             this.ResourceSetting.TabIndex = 0;
             this.ResourceSetting.Text = "图素设置";
             this.ResourceSetting.UseVisualStyleBackColor = true;
+            // 
+            // ResSetFileBrowseBtn
+            // 
+            this.ResSetFileBrowseBtn.Location = new System.Drawing.Point(546, 53);
+            this.ResSetFileBrowseBtn.Name = "ResSetFileBrowseBtn";
+            this.ResSetFileBrowseBtn.Size = new System.Drawing.Size(37, 19);
+            this.ResSetFileBrowseBtn.TabIndex = 5;
+            this.ResSetFileBrowseBtn.Text = "浏览";
+            this.ResSetFileBrowseBtn.UseVisualStyleBackColor = true;
+            // 
+            // WaterResFileBrowseFileBtn
+            // 
+            this.WaterResFileBrowseFileBtn.Location = new System.Drawing.Point(545, 22);
+            this.WaterResFileBrowseFileBtn.Name = "WaterResFileBrowseFileBtn";
+            this.WaterResFileBrowseFileBtn.Size = new System.Drawing.Size(39, 20);
+            this.WaterResFileBrowseFileBtn.TabIndex = 4;
+            this.WaterResFileBrowseFileBtn.Text = "浏览";
+            this.WaterResFileBrowseFileBtn.UseVisualStyleBackColor = true;
+            // 
+            // ResourceSetText
+            // 
+            this.ResourceSetText.Location = new System.Drawing.Point(173, 52);
+            this.ResourceSetText.Name = "ResourceSetText";
+            this.ResourceSetText.Size = new System.Drawing.Size(366, 21);
+            this.ResourceSetText.TabIndex = 3;
+            // 
+            // WaterResFileText
+            // 
+            this.WaterResFileText.Location = new System.Drawing.Point(175, 22);
+            this.WaterResFileText.Name = "WaterResFileText";
+            this.WaterResFileText.Size = new System.Drawing.Size(364, 21);
+            this.WaterResFileText.TabIndex = 2;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(10, 51);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(137, 12);
+            this.label8.TabIndex = 1;
+            this.label8.Text = "地表贴图以及模型图素包";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(9, 22);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(89, 12);
+            this.label7.TabIndex = 0;
+            this.label7.Text = "水面贴图图素包";
             // 
             // CommonSettingTabSetting
             // 
@@ -219,6 +418,16 @@
             this.Ravine.Text = "开阔野外";
             this.Ravine.UseVisualStyleBackColor = true;
             // 
+            // tabPage1
+            // 
+            this.tabPage1.Location = new System.Drawing.Point(4, 21);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(594, 423);
+            this.tabPage1.TabIndex = 5;
+            this.tabPage1.Text = "道路与障碍结构";
+            this.tabPage1.UseVisualStyleBackColor = true;
+            // 
             // Room
             // 
             this.Room.Location = new System.Drawing.Point(4, 21);
@@ -242,307 +451,110 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.文件ToolStripMenuItem,
-            this.设置ToolStripMenuItem,
-            this.调试ToolStripMenuItem,
-            this.帮助ToolStripMenuItem});
+            this.FileToolStripMenuItem,
+            this.SettingToolStripMenuItem,
+            this.RunToolStripMenuItem,
+            this.HelpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(631, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "MainMenu";
             // 
-            // 文件ToolStripMenuItem
+            // FileToolStripMenuItem
             // 
-            this.文件ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.载入ToolStripMenuItem,
-            this.保存ToolStripMenuItem,
-            this.另存为ToolStripMenuItem});
-            this.文件ToolStripMenuItem.Name = "文件ToolStripMenuItem";
-            this.文件ToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
-            this.文件ToolStripMenuItem.Text = "文件";
+            this.FileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.LoadFileToolStripMenuItem,
+            this.SaveToolStripMenuItem,
+            this.SaveAsToolStripMenuItem});
+            this.FileToolStripMenuItem.Name = "FileToolStripMenuItem";
+            this.FileToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
+            this.FileToolStripMenuItem.Text = "文件";
             // 
-            // 载入ToolStripMenuItem
+            // LoadFileToolStripMenuItem
             // 
-            this.载入ToolStripMenuItem.Name = "载入ToolStripMenuItem";
-            this.载入ToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
-            this.载入ToolStripMenuItem.Text = "载入";
+            this.LoadFileToolStripMenuItem.Name = "LoadFileToolStripMenuItem";
+            this.LoadFileToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
+            this.LoadFileToolStripMenuItem.Text = "载入";
+            this.LoadFileToolStripMenuItem.Click += new System.EventHandler(this.LoadFileToolStripMenuItem_Click);
             // 
-            // 保存ToolStripMenuItem
+            // SaveToolStripMenuItem
             // 
-            this.保存ToolStripMenuItem.Name = "保存ToolStripMenuItem";
-            this.保存ToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
-            this.保存ToolStripMenuItem.Text = "保存";
+            this.SaveToolStripMenuItem.Name = "SaveToolStripMenuItem";
+            this.SaveToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
+            this.SaveToolStripMenuItem.Text = "保存";
             // 
-            // 另存为ToolStripMenuItem
+            // SaveAsToolStripMenuItem
             // 
-            this.另存为ToolStripMenuItem.Name = "另存为ToolStripMenuItem";
-            this.另存为ToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
-            this.另存为ToolStripMenuItem.Text = "另存为";
+            this.SaveAsToolStripMenuItem.Name = "SaveAsToolStripMenuItem";
+            this.SaveAsToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
+            this.SaveAsToolStripMenuItem.Text = "另存为";
             // 
-            // 设置ToolStripMenuItem
+            // SettingToolStripMenuItem
             // 
-            this.设置ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.路径设置ToolStripMenuItem});
-            this.设置ToolStripMenuItem.Name = "设置ToolStripMenuItem";
-            this.设置ToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
-            this.设置ToolStripMenuItem.Text = "设置";
+            this.SettingToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.PathCfgToolStripMenuItem});
+            this.SettingToolStripMenuItem.Name = "SettingToolStripMenuItem";
+            this.SettingToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
+            this.SettingToolStripMenuItem.Text = "设置";
             // 
-            // 路径设置ToolStripMenuItem
+            // PathCfgToolStripMenuItem
             // 
-            this.路径设置ToolStripMenuItem.Name = "路径设置ToolStripMenuItem";
-            this.路径设置ToolStripMenuItem.Size = new System.Drawing.Size(120, 22);
-            this.路径设置ToolStripMenuItem.Text = "路径设置";
+            this.PathCfgToolStripMenuItem.Name = "PathCfgToolStripMenuItem";
+            this.PathCfgToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
+            this.PathCfgToolStripMenuItem.Text = "路径设置";
             // 
-            // SunColorBtn
+            // RunToolStripMenuItem
             // 
-            this.SunColorBtn.Location = new System.Drawing.Point(21, 20);
-            this.SunColorBtn.Name = "SunColorBtn";
-            this.SunColorBtn.Size = new System.Drawing.Size(119, 29);
-            this.SunColorBtn.TabIndex = 0;
-            this.SunColorBtn.Text = "太阳光颜色";
-            this.SunColorBtn.UseVisualStyleBackColor = true;
+            this.RunToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.PreviewToolStripMenuItem,
+            this.BatchRunToolStripMenuItem});
+            this.RunToolStripMenuItem.Name = "RunToolStripMenuItem";
+            this.RunToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
+            this.RunToolStripMenuItem.Text = "运行";
             // 
-            // EnvColorBtn
+            // PreviewToolStripMenuItem
             // 
-            this.EnvColorBtn.Location = new System.Drawing.Point(22, 63);
-            this.EnvColorBtn.Name = "EnvColorBtn";
-            this.EnvColorBtn.Size = new System.Drawing.Size(117, 30);
-            this.EnvColorBtn.TabIndex = 1;
-            this.EnvColorBtn.Text = "环境光颜色";
-            this.EnvColorBtn.UseVisualStyleBackColor = true;
+            this.PreviewToolStripMenuItem.Name = "PreviewToolStripMenuItem";
+            this.PreviewToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
+            this.PreviewToolStripMenuItem.Text = "预览调试";
             // 
-            // FogColorBtn
+            // BatchRunToolStripMenuItem
             // 
-            this.FogColorBtn.Location = new System.Drawing.Point(22, 106);
-            this.FogColorBtn.Name = "FogColorBtn";
-            this.FogColorBtn.Size = new System.Drawing.Size(116, 35);
-            this.FogColorBtn.TabIndex = 2;
-            this.FogColorBtn.Text = "雾的颜色";
-            this.FogColorBtn.UseVisualStyleBackColor = true;
+            this.BatchRunToolStripMenuItem.Name = "BatchRunToolStripMenuItem";
+            this.BatchRunToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
+            this.BatchRunToolStripMenuItem.Text = "批量生成";
             // 
-            // label1
+            // HelpToolStripMenuItem
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(20, 167);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(77, 12);
-            this.label1.TabIndex = 3;
-            this.label1.Text = "雾的近远平面";
+            this.HelpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.QuestionAndFeedbackToolStripMenuItem,
+            this.AboutToolStripMenuItem});
+            this.HelpToolStripMenuItem.Name = "HelpToolStripMenuItem";
+            this.HelpToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
+            this.HelpToolStripMenuItem.Text = "帮助";
             // 
-            // FogNearText
+            // QuestionAndFeedbackToolStripMenuItem
             // 
-            this.FogNearText.Location = new System.Drawing.Point(103, 164);
-            this.FogNearText.Name = "FogNearText";
-            this.FogNearText.Size = new System.Drawing.Size(72, 21);
-            this.FogNearText.TabIndex = 4;
+            this.QuestionAndFeedbackToolStripMenuItem.Name = "QuestionAndFeedbackToolStripMenuItem";
+            this.QuestionAndFeedbackToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
+            this.QuestionAndFeedbackToolStripMenuItem.Text = "问题与反馈";
             // 
-            // FogFarText
+            // AboutToolStripMenuItem
             // 
-            this.FogFarText.Location = new System.Drawing.Point(199, 164);
-            this.FogFarText.Name = "FogFarText";
-            this.FogFarText.Size = new System.Drawing.Size(83, 21);
-            this.FogFarText.TabIndex = 5;
+            this.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem";
+            this.AboutToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
+            this.AboutToolStripMenuItem.Text = "关于。。。";
             // 
-            // label2
+            // openRMFileDialog
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(11, 24);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(53, 12);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "水面高度";
+            this.openRMFileDialog.DefaultExt = "rm";
+            this.openRMFileDialog.FileName = "tmp";
+            this.openRMFileDialog.Filter = "RM files (*.rm)|*.rm|All files (*.*)|*.*";
             // 
-            // WaterHeightText
+            // openERSFileDialog
             // 
-            this.WaterHeightText.Location = new System.Drawing.Point(70, 21);
-            this.WaterHeightText.Name = "WaterHeightText";
-            this.WaterHeightText.Size = new System.Drawing.Size(101, 21);
-            this.WaterHeightText.TabIndex = 1;
-            // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(72, 58);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(98, 21);
-            this.textBox1.TabIndex = 2;
-            // 
-            // textBox2
-            // 
-            this.textBox2.Location = new System.Drawing.Point(71, 92);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(99, 21);
-            this.textBox2.TabIndex = 3;
-            // 
-            // textBox3
-            // 
-            this.textBox3.Location = new System.Drawing.Point(71, 129);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(99, 21);
-            this.textBox3.TabIndex = 4;
-            // 
-            // textBox4
-            // 
-            this.textBox4.Location = new System.Drawing.Point(70, 170);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(100, 21);
-            this.textBox4.TabIndex = 5;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 57);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(53, 12);
-            this.label3.TabIndex = 6;
-            this.label3.Text = "水波波长";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(10, 93);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(53, 12);
-            this.label4.TabIndex = 7;
-            this.label4.Text = "水波周期";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(11, 130);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(53, 12);
-            this.label5.TabIndex = 8;
-            this.label5.Text = "水波密度";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(15, 173);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(53, 12);
-            this.label6.TabIndex = 9;
-            this.label6.Text = "透明深度";
-            // 
-            // 调试ToolStripMenuItem
-            // 
-            this.调试ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.预览ToolStripMenuItem,
-            this.批量生成ToolStripMenuItem});
-            this.调试ToolStripMenuItem.Name = "调试ToolStripMenuItem";
-            this.调试ToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
-            this.调试ToolStripMenuItem.Text = "运行";
-            this.调试ToolStripMenuItem.Click += new System.EventHandler(this.调试ToolStripMenuItem_Click);
-            // 
-            // 预览ToolStripMenuItem
-            // 
-            this.预览ToolStripMenuItem.Name = "预览ToolStripMenuItem";
-            this.预览ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.预览ToolStripMenuItem.Text = "预览调试";
-            this.预览ToolStripMenuItem.Click += new System.EventHandler(this.预览ToolStripMenuItem_Click);
-            // 
-            // 批量生成ToolStripMenuItem
-            // 
-            this.批量生成ToolStripMenuItem.Name = "批量生成ToolStripMenuItem";
-            this.批量生成ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.批量生成ToolStripMenuItem.Text = "批量生成";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(9, 22);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(89, 12);
-            this.label7.TabIndex = 0;
-            this.label7.Text = "水面贴图图素包";
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(10, 51);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(137, 12);
-            this.label8.TabIndex = 1;
-            this.label8.Text = "地表贴图以及模型图素包";
-            // 
-            // WaterResFileText
-            // 
-            this.WaterResFileText.Location = new System.Drawing.Point(175, 22);
-            this.WaterResFileText.Name = "WaterResFileText";
-            this.WaterResFileText.Size = new System.Drawing.Size(364, 21);
-            this.WaterResFileText.TabIndex = 2;
-            // 
-            // ResourceSetText
-            // 
-            this.ResourceSetText.Location = new System.Drawing.Point(173, 52);
-            this.ResourceSetText.Name = "ResourceSetText";
-            this.ResourceSetText.Size = new System.Drawing.Size(366, 21);
-            this.ResourceSetText.TabIndex = 3;
-            // 
-            // tabPage1
-            // 
-            this.tabPage1.Location = new System.Drawing.Point(4, 21);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(594, 423);
-            this.tabPage1.TabIndex = 5;
-            this.tabPage1.Text = "道路与障碍结构";
-            this.tabPage1.UseVisualStyleBackColor = true;
-            // 
-            // WaterResFileBrowseFileBtn
-            // 
-            this.WaterResFileBrowseFileBtn.Location = new System.Drawing.Point(545, 22);
-            this.WaterResFileBrowseFileBtn.Name = "WaterResFileBrowseFileBtn";
-            this.WaterResFileBrowseFileBtn.Size = new System.Drawing.Size(39, 20);
-            this.WaterResFileBrowseFileBtn.TabIndex = 4;
-            this.WaterResFileBrowseFileBtn.Text = "浏览";
-            this.WaterResFileBrowseFileBtn.UseVisualStyleBackColor = true;
-            // 
-            // ResSetFileBrowseBtn
-            // 
-            this.ResSetFileBrowseBtn.Location = new System.Drawing.Point(546, 53);
-            this.ResSetFileBrowseBtn.Name = "ResSetFileBrowseBtn";
-            this.ResSetFileBrowseBtn.Size = new System.Drawing.Size(37, 19);
-            this.ResSetFileBrowseBtn.TabIndex = 5;
-            this.ResSetFileBrowseBtn.Text = "浏览";
-            this.ResSetFileBrowseBtn.UseVisualStyleBackColor = true;
-            // 
-            // 帮助ToolStripMenuItem
-            // 
-            this.帮助ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.问题与反馈ToolStripMenuItem,
-            this.关于ToolStripMenuItem});
-            this.帮助ToolStripMenuItem.Name = "帮助ToolStripMenuItem";
-            this.帮助ToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
-            this.帮助ToolStripMenuItem.Text = "帮助";
-            // 
-            // 关于ToolStripMenuItem
-            // 
-            this.关于ToolStripMenuItem.Name = "关于ToolStripMenuItem";
-            this.关于ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.关于ToolStripMenuItem.Text = "关于。。。";
-            // 
-            // 问题与反馈ToolStripMenuItem
-            // 
-            this.问题与反馈ToolStripMenuItem.Name = "问题与反馈ToolStripMenuItem";
-            this.问题与反馈ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.问题与反馈ToolStripMenuItem.Text = "问题与反馈";
-            // 
-            // textBox5
-            // 
-            this.textBox5.Location = new System.Drawing.Point(103, 205);
-            this.textBox5.Name = "textBox5";
-            this.textBox5.Size = new System.Drawing.Size(175, 21);
-            this.textBox5.TabIndex = 6;
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(20, 208);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(53, 12);
-            this.label9.TabIndex = 7;
-            this.label9.Text = "场景音乐";
+            this.openERSFileDialog.FileName = "openERSFileDialog";
             // 
             // RMapShell
             // 
@@ -586,12 +598,12 @@
         private System.Windows.Forms.TabPage Room;
         private System.Windows.Forms.TabPage TabMaze;
         private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem 文件ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 载入ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 保存ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 另存为ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 设置ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 路径设置ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem FileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem LoadFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem SaveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem SaveAsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem SettingToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem PathCfgToolStripMenuItem;
         private System.Windows.Forms.ColorDialog PickColorDialog;
         private System.Windows.Forms.Button SunColorBtn;
         private System.Windows.Forms.Button EnvColorBtn;
@@ -609,9 +621,9 @@
         private System.Windows.Forms.TextBox textBox3;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.ToolStripMenuItem 调试ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 预览ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 批量生成ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem RunToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem PreviewToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem BatchRunToolStripMenuItem;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.TextBox ResourceSetText;
         private System.Windows.Forms.TextBox WaterResFileText;
@@ -619,11 +631,14 @@
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.Button ResSetFileBrowseBtn;
         private System.Windows.Forms.Button WaterResFileBrowseFileBtn;
-        private System.Windows.Forms.ToolStripMenuItem 帮助ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 问题与反馈ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 关于ToolStripMenuItem;
-        private System.Windows.Forms.TextBox textBox5;
+        private System.Windows.Forms.ToolStripMenuItem HelpToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem QuestionAndFeedbackToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem AboutToolStripMenuItem;
+        private System.Windows.Forms.TextBox SceneMusicText;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.OpenFileDialog openRMFileDialog;
+        private System.Windows.Forms.OpenFileDialog openERSFileDialog;
+        private System.Windows.Forms.SaveFileDialog saveRMFileAsDialog;
     }
 }
 
