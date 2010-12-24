@@ -50,8 +50,10 @@ namespace RandomMapShell
             }
             water_tex_resource = ini_file.IniReadValue("resources","water");
 
+            //resource setting
             this.WaterResFileText.Text = water_tex_resource;
             this.ResourceSetText.Text = tex_model_resource;
+            //environment setting
             //简化参数，统一设置，不支持时间变化，要是不嫌参数多的话可以支持一下
             string sun_color = ini_file.IniReadValue("mapinfo", "sceneInfo[0].dwSunColor");
             this.SunColorBtn.BackColor = HexToColor(sun_color);
@@ -61,7 +63,56 @@ namespace RandomMapShell
             this.FogFarText.Text =  ini_file.IniReadValue("mapinfo", "sceneInfo[0].fFogEnd");
             this.SceneMusicText.Text = ini_file.IniReadValue("Music", "SceneMusic");
             this.WaterHeightText.Text = ini_file.IniReadValue("WaterParameters","height");
-            this.WaterReflectionCmb.SelectedIndex = Convert.ToInt32(ini_file.IniReadValue("WaterParameters","reflection"));
+            string refl_str = ini_file.IniReadValue("WaterParameters", "reflection","0");
+            if(!refl_str.Equals(""))
+                this.WaterReflectionCmb.SelectedIndex = Convert.ToInt32(refl_str);
+
+            //ground setting
+            string texture_kind = ini_file.IniReadValue("MethodKind","RoadKind");
+            if(texture_kind.Equals("DefaultTexture"))//2 
+            {
+                this.CmbTextureMethod.SelectedIndex = 1;
+            }
+            else if(texture_kind.Equals("NatureTexture"))
+            {
+                this.CmbTextureMethod.SelectedIndex = 0;
+            }
+            //color
+            this.PathColorBtn.BackColor = RGB565ToColor(ini_file.IniReadValue("GroundParameters","CentralColor"));
+            this.PathBorderColorBtn.BackColor=RGB565ToColor(ini_file.IniReadValue("GroundParameters","BorderColor"));
+            this.BarrierColorBtn.BackColor=RGB565ToColor(ini_file.IniReadValue("GroundParameters","BarrierColor"));
+            //test
+            string clr_str = ColorToRGB565(this.PathBorderColorBtn.BackColor);
+            //height
+            string height_kind = ini_file.IniReadValue("MethodKind","GroundKind");
+            if(height_kind.Equals("Cayon"))
+                this.CmbGroundHeight.SelectedIndex = 0;
+            else if(height_kind.Equals("Smooth"))
+                this.CmbGroundHeight.SelectedIndex = 1;
+            else if(height_kind.Equals("Flat"))
+                this.CmbGroundHeight.SelectedIndex = 2;
+            if(this.CmbGroundHeight.SelectedIndex == 0 || 
+                this.CmbGroundHeight.SelectedIndex == 1)
+            {
+                this.CayonOrSmoothGroupBox.Show();
+            }
+            else
+                this.CayonOrSmoothGroupBox.Hide();
+
+            this.CmbGroundHeight.SelectedIndexChanged += OnGroundHeightMethodChanged;
+            
+        }
+        private void OnGroundHeightMethodChanged(object sender, EventArgs e)
+        {
+            //
+            if(this.CmbGroundHeight.SelectedIndex == 0 || 
+                this.CmbGroundHeight.SelectedIndex == 1)
+            {
+                this.CayonOrSmoothGroupBox.Show();
+            }
+            else
+                this.CayonOrSmoothGroupBox.Hide();
+
         }
         private void LoadFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -88,6 +139,25 @@ namespace RandomMapShell
             int g = ((x & 0x0000ff00) >> 8 );
             int b = ((x & 0x000000ff));
             return Color.FromArgb(r, g, b);
+        }
+        private Color RGB565ToColor(string str)
+        {
+            int x = Convert.ToInt32((str));
+            Color c;
+            //from 	void CMetaSceneClient::LoadDiffuse( CPkgFile& File, uint32 uRegionId )
+			int r = ( ( x & 0xf800 )>> 8 ); 
+			int g = ( ( x & 0x07e0 )>> 3 ); 
+			int b = ( ( x & 0x001f )<< 3 );
+            return Color.FromArgb(r,g,b);
+        }
+        private string ColorToRGB565(Color c)
+        {
+            int rgb = c.ToArgb();
+            int r = (rgb & 0xff0000)>>16;
+            int g = (rgb & 0xff00) >> 8 ;
+            int b = (rgb & 0xff);
+            int x = ((r << 8) & 0xf800) | ((g << 3) & 0x07e0) | ((b >> 3) & 0x001f);
+            return Convert.ToString(x);
         }
     }
 }

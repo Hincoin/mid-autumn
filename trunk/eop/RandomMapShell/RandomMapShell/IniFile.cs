@@ -80,6 +80,14 @@ namespace RandomMapShell
             return temp.ToString();
 
         }
+        public string IniReadValue(string Section, string Key,string default_val)
+        {
+            StringBuilder temp = new StringBuilder(65535);
+            int i = GetPrivateProfileString(Section, Key, default_val, temp,
+                                            65535, this.path);
+            return temp.ToString();
+
+        }
     }
 
 }
