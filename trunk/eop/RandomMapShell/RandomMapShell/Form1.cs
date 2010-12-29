@@ -24,6 +24,18 @@ namespace RandomMapShell
             cfg_artist_resource_dir = "e:\\work\\artist\\res";//String.Empty;
             cfg_working_dir= "E:\\work\\program\\bin\\Release";//String.Empty;
         }
+        private void OnOpenWaterResFile(object sender, EventArgs e)
+        {
+            //
+        }
+        private void OnOpenResFile(object sender, EventArgs e)
+        {
+            //
+        }
+        private void OpenColorDialog(object sender ,EventArgs e)
+        {
+            //
+        }
 
         private void RMapShell_Load(object sender, EventArgs e)
         {
@@ -62,10 +74,28 @@ namespace RandomMapShell
             this.FogNearText.Text = ini_file.IniReadValue("mapinfo", "sceneInfo[0].fFogStart");
             this.FogFarText.Text =  ini_file.IniReadValue("mapinfo", "sceneInfo[0].fFogEnd");
             this.SceneMusicText.Text = ini_file.IniReadValue("Music", "SceneMusic");
+
+            //water
             this.WaterHeightText.Text = ini_file.IniReadValue("WaterParameters","height");
             string refl_str = ini_file.IniReadValue("WaterParameters", "reflection","0");
             if(!refl_str.Equals(""))
                 this.WaterReflectionCmb.SelectedIndex = Convert.ToInt32(refl_str);
+            bool has_water = 
+                ini_file.IniReadValue("", "", "NULL") == "AllWater" ||
+                ini_file.IniReadValue("","","NULL") == "default";
+            this.ChkHasWater.Checked =  has_water;
+            if (!has_water)
+                this.WaterParameterGroupBox.Hide();
+            this.ChkHasWater.CheckedChanged += OnWaterChecked;
+
+            string wave_length = ini_file.IniReadValue("","","200");
+            string wave_period = ini_file.IniReadValue("","","1500");
+            string wave_density = ini_file.IniReadValue("","","2");
+            string water_transparent_height = ini_file.IniReadValue("","","");
+            this.WaveDensityText.Text = wave_density;
+            this.WaveLengthText.Text = wave_length;
+            this.WavePeriodText.Text = wave_period;
+            this.WaterTransparentHeightText.Text = water_transparent_height;
 
             //ground setting
             string texture_kind = ini_file.IniReadValue("MethodKind","RoadKind");
@@ -100,7 +130,20 @@ namespace RandomMapShell
                 this.CayonOrSmoothGroupBox.Hide();
 
             this.CmbGroundHeight.SelectedIndexChanged += OnGroundHeightMethodChanged;
-            
+            string out_most_barrier_height = ini_file.IniReadValue("","","0");
+            string path_height = ini_file.IniReadValue("","","0");
+            string inner_barrier_height = ini_file.IniReadValue("","","0");
+            string bound_width = ini_file.IniReadValue("", "", "0");
+            string bound_height = ini_file.IniReadValue("", "", "0");
+            this.OutMostBarrierHeightText.Text = out_most_barrier_height;
+            this.PathHeightText.Text = path_height;
+            this.InnerBarrierHeightText.Text = inner_barrier_height;
+            this.BoundWidthText.Text = bound_width;
+            this.BoundHeightText.Text = bound_height;
+
+            //model setting
+
+            //map parameter setting
         }
         private void OnGroundHeightMethodChanged(object sender, EventArgs e)
         {
@@ -113,6 +156,16 @@ namespace RandomMapShell
             else
                 this.CayonOrSmoothGroupBox.Hide();
 
+        }
+        private void OnWaterChecked(object sender, EventArgs e)
+        {
+            //
+            if (this.ChkHasWater.Checked)
+            {
+                this.WaterParameterGroupBox.Show();
+            }
+            else
+                this.WaterParameterGroupBox.Hide();
         }
         private void LoadFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -158,6 +211,12 @@ namespace RandomMapShell
             int b = (rgb & 0xff);
             int x = ((r << 8) & 0xf800) | ((g << 3) & 0x07e0) | ((b >> 3) & 0x001f);
             return Convert.ToString(x);
+        }
+
+        private void PathColorBtn_Click(object sender, EventArgs e)
+        {
+            if (this.PickColorDialog.ShowDialog(this)== DialogResult.OK)
+                this.PathColorBtn.BackColor = this.PickColorDialog.Color;
         }
     }
 }

@@ -55,13 +55,13 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.textBox4 = new System.Windows.Forms.TextBox();
-            this.textBox3 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.WaterTransparentHeightText = new System.Windows.Forms.TextBox();
+            this.WaveDensityText = new System.Windows.Forms.TextBox();
+            this.WavePeriodText = new System.Windows.Forms.TextBox();
+            this.WaveLengthText = new System.Windows.Forms.TextBox();
             this.WaterHeightText = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.ChkHasWater = new System.Windows.Forms.CheckBox();
             this.EnvironmentSetting = new System.Windows.Forms.TabPage();
             this.label9 = new System.Windows.Forms.Label();
             this.SceneMusicText = new System.Windows.Forms.TextBox();
@@ -94,7 +94,7 @@
             this.label17 = new System.Windows.Forms.Label();
             this.Room = new System.Windows.Forms.TabPage();
             this.TabMaze = new System.Windows.Forms.TabPage();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.MainMenuStrip = new System.Windows.Forms.MenuStrip();
             this.FileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.LoadFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -120,7 +120,7 @@
             this.CommonSettingTabSetting.SuspendLayout();
             this.ModelSetting.SuspendLayout();
             this.tabPage1.SuspendLayout();
-            this.menuStrip1.SuspendLayout();
+            this.MainMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // GroundSetting
@@ -287,6 +287,7 @@
             this.PathColorBtn.TabIndex = 2;
             this.PathColorBtn.Text = "道路";
             this.PathColorBtn.UseVisualStyleBackColor = true;
+            this.PathColorBtn.Click += new System.EventHandler(this.PathColorBtn_Click);
             // 
             // label10
             // 
@@ -311,7 +312,7 @@
             // WaterSetting
             // 
             this.WaterSetting.Controls.Add(this.WaterParameterGroupBox);
-            this.WaterSetting.Controls.Add(this.checkBox1);
+            this.WaterSetting.Controls.Add(this.ChkHasWater);
             this.WaterSetting.Location = new System.Drawing.Point(4, 21);
             this.WaterSetting.Name = "WaterSetting";
             this.WaterSetting.Padding = new System.Windows.Forms.Padding(3);
@@ -328,10 +329,10 @@
             this.WaterParameterGroupBox.Controls.Add(this.label5);
             this.WaterParameterGroupBox.Controls.Add(this.label4);
             this.WaterParameterGroupBox.Controls.Add(this.label3);
-            this.WaterParameterGroupBox.Controls.Add(this.textBox4);
-            this.WaterParameterGroupBox.Controls.Add(this.textBox3);
-            this.WaterParameterGroupBox.Controls.Add(this.textBox2);
-            this.WaterParameterGroupBox.Controls.Add(this.textBox1);
+            this.WaterParameterGroupBox.Controls.Add(this.WaterTransparentHeightText);
+            this.WaterParameterGroupBox.Controls.Add(this.WaveDensityText);
+            this.WaterParameterGroupBox.Controls.Add(this.WavePeriodText);
+            this.WaterParameterGroupBox.Controls.Add(this.WaveLengthText);
             this.WaterParameterGroupBox.Controls.Add(this.WaterHeightText);
             this.WaterParameterGroupBox.Controls.Add(this.label2);
             this.WaterParameterGroupBox.Location = new System.Drawing.Point(31, 51);
@@ -398,33 +399,33 @@
             this.label3.TabIndex = 6;
             this.label3.Text = "水波波长";
             // 
-            // textBox4
+            // WaterTransparentHeightText
             // 
-            this.textBox4.Location = new System.Drawing.Point(65, 158);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(100, 21);
-            this.textBox4.TabIndex = 5;
+            this.WaterTransparentHeightText.Location = new System.Drawing.Point(65, 158);
+            this.WaterTransparentHeightText.Name = "WaterTransparentHeightText";
+            this.WaterTransparentHeightText.Size = new System.Drawing.Size(100, 21);
+            this.WaterTransparentHeightText.TabIndex = 5;
             // 
-            // textBox3
+            // WaveDensityText
             // 
-            this.textBox3.Location = new System.Drawing.Point(66, 117);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(99, 21);
-            this.textBox3.TabIndex = 4;
+            this.WaveDensityText.Location = new System.Drawing.Point(66, 117);
+            this.WaveDensityText.Name = "WaveDensityText";
+            this.WaveDensityText.Size = new System.Drawing.Size(99, 21);
+            this.WaveDensityText.TabIndex = 4;
             // 
-            // textBox2
+            // WavePeriodText
             // 
-            this.textBox2.Location = new System.Drawing.Point(66, 80);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(99, 21);
-            this.textBox2.TabIndex = 3;
+            this.WavePeriodText.Location = new System.Drawing.Point(66, 80);
+            this.WavePeriodText.Name = "WavePeriodText";
+            this.WavePeriodText.Size = new System.Drawing.Size(99, 21);
+            this.WavePeriodText.TabIndex = 3;
             // 
-            // textBox1
+            // WaveLengthText
             // 
-            this.textBox1.Location = new System.Drawing.Point(67, 46);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(98, 21);
-            this.textBox1.TabIndex = 2;
+            this.WaveLengthText.Location = new System.Drawing.Point(67, 46);
+            this.WaveLengthText.Name = "WaveLengthText";
+            this.WaveLengthText.Size = new System.Drawing.Size(98, 21);
+            this.WaveLengthText.TabIndex = 2;
             // 
             // WaterHeightText
             // 
@@ -442,15 +443,15 @@
             this.label2.TabIndex = 0;
             this.label2.Text = "水面高度";
             // 
-            // checkBox1
+            // ChkHasWater
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(31, 15);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(72, 16);
-            this.checkBox1.TabIndex = 10;
-            this.checkBox1.Text = "是否有水";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.ChkHasWater.AutoSize = true;
+            this.ChkHasWater.Location = new System.Drawing.Point(31, 15);
+            this.ChkHasWater.Name = "ChkHasWater";
+            this.ChkHasWater.Size = new System.Drawing.Size(72, 16);
+            this.ChkHasWater.TabIndex = 10;
+            this.ChkHasWater.Text = "是否有水";
+            this.ChkHasWater.UseVisualStyleBackColor = true;
             // 
             // EnvironmentSetting
             // 
@@ -774,18 +775,18 @@
             this.TabMaze.Text = "迷宫";
             this.TabMaze.UseVisualStyleBackColor = true;
             // 
-            // menuStrip1
+            // MainMenuStrip
             // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.MainMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.FileToolStripMenuItem,
             this.SettingToolStripMenuItem,
             this.RunToolStripMenuItem,
             this.HelpToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(631, 24);
-            this.menuStrip1.TabIndex = 1;
-            this.menuStrip1.Text = "MainMenu";
+            this.MainMenuStrip.Location = new System.Drawing.Point(0, 0);
+            this.MainMenuStrip.Name = "MainMenuStrip";
+            this.MainMenuStrip.Size = new System.Drawing.Size(631, 24);
+            this.MainMenuStrip.TabIndex = 1;
+            this.MainMenuStrip.Text = "MainMenu";
             // 
             // FileToolStripMenuItem
             // 
@@ -794,26 +795,26 @@
             this.SaveToolStripMenuItem,
             this.SaveAsToolStripMenuItem});
             this.FileToolStripMenuItem.Name = "FileToolStripMenuItem";
-            this.FileToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
+            this.FileToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
             this.FileToolStripMenuItem.Text = "文件";
             // 
             // LoadFileToolStripMenuItem
             // 
             this.LoadFileToolStripMenuItem.Name = "LoadFileToolStripMenuItem";
-            this.LoadFileToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
+            this.LoadFileToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.LoadFileToolStripMenuItem.Text = "载入";
             this.LoadFileToolStripMenuItem.Click += new System.EventHandler(this.LoadFileToolStripMenuItem_Click);
             // 
             // SaveToolStripMenuItem
             // 
             this.SaveToolStripMenuItem.Name = "SaveToolStripMenuItem";
-            this.SaveToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
+            this.SaveToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.SaveToolStripMenuItem.Text = "保存";
             // 
             // SaveAsToolStripMenuItem
             // 
             this.SaveAsToolStripMenuItem.Name = "SaveAsToolStripMenuItem";
-            this.SaveAsToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
+            this.SaveAsToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.SaveAsToolStripMenuItem.Text = "另存为";
             // 
             // SettingToolStripMenuItem
@@ -821,13 +822,13 @@
             this.SettingToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.PathCfgToolStripMenuItem});
             this.SettingToolStripMenuItem.Name = "SettingToolStripMenuItem";
-            this.SettingToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
+            this.SettingToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
             this.SettingToolStripMenuItem.Text = "设置";
             // 
             // PathCfgToolStripMenuItem
             // 
             this.PathCfgToolStripMenuItem.Name = "PathCfgToolStripMenuItem";
-            this.PathCfgToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
+            this.PathCfgToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.PathCfgToolStripMenuItem.Text = "路径设置";
             // 
             // RunToolStripMenuItem
@@ -836,19 +837,19 @@
             this.PreviewToolStripMenuItem,
             this.BatchRunToolStripMenuItem});
             this.RunToolStripMenuItem.Name = "RunToolStripMenuItem";
-            this.RunToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
+            this.RunToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
             this.RunToolStripMenuItem.Text = "运行";
             // 
             // PreviewToolStripMenuItem
             // 
             this.PreviewToolStripMenuItem.Name = "PreviewToolStripMenuItem";
-            this.PreviewToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
+            this.PreviewToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.PreviewToolStripMenuItem.Text = "预览调试";
             // 
             // BatchRunToolStripMenuItem
             // 
             this.BatchRunToolStripMenuItem.Name = "BatchRunToolStripMenuItem";
-            this.BatchRunToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
+            this.BatchRunToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.BatchRunToolStripMenuItem.Text = "批量生成";
             // 
             // HelpToolStripMenuItem
@@ -857,19 +858,19 @@
             this.QuestionAndFeedbackToolStripMenuItem,
             this.AboutToolStripMenuItem});
             this.HelpToolStripMenuItem.Name = "HelpToolStripMenuItem";
-            this.HelpToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
+            this.HelpToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
             this.HelpToolStripMenuItem.Text = "帮助";
             // 
             // QuestionAndFeedbackToolStripMenuItem
             // 
             this.QuestionAndFeedbackToolStripMenuItem.Name = "QuestionAndFeedbackToolStripMenuItem";
-            this.QuestionAndFeedbackToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
+            this.QuestionAndFeedbackToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
             this.QuestionAndFeedbackToolStripMenuItem.Text = "问题与反馈";
             // 
             // AboutToolStripMenuItem
             // 
             this.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem";
-            this.AboutToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
+            this.AboutToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
             this.AboutToolStripMenuItem.Text = "关于。。。";
             // 
             // openRMFileDialog
@@ -888,8 +889,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(631, 546);
             this.Controls.Add(this.CommonSettingTabSetting);
-            this.Controls.Add(this.menuStrip1);
-            this.MainMenuStrip = this.menuStrip1;
+            this.Controls.Add(this.MainMenuStrip);
+            this.MainMenuStrip = this.MainMenuStrip;
             this.Name = "RMapShell";
             this.Text = "随机地图";
             this.Load += new System.EventHandler(this.RMapShell_Load);
@@ -910,8 +911,8 @@
             this.ModelSetting.PerformLayout();
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
+            this.MainMenuStrip.ResumeLayout(false);
+            this.MainMenuStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -927,7 +928,7 @@
         private System.Windows.Forms.TabPage ModelSetting;
         private System.Windows.Forms.TabPage Room;
         private System.Windows.Forms.TabPage TabMaze;
-        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.MenuStrip MainMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem FileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem LoadFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem SaveToolStripMenuItem;
@@ -947,10 +948,10 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox textBox4;
-        private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox WaterTransparentHeightText;
+        private System.Windows.Forms.TextBox WaveDensityText;
+        private System.Windows.Forms.TextBox WavePeriodText;
+        private System.Windows.Forms.TextBox WaveLengthText;
         private System.Windows.Forms.ToolStripMenuItem RunToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem PreviewToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem BatchRunToolStripMenuItem;
@@ -997,7 +998,7 @@
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.ComboBox MapTypeCmb;
         private System.Windows.Forms.GroupBox WaterParameterGroupBox;
-        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox ChkHasWater;
         private System.Windows.Forms.ComboBox WaterReflectionCmb;
         private System.Windows.Forms.Label label21;
         private System.Windows.Forms.ComboBox ModelSettingCmb;
