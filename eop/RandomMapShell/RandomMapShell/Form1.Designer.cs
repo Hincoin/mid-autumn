@@ -111,6 +111,7 @@
             this.openRMFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.openERSFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveRMFileAsDialog = new System.Windows.Forms.SaveFileDialog();
+            this.UpdateResources = new System.Windows.Forms.Button();
             this.GroundSetting.SuspendLayout();
             this.CayonOrSmoothGroupBox.SuspendLayout();
             this.WaterSetting.SuspendLayout();
@@ -269,6 +270,7 @@
             this.BarrierColorBtn.TabIndex = 4;
             this.BarrierColorBtn.Text = "障碍";
             this.BarrierColorBtn.UseVisualStyleBackColor = true;
+            this.BarrierColorBtn.Click += new System.EventHandler(this.BarrierColorBtn_Click);
             // 
             // PathBorderColorBtn
             // 
@@ -278,6 +280,7 @@
             this.PathBorderColorBtn.TabIndex = 3;
             this.PathBorderColorBtn.Text = "路边";
             this.PathBorderColorBtn.UseVisualStyleBackColor = true;
+            this.PathBorderColorBtn.Click += new System.EventHandler(this.PathBorderColorBtn_Click);
             // 
             // PathColorBtn
             // 
@@ -518,6 +521,7 @@
             this.FogColorBtn.TabIndex = 2;
             this.FogColorBtn.Text = "雾的颜色";
             this.FogColorBtn.UseVisualStyleBackColor = true;
+            this.FogColorBtn.Click += new System.EventHandler(this.FogColorBtn_Click);
             // 
             // EnvColorBtn
             // 
@@ -527,6 +531,7 @@
             this.EnvColorBtn.TabIndex = 1;
             this.EnvColorBtn.Text = "环境光颜色";
             this.EnvColorBtn.UseVisualStyleBackColor = true;
+            this.EnvColorBtn.Click += new System.EventHandler(this.EnvColorBtn_Click);
             // 
             // SunColorBtn
             // 
@@ -536,9 +541,11 @@
             this.SunColorBtn.TabIndex = 0;
             this.SunColorBtn.Text = "太阳光颜色";
             this.SunColorBtn.UseVisualStyleBackColor = true;
+            this.SunColorBtn.Click += new System.EventHandler(this.SunColorBtn_Click);
             // 
             // ResourceSetting
             // 
+            this.ResourceSetting.Controls.Add(this.UpdateResources);
             this.ResourceSetting.Controls.Add(this.ResSetFileBrowseBtn);
             this.ResourceSetting.Controls.Add(this.WaterResFileBrowseFileBtn);
             this.ResourceSetting.Controls.Add(this.ResourceSetText);
@@ -561,6 +568,7 @@
             this.ResSetFileBrowseBtn.TabIndex = 5;
             this.ResSetFileBrowseBtn.Text = "浏览";
             this.ResSetFileBrowseBtn.UseVisualStyleBackColor = true;
+            this.ResSetFileBrowseBtn.Click += new System.EventHandler(this.ResSetFileBrowseBtn_Click);
             // 
             // WaterResFileBrowseFileBtn
             // 
@@ -570,6 +578,7 @@
             this.WaterResFileBrowseFileBtn.TabIndex = 4;
             this.WaterResFileBrowseFileBtn.Text = "浏览";
             this.WaterResFileBrowseFileBtn.UseVisualStyleBackColor = true;
+            this.WaterResFileBrowseFileBtn.Click += new System.EventHandler(this.WaterResFileBrowseFileBtn_Click);
             // 
             // ResourceSetText
             // 
@@ -611,7 +620,7 @@
             this.CommonSettingTabSetting.Controls.Add(this.WaterSetting);
             this.CommonSettingTabSetting.Controls.Add(this.ModelSetting);
             this.CommonSettingTabSetting.Controls.Add(this.tabPage1);
-            this.CommonSettingTabSetting.Location = new System.Drawing.Point(12, 64);
+            this.CommonSettingTabSetting.Location = new System.Drawing.Point(17, 47);
             this.CommonSettingTabSetting.Multiline = true;
             this.CommonSettingTabSetting.Name = "CommonSettingTabSetting";
             this.CommonSettingTabSetting.SelectedIndex = 0;
@@ -795,41 +804,44 @@
             this.SaveToolStripMenuItem,
             this.SaveAsToolStripMenuItem});
             this.FileToolStripMenuItem.Name = "FileToolStripMenuItem";
-            this.FileToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
+            this.FileToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
             this.FileToolStripMenuItem.Text = "文件";
             // 
             // LoadFileToolStripMenuItem
             // 
             this.LoadFileToolStripMenuItem.Name = "LoadFileToolStripMenuItem";
-            this.LoadFileToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
+            this.LoadFileToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.LoadFileToolStripMenuItem.Text = "载入";
             this.LoadFileToolStripMenuItem.Click += new System.EventHandler(this.LoadFileToolStripMenuItem_Click);
             // 
             // SaveToolStripMenuItem
             // 
             this.SaveToolStripMenuItem.Name = "SaveToolStripMenuItem";
-            this.SaveToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
+            this.SaveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.SaveToolStripMenuItem.Text = "保存";
+            this.SaveToolStripMenuItem.Click += new System.EventHandler(this.SaveToolStripMenuItem_Click);
             // 
             // SaveAsToolStripMenuItem
             // 
             this.SaveAsToolStripMenuItem.Name = "SaveAsToolStripMenuItem";
-            this.SaveAsToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
+            this.SaveAsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.SaveAsToolStripMenuItem.Text = "另存为";
+            this.SaveAsToolStripMenuItem.Click += new System.EventHandler(this.SaveAsToolStripMenuItem_Click);
             // 
             // SettingToolStripMenuItem
             // 
             this.SettingToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.PathCfgToolStripMenuItem});
             this.SettingToolStripMenuItem.Name = "SettingToolStripMenuItem";
-            this.SettingToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
+            this.SettingToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
             this.SettingToolStripMenuItem.Text = "设置";
             // 
             // PathCfgToolStripMenuItem
             // 
             this.PathCfgToolStripMenuItem.Name = "PathCfgToolStripMenuItem";
-            this.PathCfgToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.PathCfgToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.PathCfgToolStripMenuItem.Text = "路径设置";
+            this.PathCfgToolStripMenuItem.Click += new System.EventHandler(this.PathCfgToolStripMenuItem_Click);
             // 
             // RunToolStripMenuItem
             // 
@@ -837,19 +849,19 @@
             this.PreviewToolStripMenuItem,
             this.BatchRunToolStripMenuItem});
             this.RunToolStripMenuItem.Name = "RunToolStripMenuItem";
-            this.RunToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
+            this.RunToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
             this.RunToolStripMenuItem.Text = "运行";
             // 
             // PreviewToolStripMenuItem
             // 
             this.PreviewToolStripMenuItem.Name = "PreviewToolStripMenuItem";
-            this.PreviewToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.PreviewToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.PreviewToolStripMenuItem.Text = "预览调试";
             // 
             // BatchRunToolStripMenuItem
             // 
             this.BatchRunToolStripMenuItem.Name = "BatchRunToolStripMenuItem";
-            this.BatchRunToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.BatchRunToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.BatchRunToolStripMenuItem.Text = "批量生成";
             // 
             // HelpToolStripMenuItem
@@ -858,19 +870,19 @@
             this.QuestionAndFeedbackToolStripMenuItem,
             this.AboutToolStripMenuItem});
             this.HelpToolStripMenuItem.Name = "HelpToolStripMenuItem";
-            this.HelpToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
+            this.HelpToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
             this.HelpToolStripMenuItem.Text = "帮助";
             // 
             // QuestionAndFeedbackToolStripMenuItem
             // 
             this.QuestionAndFeedbackToolStripMenuItem.Name = "QuestionAndFeedbackToolStripMenuItem";
-            this.QuestionAndFeedbackToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.QuestionAndFeedbackToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.QuestionAndFeedbackToolStripMenuItem.Text = "问题与反馈";
             // 
             // AboutToolStripMenuItem
             // 
             this.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem";
-            this.AboutToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.AboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.AboutToolStripMenuItem.Text = "关于。。。";
             // 
             // openRMFileDialog
@@ -883,6 +895,16 @@
             // 
             this.openERSFileDialog.FileName = "openERSFileDialog";
             // 
+            // UpdateResources
+            // 
+            this.UpdateResources.Location = new System.Drawing.Point(12, 99);
+            this.UpdateResources.Name = "UpdateResources";
+            this.UpdateResources.Size = new System.Drawing.Size(116, 30);
+            this.UpdateResources.TabIndex = 6;
+            this.UpdateResources.Text = "图素包刷新";
+            this.UpdateResources.UseVisualStyleBackColor = true;
+            this.UpdateResources.Click += new System.EventHandler(this.UpdateResources_Click);
+            // 
             // RMapShell
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -890,7 +912,6 @@
             this.ClientSize = new System.Drawing.Size(631, 546);
             this.Controls.Add(this.CommonSettingTabSetting);
             this.Controls.Add(this.MainMenuStrip);
-            this.MainMenuStrip = this.MainMenuStrip;
             this.Name = "RMapShell";
             this.Text = "随机地图";
             this.Load += new System.EventHandler(this.RMapShell_Load);
@@ -1003,6 +1024,7 @@
         private System.Windows.Forms.Label label21;
         private System.Windows.Forms.ComboBox ModelSettingCmb;
         private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.Button UpdateResources;
     }
 }
 

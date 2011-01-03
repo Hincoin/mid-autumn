@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using System.Xml;
 
 namespace RandomMapShell
 {
@@ -16,6 +17,8 @@ namespace RandomMapShell
 
         string tex_model_resource;
         string water_tex_resource;
+        string cur_edt_file;
+        PathConfigPreprocess path_config_dlg;
  
         public RMapShell()
         {
@@ -23,18 +26,6 @@ namespace RandomMapShell
             //default setting
             cfg_artist_resource_dir = "e:\\work\\artist\\res";//String.Empty;
             cfg_working_dir= "E:\\work\\program\\bin\\Release";//String.Empty;
-        }
-        private void OnOpenWaterResFile(object sender, EventArgs e)
-        {
-            //
-        }
-        private void OnOpenResFile(object sender, EventArgs e)
-        {
-            //
-        }
-        private void OpenColorDialog(object sender ,EventArgs e)
-        {
-            //
         }
 
         private void RMapShell_Load(object sender, EventArgs e)
@@ -46,7 +37,8 @@ namespace RandomMapShell
         {
             string file_name = this.openRMFileDialog.FileName;
             if(!File.Exists(file_name)) return ;
-            IniFile ini_file = new IniFile(file_name);
+            cur_edt_file = file_name;
+            IniFile ini_file = new IniFile(cur_edt_file);
             tex_model_resource = ini_file.IniReadValue("resources","decorators");
             string wall = ini_file.IniReadValue("resources","wall");
             string plant = ini_file.IniReadValue("resources","plant");
@@ -81,17 +73,17 @@ namespace RandomMapShell
             if(!refl_str.Equals(""))
                 this.WaterReflectionCmb.SelectedIndex = Convert.ToInt32(refl_str);
             bool has_water = 
-                ini_file.IniReadValue("", "", "NULL") == "AllWater" ||
-                ini_file.IniReadValue("","","NULL") == "default";
+                ini_file.IniReadValue("MethodKind", "WaterKind", "NULL") == "AllWater" ||
+                ini_file.IniReadValue("MethodKind","WaterKind","NULL") == "default";
             this.ChkHasWater.Checked =  has_water;
             if (!has_water)
                 this.WaterParameterGroupBox.Hide();
             this.ChkHasWater.CheckedChanged += OnWaterChecked;
 
-            string wave_length = ini_file.IniReadValue("","","200");
-            string wave_period = ini_file.IniReadValue("","","1500");
-            string wave_density = ini_file.IniReadValue("","","2");
-            string water_transparent_height = ini_file.IniReadValue("","","");
+            string wave_length = ini_file.IniReadValue("mapinfo","waveInfo.WavePhysicInfo.nWaveSize","200");
+            string wave_period = ini_file.IniReadValue("mapinfo","nWaveLife","1500");
+            string wave_density = ini_file.IniReadValue("mapinfo","waveInfo.WavePhysicInfo.nWavePerGrid","2");
+            string water_transparent_height = ini_file.IniReadValue("WaterParameters","depth","0");
             this.WaveDensityText.Text = wave_density;
             this.WaveLengthText.Text = wave_length;
             this.WavePeriodText.Text = wave_period;
@@ -130,11 +122,14 @@ namespace RandomMapShell
                 this.CayonOrSmoothGroupBox.Hide();
 
             this.CmbGroundHeight.SelectedIndexChanged += OnGroundHeightMethodChanged;
-            string out_most_barrier_height = ini_file.IniReadValue("","","0");
-            string path_height = ini_file.IniReadValue("","","0");
-            string inner_barrier_height = ini_file.IniReadValue("","","0");
-            string bound_width = ini_file.IniReadValue("", "", "0");
-            string bound_height = ini_file.IniReadValue("", "", "0");
+            string out_most_barrier_height = ini_file.IniReadValue("GroundParameters","OutBarrierHeight","0");
+            string path_height = ini_file.IniReadValue("GroundParameters","GroundBaseHeight","0");
+            string inner_barrier_height = ini_file.IniReadValue("GroundParameters","GroundTopHeight","0");
+            int out_h = Convert.ToInt32(out_most_barrier_height);
+            int path_h = Convert.ToInt32(path_height);
+            out_most_barrier_height = Convert.ToString(out_h + path_h);
+            string bound_width = ini_file.IniReadValue("GroundParameters", "BoundWidth", "0");
+            string bound_height = ini_file.IniReadValue("GroundParameters", "BoundHeight", "0");
             this.OutMostBarrierHeightText.Text = out_most_barrier_height;
             this.PathHeightText.Text = path_height;
             this.InnerBarrierHeightText.Text = inner_barrier_height;
@@ -144,6 +139,8 @@ namespace RandomMapShell
             //model setting
 
             //map parameter setting
+            string algo_kind = ini_file.IniReadValue("AlgorithmKind", "param", "");
+
         }
         private void OnGroundHeightMethodChanged(object sender, EventArgs e)
         {
@@ -217,6 +214,98 @@ namespace RandomMapShell
         {
             if (this.PickColorDialog.ShowDialog(this)== DialogResult.OK)
                 this.PathColorBtn.BackColor = this.PickColorDialog.Color;
+        }
+
+        private void WaterResFileBrowseFileBtn_Click(object sender, EventArgs e)
+        {
+            if (this.openERSFileDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                this.WaterResFileText.Text = this.openERSFileDialog.FileName;
+            }
+        }
+
+        private void ResSetFileBrowseBtn_Click(object sender, EventArgs e)
+        {
+            if (this.openERSFileDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                this.ResourceSetText.Text = this.openERSFileDialog.FileName;
+                ReloadResourceFile(this.ResourceSetText.Text);
+            }
+        }
+
+        private void PathBorderColorBtn_Click(object sender, EventArgs e)
+        {
+            if (this.PickColorDialog.ShowDialog(this)== DialogResult.OK)
+                this.PathBorderColorBtn.BackColor = this.PickColorDialog.Color;
+        }
+
+        private void BarrierColorBtn_Click(object sender, EventArgs e)
+        {
+            if (this.PickColorDialog.ShowDialog(this) == DialogResult.OK)
+                this.BarrierColorBtn.BackColor = this.PickColorDialog.Color;
+        }
+
+        private void SunColorBtn_Click(object sender, EventArgs e)
+        {
+            if (this.PickColorDialog.ShowDialog(this) == DialogResult.OK)
+                this.SunColorBtn.BackColor = this.PickColorDialog.Color;
+        }
+
+        private void EnvColorBtn_Click(object sender, EventArgs e)
+        {
+            if (this.PickColorDialog.ShowDialog(this) == DialogResult.OK)
+                this.EnvColorBtn.BackColor = this.PickColorDialog.Color;
+        }
+
+        private void FogColorBtn_Click(object sender, EventArgs e)
+        {
+            if (this.PickColorDialog.ShowDialog(this) == DialogResult.OK)
+                this.FogColorBtn.BackColor = this.PickColorDialog.Color;
+        }
+
+        private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //save the file
+            SaveRMFile(cur_edt_file);
+        }
+
+        private void SaveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if(this.saveRMFileAsDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                string new_file_name = this.saveRMFileAsDialog.FileName;
+                SaveRMFile(new_file_name);
+            }
+        }
+        private void SaveRMFile(string file_name)
+        {
+            //todo
+
+
+
+            cur_edt_file = file_name;
+        }
+
+        private void PathCfgToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if(path_config_dlg == null)
+                path_config_dlg = new PathConfigPreprocess();
+            if(path_config_dlg.ShowDialog(this) == DialogResult.OK)
+            {
+                //todo: save the config
+            }
+        }
+
+        private void UpdateResources_Click(object sender, EventArgs e)
+        {
+            //todo: reload the resources
+        }
+        private void ReloadResourceFile(string file_name)
+        {
+            //
+            XmlDocument xml_doc = new XmlDocument();
+            xml_doc.LoadXml(file_name);
+            //todo parse the xml
         }
     }
 }
