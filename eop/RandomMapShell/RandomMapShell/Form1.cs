@@ -6,7 +6,6 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
-using System.Xml;
 
 namespace RandomMapShell
 {
@@ -19,6 +18,7 @@ namespace RandomMapShell
         string water_tex_resource;
         string cur_edt_file;
         PathConfigPreprocess path_config_dlg;
+        ARSResources ars_res_dlg;
  
         public RMapShell()
         {
@@ -303,9 +303,11 @@ namespace RandomMapShell
         private void ReloadResourceFile(string file_name)
         {
             //
-            XmlDocument xml_doc = new XmlDocument();
-            xml_doc.LoadXml(file_name);
-            //todo parse the xml
+            if (ars_res_dlg == null)
+                ars_res_dlg = new ARSResources();
+            ars_res_dlg.LoadArs(file_name);
+            ars_res_dlg.ShowDialog(this);
+
         }
     }
 }
