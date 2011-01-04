@@ -36,6 +36,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ARSResources.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ARSResources.Designer.cs">
+      <DependentUpon>ARSResources.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -51,6 +57,10 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="ARSResources.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ARSResources.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <SubType>Designer</SubType>
       <DependentUpon>Form1.cs</DependentUpon>
