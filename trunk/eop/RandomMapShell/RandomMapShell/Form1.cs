@@ -306,7 +306,8 @@ namespace RandomMapShell
             if (ars_res_dlg == null)
                 ars_res_dlg = new ARSResources();
             ars_res_dlg.LoadArs(file_name);
-            ars_res_dlg.ShowDialog(this);
+            
+            ars_res_dlg.Show();
 
         }
     }

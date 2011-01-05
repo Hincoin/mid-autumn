@@ -21,17 +21,20 @@ namespace RandomMapShell
         private void ARSResources_Load(object sender, EventArgs e)
         {
 
+            this.ARSResourcetreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.treeView_ItemDrag);
+            this.ARSResourcetreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.treeView_DragEnter);
         }
         public void LoadArs(string file_name)
         {
             //
-            try{
-                string s = System.IO.File.ReadAllText( file_name ,Encoding.GetEncoding("gb2312"));
 
-                string new_s = Regex.Replace(s, " (?<var>\\d{1,6})",
-" P_${var}");
-                string new_file_name = file_name + ".tmp";
-                System.IO.File.WriteAllText(new_file_name,new_s,Encoding.GetEncoding("gb2312"));
+            string s = System.IO.File.ReadAllText(file_name, Encoding.GetEncoding("gb2312"));
+
+            string new_s = Regex.Replace(s, " (?<var>\\d{1,6})"," P_${var}");
+            string new_file_name = file_name + ".tmp";
+            System.IO.File.WriteAllText(new_file_name, new_s, Encoding.GetEncoding("gb2312"));
+
+            try{
                 XmlReader r = new XmlTextReader(new StreamReader(new_file_name, Encoding.GetEncoding("gb2312")));
                 XmlDocument dom = new XmlDocument();
                 dom.Load(r);
@@ -39,6 +42,27 @@ namespace RandomMapShell
                 TreeNode tNode = new TreeNode();
                 tNode = ARSResourcetreeView.Nodes[0];
 
+                ////XmlNodeReader rdr = new XmlNodeReader(dom);
+                ////string str="";
+                ////while (rdr.Read())
+                ////{
+                ////    switch (rdr.NodeType)
+                ////    {
+                ////        case XmlNodeType.Element:
+                ////            str = rdr.Name; break;
+                ////        case XmlNodeType.Text:
+                ////            if (str.Equals("ResSetGroup"))
+                ////            {
+                ////                tNode.Nodes.Add(new TreeNode(rdr.Value));
+                ////                tNode = tNode.Nodes[0];
+                ////            }
+                ////            break;
+                ////        default:
+                ////            break;
+                ////    }
+                ////}
+
+                
                 // SECTION 3. Populate the TreeView with the DOM nodes.
                 AddNode(dom.DocumentElement, tNode);
                 ARSResourcetreeView.ExpandAll();
@@ -71,9 +95,32 @@ namespace RandomMapShell
             for(i = 0; i<=nodeList.Count - 1; i++)
             {
                xNode = inXmlNode.ChildNodes[i];
-               inTreeNode.Nodes.Add(new TreeNode(xNode.Name));
-               tNode = inTreeNode.Nodes[i];
-               AddNode(xNode, tNode);
+               string v = "";
+               if (xNode.Name == "ResSetGroup" || 
+                   xNode.Name == "大唐图素集3D" ||
+                   xNode.Name == "大唐图素集2D")
+               {
+                   if (xNode.Name == "ResSetGroup")
+                       v = xNode.Attributes["ResSetGroupName"].Value.ToString();
+                   else
+                       v = xNode.Name;
+                   inTreeNode.Nodes.Add(new TreeNode(v));
+                   tNode = inTreeNode.Nodes[i];
+                    AddNode(xNode, tNode);
+               }
+               else if (xNode.Name == "ResSetUnit")
+               {
+                   if (xNode.Attributes["TextureFileName"] == null)
+                       v = xNode.Attributes["P_0Name"].Value.ToString();
+                   else
+                       v = xNode.Attributes["TextureFileName"].Value.ToString();
+                   tNode = new TreeNode(v);
+                   inTreeNode.Nodes.Add(tNode);
+               }
+               else {
+                   tNode = inTreeNode;
+                    AddNode(xNode, tNode);
+               }
             }
          }
          else
@@ -83,5 +130,15 @@ namespace RandomMapShell
             inTreeNode.Text = (inXmlNode.OuterXml).Trim();
          }
       }             
+  private void treeView_ItemDrag(object sender,
+			System.Windows.Forms.ItemDragEventArgs e)
+		{
+			DoDragDrop(e.Item, DragDropEffects.Copy);
+		} 
+    private void treeView_DragEnter(object sender, System.Windows.Forms.DragEventArgs e)
+{
+    e.Effect = DragDropEffects.Copy;
+}
     }
+  
 }

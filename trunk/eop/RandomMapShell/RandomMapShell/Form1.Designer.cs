@@ -29,6 +29,9 @@
         private void InitializeComponent()
         {
             this.GroundSetting = new System.Windows.Forms.TabPage();
+            this.listView3 = new System.Windows.Forms.ListView();
+            this.listView2 = new System.Windows.Forms.ListView();
+            this.listView1 = new System.Windows.Forms.ListView();
             this.CayonOrSmoothGroupBox = new System.Windows.Forms.GroupBox();
             this.label16 = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
@@ -112,9 +115,6 @@
             this.openRMFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.openERSFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveRMFileAsDialog = new System.Windows.Forms.SaveFileDialog();
-            this.listView1 = new System.Windows.Forms.ListView();
-            this.listView2 = new System.Windows.Forms.ListView();
-            this.listView3 = new System.Windows.Forms.ListView();
             this.GroundSetting.SuspendLayout();
             this.CayonOrSmoothGroupBox.SuspendLayout();
             this.WaterSetting.SuspendLayout();
@@ -144,10 +144,35 @@
             this.GroundSetting.Location = new System.Drawing.Point(4, 21);
             this.GroundSetting.Name = "GroundSetting";
             this.GroundSetting.Padding = new System.Windows.Forms.Padding(3);
-            this.GroundSetting.Size = new System.Drawing.Size(594, 423);
+            this.GroundSetting.Size = new System.Drawing.Size(594, 441);
             this.GroundSetting.TabIndex = 3;
             this.GroundSetting.Text = "地表设置";
             this.GroundSetting.UseVisualStyleBackColor = true;
+            // 
+            // listView3
+            // 
+            this.listView3.Location = new System.Drawing.Point(404, 267);
+            this.listView3.Name = "listView3";
+            this.listView3.Size = new System.Drawing.Size(165, 117);
+            this.listView3.TabIndex = 11;
+            this.listView3.UseCompatibleStateImageBehavior = false;
+            // 
+            // listView2
+            // 
+            this.listView2.Location = new System.Drawing.Point(407, 130);
+            this.listView2.Name = "listView2";
+            this.listView2.Size = new System.Drawing.Size(162, 106);
+            this.listView2.TabIndex = 10;
+            this.listView2.UseCompatibleStateImageBehavior = false;
+            // 
+            // listView1
+            // 
+            this.listView1.AllowDrop = true;
+            this.listView1.Location = new System.Drawing.Point(407, 22);
+            this.listView1.Name = "listView1";
+            this.listView1.Size = new System.Drawing.Size(162, 88);
+            this.listView1.TabIndex = 9;
+            this.listView1.UseCompatibleStateImageBehavior = false;
             // 
             // CayonOrSmoothGroupBox
             // 
@@ -325,7 +350,7 @@
             this.WaterSetting.Location = new System.Drawing.Point(4, 21);
             this.WaterSetting.Name = "WaterSetting";
             this.WaterSetting.Padding = new System.Windows.Forms.Padding(3);
-            this.WaterSetting.Size = new System.Drawing.Size(594, 423);
+            this.WaterSetting.Size = new System.Drawing.Size(594, 441);
             this.WaterSetting.TabIndex = 2;
             this.WaterSetting.Text = "水面设置";
             this.WaterSetting.UseVisualStyleBackColor = true;
@@ -475,7 +500,7 @@
             this.EnvironmentSetting.Location = new System.Drawing.Point(4, 21);
             this.EnvironmentSetting.Name = "EnvironmentSetting";
             this.EnvironmentSetting.Padding = new System.Windows.Forms.Padding(3);
-            this.EnvironmentSetting.Size = new System.Drawing.Size(594, 423);
+            this.EnvironmentSetting.Size = new System.Drawing.Size(594, 441);
             this.EnvironmentSetting.TabIndex = 1;
             this.EnvironmentSetting.Text = "环境设置";
             this.EnvironmentSetting.UseVisualStyleBackColor = true;
@@ -650,7 +675,7 @@
             this.ModelSetting.Location = new System.Drawing.Point(4, 21);
             this.ModelSetting.Name = "ModelSetting";
             this.ModelSetting.Padding = new System.Windows.Forms.Padding(3);
-            this.ModelSetting.Size = new System.Drawing.Size(594, 423);
+            this.ModelSetting.Size = new System.Drawing.Size(594, 441);
             this.ModelSetting.TabIndex = 4;
             this.ModelSetting.Text = "模型设置";
             this.ModelSetting.UseVisualStyleBackColor = true;
@@ -692,7 +717,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 21);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(594, 423);
+            this.tabPage1.Size = new System.Drawing.Size(594, 441);
             this.tabPage1.TabIndex = 5;
             this.tabPage1.Text = "道路与障碍结构";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -820,27 +845,27 @@
             this.SaveToolStripMenuItem,
             this.SaveAsToolStripMenuItem});
             this.FileToolStripMenuItem.Name = "FileToolStripMenuItem";
-            this.FileToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
+            this.FileToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
             this.FileToolStripMenuItem.Text = "文件";
             // 
             // LoadFileToolStripMenuItem
             // 
             this.LoadFileToolStripMenuItem.Name = "LoadFileToolStripMenuItem";
-            this.LoadFileToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.LoadFileToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.LoadFileToolStripMenuItem.Text = "载入";
             this.LoadFileToolStripMenuItem.Click += new System.EventHandler(this.LoadFileToolStripMenuItem_Click);
             // 
             // SaveToolStripMenuItem
             // 
             this.SaveToolStripMenuItem.Name = "SaveToolStripMenuItem";
-            this.SaveToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.SaveToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.SaveToolStripMenuItem.Text = "保存";
             this.SaveToolStripMenuItem.Click += new System.EventHandler(this.SaveToolStripMenuItem_Click);
             // 
             // SaveAsToolStripMenuItem
             // 
             this.SaveAsToolStripMenuItem.Name = "SaveAsToolStripMenuItem";
-            this.SaveAsToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.SaveAsToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.SaveAsToolStripMenuItem.Text = "另存为";
             this.SaveAsToolStripMenuItem.Click += new System.EventHandler(this.SaveAsToolStripMenuItem_Click);
             // 
@@ -849,13 +874,13 @@
             this.SettingToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.PathCfgToolStripMenuItem});
             this.SettingToolStripMenuItem.Name = "SettingToolStripMenuItem";
-            this.SettingToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
+            this.SettingToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
             this.SettingToolStripMenuItem.Text = "设置";
             // 
             // PathCfgToolStripMenuItem
             // 
             this.PathCfgToolStripMenuItem.Name = "PathCfgToolStripMenuItem";
-            this.PathCfgToolStripMenuItem.Size = new System.Drawing.Size(120, 22);
+            this.PathCfgToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.PathCfgToolStripMenuItem.Text = "路径设置";
             this.PathCfgToolStripMenuItem.Click += new System.EventHandler(this.PathCfgToolStripMenuItem_Click);
             // 
@@ -865,19 +890,19 @@
             this.PreviewToolStripMenuItem,
             this.BatchRunToolStripMenuItem});
             this.RunToolStripMenuItem.Name = "RunToolStripMenuItem";
-            this.RunToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
+            this.RunToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
             this.RunToolStripMenuItem.Text = "运行";
             // 
             // PreviewToolStripMenuItem
             // 
             this.PreviewToolStripMenuItem.Name = "PreviewToolStripMenuItem";
-            this.PreviewToolStripMenuItem.Size = new System.Drawing.Size(120, 22);
+            this.PreviewToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.PreviewToolStripMenuItem.Text = "预览调试";
             // 
             // BatchRunToolStripMenuItem
             // 
             this.BatchRunToolStripMenuItem.Name = "BatchRunToolStripMenuItem";
-            this.BatchRunToolStripMenuItem.Size = new System.Drawing.Size(120, 22);
+            this.BatchRunToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.BatchRunToolStripMenuItem.Text = "批量生成";
             // 
             // HelpToolStripMenuItem
@@ -886,19 +911,19 @@
             this.QuestionAndFeedbackToolStripMenuItem,
             this.AboutToolStripMenuItem});
             this.HelpToolStripMenuItem.Name = "HelpToolStripMenuItem";
-            this.HelpToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
+            this.HelpToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
             this.HelpToolStripMenuItem.Text = "帮助";
             // 
             // QuestionAndFeedbackToolStripMenuItem
             // 
             this.QuestionAndFeedbackToolStripMenuItem.Name = "QuestionAndFeedbackToolStripMenuItem";
-            this.QuestionAndFeedbackToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
+            this.QuestionAndFeedbackToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
             this.QuestionAndFeedbackToolStripMenuItem.Text = "问题与反馈";
             // 
             // AboutToolStripMenuItem
             // 
             this.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem";
-            this.AboutToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
+            this.AboutToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
             this.AboutToolStripMenuItem.Text = "关于。。。";
             // 
             // openRMFileDialog
@@ -910,30 +935,6 @@
             // openERSFileDialog
             // 
             this.openERSFileDialog.FileName = "openERSFileDialog";
-            // 
-            // listView1
-            // 
-            this.listView1.Location = new System.Drawing.Point(407, 22);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(162, 88);
-            this.listView1.TabIndex = 9;
-            this.listView1.UseCompatibleStateImageBehavior = false;
-            // 
-            // listView2
-            // 
-            this.listView2.Location = new System.Drawing.Point(407, 130);
-            this.listView2.Name = "listView2";
-            this.listView2.Size = new System.Drawing.Size(162, 106);
-            this.listView2.TabIndex = 10;
-            this.listView2.UseCompatibleStateImageBehavior = false;
-            // 
-            // listView3
-            // 
-            this.listView3.Location = new System.Drawing.Point(404, 267);
-            this.listView3.Name = "listView3";
-            this.listView3.Size = new System.Drawing.Size(165, 117);
-            this.listView3.TabIndex = 11;
-            this.listView3.UseCompatibleStateImageBehavior = false;
             // 
             // RMapShell
             // 
