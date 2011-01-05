@@ -33,16 +33,17 @@
             // 
             // ARSResourcetreeView
             // 
+            this.ARSResourcetreeView.AllowDrop = true;
             this.ARSResourcetreeView.Location = new System.Drawing.Point(12, 12);
             this.ARSResourcetreeView.Name = "ARSResourcetreeView";
-            this.ARSResourcetreeView.Size = new System.Drawing.Size(296, 426);
+            this.ARSResourcetreeView.Size = new System.Drawing.Size(585, 349);
             this.ARSResourcetreeView.TabIndex = 0;
             // 
             // ARSResources
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(320, 450);
+            this.ClientSize = new System.Drawing.Size(620, 373);
             this.Controls.Add(this.ARSResourcetreeView);
             this.Name = "ARSResources";
             this.Text = "ARSResources";
