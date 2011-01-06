@@ -29,9 +29,6 @@
         private void InitializeComponent()
         {
             this.GroundSetting = new System.Windows.Forms.TabPage();
-            this.listView3 = new System.Windows.Forms.ListView();
-            this.listView2 = new System.Windows.Forms.ListView();
-            this.listView1 = new System.Windows.Forms.ListView();
             this.CayonOrSmoothGroupBox = new System.Windows.Forms.GroupBox();
             this.label16 = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
@@ -115,6 +112,9 @@
             this.openRMFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.openERSFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveRMFileAsDialog = new System.Windows.Forms.SaveFileDialog();
+            this.PathTexturetreeView = new System.Windows.Forms.TreeView();
+            this.BarrierTexturetreeView = new System.Windows.Forms.TreeView();
+            this.MixinTexturetreeView = new System.Windows.Forms.TreeView();
             this.GroundSetting.SuspendLayout();
             this.CayonOrSmoothGroupBox.SuspendLayout();
             this.WaterSetting.SuspendLayout();
@@ -129,9 +129,8 @@
             // 
             // GroundSetting
             // 
-            this.GroundSetting.Controls.Add(this.listView3);
-            this.GroundSetting.Controls.Add(this.listView2);
-            this.GroundSetting.Controls.Add(this.listView1);
+            this.GroundSetting.Controls.Add(this.MixinTexturetreeView);
+            this.GroundSetting.Controls.Add(this.BarrierTexturetreeView);
             this.GroundSetting.Controls.Add(this.CayonOrSmoothGroupBox);
             this.GroundSetting.Controls.Add(this.CmbGroundHeight);
             this.GroundSetting.Controls.Add(this.label12);
@@ -141,6 +140,7 @@
             this.GroundSetting.Controls.Add(this.PathColorBtn);
             this.GroundSetting.Controls.Add(this.label10);
             this.GroundSetting.Controls.Add(this.CmbTextureMethod);
+            this.GroundSetting.Controls.Add(this.PathTexturetreeView);
             this.GroundSetting.Location = new System.Drawing.Point(4, 21);
             this.GroundSetting.Name = "GroundSetting";
             this.GroundSetting.Padding = new System.Windows.Forms.Padding(3);
@@ -148,31 +148,6 @@
             this.GroundSetting.TabIndex = 3;
             this.GroundSetting.Text = "地表设置";
             this.GroundSetting.UseVisualStyleBackColor = true;
-            // 
-            // listView3
-            // 
-            this.listView3.Location = new System.Drawing.Point(404, 267);
-            this.listView3.Name = "listView3";
-            this.listView3.Size = new System.Drawing.Size(165, 117);
-            this.listView3.TabIndex = 11;
-            this.listView3.UseCompatibleStateImageBehavior = false;
-            // 
-            // listView2
-            // 
-            this.listView2.Location = new System.Drawing.Point(407, 130);
-            this.listView2.Name = "listView2";
-            this.listView2.Size = new System.Drawing.Size(162, 106);
-            this.listView2.TabIndex = 10;
-            this.listView2.UseCompatibleStateImageBehavior = false;
-            // 
-            // listView1
-            // 
-            this.listView1.AllowDrop = true;
-            this.listView1.Location = new System.Drawing.Point(407, 22);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(162, 88);
-            this.listView1.TabIndex = 9;
-            this.listView1.UseCompatibleStateImageBehavior = false;
             // 
             // CayonOrSmoothGroupBox
             // 
@@ -936,6 +911,30 @@
             // 
             this.openERSFileDialog.FileName = "openERSFileDialog";
             // 
+            // PathTexturetreeView
+            // 
+            this.PathTexturetreeView.AllowDrop = true;
+            this.PathTexturetreeView.Location = new System.Drawing.Point(404, 29);
+            this.PathTexturetreeView.Name = "PathTexturetreeView";
+            this.PathTexturetreeView.Size = new System.Drawing.Size(172, 99);
+            this.PathTexturetreeView.TabIndex = 9;
+            // 
+            // BarrierTexturetreeView
+            // 
+            this.BarrierTexturetreeView.AllowDrop = true;
+            this.BarrierTexturetreeView.Location = new System.Drawing.Point(406, 148);
+            this.BarrierTexturetreeView.Name = "BarrierTexturetreeView";
+            this.BarrierTexturetreeView.Size = new System.Drawing.Size(169, 81);
+            this.BarrierTexturetreeView.TabIndex = 10;
+            // 
+            // MixinTexturetreeView
+            // 
+            this.MixinTexturetreeView.AllowDrop = true;
+            this.MixinTexturetreeView.Location = new System.Drawing.Point(402, 255);
+            this.MixinTexturetreeView.Name = "MixinTexturetreeView";
+            this.MixinTexturetreeView.Size = new System.Drawing.Size(172, 92);
+            this.MixinTexturetreeView.TabIndex = 11;
+            // 
             // RMapShell
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -1056,9 +1055,9 @@
         private System.Windows.Forms.ComboBox ModelSettingCmb;
         private System.Windows.Forms.Label label22;
         private System.Windows.Forms.Button UpdateResources;
-        private System.Windows.Forms.ListView listView3;
-        private System.Windows.Forms.ListView listView2;
-        private System.Windows.Forms.ListView listView1;
+        private System.Windows.Forms.TreeView MixinTexturetreeView;
+        private System.Windows.Forms.TreeView BarrierTexturetreeView;
+        private System.Windows.Forms.TreeView PathTexturetreeView;
     }
 }
 

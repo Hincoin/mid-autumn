@@ -30,11 +30,12 @@ namespace RandomMapShell
 
             string s = System.IO.File.ReadAllText(file_name, Encoding.GetEncoding("gb2312"));
 
-            string new_s = Regex.Replace(s, " (?<var>\\d{1,6})"," P_${var}");
+            string new_s = Regex.Replace(s, " (?<var>\\d{1,6})", " P_${var}");
             string new_file_name = file_name + ".tmp";
             System.IO.File.WriteAllText(new_file_name, new_s, Encoding.GetEncoding("gb2312"));
 
-            try{
+            try
+            {
                 XmlReader r = new XmlTextReader(new StreamReader(new_file_name, Encoding.GetEncoding("gb2312")));
                 XmlDocument dom = new XmlDocument();
                 dom.Load(r);
@@ -62,16 +63,16 @@ namespace RandomMapShell
                 ////    }
                 ////}
 
-                
+
                 // SECTION 3. Populate the TreeView with the DOM nodes.
                 AddNode(dom.DocumentElement, tNode);
                 ARSResourcetreeView.ExpandAll();
             }
-            catch(XmlException xmlEx)
+            catch (XmlException xmlEx)
             {
                 MessageBox.Show(xmlEx.Message);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
@@ -80,65 +81,66 @@ namespace RandomMapShell
         {
 
         }
-          private void AddNode(XmlNode inXmlNode, TreeNode inTreeNode)
-      {
-         XmlNode xNode;
-         TreeNode tNode;
-         XmlNodeList nodeList;
-         int i;
+        private void AddNode(XmlNode inXmlNode, TreeNode inTreeNode)
+        {
+            XmlNode xNode;
+            TreeNode tNode;
+            XmlNodeList nodeList;
+            int i;
 
-         // Loop through the XML nodes until the leaf is reached.
-         // Add the nodes to the TreeView during the looping process.
-         if (inXmlNode.HasChildNodes)
-         {
-            nodeList = inXmlNode.ChildNodes;
-            for(i = 0; i<=nodeList.Count - 1; i++)
+            // Loop through the XML nodes until the leaf is reached.
+            // Add the nodes to the TreeView during the looping process.
+            if (inXmlNode.HasChildNodes)
             {
-               xNode = inXmlNode.ChildNodes[i];
-               string v = "";
-               if (xNode.Name == "ResSetGroup" || 
-                   xNode.Name == "大唐图素集3D" ||
-                   xNode.Name == "大唐图素集2D")
-               {
-                   if (xNode.Name == "ResSetGroup")
-                       v = xNode.Attributes["ResSetGroupName"].Value.ToString();
-                   else
-                       v = xNode.Name;
-                   inTreeNode.Nodes.Add(new TreeNode(v));
-                   tNode = inTreeNode.Nodes[i];
-                    AddNode(xNode, tNode);
-               }
-               else if (xNode.Name == "ResSetUnit")
-               {
-                   if (xNode.Attributes["TextureFileName"] == null)
-                       v = xNode.Attributes["P_0Name"].Value.ToString();
-                   else
-                       v = xNode.Attributes["TextureFileName"].Value.ToString();
-                   tNode = new TreeNode(v);
-                   inTreeNode.Nodes.Add(tNode);
-               }
-               else {
-                   tNode = inTreeNode;
-                    AddNode(xNode, tNode);
-               }
+                nodeList = inXmlNode.ChildNodes;
+                for (i = 0; i <= nodeList.Count - 1; i++)
+                {
+                    xNode = inXmlNode.ChildNodes[i];
+                    string v = "";
+                    if (xNode.Name == "ResSetGroup" ||
+                        xNode.Name == "大唐图素集3D" ||
+                        xNode.Name == "大唐图素集2D")
+                    {
+                        if (xNode.Name == "ResSetGroup")
+                            v = xNode.Attributes["ResSetGroupName"].Value.ToString();
+                        else
+                            v = xNode.Name;
+                        inTreeNode.Nodes.Add(new TreeNode(v));
+                        tNode = inTreeNode.Nodes[i];
+                        AddNode(xNode, tNode);
+                    }
+                    else if (xNode.Name == "ResSetUnit")
+                    {
+                        if (xNode.Attributes["TextureFileName"] == null)
+                            v = xNode.Attributes["P_0Name"].Value.ToString();
+                        else
+                            v = xNode.Attributes["TextureFileName"].Value.ToString();
+                        tNode = new TreeNode(v);
+                        inTreeNode.Nodes.Add(tNode);
+                    }
+                    else
+                    {
+                        tNode = inTreeNode;
+                        AddNode(xNode, tNode);
+                    }
+                }
             }
-         }
-         else
-         {
-            // Here you need to pull the data from the XmlNode based on the
-            // type of node, whether attribute values are required, and so forth.
-            inTreeNode.Text = (inXmlNode.OuterXml).Trim();
-         }
-      }             
-  private void treeView_ItemDrag(object sender,
-			System.Windows.Forms.ItemDragEventArgs e)
-		{
-			DoDragDrop(e.Item, DragDropEffects.Copy);
-		} 
-    private void treeView_DragEnter(object sender, System.Windows.Forms.DragEventArgs e)
-{
-    e.Effect = DragDropEffects.Copy;
-}
+            else
+            {
+                // Here you need to pull the data from the XmlNode based on the
+                // type of node, whether attribute values are required, and so forth.
+                inTreeNode.Text = (inXmlNode.OuterXml).Trim();
+            }
+        }
+        private void treeView_ItemDrag(object sender,
+                  System.Windows.Forms.ItemDragEventArgs e)
+        {
+            DoDragDrop(e.Item, DragDropEffects.Copy);
+        }
+        private void treeView_DragEnter(object sender, System.Windows.Forms.DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Copy;
+        }
     }
-  
+
 }
