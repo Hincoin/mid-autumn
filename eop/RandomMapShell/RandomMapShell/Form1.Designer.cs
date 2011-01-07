@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             this.GroundSetting = new System.Windows.Forms.TabPage();
+            this.MixinTexturetreeView = new System.Windows.Forms.TreeView();
+            this.BarrierTexturetreeView = new System.Windows.Forms.TreeView();
             this.CayonOrSmoothGroupBox = new System.Windows.Forms.GroupBox();
             this.label16 = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
@@ -47,6 +49,7 @@
             this.PathColorBtn = new System.Windows.Forms.Button();
             this.label10 = new System.Windows.Forms.Label();
             this.CmbTextureMethod = new System.Windows.Forms.ComboBox();
+            this.PathTexturetreeView = new System.Windows.Forms.TreeView();
             this.WaterSetting = new System.Windows.Forms.TabPage();
             this.WaterParameterGroupBox = new System.Windows.Forms.GroupBox();
             this.label21 = new System.Windows.Forms.Label();
@@ -81,6 +84,12 @@
             this.label7 = new System.Windows.Forms.Label();
             this.CommonSettingTabSetting = new System.Windows.Forms.TabControl();
             this.ModelSetting = new System.Windows.Forms.TabPage();
+            this.treeView6 = new System.Windows.Forms.TreeView();
+            this.treeView5 = new System.Windows.Forms.TreeView();
+            this.treeView4 = new System.Windows.Forms.TreeView();
+            this.treeView3 = new System.Windows.Forms.TreeView();
+            this.treeView2 = new System.Windows.Forms.TreeView();
+            this.treeView1 = new System.Windows.Forms.TreeView();
             this.label22 = new System.Windows.Forms.Label();
             this.ModelSettingCmb = new System.Windows.Forms.ComboBox();
             this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -112,9 +121,9 @@
             this.openRMFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.openERSFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveRMFileAsDialog = new System.Windows.Forms.SaveFileDialog();
-            this.PathTexturetreeView = new System.Windows.Forms.TreeView();
-            this.BarrierTexturetreeView = new System.Windows.Forms.TreeView();
-            this.MixinTexturetreeView = new System.Windows.Forms.TreeView();
+            this.treeView7 = new System.Windows.Forms.TreeView();
+            this.treeView8 = new System.Windows.Forms.TreeView();
+            this.treeView9 = new System.Windows.Forms.TreeView();
             this.GroundSetting.SuspendLayout();
             this.CayonOrSmoothGroupBox.SuspendLayout();
             this.WaterSetting.SuspendLayout();
@@ -148,6 +157,22 @@
             this.GroundSetting.TabIndex = 3;
             this.GroundSetting.Text = "地表设置";
             this.GroundSetting.UseVisualStyleBackColor = true;
+            // 
+            // MixinTexturetreeView
+            // 
+            this.MixinTexturetreeView.AllowDrop = true;
+            this.MixinTexturetreeView.Location = new System.Drawing.Point(402, 255);
+            this.MixinTexturetreeView.Name = "MixinTexturetreeView";
+            this.MixinTexturetreeView.Size = new System.Drawing.Size(172, 92);
+            this.MixinTexturetreeView.TabIndex = 11;
+            // 
+            // BarrierTexturetreeView
+            // 
+            this.BarrierTexturetreeView.AllowDrop = true;
+            this.BarrierTexturetreeView.Location = new System.Drawing.Point(406, 148);
+            this.BarrierTexturetreeView.Name = "BarrierTexturetreeView";
+            this.BarrierTexturetreeView.Size = new System.Drawing.Size(169, 81);
+            this.BarrierTexturetreeView.TabIndex = 10;
             // 
             // CayonOrSmoothGroupBox
             // 
@@ -317,6 +342,14 @@
             this.CmbTextureMethod.Name = "CmbTextureMethod";
             this.CmbTextureMethod.Size = new System.Drawing.Size(249, 20);
             this.CmbTextureMethod.TabIndex = 0;
+            // 
+            // PathTexturetreeView
+            // 
+            this.PathTexturetreeView.AllowDrop = true;
+            this.PathTexturetreeView.Location = new System.Drawing.Point(404, 29);
+            this.PathTexturetreeView.Name = "PathTexturetreeView";
+            this.PathTexturetreeView.Size = new System.Drawing.Size(172, 99);
+            this.PathTexturetreeView.TabIndex = 9;
             // 
             // WaterSetting
             // 
@@ -645,6 +678,15 @@
             // 
             // ModelSetting
             // 
+            this.ModelSetting.Controls.Add(this.treeView9);
+            this.ModelSetting.Controls.Add(this.treeView8);
+            this.ModelSetting.Controls.Add(this.treeView7);
+            this.ModelSetting.Controls.Add(this.treeView6);
+            this.ModelSetting.Controls.Add(this.treeView5);
+            this.ModelSetting.Controls.Add(this.treeView4);
+            this.ModelSetting.Controls.Add(this.treeView3);
+            this.ModelSetting.Controls.Add(this.treeView2);
+            this.ModelSetting.Controls.Add(this.treeView1);
             this.ModelSetting.Controls.Add(this.label22);
             this.ModelSetting.Controls.Add(this.ModelSettingCmb);
             this.ModelSetting.Location = new System.Drawing.Point(4, 21);
@@ -655,10 +697,52 @@
             this.ModelSetting.Text = "模型设置";
             this.ModelSetting.UseVisualStyleBackColor = true;
             // 
+            // treeView6
+            // 
+            this.treeView6.Location = new System.Drawing.Point(410, 211);
+            this.treeView6.Name = "treeView6";
+            this.treeView6.Size = new System.Drawing.Size(168, 97);
+            this.treeView6.TabIndex = 7;
+            // 
+            // treeView5
+            // 
+            this.treeView5.Location = new System.Drawing.Point(221, 211);
+            this.treeView5.Name = "treeView5";
+            this.treeView5.Size = new System.Drawing.Size(160, 97);
+            this.treeView5.TabIndex = 6;
+            // 
+            // treeView4
+            // 
+            this.treeView4.Location = new System.Drawing.Point(38, 211);
+            this.treeView4.Name = "treeView4";
+            this.treeView4.Size = new System.Drawing.Size(163, 97);
+            this.treeView4.TabIndex = 5;
+            // 
+            // treeView3
+            // 
+            this.treeView3.Location = new System.Drawing.Point(410, 86);
+            this.treeView3.Name = "treeView3";
+            this.treeView3.Size = new System.Drawing.Size(168, 97);
+            this.treeView3.TabIndex = 4;
+            // 
+            // treeView2
+            // 
+            this.treeView2.Location = new System.Drawing.Point(221, 86);
+            this.treeView2.Name = "treeView2";
+            this.treeView2.Size = new System.Drawing.Size(160, 97);
+            this.treeView2.TabIndex = 3;
+            // 
+            // treeView1
+            // 
+            this.treeView1.Location = new System.Drawing.Point(38, 86);
+            this.treeView1.Name = "treeView1";
+            this.treeView1.Size = new System.Drawing.Size(163, 97);
+            this.treeView1.TabIndex = 2;
+            // 
             // label22
             // 
             this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(15, 45);
+            this.label22.Location = new System.Drawing.Point(15, 22);
             this.label22.Name = "label22";
             this.label22.Size = new System.Drawing.Size(77, 12);
             this.label22.TabIndex = 1;
@@ -673,7 +757,7 @@
             "全随机摆放（松散，适合野外或山洞）",
             "边缘松散的物件（路边墙体不规整，围栏短墙或小房屋等长条形物体）",
             "其他（没取好名字。。。）"});
-            this.ModelSettingCmb.Location = new System.Drawing.Point(98, 42);
+            this.ModelSettingCmb.Location = new System.Drawing.Point(98, 17);
             this.ModelSettingCmb.Name = "ModelSettingCmb";
             this.ModelSettingCmb.Size = new System.Drawing.Size(487, 20);
             this.ModelSettingCmb.TabIndex = 0;
@@ -911,29 +995,26 @@
             // 
             this.openERSFileDialog.FileName = "openERSFileDialog";
             // 
-            // PathTexturetreeView
+            // treeView7
             // 
-            this.PathTexturetreeView.AllowDrop = true;
-            this.PathTexturetreeView.Location = new System.Drawing.Point(404, 29);
-            this.PathTexturetreeView.Name = "PathTexturetreeView";
-            this.PathTexturetreeView.Size = new System.Drawing.Size(172, 99);
-            this.PathTexturetreeView.TabIndex = 9;
+            this.treeView7.Location = new System.Drawing.Point(38, 330);
+            this.treeView7.Name = "treeView7";
+            this.treeView7.Size = new System.Drawing.Size(163, 97);
+            this.treeView7.TabIndex = 8;
             // 
-            // BarrierTexturetreeView
+            // treeView8
             // 
-            this.BarrierTexturetreeView.AllowDrop = true;
-            this.BarrierTexturetreeView.Location = new System.Drawing.Point(406, 148);
-            this.BarrierTexturetreeView.Name = "BarrierTexturetreeView";
-            this.BarrierTexturetreeView.Size = new System.Drawing.Size(169, 81);
-            this.BarrierTexturetreeView.TabIndex = 10;
+            this.treeView8.Location = new System.Drawing.Point(223, 329);
+            this.treeView8.Name = "treeView8";
+            this.treeView8.Size = new System.Drawing.Size(158, 97);
+            this.treeView8.TabIndex = 9;
             // 
-            // MixinTexturetreeView
+            // treeView9
             // 
-            this.MixinTexturetreeView.AllowDrop = true;
-            this.MixinTexturetreeView.Location = new System.Drawing.Point(402, 255);
-            this.MixinTexturetreeView.Name = "MixinTexturetreeView";
-            this.MixinTexturetreeView.Size = new System.Drawing.Size(172, 92);
-            this.MixinTexturetreeView.TabIndex = 11;
+            this.treeView9.Location = new System.Drawing.Point(409, 329);
+            this.treeView9.Name = "treeView9";
+            this.treeView9.Size = new System.Drawing.Size(169, 97);
+            this.treeView9.TabIndex = 10;
             // 
             // RMapShell
             // 
@@ -1058,6 +1139,15 @@
         private System.Windows.Forms.TreeView MixinTexturetreeView;
         private System.Windows.Forms.TreeView BarrierTexturetreeView;
         private System.Windows.Forms.TreeView PathTexturetreeView;
+        private System.Windows.Forms.TreeView treeView6;
+        private System.Windows.Forms.TreeView treeView5;
+        private System.Windows.Forms.TreeView treeView4;
+        private System.Windows.Forms.TreeView treeView3;
+        private System.Windows.Forms.TreeView treeView2;
+        private System.Windows.Forms.TreeView treeView1;
+        private System.Windows.Forms.TreeView treeView9;
+        private System.Windows.Forms.TreeView treeView8;
+        private System.Windows.Forms.TreeView treeView7;
     }
 }
 
