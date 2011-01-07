@@ -79,7 +79,7 @@ namespace RandomMapShell
         }
         public void ClearArs()
         {
-
+            this.ARSResourcetreeView.Nodes.Clear();
         }
         private void AddNode(XmlNode inXmlNode, TreeNode inTreeNode)
         {
