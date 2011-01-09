@@ -67,6 +67,7 @@ namespace RandomMapShell
                 // SECTION 3. Populate the TreeView with the DOM nodes.
                 AddNode(dom.DocumentElement, tNode);
                 ARSResourcetreeView.ExpandAll();
+                getTextureIndex("shidi");
             }
             catch (XmlException xmlEx)
             {
@@ -144,19 +145,45 @@ namespace RandomMapShell
         public int getTextureIndex(string texture_file_name)
         {
             //
-            int cnt = this.ARSResourcetreeView.GetNodeCount();
+            int index = 0;
+            TreeNode root = this.ARSResourcetreeView.Nodes[0];
+
+            TreeNode texNode = root.Nodes[1];
+            
+            int cnt = texNode.GetNodeCount(false);
             for (int i = 0;i < cnt; ++i)
             {
-                TreeNode node = this.ARSResourcetreeView.Nodes[i];
-                if(node.Level == 1)
+                TreeNode node = texNode.Nodes[i];
+                for(int j = 0;j < node.GetNodeCount(false);++j)
                 {
-                    //
+                    if (node.Nodes[j].Text == texture_file_name)
+                        return index;
+                    index++;
                 }
             }
+            return index;
         }
         public int getModelTextureIndex(string model_file_name)
         {
             //
+            int index = 0;
+
+            TreeNode root = this.ARSResourcetreeView.Nodes[0];
+
+            TreeNode texNode = root.Nodes[0];
+            
+            int cnt = texNode.GetNodeCount(false);
+            for (int i = 0;i < cnt; ++i)
+            {
+                TreeNode node = texNode.Nodes[i];
+                for(int j = 0;j < node.GetNodeCount(false);++j)
+                {
+                    if (node.Nodes[j].Text == texture_file_name)
+                        return index;
+                    index++;
+                }
+            }
+            return index;
         }
     }
 
