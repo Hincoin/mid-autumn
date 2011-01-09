@@ -84,12 +84,15 @@
             this.label7 = new System.Windows.Forms.Label();
             this.CommonSettingTabSetting = new System.Windows.Forms.TabControl();
             this.ModelSetting = new System.Windows.Forms.TabPage();
-            this.treeView6 = new System.Windows.Forms.TreeView();
-            this.treeView5 = new System.Windows.Forms.TreeView();
-            this.treeView4 = new System.Windows.Forms.TreeView();
-            this.treeView3 = new System.Windows.Forms.TreeView();
-            this.treeView2 = new System.Windows.Forms.TreeView();
-            this.treeView1 = new System.Windows.Forms.TreeView();
+            this.treeView9 = new System.Windows.Forms.TreeView();
+            this.treeView8 = new System.Windows.Forms.TreeView();
+            this.treeView7 = new System.Windows.Forms.TreeView();
+            this.LinkWalltreeView = new System.Windows.Forms.TreeView();
+            this.BarrierModeltreeView = new System.Windows.Forms.TreeView();
+            this.CornerModeltreeView = new System.Windows.Forms.TreeView();
+            this.SideModeltreeView = new System.Windows.Forms.TreeView();
+            this.WallModeltreeView = new System.Windows.Forms.TreeView();
+            this.PathModeltreeView = new System.Windows.Forms.TreeView();
             this.label22 = new System.Windows.Forms.Label();
             this.ModelSettingCmb = new System.Windows.Forms.ComboBox();
             this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -121,9 +124,6 @@
             this.openRMFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.openERSFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveRMFileAsDialog = new System.Windows.Forms.SaveFileDialog();
-            this.treeView7 = new System.Windows.Forms.TreeView();
-            this.treeView8 = new System.Windows.Forms.TreeView();
-            this.treeView9 = new System.Windows.Forms.TreeView();
             this.GroundSetting.SuspendLayout();
             this.CayonOrSmoothGroupBox.SuspendLayout();
             this.WaterSetting.SuspendLayout();
@@ -681,12 +681,12 @@
             this.ModelSetting.Controls.Add(this.treeView9);
             this.ModelSetting.Controls.Add(this.treeView8);
             this.ModelSetting.Controls.Add(this.treeView7);
-            this.ModelSetting.Controls.Add(this.treeView6);
-            this.ModelSetting.Controls.Add(this.treeView5);
-            this.ModelSetting.Controls.Add(this.treeView4);
-            this.ModelSetting.Controls.Add(this.treeView3);
-            this.ModelSetting.Controls.Add(this.treeView2);
-            this.ModelSetting.Controls.Add(this.treeView1);
+            this.ModelSetting.Controls.Add(this.LinkWalltreeView);
+            this.ModelSetting.Controls.Add(this.BarrierModeltreeView);
+            this.ModelSetting.Controls.Add(this.CornerModeltreeView);
+            this.ModelSetting.Controls.Add(this.SideModeltreeView);
+            this.ModelSetting.Controls.Add(this.WallModeltreeView);
+            this.ModelSetting.Controls.Add(this.PathModeltreeView);
             this.ModelSetting.Controls.Add(this.label22);
             this.ModelSetting.Controls.Add(this.ModelSettingCmb);
             this.ModelSetting.Location = new System.Drawing.Point(4, 21);
@@ -697,47 +697,74 @@
             this.ModelSetting.Text = "模型设置";
             this.ModelSetting.UseVisualStyleBackColor = true;
             // 
-            // treeView6
+            // treeView9
             // 
-            this.treeView6.Location = new System.Drawing.Point(410, 211);
-            this.treeView6.Name = "treeView6";
-            this.treeView6.Size = new System.Drawing.Size(168, 97);
-            this.treeView6.TabIndex = 7;
+            this.treeView9.Location = new System.Drawing.Point(409, 329);
+            this.treeView9.Name = "treeView9";
+            this.treeView9.Size = new System.Drawing.Size(169, 97);
+            this.treeView9.TabIndex = 10;
             // 
-            // treeView5
+            // treeView8
             // 
-            this.treeView5.Location = new System.Drawing.Point(221, 211);
-            this.treeView5.Name = "treeView5";
-            this.treeView5.Size = new System.Drawing.Size(160, 97);
-            this.treeView5.TabIndex = 6;
+            this.treeView8.Location = new System.Drawing.Point(223, 329);
+            this.treeView8.Name = "treeView8";
+            this.treeView8.Size = new System.Drawing.Size(158, 97);
+            this.treeView8.TabIndex = 9;
             // 
-            // treeView4
+            // treeView7
             // 
-            this.treeView4.Location = new System.Drawing.Point(38, 211);
-            this.treeView4.Name = "treeView4";
-            this.treeView4.Size = new System.Drawing.Size(163, 97);
-            this.treeView4.TabIndex = 5;
+            this.treeView7.Location = new System.Drawing.Point(38, 330);
+            this.treeView7.Name = "treeView7";
+            this.treeView7.Size = new System.Drawing.Size(163, 97);
+            this.treeView7.TabIndex = 8;
             // 
-            // treeView3
+            // LinkWalltreeView
             // 
-            this.treeView3.Location = new System.Drawing.Point(410, 86);
-            this.treeView3.Name = "treeView3";
-            this.treeView3.Size = new System.Drawing.Size(168, 97);
-            this.treeView3.TabIndex = 4;
+            this.LinkWalltreeView.AllowDrop = true;
+            this.LinkWalltreeView.Location = new System.Drawing.Point(410, 211);
+            this.LinkWalltreeView.Name = "LinkWalltreeView";
+            this.LinkWalltreeView.Size = new System.Drawing.Size(168, 97);
+            this.LinkWalltreeView.TabIndex = 7;
             // 
-            // treeView2
+            // BarrierModeltreeView
             // 
-            this.treeView2.Location = new System.Drawing.Point(221, 86);
-            this.treeView2.Name = "treeView2";
-            this.treeView2.Size = new System.Drawing.Size(160, 97);
-            this.treeView2.TabIndex = 3;
+            this.BarrierModeltreeView.AllowDrop = true;
+            this.BarrierModeltreeView.Location = new System.Drawing.Point(221, 211);
+            this.BarrierModeltreeView.Name = "BarrierModeltreeView";
+            this.BarrierModeltreeView.Size = new System.Drawing.Size(160, 97);
+            this.BarrierModeltreeView.TabIndex = 6;
             // 
-            // treeView1
+            // CornerModeltreeView
             // 
-            this.treeView1.Location = new System.Drawing.Point(38, 86);
-            this.treeView1.Name = "treeView1";
-            this.treeView1.Size = new System.Drawing.Size(163, 97);
-            this.treeView1.TabIndex = 2;
+            this.CornerModeltreeView.AllowDrop = true;
+            this.CornerModeltreeView.Location = new System.Drawing.Point(38, 211);
+            this.CornerModeltreeView.Name = "CornerModeltreeView";
+            this.CornerModeltreeView.Size = new System.Drawing.Size(163, 97);
+            this.CornerModeltreeView.TabIndex = 5;
+            // 
+            // SideModeltreeView
+            // 
+            this.SideModeltreeView.AllowDrop = true;
+            this.SideModeltreeView.Location = new System.Drawing.Point(410, 86);
+            this.SideModeltreeView.Name = "SideModeltreeView";
+            this.SideModeltreeView.Size = new System.Drawing.Size(168, 97);
+            this.SideModeltreeView.TabIndex = 4;
+            // 
+            // WallModeltreeView
+            // 
+            this.WallModeltreeView.AllowDrop = true;
+            this.WallModeltreeView.Location = new System.Drawing.Point(221, 86);
+            this.WallModeltreeView.Name = "WallModeltreeView";
+            this.WallModeltreeView.Size = new System.Drawing.Size(160, 97);
+            this.WallModeltreeView.TabIndex = 3;
+            // 
+            // PathModeltreeView
+            // 
+            this.PathModeltreeView.AllowDrop = true;
+            this.PathModeltreeView.Location = new System.Drawing.Point(38, 86);
+            this.PathModeltreeView.Name = "PathModeltreeView";
+            this.PathModeltreeView.Size = new System.Drawing.Size(163, 97);
+            this.PathModeltreeView.TabIndex = 2;
             // 
             // label22
             // 
@@ -982,8 +1009,9 @@
             // AboutToolStripMenuItem
             // 
             this.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem";
-            this.AboutToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.AboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.AboutToolStripMenuItem.Text = "关于。。。";
+            this.AboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItem_Click);
             // 
             // openRMFileDialog
             // 
@@ -994,27 +1022,6 @@
             // openERSFileDialog
             // 
             this.openERSFileDialog.FileName = "openERSFileDialog";
-            // 
-            // treeView7
-            // 
-            this.treeView7.Location = new System.Drawing.Point(38, 330);
-            this.treeView7.Name = "treeView7";
-            this.treeView7.Size = new System.Drawing.Size(163, 97);
-            this.treeView7.TabIndex = 8;
-            // 
-            // treeView8
-            // 
-            this.treeView8.Location = new System.Drawing.Point(223, 329);
-            this.treeView8.Name = "treeView8";
-            this.treeView8.Size = new System.Drawing.Size(158, 97);
-            this.treeView8.TabIndex = 9;
-            // 
-            // treeView9
-            // 
-            this.treeView9.Location = new System.Drawing.Point(409, 329);
-            this.treeView9.Name = "treeView9";
-            this.treeView9.Size = new System.Drawing.Size(169, 97);
-            this.treeView9.TabIndex = 10;
             // 
             // RMapShell
             // 
@@ -1139,12 +1146,12 @@
         private System.Windows.Forms.TreeView MixinTexturetreeView;
         private System.Windows.Forms.TreeView BarrierTexturetreeView;
         private System.Windows.Forms.TreeView PathTexturetreeView;
-        private System.Windows.Forms.TreeView treeView6;
-        private System.Windows.Forms.TreeView treeView5;
-        private System.Windows.Forms.TreeView treeView4;
-        private System.Windows.Forms.TreeView treeView3;
-        private System.Windows.Forms.TreeView treeView2;
-        private System.Windows.Forms.TreeView treeView1;
+        private System.Windows.Forms.TreeView LinkWalltreeView;
+        private System.Windows.Forms.TreeView BarrierModeltreeView;
+        private System.Windows.Forms.TreeView CornerModeltreeView;
+        private System.Windows.Forms.TreeView SideModeltreeView;
+        private System.Windows.Forms.TreeView WallModeltreeView;
+        private System.Windows.Forms.TreeView PathModeltreeView;
         private System.Windows.Forms.TreeView treeView9;
         private System.Windows.Forms.TreeView treeView8;
         private System.Windows.Forms.TreeView treeView7;

@@ -141,6 +141,23 @@ namespace RandomMapShell
         {
             e.Effect = DragDropEffects.Copy;
         }
+        public int getTextureIndex(string texture_file_name)
+        {
+            //
+            int cnt = this.ARSResourcetreeView.GetNodeCount();
+            for (int i = 0;i < cnt; ++i)
+            {
+                TreeNode node = this.ARSResourcetreeView.Nodes[i];
+                if(node.Level == 1)
+                {
+                    //
+                }
+            }
+        }
+        public int getModelTextureIndex(string model_file_name)
+        {
+            //
+        }
     }
 
 }
