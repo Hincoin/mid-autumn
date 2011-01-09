@@ -34,13 +34,35 @@ namespace RandomMapShell
             BarrierTexturetreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.tree_ItemDrag);
             MixinTexturetreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.tree_ItemDrag);
 
+            PathModeltreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.tree_ItemDrag);
+            WallModeltreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.tree_ItemDrag);
+            SideModeltreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.tree_ItemDrag);
+            CornerModeltreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.tree_ItemDrag);
+            LinkWalltreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.tree_ItemDrag);
+            BarrierModeltreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.tree_ItemDrag);
+
             PathTexturetreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.tree_DragEnter);
             BarrierTexturetreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.tree_DragEnter);
             MixinTexturetreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.tree_DragEnter);
 
+            PathModeltreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.tree_DragEnter);
+            WallModeltreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.tree_DragEnter);
+            SideModeltreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.tree_DragEnter);
+            CornerModeltreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.tree_DragEnter);
+            LinkWalltreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.tree_DragEnter);
+            BarrierModeltreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.tree_DragEnter);
+            
+
             PathTexturetreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.tree_DragDrop);
             BarrierTexturetreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.tree_DragDrop);
             MixinTexturetreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.tree_DragDrop);
+
+            PathModeltreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.tree_DragDrop);
+            WallModeltreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.tree_DragDrop);
+            SideModeltreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.tree_DragDrop);
+            CornerModeltreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.tree_DragDrop);
+            LinkWalltreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.tree_DragDrop);
+            BarrierModeltreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.tree_DragDrop);
 
             PathTexturetreeView.Nodes.Add(new TreeNode("道路贴图"));
             PathTexturetreeView.ExpandAll();
@@ -49,6 +71,12 @@ namespace RandomMapShell
             MixinTexturetreeView.Nodes.Add(new TreeNode("边缘过渡贴图"));
             MixinTexturetreeView.ExpandAll();
 
+            PathModeltreeView.Nodes.Add(new TreeNode("道路装饰物"));
+            WallModeltreeView.Nodes.Add(new TreeNode("墙"));
+            SideModeltreeView.Nodes.Add(new TreeNode("墙边"));
+            CornerModeltreeView.Nodes.Add(new TreeNode("角落"));
+            LinkWalltreeView.Nodes.Add(new TreeNode("连接墙"));
+            BarrierModeltreeView.Nodes.Add(new TreeNode("障碍区"));
         }
 
         private void OnOpenFile(object sender, EventArgs e)
@@ -359,6 +387,11 @@ namespace RandomMapShell
                     NewNode.Remove();
                 }
             }
+        }
+
+        private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(this, "当我写到这里的时候，突然发觉，好难教会别人驾驭这个东西。。。");
         }
     }
 }
