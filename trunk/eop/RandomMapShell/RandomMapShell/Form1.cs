@@ -103,6 +103,8 @@ namespace RandomMapShell
             //resource setting
             this.WaterResFileText.Text = water_tex_resource;
             this.ResourceSetText.Text = tex_model_resource;
+            this.ReloadResourceFile(cfg_artist_resource_dir + tex_model_resource);
+
             //environment setting
             //简化参数，统一设置，不支持时间变化，要是不嫌参数多的话可以支持一下
             string sun_color = ini_file.IniReadValue("mapinfo", "sceneInfo[0].dwSunColor");
@@ -149,8 +151,6 @@ namespace RandomMapShell
             this.PathColorBtn.BackColor = RGB565ToColor(ini_file.IniReadValue("GroundParameters", "CentralColor"));
             this.PathBorderColorBtn.BackColor = RGB565ToColor(ini_file.IniReadValue("GroundParameters", "BorderColor"));
             this.BarrierColorBtn.BackColor = RGB565ToColor(ini_file.IniReadValue("GroundParameters", "BarrierColor"));
-            //test
-            string clr_str = ColorToRGB565(this.PathBorderColorBtn.BackColor);
             //height
             string height_kind = ini_file.IniReadValue("MethodKind", "GroundKind");
             if (height_kind.Equals("Cayon"))
@@ -326,10 +326,79 @@ namespace RandomMapShell
         private void SaveRMFile(string file_name)
         {
             //todo
-
-
-
             cur_edt_file = file_name;
+            IniFile ini_file = new IniFile(cur_edt_file);
+            string tex_model_resource = this.ResourceSetText.Text;
+            string water_resource = this.WaterResFileText.Text;
+           
+            ini_file.IniWriteValue("resources", "decorators",tex_model_resource);
+            ini_file.IniWriteValue("resources", "wall",tex_model_resource);
+            ini_file.IniWriteValue("resources", "plant",tex_model_resource);
+            ini_file.IniWriteValue("resources", "texture",tex_model_resource);
+            ini_file.IniWriteValue("resources", "stone",tex_model_resource);
+            ini_file.IniWriteValue("resources", "water", water_resource);
+
+            string sun_color = Convert.ToString(this.SunColorBtn.BackColor.ToArgb(),16);
+            ini_file.IniWriteValue("mapinfo", "sceneInfo[0].dwSunColor", sun_color);
+            ini_file.IniWriteValue("mapinfo", "sceneInfo[1].dwSunColor", sun_color);
+            ini_file.IniWriteValue("mapinfo", "sceneInfo[2].dwSunColor", sun_color);
+            ini_file.IniWriteValue("mapinfo", "sceneInfo[3].dwSunColor", sun_color);
+            string env_color = Convert.ToString(this.EnvColorBtn.BackColor.ToArgb(), 16);
+            ini_file.IniWriteValue("mapinfo", "sceneInfo[0].dwAmbientColor", env_color);
+            ini_file.IniWriteValue("mapinfo", "sceneInfo[1].dwAmbientColor", env_color);
+            ini_file.IniWriteValue("mapinfo", "sceneInfo[2].dwAmbientColor", env_color);
+            ini_file.IniWriteValue("mapinfo", "sceneInfo[3].dwAmbientColor", env_color);
+            string fog_color = Convert.ToString(this.FogColorBtn.BackColor.ToArgb(), 16);
+            ini_file.IniWriteValue("mapinfo", "sceneInfo[0].dwFogColor", fog_color);
+            ini_file.IniWriteValue("mapinfo", "sceneInfo[1].dwFogColor", fog_color);
+            ini_file.IniWriteValue("mapinfo", "sceneInfo[2].dwFogColor", fog_color);
+            ini_file.IniWriteValue("mapinfo", "sceneInfo[3].dwFogColor", fog_color);
+
+            ini_file.IniWriteValue("mapinfo", "sceneInfo[0].fFogStart", this.FogNearText.Text);
+            ini_file.IniWriteValue("mapinfo", "sceneInfo[1].fFogStart", this.FogNearText.Text);
+            ini_file.IniWriteValue("mapinfo", "sceneInfo[2].fFogStart", this.FogNearText.Text);
+            ini_file.IniWriteValue("mapinfo", "sceneInfo[3].fFogStart", this.FogNearText.Text);
+
+            ini_file.IniWriteValue("mapinfo", "sceneInfo[0].fFogEnd", this.FogFarText.Text);
+            ini_file.IniWriteValue("mapinfo", "sceneInfo[1].fFogEnd", this.FogFarText.Text);
+            ini_file.IniWriteValue("mapinfo", "sceneInfo[2].fFogEnd", this.FogFarText.Text);
+            ini_file.IniWriteValue("mapinfo", "sceneInfo[3].fFogEnd", this.FogFarText.Text);
+
+            ini_file.IniWriteValue("Music", "SceneMusic", this.SceneMusicText.Text);
+
+            ini_file.IniWriteValue("WaterParameters", "height", this.WaterHeightText.Text);
+            ini_file.IniWriteValue("WaterParameters", "reflection", Convert.ToString(this.WaterReflectionCmb.SelectedIndex));
+            ini_file.IniWriteValue("MethodKind", "WaterKind", this.ChkHasWater.Checked ? "AllWater" : "NULL");
+
+            ini_file.IniWriteValue("mapinfo", "waveInfo.WavePhysicInfo.nWaveSize", this.WaveLengthText.Text);
+            ini_file.IniWriteValue("mapinfo", "nWaveLife", this.WavePeriodText.Text);
+            ini_file.IniWriteValue("mapinfo", "waveInfo.WavePhysicInfo.nWavePerGrid", this.WaveDensityText.Text);
+            ini_file.IniWriteValue("WaterParameters", "depth", this.WaterTransparentHeightText.Text);
+
+            string [] texture_kind ={"NatureTexture","DefaultTexture"};
+            ini_file.IniWriteValue("MethodKind", "RoadKind", texture_kind[this.CmbTextureMethod.SelectedIndex]);
+            ini_file.IniWriteValue("GroundParameters", "CentralColor",ColorToRGB565(this.PathColorBtn.BackColor));
+            ini_file.IniWriteValue("GroundParameters", "BorderColor",ColorToRGB565(this.PathBorderColorBtn.BackColor));
+            ini_file.IniWriteValue("GroundParameters","BarrierColor",ColorToRGB565(BarrierColorBtn.BackColor));
+            string [] ground_kind = {"Cayon","Smooth","Flat"};
+            ini_file.IniWriteValue("MethodKind","GroundKind",ground_kind[CmbGroundHeight.SelectedIndex]);
+
+
+            int out_barrier_height = Convert.ToInt32(this.OutMostBarrierHeightText.Text);
+            int ground_base_height = Convert.ToInt32(PathHeightText.Text);
+            int inner_barrier_height = Convert.ToInt32(InnerBarrierHeightText.Text);
+            int bound_width = Convert.ToInt32(BoundWidthText.Text);
+            int bound_height = Convert.ToInt32(BoundHeightText.Text);
+            ini_file.IniWriteValue("GroundParameters","OutBarrierHeight",
+                Convert.ToString(Math.Max(0,out_barrier_height-ground_base_height)));
+            ini_file.IniWriteValue("GroundParameters","GroundBaseHeight",
+                Convert.ToString(Math.Max(0,ground_base_height)));
+            ini_file.IniWriteValue("GroundParameters","GroundTopHeight",
+                Convert.ToString(Math.Max(0,inner_barrier_height)));
+            ini_file.IniWriteValue("GroundParameters","BoundHeight",
+                Convert.ToString(Math.Max(0,bound_height)));
+            ini_file.IniWriteValue("GroundParameters","BoundWidth",
+                Convert.ToString(Math.Max(0,bound_width)));
         }
 
         private void PathCfgToolStripMenuItem_Click(object sender, EventArgs e)

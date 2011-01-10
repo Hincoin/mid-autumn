@@ -67,7 +67,6 @@ namespace RandomMapShell
                 // SECTION 3. Populate the TreeView with the DOM nodes.
                 AddNode(dom.DocumentElement, tNode);
                 ARSResourcetreeView.ExpandAll();
-                getTextureIndex("shidi");
             }
             catch (XmlException xmlEx)
             {
@@ -142,6 +141,26 @@ namespace RandomMapShell
         {
             e.Effect = DragDropEffects.Copy;
         }
+        public string getTextureNameByIndex(int idx)
+        {
+            int index = 0;
+            TreeNode root = this.ARSResourcetreeView.Nodes[0];
+
+            TreeNode texNode = root.Nodes[1];
+            
+            int cnt = texNode.GetNodeCount(false);
+            for (int i = 0;i < cnt; ++i)
+            {
+                TreeNode node = texNode.Nodes[i];
+                for(int j = 0;j < node.GetNodeCount(false);++j)
+                {
+                    if (idx == index)
+                        return node.Nodes[j].Text;
+                    index++;
+                }
+            }
+            return "";
+        }
         public int getTextureIndex(string texture_file_name)
         {
             //
@@ -163,7 +182,7 @@ namespace RandomMapShell
             }
             return index;
         }
-        public int getModelTextureIndex(string model_file_name)
+        public int getModelIndex(string model_file_name)
         {
             //
             int index = 0;
@@ -178,12 +197,32 @@ namespace RandomMapShell
                 TreeNode node = texNode.Nodes[i];
                 for(int j = 0;j < node.GetNodeCount(false);++j)
                 {
-                    if (node.Nodes[j].Text == texture_file_name)
+                    if (node.Nodes[j].Text == model_file_name)
                         return index;
                     index++;
                 }
             }
             return index;
+        }
+        public string getModelNameByIndex(int idx)
+        {
+            int index = 0;
+            TreeNode root = this.ARSResourcetreeView.Nodes[0];
+
+            TreeNode texNode = root.Nodes[0];
+            
+            int cnt = texNode.GetNodeCount(false);
+            for (int i = 0;i < cnt; ++i)
+            {
+                TreeNode node = texNode.Nodes[i];
+                for(int j = 0;j < node.GetNodeCount(false);++j)
+                {
+                    if (idx == index)
+                        return node.Nodes[j].Text;
+                    index++;
+                }
+            }
+            return "";
         }
     }
 
