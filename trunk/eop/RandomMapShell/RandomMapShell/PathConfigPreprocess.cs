@@ -15,9 +15,19 @@ namespace RandomMapShell
             InitializeComponent();
         }
 
+        public void GenerateBoudingBoxInfo()
+        {
+            string wdir = this.WorkingDirText.Text ;
+            string artist_res = this.ArtistDataResourceText.Text;
+
+            //todo: call the generate process
+            //generate the bounding box info
+        }
+        public string GetArtistResPath() { return this.ArtistDataResourceText.Text; }
+        public string GetWorkDir() { return this.WorkingDirText.Text; }
         private void PreProcessBtn_Click(object sender, EventArgs e)
         {
-            //todo: call the generate process
+            GenerateBoudingBoxInfo();
         }
 
         private void BrowseWorkingDir_Click(object sender, EventArgs e)
@@ -32,7 +42,7 @@ namespace RandomMapShell
         {
             if(this.DirectoryfolderBrowserDialog.ShowDialog(this) == DialogResult.OK)
             {
-                this.BrowserResourceDir.Text = this.DirectoryfolderBrowserDialog.SelectedPath;
+                this.ArtistDataResourceText.Text = this.DirectoryfolderBrowserDialog.SelectedPath;
             }
         }
     }
