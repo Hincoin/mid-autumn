@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using System.Collections;
 
 namespace RandomMapShell
 {
@@ -24,8 +25,8 @@ namespace RandomMapShell
         {
             InitializeComponent();
             //default setting
-            cfg_artist_resource_dir = "e:\\work\\artist\\res";//String.Empty;
-            cfg_working_dir = "E:\\work\\program\\bin\\Release";//String.Empty;
+            cfg_artist_resource_dir = "";//String.Empty;
+            cfg_working_dir = "";//String.Empty;
         }
 
         private void RMapShell_Load(object sender, EventArgs e)
@@ -79,6 +80,8 @@ namespace RandomMapShell
             BarrierModeltreeView.Nodes.Add(new TreeNode("障碍区"));
         }
 
+        delegate string GetByIndexFunc(int i);
+        delegate void InsertFunc(string[] str, TreeView tv,GetByIndexFunc f);
         private void OnOpenFile(object sender, EventArgs e)
         {
             string file_name = this.openRMFileDialog.FileName;
@@ -103,7 +106,7 @@ namespace RandomMapShell
             //resource setting
             this.WaterResFileText.Text = water_tex_resource;
             this.ResourceSetText.Text = tex_model_resource;
-            this.ReloadResourceFile(cfg_artist_resource_dir + tex_model_resource);
+            this.ReloadResourceFile(cfg_artist_resource_dir + "\\" + tex_model_resource);
 
             //environment setting
             //简化参数，统一设置，不支持时间变化，要是不嫌参数多的话可以支持一下
@@ -181,6 +184,31 @@ namespace RandomMapShell
             this.InnerBarrierHeightText.Text = inner_barrier_height;
             this.BoundWidthText.Text = bound_width;
             this.BoundHeightText.Text = bound_height;
+
+            string[] m_tex = ini_file.IniReadValue("GroundParameters", "MixinTextureIDs", "").Split(';');
+            string[] b_tex = ini_file.IniReadValue("GroundParameters", "BarrierTextureIDs", "").Split(';');
+            string[] p_tex = ini_file.IniReadValue("GroundParameters", "PathTextureIDs", "").Split(';');
+
+            GetByIndexFunc get_tex = delegate(int i) { return this.ars_res_dlg.getTextureNameByIndex(i); };
+            GetByIndexFunc get_model = delegate(int i) { return this.ars_res_dlg.getModelNameByIndex(i); };
+            InsertFunc foo = delegate(string[] tex_array, TreeView tv, GetByIndexFunc f)
+            {
+                ArrayList tex_list = new ArrayList();
+                foreach (string str in tex_array)
+                {
+                    if(!str.Equals(""))
+                        tex_list.Add(Convert.ToInt32(str));
+                }
+                foreach (int i in tex_list)
+                {
+                    string tex_name = f(i);
+                    TreeNode tn = tv.Nodes[0];
+                    tn.Nodes.Add(new TreeNode(tex_name));
+                }
+            };
+            foo(m_tex, this.MixinTexturetreeView,get_tex);
+            foo(b_tex, this.BarrierTexturetreeView,get_tex);
+            foo(p_tex, this.PathTexturetreeView,get_tex);
 
             //model setting
 
@@ -264,6 +292,8 @@ namespace RandomMapShell
 
         private void WaterResFileBrowseFileBtn_Click(object sender, EventArgs e)
         {
+            if (!can_work()) return;
+            openERSFileDialog.InitialDirectory = cfg_artist_resource_dir + "\\scene\\rmapres";
             if (this.openERSFileDialog.ShowDialog(this) == DialogResult.OK)
             {
                 this.WaterResFileText.Text = this.openERSFileDialog.FileName;
@@ -272,6 +302,8 @@ namespace RandomMapShell
 
         private void ResSetFileBrowseBtn_Click(object sender, EventArgs e)
         {
+            if (!can_work()) return;
+            openERSFileDialog.InitialDirectory = cfg_artist_resource_dir + "\\scene\\rmapres";
             if (this.openERSFileDialog.ShowDialog(this) == DialogResult.OK)
             {
                 this.ResourceSetText.Text = this.openERSFileDialog.FileName;
@@ -312,6 +344,7 @@ namespace RandomMapShell
         private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //save the file
+            if (!can_work()) return;
             SaveRMFile(cur_edt_file);
         }
 
@@ -383,7 +416,6 @@ namespace RandomMapShell
             string [] ground_kind = {"Cayon","Smooth","Flat"};
             ini_file.IniWriteValue("MethodKind","GroundKind",ground_kind[CmbGroundHeight.SelectedIndex]);
 
-
             int out_barrier_height = Convert.ToInt32(this.OutMostBarrierHeightText.Text);
             int ground_base_height = Convert.ToInt32(PathHeightText.Text);
             int inner_barrier_height = Convert.ToInt32(InnerBarrierHeightText.Text);
@@ -408,12 +440,17 @@ namespace RandomMapShell
             if (path_config_dlg.ShowDialog(this) == DialogResult.OK)
             {
                 //todo: save the config
+
+                cfg_artist_resource_dir = path_config_dlg.GetArtistResPath();//String.Empty;
+                cfg_working_dir = path_config_dlg.GetWorkDir();//String.Empty;
+                if (!can_work()) return;
             }
         }
 
         private void UpdateResources_Click(object sender, EventArgs e)
         {
             //todo: reload the resources
+            if (!can_work()) return;
         }
         private void ReloadResourceFile(string file_name)
         {
