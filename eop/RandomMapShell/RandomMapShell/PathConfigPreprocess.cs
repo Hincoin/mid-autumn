@@ -13,6 +13,12 @@ namespace RandomMapShell
         public PathConfigPreprocess()
         {
             InitializeComponent();
+
+            IniFile cfg = new IniFile("rmapshell.ini");
+            string cfg_artist_resource_dir = cfg.IniReadValue("path","artist_res","");//String.Empty;
+            string cfg_working_dir = cfg.IniReadValue("path","work_dir","");//String.Empty;
+            this.WorkingDirText.Text = cfg_working_dir;
+            this.ArtistDataResourceText.Text = cfg_artist_resource_dir;
         }
 
         public void GenerateBoudingBoxInfo()

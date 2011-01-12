@@ -24,9 +24,6 @@ namespace RandomMapShell
         public RMapShell()
         {
             InitializeComponent();
-            //default setting
-            cfg_artist_resource_dir = "";//String.Empty;
-            cfg_working_dir = "";//String.Empty;
         }
 
         private void RMapShell_Load(object sender, EventArgs e)
@@ -78,6 +75,11 @@ namespace RandomMapShell
             CornerModeltreeView.Nodes.Add(new TreeNode("角落"));
             LinkWalltreeView.Nodes.Add(new TreeNode("连接墙"));
             BarrierModeltreeView.Nodes.Add(new TreeNode("障碍区"));
+
+            //default setting
+            IniFile cfg = new IniFile("rmapshell.ini");
+            cfg_artist_resource_dir = cfg.IniReadValue("path","artist_res","");//String.Empty;
+            cfg_working_dir = cfg.IniReadValue("path","work_dir","");//String.Empty;
         }
 
         delegate string GetByIndexFunc(int i);
@@ -209,6 +211,9 @@ namespace RandomMapShell
             foo(m_tex, this.MixinTexturetreeView,get_tex);
             foo(b_tex, this.BarrierTexturetreeView,get_tex);
             foo(p_tex, this.PathTexturetreeView,get_tex);
+            this.MixinTexturetreeView.KeyUp += TreeViewKeyUp;
+            this.BarrierModeltreeView.KeyUp += TreeViewKeyUp;
+            this.PathTexturetreeView.KeyUp += TreeViewKeyUp;
 
             //model setting
 
@@ -356,9 +361,48 @@ namespace RandomMapShell
                 SaveRMFile(new_file_name);
             }
         }
+        private void GetNameString(TreeNode tn,ArrayList str_array)
+        {
+            if (tn.GetNodeCount(false) == 0) str_array.Add(tn.Text);
+            for(int i = 0;i < tn.GetNodeCount(false);++i)
+            {
+                GetNameString(tn.Nodes[i],str_array);
+            }
+        }
+        private string GetTextureString(TreeView tv)
+        {
+            //
+            string str = "";
+            TreeNode tn = tv.Nodes[0];
+            ArrayList str_arr = new ArrayList();
+            GetNameString(tn, str_arr);
+            foreach(string s in str_arr)
+            {
+                int idx = this.ars_res_dlg.getTextureIndex(s);
+                str += Convert.ToString(idx);
+                str += ";";
+            }
+            return str;
+        }
+        private string GetModelString(TreeView tv)
+        {
+            string str = "";
+            TreeNode tn = tv.Nodes[0];
+            ArrayList str_arr = new ArrayList();
+            GetNameString(tn, str_arr);
+            foreach(string s in str_arr)
+            {
+                int idx = this.ars_res_dlg.getModelIndex(str);
+                str += Convert.ToString(idx);
+                str += ";";
+            }
+            return str;
+        }
         private void SaveRMFile(string file_name)
         {
             //todo
+            if(cur_edt_file != "")
+                System.IO.File.Copy(cur_edt_file, file_name, true);
             cur_edt_file = file_name;
             IniFile ini_file = new IniFile(cur_edt_file);
             string tex_model_resource = this.ResourceSetText.Text;
@@ -431,6 +475,11 @@ namespace RandomMapShell
                 Convert.ToString(Math.Max(0,bound_height)));
             ini_file.IniWriteValue("GroundParameters","BoundWidth",
                 Convert.ToString(Math.Max(0,bound_width)));
+
+            //save textures
+            ini_file.IniWriteValue("GroundParameters", "MixinTextureIDs", GetTextureString(this.MixinTexturetreeView));
+            ini_file.IniWriteValue("GroundParameters", "BarrierTextureIDs", GetTextureString(this.BarrierTexturetreeView));
+            ini_file.IniWriteValue("GroundParameters", "PathTextureIDs", GetTextureString(this.PathTexturetreeView));
         }
 
         private void PathCfgToolStripMenuItem_Click(object sender, EventArgs e)
@@ -443,7 +492,12 @@ namespace RandomMapShell
 
                 cfg_artist_resource_dir = path_config_dlg.GetArtistResPath();//String.Empty;
                 cfg_working_dir = path_config_dlg.GetWorkDir();//String.Empty;
+
                 if (!can_work()) return;
+                //write setting
+                IniFile cfg = new IniFile("rmapshell.ini");
+                cfg.IniWriteValue("path","artist_res",cfg_artist_resource_dir);
+                cfg.IniWriteValue("path","work_dir",cfg_working_dir);
             }
         }
 
@@ -498,6 +552,19 @@ namespace RandomMapShell
         private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show(this, "当我写到这里的时候，突然发觉，好难教会别人驾驭这个东西。。。");
+        }
+        private void TreeViewKeyUp(object sender, System.Windows.Forms.KeyEventArgs e)
+        { 
+            if(e.KeyCode == Keys.Delete)
+            {
+                //
+                TreeView tv = (TreeView)sender;
+                TreeNode tn = tv.SelectedNode;
+                if (tn != null && tn != tv.Nodes[0])
+                {
+                    tn.Remove();
+                }
+            }
         }
     }
 }
