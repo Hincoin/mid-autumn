@@ -1003,8 +1003,9 @@
             // QuestionAndFeedbackToolStripMenuItem
             // 
             this.QuestionAndFeedbackToolStripMenuItem.Name = "QuestionAndFeedbackToolStripMenuItem";
-            this.QuestionAndFeedbackToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.QuestionAndFeedbackToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.QuestionAndFeedbackToolStripMenuItem.Text = "问题与反馈";
+            this.QuestionAndFeedbackToolStripMenuItem.Click += new System.EventHandler(this.QuestionAndFeedbackToolStripMenuItem_Click);
             // 
             // AboutToolStripMenuItem
             // 
