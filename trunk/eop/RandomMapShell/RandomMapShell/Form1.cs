@@ -10,6 +10,27 @@ using System.Collections;
 
 namespace RandomMapShell
 {
+    struct ModelConfig{
+        private TreeView tv;
+        private string config_name;
+        //todo
+
+        public ModelConfig(string c_name,TreeView t)
+        {
+            config_name = c_name;
+            tv = t;
+        }
+        public TreeView tree_view
+        {
+            get
+            { return tv; }
+        }
+        public string config
+        {
+            get 
+            { return config_name; }
+        }
+    }
     public partial class RMapShell : Form
     {
         string cfg_artist_resource_dir;
@@ -18,6 +39,9 @@ namespace RandomMapShell
         string tex_model_resource;
         string water_tex_resource;
         string cur_edt_file;
+        ArrayList model_config_table;
+        Dictionary<string,string> template_name_2_config_name;
+
         PathConfigPreprocess path_config_dlg;
         ARSResources ars_res_dlg;
 
@@ -76,6 +100,7 @@ namespace RandomMapShell
             LinkWalltreeView.Nodes.Add(new TreeNode("连接墙"));
             BarrierModeltreeView.Nodes.Add(new TreeNode("障碍区"));
 
+            this.ModelSettingCmb.SelectedIndexChanged += OnModelSettingChanged;
             //default setting
             IniFile cfg = new IniFile("rmapshell.ini");
             cfg_artist_resource_dir = cfg.IniReadValue("path","artist_res","");//String.Empty;
@@ -216,7 +241,15 @@ namespace RandomMapShell
             this.PathTexturetreeView.KeyUp += TreeViewKeyUp;
 
             //model setting
-
+            //todo set the index
+            string wall_kind = ini_file.IniReadValue("MethodKind", "WallKind", "");//default,single,street
+            string model_generate_method = ini_file.IniReadValue("MethodKind","ModelGenerateKind","");//default useplace
+            this.ModelSettingCmb.SelectedIndex = 0;
+            foreach(ModelConfig mc in model_config_table)
+            {
+                string[] midx = ini_file.IniReadValue("ModelParameters", mc.config, "").Split(';');
+                foo(midx, mc.tree_view, get_model);
+            }
             //map parameter setting
             string algo_kind = ini_file.IniReadValue("AlgorithmKind", "param", "");
 
@@ -312,7 +345,7 @@ namespace RandomMapShell
             if (this.openERSFileDialog.ShowDialog(this) == DialogResult.OK)
             {
                 this.ResourceSetText.Text = this.openERSFileDialog.FileName;
-                ReloadResourceFile(this.ResourceSetText.Text);
+                ReloadResourceFile(cfg_artist_resource_dir + "\\" + this.ResourceSetText.Text);
             }
         }
 
@@ -480,6 +513,12 @@ namespace RandomMapShell
             ini_file.IniWriteValue("GroundParameters", "MixinTextureIDs", GetTextureString(this.MixinTexturetreeView));
             ini_file.IniWriteValue("GroundParameters", "BarrierTextureIDs", GetTextureString(this.BarrierTexturetreeView));
             ini_file.IniWriteValue("GroundParameters", "PathTextureIDs", GetTextureString(this.PathTexturetreeView));
+
+
+            foreach(ModelConfig mc in model_config_table)
+            {
+                ini_file.IniWriteValue("ModelParameters", mc.config, GetModelString(mc.tree_view));
+            }
         }
 
         private void PathCfgToolStripMenuItem_Click(object sender, EventArgs e)
@@ -505,12 +544,14 @@ namespace RandomMapShell
         {
             //todo: reload the resources
             if (!can_work()) return;
+            ReloadResourceFile(cfg_artist_resource_dir + "\\" + this.ResourceSetText.Text);
         }
         private void ReloadResourceFile(string file_name)
         {
             //
             if (ars_res_dlg == null)
                 ars_res_dlg = new ARSResources();
+            ars_res_dlg.ClearArs();
             ars_res_dlg.LoadArs(file_name);
 
             ars_res_dlg.Show();
@@ -551,7 +592,7 @@ namespace RandomMapShell
 
         private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(this, "当我写到这里的时候，突然发觉，好难教会别人驾驭这个东西。。。");
+            MessageBox.Show(this, "Σ Π");
         }
         private void TreeViewKeyUp(object sender, System.Windows.Forms.KeyEventArgs e)
         { 
@@ -565,6 +606,28 @@ namespace RandomMapShell
                     tn.Remove();
                 }
             }
+        }
+
+        private void QuestionAndFeedbackToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(this, "(+ PoPo luozhiyuan)");
+        }
+        private void OnModelSettingChanged(object sender, EventArgs e)
+        {
+            //todo
+            if (model_config_table == null) model_config_table = new ArrayList();
+            if (template_name_2_config_name == null) template_name_2_config_name = new Dictionary<string, string>();
+            model_config_table.Clear();//"BarrierModel",this.BarrierModeltreeView
+            template_name_2_config_name.Clear();//(障碍物件->BarrierModel)
+            if(this.ModelSettingCmb.SelectedIndex == 0)
+            {
+                //for instance
+                model_config_table.Add(new ModelConfig("PathModel",this.PathModeltreeView));
+            }
+            //set up template_name_2_config_name
+            //try to use template to load model
+           //todo 
+           
         }
     }
 }

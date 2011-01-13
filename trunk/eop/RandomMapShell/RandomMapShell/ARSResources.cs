@@ -13,6 +13,7 @@ namespace RandomMapShell
 {
     public partial class ARSResources : Form
     {
+        string ars_file_name;
         public ARSResources()
         {
             InitializeComponent();
@@ -27,7 +28,7 @@ namespace RandomMapShell
         public void LoadArs(string file_name)
         {
             //
-
+            ars_file_name = file_name;
             string s = System.IO.File.ReadAllText(file_name, Encoding.GetEncoding("gb2312"));
 
             string new_s = Regex.Replace(s, " (?<var>\\d{1,6})", " P_${var}");
@@ -80,6 +81,14 @@ namespace RandomMapShell
         public void ClearArs()
         {
             this.ARSResourcetreeView.Nodes.Clear();
+        }
+        public void Reload()
+        {
+            if(ars_file_name != "")
+            {
+                ClearArs();
+                LoadArs(ars_file_name);
+            }
         }
         private void AddNode(XmlNode inXmlNode, TreeNode inTreeNode)
         {
@@ -224,6 +233,7 @@ namespace RandomMapShell
             }
             return "";
         }
+
     }
 
 }
