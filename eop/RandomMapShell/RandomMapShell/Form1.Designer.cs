@@ -84,8 +84,8 @@
             this.label7 = new System.Windows.Forms.Label();
             this.CommonSettingTabSetting = new System.Windows.Forms.TabControl();
             this.ModelSetting = new System.Windows.Forms.TabPage();
-            this.treeView9 = new System.Windows.Forms.TreeView();
-            this.treeView8 = new System.Windows.Forms.TreeView();
+            this.FlowertreeView = new System.Windows.Forms.TreeView();
+            this.GrasstreeView = new System.Windows.Forms.TreeView();
             this.treeView7 = new System.Windows.Forms.TreeView();
             this.LinkWalltreeView = new System.Windows.Forms.TreeView();
             this.BarrierModeltreeView = new System.Windows.Forms.TreeView();
@@ -678,8 +678,8 @@
             // 
             // ModelSetting
             // 
-            this.ModelSetting.Controls.Add(this.treeView9);
-            this.ModelSetting.Controls.Add(this.treeView8);
+            this.ModelSetting.Controls.Add(this.FlowertreeView);
+            this.ModelSetting.Controls.Add(this.GrasstreeView);
             this.ModelSetting.Controls.Add(this.treeView7);
             this.ModelSetting.Controls.Add(this.LinkWalltreeView);
             this.ModelSetting.Controls.Add(this.BarrierModeltreeView);
@@ -697,19 +697,19 @@
             this.ModelSetting.Text = "模型设置";
             this.ModelSetting.UseVisualStyleBackColor = true;
             // 
-            // treeView9
+            // FlowertreeView
             // 
-            this.treeView9.Location = new System.Drawing.Point(409, 329);
-            this.treeView9.Name = "treeView9";
-            this.treeView9.Size = new System.Drawing.Size(169, 97);
-            this.treeView9.TabIndex = 10;
+            this.FlowertreeView.Location = new System.Drawing.Point(409, 329);
+            this.FlowertreeView.Name = "FlowertreeView";
+            this.FlowertreeView.Size = new System.Drawing.Size(169, 97);
+            this.FlowertreeView.TabIndex = 10;
             // 
-            // treeView8
+            // GrasstreeView
             // 
-            this.treeView8.Location = new System.Drawing.Point(223, 329);
-            this.treeView8.Name = "treeView8";
-            this.treeView8.Size = new System.Drawing.Size(158, 97);
-            this.treeView8.TabIndex = 9;
+            this.GrasstreeView.Location = new System.Drawing.Point(223, 329);
+            this.GrasstreeView.Name = "GrasstreeView";
+            this.GrasstreeView.Size = new System.Drawing.Size(158, 97);
+            this.GrasstreeView.TabIndex = 9;
             // 
             // treeView7
             // 
@@ -931,27 +931,27 @@
             this.SaveToolStripMenuItem,
             this.SaveAsToolStripMenuItem});
             this.FileToolStripMenuItem.Name = "FileToolStripMenuItem";
-            this.FileToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
+            this.FileToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
             this.FileToolStripMenuItem.Text = "文件";
             // 
             // LoadFileToolStripMenuItem
             // 
             this.LoadFileToolStripMenuItem.Name = "LoadFileToolStripMenuItem";
-            this.LoadFileToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
+            this.LoadFileToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.LoadFileToolStripMenuItem.Text = "载入";
             this.LoadFileToolStripMenuItem.Click += new System.EventHandler(this.LoadFileToolStripMenuItem_Click);
             // 
             // SaveToolStripMenuItem
             // 
             this.SaveToolStripMenuItem.Name = "SaveToolStripMenuItem";
-            this.SaveToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
+            this.SaveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.SaveToolStripMenuItem.Text = "保存";
             this.SaveToolStripMenuItem.Click += new System.EventHandler(this.SaveToolStripMenuItem_Click);
             // 
             // SaveAsToolStripMenuItem
             // 
             this.SaveAsToolStripMenuItem.Name = "SaveAsToolStripMenuItem";
-            this.SaveAsToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
+            this.SaveAsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.SaveAsToolStripMenuItem.Text = "另存为";
             this.SaveAsToolStripMenuItem.Click += new System.EventHandler(this.SaveAsToolStripMenuItem_Click);
             // 
@@ -960,13 +960,13 @@
             this.SettingToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.PathCfgToolStripMenuItem});
             this.SettingToolStripMenuItem.Name = "SettingToolStripMenuItem";
-            this.SettingToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
+            this.SettingToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
             this.SettingToolStripMenuItem.Text = "设置";
             // 
             // PathCfgToolStripMenuItem
             // 
             this.PathCfgToolStripMenuItem.Name = "PathCfgToolStripMenuItem";
-            this.PathCfgToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.PathCfgToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.PathCfgToolStripMenuItem.Text = "路径设置";
             this.PathCfgToolStripMenuItem.Click += new System.EventHandler(this.PathCfgToolStripMenuItem_Click);
             // 
@@ -976,19 +976,19 @@
             this.PreviewToolStripMenuItem,
             this.BatchRunToolStripMenuItem});
             this.RunToolStripMenuItem.Name = "RunToolStripMenuItem";
-            this.RunToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
+            this.RunToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
             this.RunToolStripMenuItem.Text = "运行";
             // 
             // PreviewToolStripMenuItem
             // 
             this.PreviewToolStripMenuItem.Name = "PreviewToolStripMenuItem";
-            this.PreviewToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.PreviewToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.PreviewToolStripMenuItem.Text = "预览调试";
             // 
             // BatchRunToolStripMenuItem
             // 
             this.BatchRunToolStripMenuItem.Name = "BatchRunToolStripMenuItem";
-            this.BatchRunToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.BatchRunToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.BatchRunToolStripMenuItem.Text = "批量生成";
             // 
             // HelpToolStripMenuItem
@@ -997,20 +997,20 @@
             this.QuestionAndFeedbackToolStripMenuItem,
             this.AboutToolStripMenuItem});
             this.HelpToolStripMenuItem.Name = "HelpToolStripMenuItem";
-            this.HelpToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
+            this.HelpToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
             this.HelpToolStripMenuItem.Text = "帮助";
             // 
             // QuestionAndFeedbackToolStripMenuItem
             // 
             this.QuestionAndFeedbackToolStripMenuItem.Name = "QuestionAndFeedbackToolStripMenuItem";
-            this.QuestionAndFeedbackToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.QuestionAndFeedbackToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
             this.QuestionAndFeedbackToolStripMenuItem.Text = "问题与反馈";
             this.QuestionAndFeedbackToolStripMenuItem.Click += new System.EventHandler(this.QuestionAndFeedbackToolStripMenuItem_Click);
             // 
             // AboutToolStripMenuItem
             // 
             this.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem";
-            this.AboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.AboutToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
             this.AboutToolStripMenuItem.Text = "关于。。。";
             this.AboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItem_Click);
             // 
@@ -1153,8 +1153,8 @@
         private System.Windows.Forms.TreeView SideModeltreeView;
         private System.Windows.Forms.TreeView WallModeltreeView;
         private System.Windows.Forms.TreeView PathModeltreeView;
-        private System.Windows.Forms.TreeView treeView9;
-        private System.Windows.Forms.TreeView treeView8;
+        private System.Windows.Forms.TreeView FlowertreeView;
+        private System.Windows.Forms.TreeView GrasstreeView;
         private System.Windows.Forms.TreeView treeView7;
     }
 }

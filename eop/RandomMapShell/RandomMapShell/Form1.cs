@@ -62,6 +62,8 @@ namespace RandomMapShell
             CornerModeltreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.tree_ItemDrag);
             LinkWalltreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.tree_ItemDrag);
             BarrierModeltreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.tree_ItemDrag);
+            GrasstreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.tree_ItemDrag);
+            FlowertreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.tree_ItemDrag);
 
             PathTexturetreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.tree_DragEnter);
             BarrierTexturetreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.tree_DragEnter);
@@ -73,6 +75,8 @@ namespace RandomMapShell
             CornerModeltreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.tree_DragEnter);
             LinkWalltreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.tree_DragEnter);
             BarrierModeltreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.tree_DragEnter);
+            GrasstreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.tree_DragEnter);
+            FlowertreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.tree_DragEnter);
             
 
             PathTexturetreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.tree_DragDrop);
@@ -85,6 +89,8 @@ namespace RandomMapShell
             CornerModeltreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.tree_DragDrop);
             LinkWalltreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.tree_DragDrop);
             BarrierModeltreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.tree_DragDrop);
+            GrasstreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.tree_DragDrop);
+            FlowertreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.tree_DragDrop);
 
             PathTexturetreeView.Nodes.Add(new TreeNode("道路贴图"));
             PathTexturetreeView.ExpandAll();
@@ -99,6 +105,8 @@ namespace RandomMapShell
             CornerModeltreeView.Nodes.Add(new TreeNode("角落"));
             LinkWalltreeView.Nodes.Add(new TreeNode("连接墙"));
             BarrierModeltreeView.Nodes.Add(new TreeNode("障碍区"));
+            GrasstreeView.Nodes.Add(new TreeNode("草"));
+            FlowertreeView.Nodes.Add(new TreeNode("花"));
 
             this.ModelSettingCmb.SelectedIndexChanged += OnModelSettingChanged;
             //default setting
