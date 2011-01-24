@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Collections;
+using System.Diagnostics;
 
 namespace RandomMapShell
 {
@@ -31,6 +32,20 @@ namespace RandomMapShell
             { return config_name; }
         }
     }
+    struct model_config_setting{
+        public string border_interval_of_ModelParameters;
+        public string interior_interval_of_ModelParameters;
+        public string mapTopic_of_ModelParameters;
+        public string WallKind_of_MethodKind;
+        public string DecorationKind_of_MethodKind;
+        public string ModelGeneratekind_of_MethodKind;
+        public string PlantKind_of_Method_Kind;
+        public model_config_setting()
+        {
+            //
+        }
+        //
+    }
     public partial class RMapShell : Form
     {
         string cfg_artist_resource_dir;
@@ -41,6 +56,7 @@ namespace RandomMapShell
         string cur_edt_file;
         ArrayList model_config_table;
         Dictionary<string,string> template_name_2_config_name;
+        ArrayList selected_index_2_config_combination;
 
         PathConfigPreprocess path_config_dlg;
         ARSResources ars_res_dlg;
@@ -120,6 +136,7 @@ namespace RandomMapShell
         private void OnOpenFile(object sender, EventArgs e)
         {
             string file_name = this.openRMFileDialog.FileName;
+
             if (!File.Exists(file_name)) return;
             cur_edt_file = file_name;
             IniFile ini_file = new IniFile(cur_edt_file);
@@ -618,7 +635,7 @@ namespace RandomMapShell
 
         private void QuestionAndFeedbackToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(this, "(+ PoPo luozhiyuan)");
+            MessageBox.Show(this, "((+ PoPo) luozhiyuan)");
         }
         private void OnModelSettingChanged(object sender, EventArgs e)
         {
@@ -630,12 +647,35 @@ namespace RandomMapShell
             if(this.ModelSettingCmb.SelectedIndex == 0)
             {
                 //for instance
-                model_config_table.Add(new ModelConfig("PathModel",this.PathModeltreeView));
+                model_config_table.Add(new ModelConfig("PathModel", this.PathModeltreeView));
+                template_name_2_config_name.Add("连接墙", "LinkWall");
+                template_name_2_config_name.Add("普通墙", "NormalWall");
+                template_name_2_config_name.Add("角落物体", "CornerModel");
+                template_name_2_config_name.Add("靠边物体", "SideWall");
+                template_name_2_config_name.Add("障碍区物体", "BarrierModel");
+                template_name_2_config_name.Add("混合区物体", "MixArreaModel");
+                template_name_2_config_name.Add("道路区物体", "PathModel");
             }
             //set up template_name_2_config_name
+
             //try to use template to load model
            //todo 
            
+        }
+
+        private void PreviewToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Process preview_scene = new Process();
+            preview_scene.StartInfo.FileName = cfg_working_dir + "bin\\Release\\";
+            preview_scene.StartInfo.FileName += "PreviewRandomScene.exe";
+            IniFile ini_file = new IniFile(cur_edt_file);
+            string algorithm_string = ini_file.IniReadValue("AlgorithmKind", "param","");
+            string file_name = System.IO.Path.GetFileName(cur_edt_file);
+            string file_without_postfix = file_name.Substring(0, file_name.Length-3);
+            preview_scene.StartInfo.Arguments = "*RANDOM*"+file_without_postfix+"," + algorithm_string + " "+ file_name +" " +"0";
+            preview_scene.StartInfo.WorkingDirectory = cfg_working_dir;
+            bool bv = (System.IO.File.Exists(preview_scene.StartInfo.FileName));
+            preview_scene.Start();
         }
     }
 }
