@@ -38,11 +38,28 @@ namespace RandomMapShell
         public string mapTopic_of_ModelParameters;
         public string WallKind_of_MethodKind;
         public string DecorationKind_of_MethodKind;
-        public string ModelGeneratekind_of_MethodKind;
+        public string ModelGenerateKind_of_MethodKind;
         public string PlantKind_of_Method_Kind;
-        public model_config_setting()
+        public string MiddleIntensity_of_ModelParameters;
+        public string InterIntensity_of_ModelParameters;
+        public string OuterIntensity_of_ModelParameters;
+        public string GrassIntensity_of_ModelParameters;
+        public string PathIntensity_of_ModelParameters;
+        public string BorderIntensity_of_ModelParameters;
+        public string FlowerIntensity_of_ModelParameters;
+        public model_config_setting(string border_interval,
+            string interior_interval,string mapTopic,
+            string WallKind,string DecorationKind,
+            string ModelGenerateKind,
+            string PlantKind)
         {
-            //
+            border_interval_of_ModelParameters = border_interval;
+            interior_interval_of_ModelParameters = interior_interval;
+            mapTopic_of_ModelParameters = mapTopic;
+            WallKind_of_MethodKind = WallKind;
+            DecorationKind_of_MethodKind = DecorationKind;
+            ModelGenerateKind_of_MethodKind = ModelGenerateKind;
+            PlantKind_of_Method_Kind = PlantKind;
         }
         //
     }
@@ -350,7 +367,10 @@ namespace RandomMapShell
         private void PathColorBtn_Click(object sender, EventArgs e)
         {
             if (this.PickColorDialog.ShowDialog(this) == DialogResult.OK)
+            {
                 this.PathColorBtn.BackColor = this.PickColorDialog.Color;
+                PathColortextBox.Text = ColorToRGB565(this.PickColorDialog.Color);
+            }
         }
 
         private void WaterResFileBrowseFileBtn_Click(object sender, EventArgs e)
@@ -377,25 +397,37 @@ namespace RandomMapShell
         private void PathBorderColorBtn_Click(object sender, EventArgs e)
         {
             if (this.PickColorDialog.ShowDialog(this) == DialogResult.OK)
+            {
                 this.PathBorderColorBtn.BackColor = this.PickColorDialog.Color;
+                this.BorderColortextBox.Text = ColorToRGB565(this.PickColorDialog.Color);
+            }
         }
 
         private void BarrierColorBtn_Click(object sender, EventArgs e)
         {
             if (this.PickColorDialog.ShowDialog(this) == DialogResult.OK)
+            {
                 this.BarrierColorBtn.BackColor = this.PickColorDialog.Color;
+                this.BarrierColortextBox.Text = ColorToRGB565(this.PickColorDialog.Color);
+            }
         }
 
         private void SunColorBtn_Click(object sender, EventArgs e)
         {
             if (this.PickColorDialog.ShowDialog(this) == DialogResult.OK)
+            {
                 this.SunColorBtn.BackColor = this.PickColorDialog.Color;
+                this.SunColortextBox.Text = Convert.ToString(this.SunColorBtn.BackColor.ToArgb(),16);
+            }
         }
 
         private void EnvColorBtn_Click(object sender, EventArgs e)
         {
             if (this.PickColorDialog.ShowDialog(this) == DialogResult.OK)
+            {
                 this.EnvColorBtn.BackColor = this.PickColorDialog.Color;
+                this.EnvColortextBox.Text = Convert.ToString(this.EnvColorBtn.BackColor.ToArgb(),16);
+            }
         }
 
         private void FogColorBtn_Click(object sender, EventArgs e)
