@@ -32,7 +32,7 @@ namespace RandomMapShell
             { return config_name; }
         }
     }
-    struct model_config_setting{
+    class model_config_setting{
         public string border_interval_of_ModelParameters;
         public string interior_interval_of_ModelParameters;
         public string mapTopic_of_ModelParameters;
@@ -40,6 +40,7 @@ namespace RandomMapShell
         public string DecorationKind_of_MethodKind;
         public string ModelGenerateKind_of_MethodKind;
         public string PlantKind_of_Method_Kind;
+
         public string MiddleIntensity_of_ModelParameters;
         public string InterIntensity_of_ModelParameters;
         public string OuterIntensity_of_ModelParameters;
@@ -47,11 +48,27 @@ namespace RandomMapShell
         public string PathIntensity_of_ModelParameters;
         public string BorderIntensity_of_ModelParameters;
         public string FlowerIntensity_of_ModelParameters;
+        bool valid;
+        //default
+        public model_config_setting()
+        {
+            //
+            valid = false;
+        }
+        public bool IsValid(){return valid;}
         public model_config_setting(string border_interval,
             string interior_interval,string mapTopic,
             string WallKind,string DecorationKind,
             string ModelGenerateKind,
-            string PlantKind)
+            string PlantKind,
+            string MiddleIntensity,
+            string InterIntensity,
+            string OuterIntensity,
+            string GrassIntensity,
+            string PathIntensity,
+            string BorderIntensity,
+            string FlowerIntensity
+            )
         {
             border_interval_of_ModelParameters = border_interval;
             interior_interval_of_ModelParameters = interior_interval;
@@ -60,8 +77,63 @@ namespace RandomMapShell
             DecorationKind_of_MethodKind = DecorationKind;
             ModelGenerateKind_of_MethodKind = ModelGenerateKind;
             PlantKind_of_Method_Kind = PlantKind;
+
+        MiddleIntensity_of_ModelParameters = MiddleIntensity;
+        InterIntensity_of_ModelParameters = InterIntensity;
+        OuterIntensity_of_ModelParameters = OuterIntensity;
+        GrassIntensity_of_ModelParameters = GrassIntensity;
+        PathIntensity_of_ModelParameters = PathIntensity;
+        BorderIntensity_of_ModelParameters = BorderIntensity;
+        FlowerIntensity_of_ModelParameters = FlowerIntensity;
+            valid = true;
         }
         //
+        private void WriteModelParameter(IniFile f,string key,string val)
+        {
+            f.IniWriteValue("ModelParameters", key, val);
+        }
+        private string ReadModelParameter(IniFile f,string key,string default_val )
+        {
+            return f.IniReadValue("ModelParameters",key,default_val);
+        }
+        public void Read(IniFile f)
+        {
+            border_interval_of_ModelParameters = ReadModelParameter(f,"border_interval","0");
+            interior_interval_of_ModelParameters = ReadModelParameter(f,"interior_interval","0");
+            mapTopic_of_ModelParameters = ReadModelParameter(f,"mapTopic","1");
+            MiddleIntensity_of_ModelParameters = ReadModelParameter(f,"MiddleIntensity","0");
+            InterIntensity_of_ModelParameters = ReadModelParameter(f,"InterIntensity","0");
+            OuterIntensity_of_ModelParameters = ReadModelParameter(f,"OuterIntensity","0");
+            GrassIntensity_of_ModelParameters = ReadModelParameter(f,"GrassIntensity","0");
+            PathIntensity_of_ModelParameters = ReadModelParameter(f,"PathIntensity","0");
+            BorderIntensity_of_ModelParameters = ReadModelParameter(f,"BorderIntensity","0");
+            FlowerIntensity_of_ModelParameters = ReadModelParameter(f,"FlowerIntensity","0");
+
+            WallKind_of_MethodKind = f.IniReadValue("MethodKind", "WallKind", "single");
+            DecorationKind_of_MethodKind = f.IniReadValue("MethodKind", "DecorationKind", "PathCorner");
+            ModelGenerateKind_of_MethodKind = f.IniReadValue("MethodKind", "ModelGenerateKind", "NULL");
+            PlantKind_of_Method_Kind = f.IniReadValue("MethodKind", "PlantKind", "deletant");
+            valid = true;
+        }
+        public void Write(IniFile f)
+        {
+            Debug.Assert(valid);
+            WriteModelParameter(f,"border_interval",border_interval_of_ModelParameters);
+            WriteModelParameter(f, "interior_interval", interior_interval_of_ModelParameters);
+            WriteModelParameter(f, "mapTopic", mapTopic_of_ModelParameters);
+            WriteModelParameter(f, "MiddleIntensity", MiddleIntensity_of_ModelParameters);
+            WriteModelParameter(f, "InterIntensity", InterIntensity_of_ModelParameters);
+            WriteModelParameter(f,"OuterIntensity",OuterIntensity_of_ModelParameters);
+            WriteModelParameter(f,"GrassIntensity",GrassIntensity_of_ModelParameters);
+            WriteModelParameter(f,"PathIntensity",PathIntensity_of_ModelParameters);
+            WriteModelParameter(f,"BorderIntensity",BorderIntensity_of_ModelParameters);
+            WriteModelParameter(f,"FlowerIntensity",FlowerIntensity_of_ModelParameters);
+
+            f.IniWriteValue("MethodKind", "WallKind", WallKind_of_MethodKind);
+            f.IniWriteValue("MethodKind", "DecorationKind", DecorationKind_of_MethodKind);
+            f.IniWriteValue("MethodKind", "ModelGenerateKind", ModelGenerateKind_of_MethodKind);
+            f.IniWriteValue("MethodKind", "PlantKind", PlantKind_of_Method_Kind);
+        }
     }
     public partial class RMapShell : Form
     {
@@ -71,9 +143,10 @@ namespace RandomMapShell
         string tex_model_resource;
         string water_tex_resource;
         string cur_edt_file;
+        model_config_setting other_model_configs;
         ArrayList model_config_table;
         Dictionary<string,string> template_name_2_config_name;
-        ArrayList selected_index_2_config_combination;
+        Dictionary<int,model_config_setting> selected_index_2_config_combination;
 
         PathConfigPreprocess path_config_dlg;
         ARSResources ars_res_dlg;
@@ -146,6 +219,38 @@ namespace RandomMapShell
             IniFile cfg = new IniFile("rmapshell.ini");
             cfg_artist_resource_dir = cfg.IniReadValue("path","artist_res","");//String.Empty;
             cfg_working_dir = cfg.IniReadValue("path","work_dir","");//String.Empty;
+
+            //initialize some settings
+            selected_index_2_config_combination = new Dictionary<int, model_config_setting>();
+
+        //border_interval_of_ModelParameters;
+        //public string interior_interval_of_ModelParameters;
+        //public string mapTopic_of_ModelParameters;
+        //public string WallKind_of_MethodKind;
+        //public string DecorationKind_of_MethodKind;
+        //public string ModelGenerateKind_of_MethodKind;
+        //public string PlantKind_of_Method_Kind;
+
+        //public string MiddleIntensity_of_ModelParameters;
+        //public string InterIntensity_of_ModelParameters;
+        //public string OuterIntensity_of_ModelParameters;
+        //public string GrassIntensity_of_ModelParameters;
+        //public string PathIntensity_of_ModelParameters;
+        //public string BorderIntensity_of_ModelParameters;
+        //public string FlowerIntensity_of_ModelParameters;
+            model_config_setting m0 = new model_config_setting("0","0","0","single","PathCorner","NULL","deletant","0","0","0","0","0","0","0");
+           // model_config_setting m2 = new model_config_setting();
+            selected_index_2_config_combination.Add(0,m0);
+        }
+        private int getModelCfgIndexByModelConfig(model_config_setting m)
+        {
+           if (m.mapTopic_of_ModelParameters.Equals("1") && 
+               m.DecorationKind_of_MethodKind.Equals("PathCorner") && 
+               m.WallKind_of_MethodKind.Equals("single"))
+           {
+               return 0;
+           }
+           return 4; //use this as template
         }
 
         delegate string GetByIndexFunc(int i);
@@ -286,7 +391,9 @@ namespace RandomMapShell
             //todo set the index
             string wall_kind = ini_file.IniReadValue("MethodKind", "WallKind", "");//default,single,street
             string model_generate_method = ini_file.IniReadValue("MethodKind","ModelGenerateKind","");//default useplace
-            this.ModelSettingCmb.SelectedIndex = 0;
+            other_model_configs = new model_config_setting();
+            other_model_configs.Read(ini_file);
+            this.ModelSettingCmb.SelectedIndex = getModelCfgIndexByModelConfig(other_model_configs);
             foreach(ModelConfig mc in model_config_table)
             {
                 string[] midx = ini_file.IniReadValue("ModelParameters", mc.config, "").Split(';');
@@ -679,14 +786,66 @@ namespace RandomMapShell
             if(this.ModelSettingCmb.SelectedIndex == 0)
             {
                 //for instance
+                model_config_table.Add(new ModelConfig("LinkWall",this.LinkWalltreeView));
+                model_config_table.Add(new ModelConfig("NormalWall",this.WallModeltreeView));
+                model_config_table.Add(new ModelConfig("CornerModel",this.CornerModeltreeView));
+                model_config_table.Add(new ModelConfig("SideWall",this.SideModeltreeView));
+                model_config_table.Add(new ModelConfig("BarrierModel",BarrierModeltreeView));
+                model_config_table.Add(new ModelConfig("MixAreaModel", MixModeltreeView));
                 model_config_table.Add(new ModelConfig("PathModel", this.PathModeltreeView));
                 template_name_2_config_name.Add("连接墙", "LinkWall");
                 template_name_2_config_name.Add("普通墙", "NormalWall");
                 template_name_2_config_name.Add("角落物体", "CornerModel");
                 template_name_2_config_name.Add("靠边物体", "SideWall");
                 template_name_2_config_name.Add("障碍区物体", "BarrierModel");
-                template_name_2_config_name.Add("混合区物体", "MixArreaModel");
+                template_name_2_config_name.Add("混合区物体", "MixAreaModel");
                 template_name_2_config_name.Add("道路区物体", "PathModel");
+            }
+            else if (this.ModelSettingCmb.SelectedIndex == 4)
+            {
+                if(other_model_configs.DecorationKind_of_MethodKind.Equals("PathCorner"))
+                {
+                    template_name_2_config_name.Add("靠边物体", "decorators_res_set");
+                }
+                if(other_model_configs.ModelGenerateKind_of_MethodKind.Equals("default"))
+                {
+                     template_name_2_config_name.Add("普通墙", "wall_res_set");
+                }
+                if(other_model_configs.WallKind_of_MethodKind.Equals("default"))
+                {
+                    template_name_2_config_name.Add("障碍区物体", "OuterResSet");
+                    template_name_2_config_name.Add("混合区物体", "BorderResSet");
+                    template_name_2_config_name.Add("道路区物体", "PathResSet");
+                }
+                //if( other_model_configs.WallKind_of_MethodKind.Equals("default") &&//place
+                //   other_model_configs.ModelGenerateKind_of_MethodKind.Equals("default")//random 
+                //   )
+                //{
+
+                //}
+                //else if(other_model_configs.WallKind_of_MethodKind.Equals("default") && 
+                //    other_model_configs.ModelGenerateKind_of_MethodKind.Equals("useplace")
+                //{
+
+                //}
+                //else if(other_model_configs.WallKind_of_MethodKind.Equals("street") && 
+                //    other_model_configs.ModelGenerateKind_of_MethodKind.Equals("default")
+                //{
+
+                //}
+                //else if(other_model_configs.WallKind_of_MethodKind.Equals("street") && 
+                //    other_model_configs.ModelGenerateKind_of_MethodKind.Equals("useplace")
+                //    )
+                //{
+
+                //}
+                //template_name_2_config_name.Add("连接墙", "");
+                //template_name_2_config_name.Add("普通墙", "wall_res_set");
+                //template_name_2_config_name.Add("角落物体", "corner_res_set");
+                //template_name_2_config_name.Add("靠边物体", "");
+                //template_name_2_config_name.Add("障碍区物体", "Outer");
+                //template_name_2_config_name.Add("混合区物体", "MixAreaModel");
+                //template_name_2_config_name.Add("道路区物体", "PathModel");
             }
             //set up template_name_2_config_name
 

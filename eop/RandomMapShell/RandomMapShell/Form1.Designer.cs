@@ -29,6 +29,9 @@
         private void InitializeComponent()
         {
             this.GroundSetting = new System.Windows.Forms.TabPage();
+            this.BarrierColortextBox = new System.Windows.Forms.TextBox();
+            this.BorderColortextBox = new System.Windows.Forms.TextBox();
+            this.PathColortextBox = new System.Windows.Forms.TextBox();
             this.MixinTexturetreeView = new System.Windows.Forms.TreeView();
             this.BarrierTexturetreeView = new System.Windows.Forms.TreeView();
             this.CayonOrSmoothGroupBox = new System.Windows.Forms.GroupBox();
@@ -66,6 +69,9 @@
             this.label2 = new System.Windows.Forms.Label();
             this.ChkHasWater = new System.Windows.Forms.CheckBox();
             this.EnvironmentSetting = new System.Windows.Forms.TabPage();
+            this.FogColortextBox = new System.Windows.Forms.TextBox();
+            this.EnvColortextBox = new System.Windows.Forms.TextBox();
+            this.SunColortextBox = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
             this.SceneMusicText = new System.Windows.Forms.TextBox();
             this.FogFarText = new System.Windows.Forms.TextBox();
@@ -84,9 +90,19 @@
             this.label7 = new System.Windows.Forms.Label();
             this.CommonSettingTabSetting = new System.Windows.Forms.TabControl();
             this.ModelSetting = new System.Windows.Forms.TabPage();
+            this.label23 = new System.Windows.Forms.Label();
+            this.FlowerIntensitytextBox = new System.Windows.Forms.TextBox();
+            this.GrassIntensitytextBox = new System.Windows.Forms.TextBox();
+            this.textBox7 = new System.Windows.Forms.TextBox();
+            this.LinkWallIntensitytextBox = new System.Windows.Forms.TextBox();
+            this.BarrierModelIntensitytextBox = new System.Windows.Forms.TextBox();
+            this.CornerModelIntensitytextBox = new System.Windows.Forms.TextBox();
+            this.SideModelIntensitytextBox = new System.Windows.Forms.TextBox();
+            this.WallModelIntensitytextBox = new System.Windows.Forms.TextBox();
+            this.PathModelIntensitytextBox = new System.Windows.Forms.TextBox();
             this.FlowertreeView = new System.Windows.Forms.TreeView();
             this.GrasstreeView = new System.Windows.Forms.TreeView();
-            this.treeView7 = new System.Windows.Forms.TreeView();
+            this.MixModeltreeView = new System.Windows.Forms.TreeView();
             this.LinkWalltreeView = new System.Windows.Forms.TreeView();
             this.BarrierModeltreeView = new System.Windows.Forms.TreeView();
             this.CornerModeltreeView = new System.Windows.Forms.TreeView();
@@ -124,22 +140,6 @@
             this.openRMFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.openERSFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveRMFileAsDialog = new System.Windows.Forms.SaveFileDialog();
-            this.PathModelIntensitytextBox = new System.Windows.Forms.TextBox();
-            this.WallModelIntensitytextBox = new System.Windows.Forms.TextBox();
-            this.SideModelIntensitytextBox = new System.Windows.Forms.TextBox();
-            this.CornerModelIntensitytextBox = new System.Windows.Forms.TextBox();
-            this.BarrierModelIntensitytextBox = new System.Windows.Forms.TextBox();
-            this.LinkWallIntensitytextBox = new System.Windows.Forms.TextBox();
-            this.textBox7 = new System.Windows.Forms.TextBox();
-            this.GrassIntensitytextBox = new System.Windows.Forms.TextBox();
-            this.FlowerIntensitytextBox = new System.Windows.Forms.TextBox();
-            this.label23 = new System.Windows.Forms.Label();
-            this.SunColortextBox = new System.Windows.Forms.TextBox();
-            this.EnvColortextBox = new System.Windows.Forms.TextBox();
-            this.FogColortextBox = new System.Windows.Forms.TextBox();
-            this.PathColortextBox = new System.Windows.Forms.TextBox();
-            this.BorderColortextBox = new System.Windows.Forms.TextBox();
-            this.BarrierColortextBox = new System.Windows.Forms.TextBox();
             this.GroundSetting.SuspendLayout();
             this.CayonOrSmoothGroupBox.SuspendLayout();
             this.WaterSetting.SuspendLayout();
@@ -176,6 +176,30 @@
             this.GroundSetting.TabIndex = 3;
             this.GroundSetting.Text = "地表设置";
             this.GroundSetting.UseVisualStyleBackColor = true;
+            // 
+            // BarrierColortextBox
+            // 
+            this.BarrierColortextBox.Location = new System.Drawing.Point(290, 93);
+            this.BarrierColortextBox.Name = "BarrierColortextBox";
+            this.BarrierColortextBox.ReadOnly = true;
+            this.BarrierColortextBox.Size = new System.Drawing.Size(78, 21);
+            this.BarrierColortextBox.TabIndex = 14;
+            // 
+            // BorderColortextBox
+            // 
+            this.BorderColortextBox.Location = new System.Drawing.Point(206, 93);
+            this.BorderColortextBox.Name = "BorderColortextBox";
+            this.BorderColortextBox.ReadOnly = true;
+            this.BorderColortextBox.Size = new System.Drawing.Size(78, 21);
+            this.BorderColortextBox.TabIndex = 13;
+            // 
+            // PathColortextBox
+            // 
+            this.PathColortextBox.Location = new System.Drawing.Point(109, 93);
+            this.PathColortextBox.Name = "PathColortextBox";
+            this.PathColortextBox.ReadOnly = true;
+            this.PathColortextBox.Size = new System.Drawing.Size(78, 21);
+            this.PathColortextBox.TabIndex = 12;
             // 
             // MixinTexturetreeView
             // 
@@ -377,7 +401,7 @@
             this.WaterSetting.Location = new System.Drawing.Point(4, 21);
             this.WaterSetting.Name = "WaterSetting";
             this.WaterSetting.Padding = new System.Windows.Forms.Padding(3);
-            this.WaterSetting.Size = new System.Drawing.Size(594, 441);
+            this.WaterSetting.Size = new System.Drawing.Size(601, 454);
             this.WaterSetting.TabIndex = 2;
             this.WaterSetting.Text = "水面设置";
             this.WaterSetting.UseVisualStyleBackColor = true;
@@ -535,6 +559,30 @@
             this.EnvironmentSetting.Text = "环境设置";
             this.EnvironmentSetting.UseVisualStyleBackColor = true;
             // 
+            // FogColortextBox
+            // 
+            this.FogColortextBox.Location = new System.Drawing.Point(160, 114);
+            this.FogColortextBox.Name = "FogColortextBox";
+            this.FogColortextBox.ReadOnly = true;
+            this.FogColortextBox.Size = new System.Drawing.Size(93, 21);
+            this.FogColortextBox.TabIndex = 10;
+            // 
+            // EnvColortextBox
+            // 
+            this.EnvColortextBox.Location = new System.Drawing.Point(160, 69);
+            this.EnvColortextBox.Name = "EnvColortextBox";
+            this.EnvColortextBox.ReadOnly = true;
+            this.EnvColortextBox.Size = new System.Drawing.Size(93, 21);
+            this.EnvColortextBox.TabIndex = 9;
+            // 
+            // SunColortextBox
+            // 
+            this.SunColortextBox.Location = new System.Drawing.Point(160, 25);
+            this.SunColortextBox.Name = "SunColortextBox";
+            this.SunColortextBox.ReadOnly = true;
+            this.SunColortextBox.Size = new System.Drawing.Size(93, 21);
+            this.SunColortextBox.TabIndex = 8;
+            // 
             // label9
             // 
             this.label9.AutoSize = true;
@@ -616,7 +664,7 @@
             this.ResourceSetting.Location = new System.Drawing.Point(4, 21);
             this.ResourceSetting.Name = "ResourceSetting";
             this.ResourceSetting.Padding = new System.Windows.Forms.Padding(3);
-            this.ResourceSetting.Size = new System.Drawing.Size(594, 441);
+            this.ResourceSetting.Size = new System.Drawing.Size(601, 454);
             this.ResourceSetting.TabIndex = 0;
             this.ResourceSetting.Text = "图素设置";
             this.ResourceSetting.UseVisualStyleBackColor = true;
@@ -712,7 +760,7 @@
             this.ModelSetting.Controls.Add(this.PathModelIntensitytextBox);
             this.ModelSetting.Controls.Add(this.FlowertreeView);
             this.ModelSetting.Controls.Add(this.GrasstreeView);
-            this.ModelSetting.Controls.Add(this.treeView7);
+            this.ModelSetting.Controls.Add(this.MixModeltreeView);
             this.ModelSetting.Controls.Add(this.LinkWalltreeView);
             this.ModelSetting.Controls.Add(this.BarrierModeltreeView);
             this.ModelSetting.Controls.Add(this.CornerModeltreeView);
@@ -729,6 +777,78 @@
             this.ModelSetting.Text = "模型设置";
             this.ModelSetting.UseVisualStyleBackColor = true;
             // 
+            // label23
+            // 
+            this.label23.AutoSize = true;
+            this.label23.Location = new System.Drawing.Point(65, 62);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(29, 12);
+            this.label23.TabIndex = 20;
+            this.label23.Text = "密度";
+            // 
+            // FlowerIntensitytextBox
+            // 
+            this.FlowerIntensitytextBox.Location = new System.Drawing.Point(491, 324);
+            this.FlowerIntensitytextBox.Name = "FlowerIntensitytextBox";
+            this.FlowerIntensitytextBox.Size = new System.Drawing.Size(38, 21);
+            this.FlowerIntensitytextBox.TabIndex = 19;
+            // 
+            // GrassIntensitytextBox
+            // 
+            this.GrassIntensitytextBox.Location = new System.Drawing.Point(291, 324);
+            this.GrassIntensitytextBox.Name = "GrassIntensitytextBox";
+            this.GrassIntensitytextBox.Size = new System.Drawing.Size(44, 21);
+            this.GrassIntensitytextBox.TabIndex = 18;
+            // 
+            // textBox7
+            // 
+            this.textBox7.Location = new System.Drawing.Point(120, 324);
+            this.textBox7.Name = "textBox7";
+            this.textBox7.Size = new System.Drawing.Size(50, 21);
+            this.textBox7.TabIndex = 17;
+            // 
+            // LinkWallIntensitytextBox
+            // 
+            this.LinkWallIntensitytextBox.Location = new System.Drawing.Point(488, 189);
+            this.LinkWallIntensitytextBox.Name = "LinkWallIntensitytextBox";
+            this.LinkWallIntensitytextBox.Size = new System.Drawing.Size(38, 21);
+            this.LinkWallIntensitytextBox.TabIndex = 16;
+            // 
+            // BarrierModelIntensitytextBox
+            // 
+            this.BarrierModelIntensitytextBox.Location = new System.Drawing.Point(290, 189);
+            this.BarrierModelIntensitytextBox.Name = "BarrierModelIntensitytextBox";
+            this.BarrierModelIntensitytextBox.Size = new System.Drawing.Size(45, 21);
+            this.BarrierModelIntensitytextBox.TabIndex = 15;
+            // 
+            // CornerModelIntensitytextBox
+            // 
+            this.CornerModelIntensitytextBox.Location = new System.Drawing.Point(118, 189);
+            this.CornerModelIntensitytextBox.Name = "CornerModelIntensitytextBox";
+            this.CornerModelIntensitytextBox.Size = new System.Drawing.Size(51, 21);
+            this.CornerModelIntensitytextBox.TabIndex = 14;
+            // 
+            // SideModelIntensitytextBox
+            // 
+            this.SideModelIntensitytextBox.Location = new System.Drawing.Point(488, 61);
+            this.SideModelIntensitytextBox.Name = "SideModelIntensitytextBox";
+            this.SideModelIntensitytextBox.Size = new System.Drawing.Size(41, 21);
+            this.SideModelIntensitytextBox.TabIndex = 13;
+            // 
+            // WallModelIntensitytextBox
+            // 
+            this.WallModelIntensitytextBox.Location = new System.Drawing.Point(289, 59);
+            this.WallModelIntensitytextBox.Name = "WallModelIntensitytextBox";
+            this.WallModelIntensitytextBox.Size = new System.Drawing.Size(46, 21);
+            this.WallModelIntensitytextBox.TabIndex = 12;
+            // 
+            // PathModelIntensitytextBox
+            // 
+            this.PathModelIntensitytextBox.Location = new System.Drawing.Point(118, 59);
+            this.PathModelIntensitytextBox.Name = "PathModelIntensitytextBox";
+            this.PathModelIntensitytextBox.Size = new System.Drawing.Size(52, 21);
+            this.PathModelIntensitytextBox.TabIndex = 11;
+            // 
             // FlowertreeView
             // 
             this.FlowertreeView.Location = new System.Drawing.Point(416, 351);
@@ -743,12 +863,12 @@
             this.GrasstreeView.Size = new System.Drawing.Size(158, 97);
             this.GrasstreeView.TabIndex = 9;
             // 
-            // treeView7
+            // MixModeltreeView
             // 
-            this.treeView7.Location = new System.Drawing.Point(38, 351);
-            this.treeView7.Name = "treeView7";
-            this.treeView7.Size = new System.Drawing.Size(163, 97);
-            this.treeView7.TabIndex = 8;
+            this.MixModeltreeView.Location = new System.Drawing.Point(38, 351);
+            this.MixModeltreeView.Name = "MixModeltreeView";
+            this.MixModeltreeView.Size = new System.Drawing.Size(163, 97);
+            this.MixModeltreeView.TabIndex = 8;
             // 
             // LinkWalltreeView
             // 
@@ -811,11 +931,11 @@
             // 
             this.ModelSettingCmb.FormattingEnabled = true;
             this.ModelSettingCmb.Items.AddRange(new object[] {
-            "单层墙体（墙体规整）",
-            "双层回型墙体（墙体规整）",
+            "单层墙体（墙体规整,墙体产生障碍）",
+            "双层回型墙体（墙体规整，墙体不产生障碍）",
             "全随机摆放（松散，适合野外或山洞）",
             "边缘松散的物件（路边墙体不规整，围栏短墙或小房屋等长条形物体）",
-            "其他（没取好名字。。。）"});
+            "已有模板（通过载入已有配置文件，替换对应模型达到和已知场景一致的效果）"});
             this.ModelSettingCmb.Location = new System.Drawing.Point(98, 17);
             this.ModelSettingCmb.Name = "ModelSettingCmb";
             this.ModelSettingCmb.Size = new System.Drawing.Size(487, 20);
@@ -835,7 +955,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 21);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(594, 441);
+            this.tabPage1.Size = new System.Drawing.Size(601, 454);
             this.tabPage1.TabIndex = 5;
             this.tabPage1.Text = "道路与障碍结构";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -1057,126 +1177,6 @@
             // 
             this.openERSFileDialog.FileName = "openERSFileDialog";
             // 
-            // PathModelIntensitytextBox
-            // 
-            this.PathModelIntensitytextBox.Location = new System.Drawing.Point(118, 59);
-            this.PathModelIntensitytextBox.Name = "PathModelIntensitytextBox";
-            this.PathModelIntensitytextBox.Size = new System.Drawing.Size(52, 21);
-            this.PathModelIntensitytextBox.TabIndex = 11;
-            // 
-            // WallModelIntensitytextBox
-            // 
-            this.WallModelIntensitytextBox.Location = new System.Drawing.Point(289, 59);
-            this.WallModelIntensitytextBox.Name = "WallModelIntensitytextBox";
-            this.WallModelIntensitytextBox.Size = new System.Drawing.Size(46, 21);
-            this.WallModelIntensitytextBox.TabIndex = 12;
-            // 
-            // SideModelIntensitytextBox
-            // 
-            this.SideModelIntensitytextBox.Location = new System.Drawing.Point(488, 61);
-            this.SideModelIntensitytextBox.Name = "SideModelIntensitytextBox";
-            this.SideModelIntensitytextBox.Size = new System.Drawing.Size(41, 21);
-            this.SideModelIntensitytextBox.TabIndex = 13;
-            // 
-            // CornerModelIntensitytextBox
-            // 
-            this.CornerModelIntensitytextBox.Location = new System.Drawing.Point(118, 189);
-            this.CornerModelIntensitytextBox.Name = "CornerModelIntensitytextBox";
-            this.CornerModelIntensitytextBox.Size = new System.Drawing.Size(51, 21);
-            this.CornerModelIntensitytextBox.TabIndex = 14;
-            // 
-            // BarrierModelIntensitytextBox
-            // 
-            this.BarrierModelIntensitytextBox.Location = new System.Drawing.Point(290, 189);
-            this.BarrierModelIntensitytextBox.Name = "BarrierModelIntensitytextBox";
-            this.BarrierModelIntensitytextBox.Size = new System.Drawing.Size(45, 21);
-            this.BarrierModelIntensitytextBox.TabIndex = 15;
-            // 
-            // LinkWallIntensitytextBox
-            // 
-            this.LinkWallIntensitytextBox.Location = new System.Drawing.Point(488, 189);
-            this.LinkWallIntensitytextBox.Name = "LinkWallIntensitytextBox";
-            this.LinkWallIntensitytextBox.Size = new System.Drawing.Size(38, 21);
-            this.LinkWallIntensitytextBox.TabIndex = 16;
-            // 
-            // textBox7
-            // 
-            this.textBox7.Location = new System.Drawing.Point(120, 324);
-            this.textBox7.Name = "textBox7";
-            this.textBox7.Size = new System.Drawing.Size(50, 21);
-            this.textBox7.TabIndex = 17;
-            // 
-            // GrassIntensitytextBox
-            // 
-            this.GrassIntensitytextBox.Location = new System.Drawing.Point(291, 324);
-            this.GrassIntensitytextBox.Name = "GrassIntensitytextBox";
-            this.GrassIntensitytextBox.Size = new System.Drawing.Size(44, 21);
-            this.GrassIntensitytextBox.TabIndex = 18;
-            // 
-            // FlowerIntensitytextBox
-            // 
-            this.FlowerIntensitytextBox.Location = new System.Drawing.Point(491, 324);
-            this.FlowerIntensitytextBox.Name = "FlowerIntensitytextBox";
-            this.FlowerIntensitytextBox.Size = new System.Drawing.Size(38, 21);
-            this.FlowerIntensitytextBox.TabIndex = 19;
-            // 
-            // label23
-            // 
-            this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(65, 62);
-            this.label23.Name = "label23";
-            this.label23.Size = new System.Drawing.Size(29, 12);
-            this.label23.TabIndex = 20;
-            this.label23.Text = "密度";
-            // 
-            // SunColortextBox
-            // 
-            this.SunColortextBox.Location = new System.Drawing.Point(160, 25);
-            this.SunColortextBox.Name = "SunColortextBox";
-            this.SunColortextBox.ReadOnly = true;
-            this.SunColortextBox.Size = new System.Drawing.Size(93, 21);
-            this.SunColortextBox.TabIndex = 8;
-            // 
-            // EnvColortextBox
-            // 
-            this.EnvColortextBox.Location = new System.Drawing.Point(160, 69);
-            this.EnvColortextBox.Name = "EnvColortextBox";
-            this.EnvColortextBox.ReadOnly = true;
-            this.EnvColortextBox.Size = new System.Drawing.Size(93, 21);
-            this.EnvColortextBox.TabIndex = 9;
-            // 
-            // FogColortextBox
-            // 
-            this.FogColortextBox.Location = new System.Drawing.Point(160, 114);
-            this.FogColortextBox.Name = "FogColortextBox";
-            this.FogColortextBox.ReadOnly = true;
-            this.FogColortextBox.Size = new System.Drawing.Size(93, 21);
-            this.FogColortextBox.TabIndex = 10;
-            // 
-            // PathColortextBox
-            // 
-            this.PathColortextBox.Location = new System.Drawing.Point(109, 93);
-            this.PathColortextBox.Name = "PathColortextBox";
-            this.PathColortextBox.ReadOnly = true;
-            this.PathColortextBox.Size = new System.Drawing.Size(78, 21);
-            this.PathColortextBox.TabIndex = 12;
-            // 
-            // BorderColortextBox
-            // 
-            this.BorderColortextBox.Location = new System.Drawing.Point(206, 93);
-            this.BorderColortextBox.Name = "BorderColortextBox";
-            this.BorderColortextBox.ReadOnly = true;
-            this.BorderColortextBox.Size = new System.Drawing.Size(78, 21);
-            this.BorderColortextBox.TabIndex = 13;
-            // 
-            // BarrierColortextBox
-            // 
-            this.BarrierColortextBox.Location = new System.Drawing.Point(290, 93);
-            this.BarrierColortextBox.Name = "BarrierColortextBox";
-            this.BarrierColortextBox.ReadOnly = true;
-            this.BarrierColortextBox.Size = new System.Drawing.Size(78, 21);
-            this.BarrierColortextBox.TabIndex = 14;
-            // 
             // RMapShell
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -1308,7 +1308,7 @@
         private System.Windows.Forms.TreeView PathModeltreeView;
         private System.Windows.Forms.TreeView FlowertreeView;
         private System.Windows.Forms.TreeView GrasstreeView;
-        private System.Windows.Forms.TreeView treeView7;
+        private System.Windows.Forms.TreeView MixModeltreeView;
         private System.Windows.Forms.TextBox FlowerIntensitytextBox;
         private System.Windows.Forms.TextBox GrassIntensitytextBox;
         private System.Windows.Forms.TextBox textBox7;
