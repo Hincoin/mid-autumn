@@ -322,11 +322,17 @@ static void SetUpScene()
 	primitives[5].material_info.material_type = MATTE_MATERIAL;
 	primitives[5].material_info.memory_start = 23;
 
-	primitives[6].material_info.material_type = MIRROR_MATERIAL;
-	primitives[6].material_info.memory_start = 33;
+	//primitives[6].material_info.material_type = MIRROR_MATERIAL;
+	//primitives[6].material_info.memory_start = 33;
 
-	primitives[7].material_info.material_type = GLASS_MATERIAL;
-	primitives[7].material_info.memory_start = 27;
+	primitives[6].material_info.material_type = MATTE_MATERIAL;
+	primitives[6].material_info.memory_start = 3;
+
+	//primitives[7].material_info.material_type = GLASS_MATERIAL;
+	//primitives[7].material_info.memory_start = 27;
+
+	primitives[7].material_info.material_type = MATTE_MATERIAL;
+	primitives[7].material_info.memory_start = 23;
 
 	primitives[8].material_info.material_type = LIGHT_MATERIAL;
 	primitives[8].material_info.memory_start= 0;
