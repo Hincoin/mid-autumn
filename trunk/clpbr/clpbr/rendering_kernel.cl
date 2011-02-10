@@ -31,6 +31,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "random_number_generator.h"
 #include "shape_funcs.h"
 #include "path_tracing.h"
+#include "photon_map.h"
 
 //light param data
 //material param data

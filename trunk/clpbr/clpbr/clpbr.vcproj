@@ -208,6 +208,10 @@
 				RelativePath=".\main.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\memory.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -239,6 +243,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\kdtree.h"
+				>
+			</File>
+			<File
 				RelativePath=".\light.h"
 				>
 			</File>
@@ -264,6 +272,10 @@
 			</File>
 			<File
 				RelativePath=".\mc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\memory.h"
 				>
 			</File>
 			<File
@@ -318,6 +330,10 @@
 			</File>
 			<File
 				RelativePath=".\path_tracing.h"
+				>
+			</File>
+			<File
+				RelativePath=".\photon_map.h"
 				>
 			</File>
 			<File
