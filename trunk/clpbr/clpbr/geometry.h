@@ -5,6 +5,8 @@
 //ray_differential_t bbox_t 
 //opt:function : spherical direction, spherical theta,phi;
 
+#include "config.h"
+
 
 typedef struct 
 {
@@ -14,6 +16,20 @@ typedef struct
 typedef struct 
 {
 	float x,y,z;
+#ifndef CL_KERNEL
+	float& operator[](int i)
+	{
+		if(i == 0)return x;
+		if(i == 1)return y;
+		if(i == 2)return z;
+	}
+	float operator[](int i)const
+	{
+		if(i == 0)return x;
+		if(i == 1)return y;
+		if(i == 2)return z;
+	}
+#endif
 }point3f_t;
 
 typedef struct 
@@ -58,11 +74,62 @@ typedef struct
 #define FLOAT_PI 3.1415626f
 #endif
 
+#ifndef FLT_MAX
+#define FLT_MAX 3.402823466e+38F
+#endif
+
 #ifndef INV_PI
 #define INV_PI 0.3183099f //0.318309886183790671538
 #endif
 
 #define RAD_PER_DEGREE 0.0174533f //FLOAT_PI / 180.f
 #define radians(_deg) (_deg * RAD_PER_DEGREE)
+
+
+
+typedef struct  
+{
+	point3f_t pmin,pmax;
+}bbox_t;
+
+INLINE void bbox_init(bbox_t* bbox)
+{
+	vinit(bbox->pmin,FLT_MAX,FLT_MAX,FLT_MAX);
+	vinit(bbox->pmax,-FLT_MAX,-FLT_MAX,-FLT_MAX);
+}
+INLINE void bbox_union_with_point(bbox_t* bbox,const point3f_t* p)
+{
+	bbox->pmin.x = min(bbox->pmin.x, p->x);
+    bbox->pmin.y = min(bbox->pmin.y, p->y);
+    bbox->pmin.z = min(bbox->pmin.z, p->z);
+    bbox->pmax.x = max(bbox->pmax.x, p->x);
+    bbox->pmax.y = max(bbox->pmax.y, p->y);
+    bbox->pmax.z = max(bbox->pmax.z, p->z);
+}
+//return which axis is has max distance
+INLINE int bbox_max_extent(const bbox_t* bbox)
+{
+	vector3f_t diag;
+	vsub(diag,bbox->pmax,bbox->pmin);
+	if (diag.x > diag.y && diag.x > diag.z)
+		return 0;
+	else if (diag.y > diag.z)
+		return 1;
+	else
+		return 2;
+}
+
+INLINE void coordinate_system(const vector3f_t *v1, vector3f_t *v2, vector3f_t *v3) {
+	if (fabs(v1->x) > fabs(v1->y)) {
+		float invLen = 1.f / sqrt(v1->x*v1->x + v1->z*v1->z);
+		vinit(*v2,-v1->z * invLen,0.f,v1->x * invLen);
+	}
+	else {
+		float invLen = 1.f / sqrt(v1->y*v1->y + v1->z*v1->z);
+		vinit(*v2,0.f,v1->z * invLen, -v1->y * invLen);
+	}
+	vxcross(*v3,*v1, *v2);
+}
+
 
 #endif

@@ -14,6 +14,7 @@
 #include "display_func.h"
 
 #include "path_tracing.h"
+#include "photon_map.h"
 
 #ifndef M_PI
 #define M_PI       3.14159265358979323846
@@ -1144,6 +1145,45 @@ static char *ReadSources(const char *fileName) {
 
 static void ExecuteKernelCPU()
 {
+	//////////////////////////////////////////////////////////////////////////
+	//test 
+	photon_map_t photon_map;
+	unsigned n_caustic_photons, n_indirect_photons;
+	unsigned  n_lookup;
+	int specular_depth;
+	int max_specular_depth;
+	float max_dist_squared, rr_threshold;
+	float cos_gather_angle;
+	int gather_samples;
+	// Declare sample parameters for light source sampling
+	int n_caustic_paths, n_indirect_paths;
+	photon_map.final_gather = true;
+	photon_map.n_caustic_paths = 100;
+	photon_map.n_indirect_paths = 100;
+
+	photon_map.n_caustic_photons = 0;//20000
+	photon_map.n_indirect_photons = 100000;
+
+	photon_map.n_lookup = 50;
+	photon_map.specular_depth = 0;
+	photon_map.max_specular_depth = 6;
+	photon_map.max_dist_squared = 400;
+	photon_map.rr_threshold = 0.1f;
+	photon_map.cos_gather_angle = 0.5;
+	photon_map.gather_samples = 32;
+
+	photon_map.caustic_map.nodes = NULL;
+	photon_map.caustic_map.node_data = NULL;
+
+	photon_map.indirect_map.nodes = NULL;
+	photon_map.indirect_map.node_data = NULL;
+
+	photon_map.radiance_map.nodes = NULL;
+	photon_map.radiance_map.node_data = NULL;
+	Seed ps;
+	init_rng(seeds[0],&ps);
+	photon_map_init(&photon_map,light_data,material_data,shape_data,texture_data,integrator_data,accelerator_data,primitives,primitive_count,lights,light_count,&ps);
+	//////////////////////////////////////////////////////////////////////////
 	const int pixel_count = width * height;
 	for (int ii = 0;ii < pixel_count ; ++ii)
 	{

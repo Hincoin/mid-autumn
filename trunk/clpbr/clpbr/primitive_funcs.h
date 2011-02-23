@@ -41,4 +41,59 @@ INLINE void	intersection_get_bsdf(intersection_t *isect,cl_scene_info_t scene_in
 	bxdf_init_lambertian(bsdf->bxdfs[0],r);
 	//material_get_bsdf(scene,mi,dg,dgs,&bsdf); 
 }
+
+//this is a simple test without accelerator privided
+static int intersect(
+					 GLOBAL float* accelerator_data,
+					 GLOBAL float* shape_data,
+					 GLOBAL primitive_info_t* primitives,
+					 const unsigned int primitive_count,
+					 ray_t* r,
+					 //Seed* seed,
+					 intersection_t *isect
+					 )
+{
+	//
+	int ret = 0;
+	float thit;
+	for (unsigned int i = 0;i < primitive_count; ++i)
+	{
+		switch(primitives[i].shape_info.shape_type)//intersect with shape
+		{
+		case 0:
+			if(intersect_sphere(shape_data,primitives[i].shape_info.memory_start,r,&thit,&(isect->dg)))
+			{
+				ret = 1;
+				isect->primitive_idx = i;
+				r->maxt = thit;
+			}
+			break;
+		default:
+			break;
+		}
+	}
+	return ret;
+}
+
+INLINE int intersectP(cl_scene_info_t scene,ray_t *r)
+{
+	for (unsigned int i = 0;i < scene.primitive_count; ++i)
+	{
+		switch(scene.primitives[i].shape_info.shape_type)//intersect with shape
+		{
+		case 0:
+			if(intersect_sphereP(scene.shape_data,scene.primitives[i].shape_info.memory_start,r))
+			{
+				//printf("intersect test failed : %d %f,%f\n",i,r->mint,r->maxt);
+				return 1;
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	//printf("intersect test success\n");
+	return 0;
+}
 #endif

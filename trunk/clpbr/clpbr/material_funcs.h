@@ -4,6 +4,7 @@
 
 
 #include "texture.h"
+#include "reflection.h"
 
 typedef enum {LIGHT_MATERIAL=0,MATTE_MATERIAL,GLASS_MATERIAL,MIRROR_MATERIAL}MaterialType;
 

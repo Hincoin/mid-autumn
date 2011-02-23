@@ -166,10 +166,10 @@ typedef struct
 
 
 #define transform_point(pl,t,p)\
-	matrix_point(pl,t.m,p)
+	matrix_point((pl),t.m,p)
 
 #define inverse_transform_point(pl,t,p)\
-	matrix_point(pl,t.inv_m,p)
+	matrix_point((pl),t.inv_m,p)
 
 #define matrix_vector(vl,m,vr)\
 	{\
@@ -189,9 +189,16 @@ typedef struct
 
 #define transform_normal(nl,t,nr)\
 	{\
-		nl.x = matrix_element(t.inv_m,0,0) * nr.x + matrix_element(t.inv_m,1,0) * nr.y + matrix_element(t.inv_m,2,0) * nr.z ;\
-		nl.y = matrix_element(t.inv_m,0,1) * nr.x + matrix_element(t.inv_m,1,1) * nr.y + matrix_element(t.inv_m,2,1) * nr.z ;\
-		nl.z = matrix_element(t.inv_m,0,2) * nr.x + matrix_element(t.inv_m,1,2) * nr.y + matrix_element(t.inv_m,2,2) * nr.z ;\
+		(nl).x = matrix_element(t.inv_m,0,0) * (nr).x + matrix_element(t.inv_m,1,0) * (nr).y + matrix_element(t.inv_m,2,0) * (nr).z ;\
+		(nl).y = matrix_element(t.inv_m,0,1) * (nr).x + matrix_element(t.inv_m,1,1) * (nr).y + matrix_element(t.inv_m,2,1) * (nr).z ;\
+		(nl).z = matrix_element(t.inv_m,0,2) * (nr).x + matrix_element(t.inv_m,1,2) * (nr).y + matrix_element(t.inv_m,2,2) * (nr).z ;\
+	}\
+
+#define inverse_transform_normal(nl,t,nr)\
+	{\
+		nl.x = matrix_element(t.m,0,0) * nr.x + matrix_element(t.m,1,0) * nr.y + matrix_element(t.m,2,0) * nr.z ;\
+		nl.y = matrix_element(t.m,0,1) * nr.x + matrix_element(t.m,1,1) * nr.y + matrix_element(t.m,2,1) * nr.z ;\
+		nl.z = matrix_element(t.m,0,2) * nr.x + matrix_element(t.m,1,2) * nr.y + matrix_element(t.m,2,2) * nr.z ;\
 	}\
 
 #define transform_ray(rl,t,rr)\

@@ -1,6 +1,7 @@
 #ifndef _PATH_TRACING_H_
 #define _PATH_TRACING_H_
 
+
 #include "config.h"
 
 #include "primitive.h"
@@ -13,60 +14,6 @@
 
 
 
-//this is a simple test without accelerator privided
-static int intersect(
-					  GLOBAL float* accelerator_data,
-					  GLOBAL float* shape_data,
-					  GLOBAL primitive_info_t* primitives,
-					  const unsigned int primitive_count,
-						ray_t* r,
-						Seed* seed,
-						intersection_t *isect
-					  )
-{
-	//
-	int ret = 0;
-	float thit;
-	for (unsigned int i = 0;i < primitive_count; ++i)
-	{
-		switch(primitives[i].shape_info.shape_type)//intersect with shape
-		{
-		case 0:
-			if(intersect_sphere(shape_data,primitives[i].shape_info.memory_start,r,&thit,&(isect->dg)))
-			{
-				ret = 1;
-				isect->primitive_idx = i;
-				r->maxt = thit;
-			}
-			break;
-		default:
-			break;
-		}
-	}
-	return ret;
-}
-
-INLINE int intersectP(cl_scene_info_t scene,ray_t *r)
-{
-	for (unsigned int i = 0;i < scene.primitive_count; ++i)
-	{
-		switch(scene.primitives[i].shape_info.shape_type)//intersect with shape
-		{
-		case 0:
-			if(intersect_sphereP(scene.shape_data,scene.primitives[i].shape_info.memory_start,r))
-			{
-				//printf("intersect test failed : %d %f,%f\n",i,r->mint,r->maxt);
-				return 1;
-			}
-			break;
-		default:
-			break;
-		}
-	}
-
-	//printf("intersect test success\n");
-	return 0;
-}
 void estimate_direct(   cl_scene_info_t scene_info,
 					 const light_info_t* light,
 					 Seed* s,
@@ -130,7 +77,7 @@ void estimate_direct(   cl_scene_info_t scene_info,
 				rinit(ray,*p,wi);
 				vclr(li);
 				if (intersect(scene_info.accelerator_data,scene_info.shape_data,scene_info.primitives,scene_info.primitive_count,
-					&ray,s,&light_isect))
+					&ray,&light_isect))
 				{
 					unsigned primitive_idx = -1;
 					switch(light->light_type)
@@ -211,7 +158,7 @@ vector3f_t *result
 	vector3f_t throughtput; vinit(throughtput,1,1,1);
 
 	unsigned int depth = 0;
-	const unsigned int max_depth = 6;
+	const unsigned int max_depth = 3;
 	const unsigned int rr_depth = 3;
 	intersection_t isect;
 	cl_scene_info_t scene_info;
@@ -236,7 +183,7 @@ vector3f_t *result
 			*result = color;
 			return;
 		}
-		if (!intersect(accelerator_data, shape_data, primitives, primitive_count, &cur_ray,seed,&isect))
+		if (!intersect(accelerator_data, shape_data, primitives, primitive_count, &cur_ray,&isect))
 		{
 			*result = color;
 			return;

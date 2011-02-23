@@ -17,6 +17,7 @@ typedef struct
 
 #define color_clamp(_x,_low,_high) {clamp((_x).x,(_low),(_high));clamp((_x).y,(_low),(_high));clamp((_x).z,(_low),(_high));};
 
+#include "geometry.h"
 INLINE int convert_to_rgb(const spectrum_t* spectrum)
 {
 	//float xyz[3];
@@ -53,6 +54,17 @@ INLINE int convert_to_rgb(const spectrum_t* spectrum)
 	return to_int(r) |
 		(to_int(g) << 8) |
 		(to_int(b) << 16)	;
+}
+INLINE float spectrum_y(spectrum_t* color)
+{
+	float y = 0;
+	float YWeight[] = {
+		0.212671f, 0.715160f, 0.072169f
+	};
+	y+= YWeight[0] * color->x;
+	y+= YWeight[1] * color->y;
+	y+= YWeight[2] * color->z;
+	return y;	
 }
 INLINE unsigned load_color(GLOBAL float *mem,spectrum_t *ret)
 {
