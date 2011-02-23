@@ -212,12 +212,20 @@
 				RelativePath=".\memory.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\photon_map_cpu.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\calgorithm.h"
+				>
+			</File>
 			<File
 				RelativePath=".\camera.h"
 				>
@@ -299,6 +307,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sampling.h"
+				>
+			</File>
+			<File
 				RelativePath=".\shape.h"
 				>
 			</File>
@@ -312,6 +324,10 @@
 			</File>
 			<File
 				RelativePath=".\texture.h"
+				>
+			</File>
+			<File
+				RelativePath=".\util.h"
 				>
 			</File>
 		</Filter>

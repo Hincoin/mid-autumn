@@ -109,7 +109,7 @@ INLINE void uniform_sampling_light(
 		}
 	}
 }
-void light_sample_l(cl_scene_info_t scene_info,const light_info_t* light,
+INLINE void light_sample_l(cl_scene_info_t scene_info,const light_info_t* light,
 					const point3f_t *p,
 					Seed* seed,
 					const normal3f_t *n, float u1, float u2,
@@ -212,39 +212,9 @@ INLINE float light_pdf(cl_scene_info_t scene_info,const light_info_t *light,cons
 	if(light->light_type == 0)
 	{
 		area_light_t lght;
-		lght.primitive_idx = as_uint(scene_info.light_data[0]);
-		sphere_t s;
-		load_sphere(scene_info.shape_data + scene_info.primitives[lght.primitive_idx].shape_info.memory_start
-			,&s);
-		vector3f_t v_tmp ;
-		point3f_t p_tmp,pcenter;vinit(pcenter,0,0,0);
-		transform_point(p_tmp,s.o2w,pcenter);
-		vsub(v_tmp,*p,p_tmp);
-		float dist_sqr = vdot(v_tmp,v_tmp);
-		//inside sphere
-		if (dist_sqr - s.rad * s.rad < 0.00001f)
-		{
-			ray_t r;rinit(r,*p,*wi);
-			intersection_t isect;
-			float thit;
-			differential_geometry_t dg;
-			if(!(intersect_sphere(scene_info.shape_data,
-				scene_info.primitives[lght.primitive_idx].shape_info.memory_start,
-				&r,&thit,&dg)))
-			{
-				return 0.f;
-			}
-			float wod = fabs(vdot(dg.nn,*wi));
-			vsub(v_tmp,dg.p,*p);
-			float dsqr = vdot(v_tmp,v_tmp);
-			return (dsqr) / (4.f * FLOAT_PI * s.rad * s.rad)  * wod ;
-		}
-		else
-		{
-			float cosThetaMax = sqrt(max(0.f, (1.f - s.rad * s.rad /
-				dist_sqr)));
-			return 1.f / (2.f * FLOAT_PI * (1.f - cosThetaMax));
-		}
+		lght.primitive_idx = as_uint((scene_info.light_data+light->memory_start)[0]);
+		shape_info_t shape_info = (scene_info.primitives[lght.primitive_idx].shape_info);
+		return shape_pdf(shape_info,scene_info,p,wi);
 	}
 	return 0;						
 }
@@ -254,10 +224,60 @@ INLINE bool light_is_delta_light(cl_scene_info_t scene_info,const light_info_t* 
 	return false;
 }
 
-static void light_le(cl_scene_info_t scene_info,const intersection_t* isect,const vector3f_t* wi,spectrum_t* c)
+INLINE void light_le(cl_scene_info_t scene_info,const intersection_t* isect,const vector3f_t* wi,spectrum_t* c)
 {
 	//todo
 	if(scene_info.primitives[isect->primitive_idx].material_info.material_type == 0)//light type
 		light_l(isect->dg.p,isect->dg.nn,wi,c);//vinit(*c,1.f,1.f,1.f);
+}
+#include "shape_funcs.h"
+INLINE void light_power(light_info_t* light,cl_scene_info_t scene_info,spectrum_t *e)
+{
+	switch(light->light_type)
+	{
+	case 0://area light
+		{
+			area_light_t lght;
+			lght.primitive_idx = as_uint((scene_info.light_data+light->memory_start)[0]);
+			material_info_t light_material = scene_info.primitives[lght.primitive_idx].material_info;	
+			spectrum_t lemit;
+			switch(light_material.material_type)
+			{
+			case 0:
+				{
+					load_color(scene_info.material_data+light_material.memory_start,&lemit);
+				}
+				break;
+			default:vclr(lemit);break;
+			}
+			shape_info_t shape_info = scene_info.primitives[lght.primitive_idx].shape_info;
+			vsmul(*e,shape_area(shape_info,scene_info) * FLOAT_PI,lemit);
+		}
+
+		break;
+	default:
+		vclr(*e);
+	}
+}
+
+INLINE void light_ray_sample_l(light_info_t* light,cl_scene_info_t scene_info,float u0,float u1,float u2,float u3,
+			ray_t *ray,float *pdf,spectrum_t *alpha)
+{
+	//
+	if(light->light_type == 0)
+	{
+		normal3f_t ns;
+
+		area_light_t lght;
+		lght.primitive_idx = as_uint((scene_info.light_data+light->memory_start)[0]);
+		shape_info_t shape_info = (scene_info.primitives[lght.primitive_idx].shape_info);
+		shape_sample_on_shape(&shape_info,scene_info,u0,u1,&ns,&(ray->o));
+		UniformSampleSphere(u2, u3,&(ray->d));
+		if (vdot(ray->d, ns) < 0.) vsmul(ray->d , -1, ray->d);
+		*pdf = /*shape_pdf(shape_info,&ray->o)*/(1.f/shape_area(shape_info,scene_info)) * INV_PI;
+		rinit(*ray,ray->o,ray->d);
+		return light_l(ray->o, ns, &ray->d,alpha);
+	}
+
 }
 #endif

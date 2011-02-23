@@ -330,19 +330,24 @@ INLINE float bsdf_pdf(bsdf_t* bsdf,const vector3f_t *woW,const vector3f_t* wiW,B
 		}
 	return matchingComps > 0 ? pdf / matchingComps : 0.f;
 }
+INLINE int bsdf_num_components(bsdf_t* bsdf,int flags)
+{
+	int matching_comps = 0;
+	for (int i = 0;i < bsdf->n_bxdfs; ++i)
+	{
+		if ((flags & bsdf->bxdfs[i].type) == bsdf->bxdfs[i].type)
+		{
+			matching_comps ++;
+		}
+	}
+	return matching_comps;
+}
 INLINE void bsdf_sample_f(bsdf_t* bsdf,const vector3f_t *woW,vector3f_t *wiW,
 						  float u1,float u2,float u3,float *pdf,BxDFType flags,
 						  BxDFType *sampled_type, spectrum_t *f)
 {//todo
 	// Choose which _BxDF_ to sample
-	int matching_comps = 0;
-	for (int i = 0;i < bsdf->n_bxdfs; ++i)
-	{
-		if (flags & bsdf->bxdfs[i].type)
-		{
-			matching_comps ++;
-		}
-	}
+	int matching_comps = bsdf_num_components(bsdf,flags);
 	if (matching_comps == 0) {
 		*pdf = 0.f;
 		vclr(*f);
@@ -395,7 +400,88 @@ INLINE void bsdf_sample_f(bsdf_t* bsdf,const vector3f_t *woW,vector3f_t *wiW,
 			}
 }
 
-
+INLINE void bxdf_rho_hh(bxdf_t* bxdf,int n_samples,
+					 float *samples,spectrum_t *c)
+{
+	
+	switch(bxdf->bxdf_model)
+	{
+	case BRDF_LAMBERTIAN:
+		vassign(*c,bxdf->r_lambert);
+		return ; 
+	default:
+		{
+			vclr(*c);
+			spectrum_t f;
+			vector3f_t wo,wi;
+			for(int i =0;i < n_samples; ++i)
+			{
+				uniform_sample_hemisphere(samples[4*i],samples[4*i+1],&wo);
+				float pdf_o = INV_PI,pdf_i = 0.f;
+				bxdf_sample_f(bxdf,
+					wo,&wi,samples[4*i+2],samples[4*i+3],
+					&pdf_i,&f);
+				if(pdf_i > 0)
+				{
+					vsmul(f,fabs(wi.z*wo.z)/(pdf_o*pdf_i),f);
+					vadd(*c,*c,f);
+				}
+			}
+			vsmul(*c,1.f/(FLOAT_PI*n_samples),*c);
+			return;
+		}
+		break;
+		
+	}
+}
+INLINE void bxdf_rho_hd(bxdf_t* bxdf,const vector3f_t *w,int n_samples,
+					 float *samples,spectrum_t *c)
+{
+	switch(bxdf->bxdf_model)
+	{
+	case BRDF_LAMBERTIAN:
+		vassign(*c,bxdf->r_lambert);
+		return ; 
+	default:
+		{
+			vector3f_t wi;
+			spectrum_t f;
+			vclr(*c);
+			for(int i = 0;i < n_samples; ++i)
+			{
+				float pdf = 0.f;
+				bxdf_sample_f(bxdf,
+					*w,&wi,samples[2*i],samples[2*i+1],
+					&pdf,&f);
+				if (pdf > 0.f)
+				{
+					vsmul(f,fabs(wi.z)/pdf,f);
+					vadd(*c,*c,f);
+				}
+			}
+			vsmul(*c,1.f/n_samples,*c);
+			return;
+		}
+		break;
+		
+	}
+}
+#include "sampling.h"
+INLINE void bsdf_rho_hh(bsdf_t* bsdf,Seed* seed,int flags,spectrum_t *rho)
+{
+	//
+	vclr(*rho);
+	spectrum_t tmp;
+	float samples[64];
+	int nsamples = 16;
+	for (int i = 0; i < bsdf->n_bxdfs; ++i)
+		if (bsdf->bxdfs[i].type & (flags))
+		{	
+			latin_hypercube(samples,nsamples,4,seed);
+			bxdf_rho_hh(&bsdf->bxdfs[i],nsamples,samples,&tmp);
+			vadd(*rho,*rho,tmp);
+		}
+}
 
 INLINE void compile_test()
 {

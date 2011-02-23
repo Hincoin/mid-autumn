@@ -78,7 +78,7 @@
 
 
 #include "shape.h"
-
+#include "mc.h"
 INLINE void sphere_init(sphere_t* sphere,transform_t* tf,
 						float rad,float z0,float z1,float pm,unsigned ro)
 {
@@ -113,7 +113,7 @@ INLINE void load_sphere(GLOBAL float* mem, sphere_t *ret)
 
 
 //
-int intersect_sphereP(GLOBAL float* shape_data,const unsigned int memory_start,
+INLINE int intersect_sphereP(GLOBAL float* shape_data,const unsigned int memory_start,
 					  ray_t *r
 					  )
 {
@@ -168,7 +168,7 @@ int intersect_sphereP(GLOBAL float* shape_data,const unsigned int memory_start,
 	}
 	return 1;	
 }
-int intersect_sphere(GLOBAL float* shape_data,const unsigned int memory_start,
+INLINE int intersect_sphere(GLOBAL float* shape_data,const unsigned int memory_start,
 					 ray_t *r,
 					 float *tHit,
 					 differential_geometry_t *dg)
@@ -301,5 +301,129 @@ int intersect_sphere(GLOBAL float* shape_data,const unsigned int memory_start,
 		// Update _tHit_ for quadric intersection
 		*tHit = thit;
 	return 1;
+}
+#include "cl_scene.h"
+INLINE float shape_area(shape_info_t shape_info,cl_scene_info_t scene_info)
+{
+	switch(shape_info.shape_type)
+	{
+	case 0:
+		{
+			sphere_t s;
+			load_sphere(scene_info.shape_data + shape_info.memory_start
+				,&s);
+			return FLOAT_PI * s.rad * s.rad * 4;
+		}
+		break;
+	default:
+		return 0;
+	}
+}
+
+
+INLINE void sphere_shape_sample(sphere_t* s,cl_scene_info_t scene_info,float u0,float u1,normal3f_t *ns,point3f_t *pr)
+{
+	//sample shape
+	vector3f_t new_v;
+	UniformSampleSphere(u0,u1,&new_v);
+	vsmul(new_v,s->rad,new_v);
+	transform_normal(*ns,s->o2w,new_v);
+	vnorm(*ns);
+	if(s->reverse_orientation)vsmul(*ns,-1.f,*ns);
+	transform_point(*pr,s->o2w,new_v);
+}
+INLINE void shape_sample_on_shape(shape_info_t* shape_info,cl_scene_info_t scene_info,float u0,float u1,normal3f_t *ns,point3f_t *pr)
+{
+	if (shape_info->shape_type == 0)
+	{
+		sphere_t s;
+		load_sphere(scene_info.shape_data + shape_info->memory_start
+			,&s);
+		sphere_shape_sample(&s,scene_info,u0,u1,ns,pr);
+	}
+}
+INLINE void shape_sample(shape_info_t* shape_info,cl_scene_info_t scene_info,const point3f_t* p,float u0,float u1,normal3f_t *ns,point3f_t *pr)
+{
+	//
+	if (shape_info->shape_type == 0)
+	{
+		sphere_t s;
+		load_sphere(scene_info.shape_data + shape_info->memory_start
+			,&s);
+
+		vector3f_t wc;
+		point3f_t p_tmp,pcenter;vinit(pcenter,0,0,0);
+		transform_point(p_tmp,s.o2w,pcenter);
+		vsub(wc,*p,p_tmp);
+		float dist_sqr = vdot(wc,wc);
+		vsmul(wc,1.f/dist_sqr,wc);
+		vector3f_t wc_x,wc_y;
+		coordinate_system(&wc,&wc_x,&wc_y);
+		if (dist_sqr - s.rad*s.rad < 1e-4f)
+		{
+			sphere_shape_sample(&s,scene_info,u0,u1,ns,pr);
+			return;
+		}
+		float cos_theta_max = sqrt(max(0,1.f-s.rad*s.rad/dist_sqr));
+		differential_geometry_t dg_sphere;
+		float thit;
+		point3f_t ps;
+		ray_t r;
+		vector3f_t r_dir;
+		uniform_sample_cone(u0,u1,cos_theta_max,&wc_x,&wc_y,&wc,&r_dir);
+		rinit(r,*p,r_dir);
+		if(!intersect_sphere(scene_info.shape_data,shape_info->memory_start,&r,&thit,&dg_sphere))
+		{
+			vsmul(ps,s.rad,wc);
+			vsub(ps,pcenter,ps);
+		}
+		else
+			rpos(ps,r,thit);
+		vsub(*ns,ps,pcenter);
+		if(s.reverse_orientation)vsmul(*ns,-1.f,*ns);
+		vassign(*pr,ps);
+	}
+
+}
+#include "primitive.h"
+INLINE float shape_pdf(shape_info_t shape_info,cl_scene_info_t scene_info,const point3f_t* p,const vector3f_t* wi)
+{
+	if (shape_info.shape_type == 0)
+	{
+	sphere_t s;
+	load_sphere(scene_info.shape_data + shape_info.memory_start
+		,&s);
+	vector3f_t v_tmp ;
+	point3f_t p_tmp,pcenter;vinit(pcenter,0,0,0);
+	transform_point(p_tmp,s.o2w,pcenter);
+	vsub(v_tmp,*p,p_tmp);
+	float dist_sqr = vdot(v_tmp,v_tmp);
+	//inside sphere
+	if (dist_sqr - s.rad * s.rad < 0.00001f)
+	{
+		ray_t r;rinit(r,*p,*wi);
+		intersection_t isect;
+		float thit;
+		differential_geometry_t dg;
+		if(!(intersect_sphere(scene_info.shape_data,
+			shape_info.memory_start,
+			&r,&thit,&dg)))
+		{
+			return 0.f;
+		}
+		float wod = fabs(vdot(dg.nn,*wi));
+		vsub(v_tmp,dg.p,*p);
+		float dsqr = vdot(v_tmp,v_tmp);
+		return (dsqr) / (4.f * FLOAT_PI * s.rad * s.rad)  * wod ;
+	}
+	else
+	{
+		float cosThetaMax = sqrt(max(0.f, (1.f - s.rad * s.rad /
+			dist_sqr)));
+		return 1.f / (2.f * FLOAT_PI * (1.f - cosThetaMax));
+	}
+	}
+
+	return 0.f;
 }
 #endif

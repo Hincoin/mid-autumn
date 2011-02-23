@@ -23,4 +23,8 @@ unsigned int lght_count;
 
 int intersectP(cl_scene_info_t scene,ray_t *r);
 
+INLINE void scene_tranmittance(cl_scene_info_t scene_info,ray_t* r,spectrum_t* c)
+{
+	vinit(*c,1.f,1.f,1.f);
+}
 #endif
