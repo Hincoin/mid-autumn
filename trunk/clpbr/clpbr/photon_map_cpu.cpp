@@ -67,6 +67,7 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,S
 	vector<photon_t> direct_photons;
 	vector<radiance_photon_t> radiance_photons;
 	bool caustice_map_inited = false,indirect_map_inited = false,radiance_map_inited=false;
+	photon_map->n_lookup = min(photon_map->n_lookup,MAX_CLOSE_PHOTON_LOOKUP);
 
 	caustic_photons.reserve(photon_map->n_caustic_photons);
 	indirect_photons.reserve(photon_map->n_indirect_photons);

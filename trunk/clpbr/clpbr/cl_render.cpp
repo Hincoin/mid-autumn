@@ -82,7 +82,7 @@ unsigned int sphereCount;
 #ifdef _DEBUG
 int debug_use_cpu = 1;
 #else
-int debug_use_cpu = 0;
+int debug_use_cpu = 1;
 #endif
 static void SetUpScene()
 {
@@ -198,9 +198,9 @@ static void SetUpScene()
 	texture_data[24] = 0.1f;
 	texture_data[25] = 0.1f;
 	texture_data[26] = 0.1f;
-	texture_data[27] = 2.f;
-	texture_data[28] = 2.f;
-	texture_data[29] = 2.f;
+	texture_data[27] = 3.f;
+	texture_data[28] = 3.f;
+	texture_data[29] = 3.f;
 	texture_data[30] = 1.33f;
 	//for mirror
 	texture_data[31] = 1.f;
@@ -323,17 +323,17 @@ static void SetUpScene()
 	primitives[5].material_info.material_type = MATTE_MATERIAL;
 	primitives[5].material_info.memory_start = 23;
 
-	//primitives[6].material_info.material_type = MIRROR_MATERIAL;
-	//primitives[6].material_info.memory_start = 33;
+	primitives[6].material_info.material_type = MIRROR_MATERIAL;
+	primitives[6].material_info.memory_start = 33;
 
-	primitives[6].material_info.material_type = MATTE_MATERIAL;
-	primitives[6].material_info.memory_start = 3;
+	//primitives[6].material_info.material_type = MATTE_MATERIAL;
+	//primitives[6].material_info.memory_start = 3;
 
-	//primitives[7].material_info.material_type = GLASS_MATERIAL;
-	//primitives[7].material_info.memory_start = 27;
+	primitives[7].material_info.material_type = GLASS_MATERIAL;
+	primitives[7].material_info.memory_start = 27;
 
-	primitives[7].material_info.material_type = MATTE_MATERIAL;
-	primitives[7].material_info.memory_start = 23;
+	//primitives[7].material_info.material_type = MATTE_MATERIAL;
+	//primitives[7].material_info.memory_start = 23;
 
 	primitives[8].material_info.material_type = LIGHT_MATERIAL;
 	primitives[8].material_info.memory_start= 0;
@@ -1142,12 +1142,12 @@ static char *ReadSources(const char *fileName) {
 		workGroupSize = forceWorkSize;
 	}
 }
-
-static void ExecuteKernelCPU()
+photon_map_t *pm = NULL;
+static void InitializePhotonMapping()
 {
+	pm = new photon_map_t;
 	//////////////////////////////////////////////////////////////////////////
-	//test 
-	photon_map_t photon_map;
+	photon_map_t &photon_map = *pm;
 	unsigned n_caustic_photons, n_indirect_photons;
 	unsigned  n_lookup;
 	int specular_depth;
@@ -1158,32 +1158,112 @@ static void ExecuteKernelCPU()
 	// Declare sample parameters for light source sampling
 	int n_caustic_paths, n_indirect_paths;
 	photon_map.final_gather = true;
-	photon_map.n_caustic_paths = 100;
-	photon_map.n_indirect_paths = 100;
+	photon_map.n_caustic_paths = 0;
+	photon_map.n_indirect_paths = 0;
 
-	photon_map.n_caustic_photons = 0;//20000
-	photon_map.n_indirect_photons = 100000;
+	photon_map.n_caustic_photons = 2000;//20000;
+	photon_map.n_indirect_photons = 6000;//100000;
 
 	photon_map.n_lookup = 50;
-	photon_map.specular_depth = 0;
-	photon_map.max_specular_depth = 6;
-	photon_map.max_dist_squared = 400;
-	photon_map.rr_threshold = 0.1f;
-	photon_map.cos_gather_angle = 0.5;
-	photon_map.gather_samples = 32;
+	photon_map.max_specular_depth = 4;
+	photon_map.max_dist_squared = 0.1f;
+	photon_map.rr_threshold = 0.01f;
+	photon_map.cos_gather_angle = 0.984f;
+
+	photon_map.gather_samples = 16;
 
 	photon_map.caustic_map.nodes = NULL;
 	photon_map.caustic_map.node_data = NULL;
+	photon_map.caustic_map.n_nodes = 0;
 
 	photon_map.indirect_map.nodes = NULL;
 	photon_map.indirect_map.node_data = NULL;
+	photon_map.indirect_map.n_nodes = 0;
 
 	photon_map.radiance_map.nodes = NULL;
 	photon_map.radiance_map.node_data = NULL;
+	photon_map.radiance_map.n_nodes = 0;
 	Seed ps;
 	init_rng(seeds[0],&ps);
 	photon_map_init(&photon_map,light_data,material_data,shape_data,texture_data,integrator_data,accelerator_data,primitives,primitive_count,lights,light_count,&ps);
-	//////////////////////////////////////////////////////////////////////////
+	printf("initializ photon mapping done!\n");
+}
+static void ExecuteKernelCPUPhotonMapping()
+{
+	if(!pm)
+	{
+		InitializePhotonMapping();
+	}
+	const int pixel_count = width * height;
+	cl_scene_info_t scene_info;
+	scene_info.light_data = light_data;
+	scene_info.material_data = material_data;
+	scene_info.shape_data = shape_data;
+	scene_info.texture_data = texture_data;
+	scene_info.integrator_data = integrator_data;
+	scene_info.accelerator_data = accelerator_data;
+	scene_info.primitives = primitives;
+	scene_info.primitive_count = primitive_count;
+	scene_info.lghts = lights;
+	scene_info.lght_count = light_count;
+
+	const int print_step = 1000;
+	for (int ii = 0;ii < pixel_count ; ++ii)
+	{
+
+		const int gid = ii;
+		const int gid2 = 2 * gid;
+		const int x = gid % width;
+		const int y = gid / width;
+
+		if (x == width/2 && y == height /2)
+		{
+			int debug_break = 0;
+		}
+		/* Check if we have to do something */
+		if (y >= height)
+			return;
+
+		/* LordCRC: move seed to local store */
+		unsigned int seed0 = seeds[gid];
+		Seed s;
+		init_rng(seed0,&s);
+
+		ray_t ray;
+		GenerateCameraRay(&camera, &s, width, height, x, y, &ray);
+
+		spectrum_t r;
+
+
+		photon_map_li(pm,&ray,scene_info,&s,&r);
+		const int i = (height - y - 1) * width + x;
+		if (currentSample == 0) {
+			// Jens's patch for MacOS
+			vassign(colors[i], r);
+		} else {
+			const float k1 = currentSample;
+			const float k2 = 1.f / (currentSample + 1.f);
+			colors[i].x = (colors[i].x * k1  + r.x) * k2;
+			colors[i].y = (colors[i].y * k1  + r.y) * k2;
+			colors[i].z = (colors[i].z * k1  + r.z) * k2;
+		}
+
+		spectrum_t c;
+		c.x = colors[i].x;
+		c.y = colors[i].y;
+		c.z = colors[i].z;
+		pixels[y * width + x] = convert_to_rgb(&c);
+
+		seeds[gid] = random_uint(&s);
+		if(ii % print_step == 0)
+		{
+			printf("rendering %.2f%% \t",(100*ii/float(pixel_count)));
+		}
+	}
+	printf("frame complete \n");
+}
+static void ExecuteKernelCPUPathTracing()
+{
 	const int pixel_count = width * height;
 	for (int ii = 0;ii < pixel_count ; ++ii)
 	{
@@ -1268,7 +1348,8 @@ static void GetPixels()
 }
 static void ExecuteKernel() {
 	if(debug_use_cpu) {
-		ExecuteKernelCPU();
+		//ExecuteKernelCPUPhotonMapping();
+		ExecuteKernelCPUPathTracing();
 		return;
 	}
 	/* Enqueue a kernel run call */
@@ -1588,6 +1669,11 @@ void UpdateRendering() {
 }
 
 void ReInitScene() {
+	if (pm)
+	{
+		//delete pm;
+		//pm = NULL;
+	}
 	currentSample = 0;
 
 	// Redownload the scene

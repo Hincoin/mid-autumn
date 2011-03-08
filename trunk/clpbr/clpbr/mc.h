@@ -77,6 +77,10 @@ INLINE void uniform_sample_cone(float u1, float u2, float cos_theta_max,
 							 vsmul(v_tmp,costheta,*z);
 							 vadd(*ret,*ret,v_tmp);
 }
+INLINE float uniform_cone_pdf(float cos_theta_max)
+{
+	return 1.f / (2.f * FLOAT_PI * (1.f - cos_theta_max));
+}
 INLINE void uniform_sample_hemisphere(float u1,float u2,vector3f_t *ret)
 {
 	float z = u1;
