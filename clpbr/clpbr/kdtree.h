@@ -60,9 +60,12 @@ INLINE void kd_node_init_leaf(kd_node_t* kd_node)
 //todo
 #define KD_TREE_MAX_DEPTH 64
 
-#define distance_squared(_v0,_v1)\
-	vdot(_v0,_v1)
-
+INLINE float distance_squared(point3f_t v0,point3f_t v1)
+{
+	vector3f_t v;
+	vsub(v,v0,v1);
+	return vdot(v,v);
+}
 //stack
 #define kd_tree_lookup(_kd_tree,_p,_proc_data,_proc,_max_dist_sqr)\
 {\

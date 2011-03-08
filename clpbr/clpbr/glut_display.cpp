@@ -23,8 +23,8 @@ extern unsigned int sphereCount;
 
 int amiSmallptCPU;
 
-int width = 80;
-int height = 60;
+int width = 64;
+int height = 64;
 unsigned int *pixels;
 char captionBuffer[256];
 

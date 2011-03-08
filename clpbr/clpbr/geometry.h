@@ -71,7 +71,7 @@ typedef struct
 #define EPSILON 1e-3f //1.192092896e-07F 
 #endif
 #ifndef FLOAT_PI
-#define FLOAT_PI 3.1415626f
+#define FLOAT_PI 3.1415926f
 #endif
 
 #ifndef FLT_MAX

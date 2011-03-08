@@ -242,7 +242,10 @@ INLINE void bxdf_sample_f(bxdf_t *self, vector3f_t wo,vector3f_t* wi,
 		bxdf_f(self,wo, *wi,f);
 	}
 }
-
+INLINE bool bxdf_matches(bxdf_t* bxdf,int flags)
+{
+	return (bxdf->type & flags) == bxdf->type;
+}
 //rho todo
 
 
@@ -307,7 +310,7 @@ INLINE void bsdf_f(bsdf_t* bsdf,
 	vclr(*f);
 	spectrum_t tf;
 	for (int i = 0; i < bsdf->n_bxdfs; ++i)
-		if (bsdf->bxdfs[i].type & flags)
+		if (bxdf_matches(&bsdf->bxdfs[i], flags))
 		{
 			bxdf_f(&bsdf->bxdfs[i],wo,wi,&tf);
 			vadd(*f,*f,tf);
@@ -324,12 +327,13 @@ INLINE float bsdf_pdf(bsdf_t* bsdf,const vector3f_t *woW,const vector3f_t* wiW,B
 	float pdf = 0.f;
 	int matchingComps = 0;
 	for (int i = 0; i < bsdf->n_bxdfs; ++i)
-		if (bsdf->bxdfs[i].type & flags) {
+		if (bxdf_matches(&bsdf->bxdfs[i], flags)) {
 			++matchingComps;
 			pdf += bxdf_pdf(&bsdf->bxdfs[i],wo,wi);
 		}
 	return matchingComps > 0 ? pdf / matchingComps : 0.f;
 }
+
 INLINE int bsdf_num_components(bsdf_t* bsdf,int flags)
 {
 	int matching_comps = 0;
@@ -358,7 +362,7 @@ INLINE void bsdf_sample_f(bsdf_t* bsdf,const vector3f_t *woW,vector3f_t *wiW,
 	int bxdf_idx = -1;
 	int count = which;
 	for (int i = 0; i < bsdf->n_bxdfs; ++i)
-		if (bsdf->bxdfs[i].type & (flags))
+		if (bxdf_matches(&bsdf->bxdfs[i], flags))
 			if (count-- == 0) {
 				bxdf_idx = i;
 				break;
@@ -376,7 +380,7 @@ INLINE void bsdf_sample_f(bsdf_t* bsdf,const vector3f_t *woW,vector3f_t *wiW,
 			if (!(bsdf->bxdfs[bxdf_idx].type & BSDF_SPECULAR) && matching_comps> 1) {
 				for (int i = 0; i < bsdf->n_bxdfs; ++i) {
 					if (i != bxdf_idx  &&
-						(bsdf->bxdfs[i].type & (flags)))
+						(bxdf_matches(&bsdf->bxdfs[i], (flags))))
 						*pdf += bxdf_pdf(&bsdf->bxdfs[i],wo,wi);// bxdfs[i]->Pdf(wo, wi);
 				}
 			}
@@ -392,7 +396,7 @@ INLINE void bsdf_sample_f(bsdf_t* bsdf,const vector3f_t *woW,vector3f_t *wiW,
 					flags = (BxDFType)(flags & ~BSDF_REFLECTION);
 				spectrum_t tf;
 				for (int i = 0; i < bsdf->n_bxdfs; ++i)
-					if (bsdf->bxdfs[i].type & flags)
+					if (bxdf_matches(&bsdf->bxdfs[i], flags))
 					{
 						bxdf_f(&bsdf->bxdfs[i],wo,wi,&tf);
 						vadd(*f,*f,tf);
@@ -475,7 +479,7 @@ INLINE void bsdf_rho_hh(bsdf_t* bsdf,Seed* seed,int flags,spectrum_t *rho)
 	float samples[64];
 	int nsamples = 16;
 	for (int i = 0; i < bsdf->n_bxdfs; ++i)
-		if (bsdf->bxdfs[i].type & (flags))
+		if (bxdf_matches(&bsdf->bxdfs[i], (flags)))
 		{	
 			latin_hypercube(samples,nsamples,4,seed);
 			bxdf_rho_hh(&bsdf->bxdfs[i],nsamples,samples,&tmp);
@@ -483,6 +487,21 @@ INLINE void bsdf_rho_hh(bsdf_t* bsdf,Seed* seed,int flags,spectrum_t *rho)
 		}
 }
 
+INLINE void bsdf_rho_hd(bsdf_t* bsdf,const vector3f_t* w,Seed* seed,int flags,spectrum_t *rho)
+{
+	//
+	vclr(*rho);
+	spectrum_t tmp;
+	float samples[32];
+	int nsamples = 16;
+	for (int i = 0; i < bsdf->n_bxdfs; ++i)
+		if (bxdf_matches(&bsdf->bxdfs[i] ,(flags)))
+		{	
+			latin_hypercube(samples,nsamples,2,seed);
+			bxdf_rho_hd(&bsdf->bxdfs[i],w,nsamples,samples,&tmp);
+			vadd(*rho,*rho,tmp);
+		}
+}
 INLINE void compile_test()
 {
 }

@@ -251,6 +251,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\integrator_funcs.h"
+				>
+			</File>
+			<File
 				RelativePath=".\kdtree.h"
 				>
 			</File>
@@ -324,10 +328,6 @@
 			</File>
 			<File
 				RelativePath=".\texture.h"
-				>
-			</File>
-			<File
-				RelativePath=".\util.h"
 				>
 			</File>
 		</Filter>
