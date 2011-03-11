@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <omp.h>
 
 #include "camera.h"
 #include "shape.h"
@@ -1162,9 +1163,9 @@ static void InitializePhotonMapping()
 	photon_map.n_indirect_paths = 0;
 
 	photon_map.n_caustic_photons = 2000;//20000;
-	photon_map.n_indirect_photons = 6000;//100000;
+	photon_map.n_indirect_photons = 10000;//100000;
 
-	photon_map.n_lookup = 50;
+	photon_map.n_lookup = 5;
 	photon_map.max_specular_depth = 4;
 	photon_map.max_dist_squared = 0.1f;
 	photon_map.rr_threshold = 0.01f;
@@ -1208,6 +1209,7 @@ static void ExecuteKernelCPUPhotonMapping()
 	scene_info.lght_count = light_count;
 
 	const int print_step = 1000;
+	#pragma omp parallel for
 	for (int ii = 0;ii < pixel_count ; ++ii)
 	{
 
@@ -1222,7 +1224,7 @@ static void ExecuteKernelCPUPhotonMapping()
 		}
 		/* Check if we have to do something */
 		if (y >= height)
-			return;
+			continue;
 
 		/* LordCRC: move seed to local store */
 		unsigned int seed0 = seeds[gid];
@@ -1348,8 +1350,8 @@ static void GetPixels()
 }
 static void ExecuteKernel() {
 	if(debug_use_cpu) {
-		//ExecuteKernelCPUPhotonMapping();
-		ExecuteKernelCPUPathTracing();
+		ExecuteKernelCPUPhotonMapping();
+		//ExecuteKernelCPUPathTracing();
 		return;
 	}
 	/* Enqueue a kernel run call */
