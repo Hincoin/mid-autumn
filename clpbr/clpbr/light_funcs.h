@@ -126,70 +126,97 @@ INLINE void light_sample_l(cl_scene_info_t scene_info,const light_info_t* light,
 			GLOBAL float* data = scene_info.light_data + light->memory_start;
 			area_light_t l;
 			l.primitive_idx = as_uint(data[0]);
-			vector3f_t unit_sphere_point;
+			normal3f_t ns;
+			vector3f_t sphere_point;
 			(*shadow_ray).o = *p;
 			material_info_t light_material = scene_info.primitives[l.primitive_idx].material_info;
 			unsigned st = scene_info.primitives[l.primitive_idx].shape_info.shape_type;
 			unsigned ms = scene_info.primitives[l.primitive_idx].shape_info.memory_start;
+
 			switch (st)
 			{
 			case 0:
 				{
-					vector3f_t v_unit_sp;
-					UniformSampleSphere(random_float(seed),random_float(seed),&v_unit_sp);
 					sphere_t s;
 					load_sphere(scene_info.shape_data + ms,&s);
-					point3f_t sp;
-					vsmul(unit_sphere_point,s.rad,v_unit_sp);
-					transform_point(sp,s.o2w,unit_sphere_point);
-					transform_vector(unit_sphere_point,s.o2w,v_unit_sp);
-
-					vsub(*wo,sp,(*shadow_ray).o);
-					const float len = sqrt(vdot(*wo,*wo));
-					vsmul(*wo, 1.f/len,*wo);
-
-
-					(*shadow_ray).maxt = len-EPSILON;
-					(*shadow_ray).mint =	EPSILON;
-
-					float wod = vdot(*wo, v_unit_sp);
-					if(wod > 0)
-						return;
-					else 
-						wod = -wod;
-
-					/* visibility */
-					const float wid = vdot(*wo, *n);
-
-					if(wid > 0){
-						(*shadow_ray).d = *wo;
-						//shape pdf
-						vector3f_t v_tmp ;
-						point3f_t p,pcenter;vinit(pcenter,0,0,0);
-						transform_point(p,s.o2w,pcenter);
-						vsub(v_tmp,(*shadow_ray).o,p);
-						float dist_sqr = vdot(v_tmp,v_tmp);
-						//inside sphere
-						if (dist_sqr - s.rad * s.rad < 0.00001f)
+					point3f_t p_center;
+					point3f_t s_center;vclr(s_center);
+					transform_point(p_center,s.o2w,s_center);
+					vector3f_t wc;
+					vsub(wc,p_center,*p);
+					float dist_sqr = vdot(wc,wc);
+					vnorm(wc);
+					vector3f_t wc_x,wc_y;
+					coordinate_system(&wc,&wc_x,&wc_y);
+					if (dist_sqr - s.rad*s.rad < 1e-4f)
+					{
+						//sample(u1,u2,ns);
+						vector3f_t v_unit_sp;
+						UniformSampleSphere(u1,u2,&v_unit_sp);
+						point3f_t usp;
+						vsmul(usp,s.rad,v_unit_sp);
+						transform_point(sphere_point,s.o2w,usp);
+						transform_normal(ns,s.o2w,usp);
+						vnorm(ns);
+						if(s.reverse_orientation) vneg(ns,ns);
+					}
+					else
+					{
+						float cos_theta_max = sqrt(max(0.f,1.f-s.rad*s.rad/dist_sqr));
+						differential_geometry_t dg_sphere;
+						float thit;
+						point3f_t ps;
+						vector3f_t dir;
+						uniform_sample_cone(u1,u2,cos_theta_max,&wc_x,&wc_y,&wc,&dir);
+						ray_t ray;rinit(ray,*p,dir);
+						if(!intersect_sphere(scene_info.shape_data , ms,&ray,&thit,&dg_sphere))
 						{
-							*pdf = (len *len) / ((4.f * FLOAT_PI * s.rad * s.rad)  * wod) ;
+							vsmul(ps,s.rad,wc);
+							vsub(ps,p_center,ps);
 						}
 						else
 						{
-							float cosThetaMax = sqrt(max(0.f, (1.f - s.rad * s.rad /
-								dist_sqr)));
-							*pdf = 1.f / (2.f * FLOAT_PI * (1.f - cosThetaMax));//uniformconepdf
+							rpos(ps,ray,thit);
 						}
+						vsub(ns,ps,p_center);
+						vnorm(ns);
+						if(s.reverse_orientation) vneg(ns,ns);
+						vassign(sphere_point,ps);
+					}
+					vsub(*wo,sphere_point,(*shadow_ray).o);
+					(*shadow_ray).d = *wo;
+					(*shadow_ray).maxt = 1.f-EPSILON;
+					(*shadow_ray).mint =	EPSILON;
+					const float len = sqrt(vdot(*wo,*wo));
+					vsmul(*wo, 1.f/len,*wo);
 
-						switch(light_material.material_type)
+					//shape pdf
+					//inside sphere
+					if (dist_sqr - s.rad * s.rad < 0.00001f)
+					{
+						differential_geometry_t dg_light;
+						float thit;
+						vector3f_t wi_neg;
+						ray_t ray;rinit(ray,*p,*wo);
+						vneg(wi_neg,*wo);
+						if(!intersect_sphere(scene_info.shape_data , ms,&ray,&thit,&dg_light))*pdf = 0;
+						else *pdf = (len *len) / ((4.f * FLOAT_PI * s.rad * s.rad)  * fabs(vdot(dg_light.nn,wi_neg))) ;
+					}
+					else
+					{
+						float cosThetaMax = sqrt(max(0.f, (1.f - s.rad * s.rad /
+							dist_sqr)));
+						*pdf = 1.f / (2.f * FLOAT_PI * (1.f - cosThetaMax));//uniformconepdf
+					}
+
+					switch(light_material.material_type)
+					{
+					case 0:
 						{
-						case 0:
-							{
-								load_color(scene_info.material_data+light_material.memory_start,clr);
-							}
-							break;
-						default:break;
+							load_color(scene_info.material_data+light_material.memory_start,clr);
 						}
+						break;
+					default:break;
 					}
 				}
 			default:
