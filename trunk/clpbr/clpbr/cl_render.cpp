@@ -199,9 +199,9 @@ static void SetUpScene()
 	texture_data[24] = 0.1f;
 	texture_data[25] = 0.1f;
 	texture_data[26] = 0.1f;
-	texture_data[27] = 3.f;
-	texture_data[28] = 3.f;
-	texture_data[29] = 3.f;
+	texture_data[27] = 1.f;
+	texture_data[28] = 1.f;
+	texture_data[29] = 1.f;
 	texture_data[30] = 1.33f;
 	//for mirror
 	texture_data[31] = 1.f;
@@ -1158,20 +1158,20 @@ static void InitializePhotonMapping()
 	int gather_samples;
 	// Declare sample parameters for light source sampling
 	int n_caustic_paths, n_indirect_paths;
-	photon_map.final_gather = true;
+	photon_map.final_gather = true;//true;
 	photon_map.n_caustic_paths = 0;
 	photon_map.n_indirect_paths = 0;
 
-	photon_map.n_caustic_photons = 2000;//20000;
-	photon_map.n_indirect_photons = 10000;//100000;
+	photon_map.n_caustic_photons = 2000;//20000;//20000;
+	photon_map.n_indirect_photons = 10000;//100000;//100000;
 
-	photon_map.n_lookup = 5;
+	photon_map.n_lookup = 100;
 	photon_map.max_specular_depth = 4;
-	photon_map.max_dist_squared = 0.1f;
+	photon_map.max_dist_squared = 0.01f;
 	photon_map.rr_threshold = 0.01f;
-	photon_map.cos_gather_angle = 0.984f;
+	photon_map.cos_gather_angle = 0.9;//0.984f;
 
-	photon_map.gather_samples = 16;
+	photon_map.gather_samples = 128;
 
 	photon_map.caustic_map.nodes = NULL;
 	photon_map.caustic_map.node_data = NULL;
@@ -1236,8 +1236,15 @@ static void ExecuteKernelCPUPhotonMapping()
 
 		spectrum_t r;
 
-
+		if(x == 41 && height - y - 1 == 34)
+		{
+			//printf("debug break;");
+		}
 		photon_map_li(pm,&ray,scene_info,&s,&r);
+		if(color_is_black(r))
+		{
+			//printf("debug break %d,%d",x,y);
+		}
 		const int i = (height - y - 1) * width + x;
 		if (currentSample == 0) {
 			// Jens's patch for MacOS
@@ -1267,6 +1274,8 @@ static void ExecuteKernelCPUPhotonMapping()
 static void ExecuteKernelCPUPathTracing()
 {
 	const int pixel_count = width * height;
+
+	#pragma omp parallel for
 	for (int ii = 0;ii < pixel_count ; ++ii)
 	{
 	
@@ -1281,7 +1290,7 @@ static void ExecuteKernelCPUPathTracing()
 		}
 		/* Check if we have to do something */
 		if (y >= height)
-			return;
+			continue;
 
 		/* LordCRC: move seed to local store */
 		unsigned int seed0 = seeds[gid];
