@@ -79,14 +79,12 @@ INLINE float distance_squared(point3f_t v0,point3f_t v1)
 		node_num = node_stack[stack_top-1];\
 		kd_node_t* node = (_kd_tree).nodes + node_num;\
 		unsigned axis = kd_node_get_split_axis(*node);\
-		if(axis == 3)\
 		{\
 			float dist2 = distance_squared((_kd_tree).node_data[node_num].p, (_p));\
 			if (dist2 < (_max_dist_sqr))\
 				(_proc)((_proc_data), &((_kd_tree).node_data[node_num]), dist2, &(_max_dist_sqr));\
-			--stack_top;\
 		}\
-		else{\
+		if(axis != 3){\
 			--stack_top;\
 			float project_to_axis = (_p).x;\
 			if(axis == 1)project_to_axis = (_p).y;\
@@ -115,6 +113,7 @@ INLINE float distance_squared(point3f_t v0,point3f_t v1)
 				}\
 			}\
 		}\
+        else --stack_top;\
 	}\
 }\
 
