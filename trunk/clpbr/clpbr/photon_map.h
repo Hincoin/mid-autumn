@@ -260,6 +260,58 @@ INLINE void photon_map_final_gather(photon_map_t* photon_map,cl_scene_info_t sce
 			vassign(photon_dirs[i],proc_data.photons[i].photon->wi);
 		}
 		spectrum_t Li;vclr(Li);
+		for(int i = 0; i < photon_map->gather_samples; ++i)
+		{
+			vector3f_t wi;float pdf;
+			spectrum_t fr;
+			float u1 = random_float(seed);
+			float u2 = random_float(seed);
+			float u3 = random_float(seed);
+			BxDFType sampled_type;
+			bsdf_sample_f(&bsdf,&wo,&wi,u1,u2,u3,&pdf,(BxDFType)(BSDF_ALL&~BSDF_SPECULAR),&sampled_type,&fr);
+			if (pdf == 0.f || color_is_black(fr))
+			{
+				continue;
+			}
+			ray_t bounce_ray;
+			rinit(bounce_ray,p,wi);
+			intersection_t gather_isect;
+			if (intersect(scene_info.accelerator_data,scene_info.shape_data,scene_info.primitives,
+				scene_info.primitive_count,&bounce_ray,&gather_isect))
+			{
+				spectrum_t L_indir;vclr(L_indir);
+				normal3f_t normal_gather = gather_isect.dg.nn;
+				if(vdot(normal_gather,bounce_ray.d)>0)vneg(normal_gather,normal_gather);
+				radiance_photon_process_data_t  radiance_proc_data;
+				radiance_photon_process_data_init(&radiance_proc_data,
+					&gather_isect.dg.p,&normal_gather);
+				float md2 = FLT_MAX;
+				kd_tree_lookup(photon_map->radiance_map,
+					gather_isect.dg.p,&radiance_proc_data,
+					radiance_photon_process,
+					md2);
+				if(radiance_proc_data.photon) L_indir = radiance_proc_data.photon->lo;
+				spectrum_t trans;
+				scene_tranmittance(scene_info,&bounce_ray,&trans);
+				vmul(L_indir,L_indir,trans);
+
+				float photon_pdf = 0.f;
+				float cone_pdf = uniform_cone_pdf(photon_map->cos_gather_angle);
+				for (int j = 0; j < n_indir_sample_photons;++j)
+				{
+					if(vdot(photon_dirs[j],wi) > 0.999f * photon_map->cos_gather_angle)photon_pdf += cone_pdf;
+				}
+				photon_pdf /= n_indir_sample_photons;
+				float wt = power_heuristic(photon_map->gather_samples,pdf,photon_map->gather_samples,photon_pdf);
+				vsmul(L_indir,(wt*fabs(vdot(wi,n))/pdf),L_indir);
+				vmul(fr,fr,L_indir);
+				vadd(Li,fr,Li);
+
+			}
+		}
+		vsmul(Li,1.f/photon_map->gather_samples,Li);
+		vadd(*l,*l,Li);
+		vclr(Li);
 		for (int i = 0;i < photon_map->gather_samples;++i)
 		{
 			float u1 = random_float(seed);
@@ -279,15 +331,6 @@ INLINE void photon_map_final_gather(photon_map_t* photon_map,cl_scene_info_t sce
 			bsdf_f(&bsdf,&wo,&wi,BSDF_ALL,&fr);
 			if (color_is_black(fr))
 				continue;
-			float photon_pdf = 0.f;
-			float cone_pdf = uniform_cone_pdf(
-				photon_map->cos_gather_angle);
-			for (unsigned j = 0; j < n_indir_sample_photons;++j)
-			{
-				if(vdot(photon_dirs[j],wi) > 0.999f * photon_map->cos_gather_angle)
-					photon_pdf += cone_pdf;
-			}
-			photon_pdf /= n_indir_sample_photons;
 			ray_t bounce_ray;
 			rinit(bounce_ray,p,wi);
 			intersection_t gather_isect;
@@ -311,18 +354,29 @@ INLINE void photon_map_final_gather(photon_map_t* photon_map,cl_scene_info_t sce
 				scene_tranmittance(scene_info,&bounce_ray,&trans);
 				vmul(L_indir,L_indir,trans);
 
+
+				float photon_pdf = 0.f;
+				float cone_pdf = uniform_cone_pdf(
+					photon_map->cos_gather_angle);
+				for (unsigned j = 0; j < n_indir_sample_photons;++j)
+				{
+					if(vdot(photon_dirs[j],wi) > 0.999f * photon_map->cos_gather_angle)
+						photon_pdf += cone_pdf;
+				}
+				photon_pdf /= n_indir_sample_photons;
+
 				float bsdfPdf = bsdf_pdf(&bsdf,&wo,&wi,BSDF_ALL);
 				float wt = power_heuristic(photon_map->gather_samples,
 					photon_pdf,
 					photon_map->gather_samples,
 					bsdfPdf);
-				vsmul(L_indir,(wt*fabs(vdot(wi,nn))/photon_pdf),L_indir);
+				vsmul(L_indir,(wt*fabs(vdot(wi,n))/photon_pdf),L_indir);
 				vmul(fr,fr,L_indir);
 				vadd(Li,fr,Li);
 			}
 		}
 		vsmul(Li,1.f/photon_map->gather_samples,Li);
-		vassign(*l,Li);
+		vadd(*l,*l,Li);
 	}
 }
 INLINE void photon_map_li(photon_map_t* photon_map,

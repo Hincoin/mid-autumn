@@ -1162,16 +1162,16 @@ static void InitializePhotonMapping()
 	photon_map.n_caustic_paths = 0;
 	photon_map.n_indirect_paths = 0;
 
-	photon_map.n_caustic_photons = 2000;//20000;//20000;
-	photon_map.n_indirect_photons = 10000;//100000;//100000;
+	photon_map.n_caustic_photons = 200;//20000;//20000;
+	photon_map.n_indirect_photons = 1000;//100000;//100000;
 
-	photon_map.n_lookup = 100;
+	photon_map.n_lookup = 50;
 	photon_map.max_specular_depth = 4;
-	photon_map.max_dist_squared = 0.01f;
+	photon_map.max_dist_squared = 4.f;
 	photon_map.rr_threshold = 0.01f;
 	photon_map.cos_gather_angle = 0.9;//0.984f;
 
-	photon_map.gather_samples = 128;
+	photon_map.gather_samples = 32;
 
 	photon_map.caustic_map.nodes = NULL;
 	photon_map.caustic_map.node_data = NULL;
@@ -1186,6 +1186,7 @@ static void InitializePhotonMapping()
 	photon_map.radiance_map.n_nodes = 0;
 	Seed ps;
 	init_rng(seeds[0],&ps);
+	printf("start shooting photons\n");
 	photon_map_init(&photon_map,light_data,material_data,shape_data,texture_data,integrator_data,accelerator_data,primitives,primitive_count,lights,light_count,&ps);
 	printf("initializ photon mapping done!\n");
 }
@@ -1328,7 +1329,21 @@ static void ExecuteKernelCPUPathTracing()
 }
 static void GetPixelsCPU()
 {
+	FILE *f = fopen("image.ppm", "w"); // Write image to PPM file.
+	if (!f) {
+		fprintf(stderr, "Failed to open image file: image.ppm\n");
+	} else {
+		fprintf(f, "P3\n%d %d\n%d\n", width, height, 255);
 
+		int x, y;
+		for (y = height - 1; y >= 0; --y) {
+			unsigned char *p = (unsigned char *)(&pixels[y * width]);
+			for (x = 0; x < width; ++x, p += 4)
+				fprintf(f, "%d %d %d ", p[0], p[1], p[2]);
+		}
+
+		fclose(f);
+	}
 }
 static void GetPixels()
 {
