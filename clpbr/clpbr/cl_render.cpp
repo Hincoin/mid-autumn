@@ -1162,8 +1162,8 @@ static void InitializePhotonMapping()
 	photon_map.n_caustic_paths = 0;
 	photon_map.n_indirect_paths = 0;
 
-	photon_map.n_caustic_photons = 200;//20000;//20000;
-	photon_map.n_indirect_photons = 1000;//100000;//100000;
+	photon_map.n_caustic_photons = 20000;//20000;//20000;
+	photon_map.n_indirect_photons = 100000;//100000;//100000;
 
 	photon_map.n_lookup = 50;
 	photon_map.max_specular_depth = 4;
@@ -1210,7 +1210,7 @@ static void ExecuteKernelCPUPhotonMapping()
 	scene_info.lght_count = light_count;
 
 	const int print_step = 1000;
-	#pragma omp parallel for
+	//#pragma omp parallel for
 	for (int ii = 0;ii < pixel_count ; ++ii)
 	{
 
@@ -1276,7 +1276,7 @@ static void ExecuteKernelCPUPathTracing()
 {
 	const int pixel_count = width * height;
 
-	#pragma omp parallel for
+	//#pragma omp parallel for
 	for (int ii = 0;ii < pixel_count ; ++ii)
 	{
 	

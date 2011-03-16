@@ -143,7 +143,7 @@ INLINE float photon_map_kernel(const photon_t *photon, const point3f_t *p,
 	return 3.f / (md2 * FLOAT_PI) * s * s;
 }
 
-#define MAX_CLOSE_PHOTON_LOOKUP 64
+#define MAX_CLOSE_PHOTON_LOOKUP 100
 
 INLINE void photon_map_lphoton(photon_map_t* photon_map,
 							   photon_kd_tree_t *map,
