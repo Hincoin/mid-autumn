@@ -288,22 +288,20 @@ INLINE void light_power(light_info_t* light,cl_scene_info_t scene_info,spectrum_
 }
 
 INLINE void light_ray_sample_l(light_info_t* light,cl_scene_info_t scene_info,float u0,float u1,float u2,float u3,
-			ray_t *ray,float *pdf,spectrum_t *alpha)
+			ray_t *ray,normal3f_t *ns,float *pdf,spectrum_t *alpha)
 {
 	//
 	if(light->light_type == 0)
 	{
-		normal3f_t ns;
-
 		area_light_t lght;
 		lght.primitive_idx = as_uint((scene_info.light_data+light->memory_start)[0]);
 		shape_info_t shape_info = (scene_info.primitives[lght.primitive_idx].shape_info);
-		shape_sample_on_shape(&shape_info,scene_info,u0,u1,&ns,&(ray->o));
+		shape_sample_on_shape(&shape_info,scene_info,u0,u1,ns,&(ray->o));
 		UniformSampleSphere(u2, u3,&(ray->d));
-		if (vdot(ray->d, ns) < 0.) vsmul(ray->d , -1, ray->d);
+		if (vdot(ray->d, *ns) < 0.) vsmul(ray->d , -1, ray->d);
 		*pdf = /*shape_pdf(shape_info,&ray->o)*/(1.f/shape_area(shape_info,scene_info)) * INV_PI;
 		rinit(*ray,ray->o,ray->d);
-		return light_l(ray->o, ns, &ray->d,alpha);
+		return light_l(ray->o, *ns, &ray->d,alpha);
 	}
 
 }

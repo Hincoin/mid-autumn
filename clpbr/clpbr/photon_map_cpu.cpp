@@ -120,14 +120,15 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,S
 		light_info_t* light = scene_info.lghts+lnum;
 		float pdf;
 		ray_t photon_ray;
+		normal3f_t nl;
 		spectrum_t alpha;
 		light_ray_sample_l(light,scene_info,u[0],u[1],u[2],u[3],
-			&photon_ray,&pdf,&alpha);
+			&photon_ray,&nl,&pdf,&alpha);
 		if (pdf == 0.f || color_is_black(alpha))continue;
-		vsmul(alpha,(1.f/(pdf*lpdf)),alpha);
+		vsmul(alpha,(fabs(vdot(nl,photon_ray.d))/(pdf*lpdf)),alpha);
 		
 		//follow photon path through scene and record intersections
-		bool specular_path = false;
+		bool specular_path = true;
 		intersection_t photon_isect;
 		int n_intersections = 0;
 		spectrum_t ltranmittance;
@@ -154,9 +155,14 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,S
 				//deposit photon at surface
 				photon_t photon;
 				photon_init(&photon,&photon_isect.dg.p,&alpha,&wo);
+				bool deposited = false;
 				if(n_intersections == 1)
 				{
-					direct_photons.push_back(photon);
+					if(!indirect_done && photon_map->final_gather)
+					{
+						direct_photons.push_back(photon);
+						deposited = true;
+					}
 				}
 				else
 				{
@@ -165,6 +171,7 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,S
 						if (!caustic_done)
 						{
 							caustic_photons.push_back(photon);
+							deposited = true;
 							if (caustic_photons.size() == photon_map->n_caustic_photons)
 							{
 								caustic_done = true;
@@ -179,6 +186,7 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,S
 					{
 						if (!indirect_done)
 						{
+							deposited = true;
 							indirect_photons.push_back(photon);
 							if (indirect_photons.size() == photon_map->n_indirect_photons)
 							{
@@ -191,7 +199,7 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,S
 						}
 					}
 				}
-				if(photon_map->final_gather && random_float(seed) < 0.125f)
+				if(deposited && photon_map->final_gather && random_float(seed) < 0.125f)
 				{
 					//store data for radiance photon
 					normal3f_t n = photon_isect.dg.nn;
@@ -206,6 +214,10 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,S
 					bsdf_rho_hh(&photon_bsdf,seed,BSDF_ALL_TRANSMISSION,&rho_t);
 					rp_transmittances.push_back(rho_t);
 				}
+			}
+			if (n_intersections > 10)
+			{
+				break;
 			}
 			//sample new photon ray direction
 			vector3f_t wi;
@@ -233,12 +245,12 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,S
 			vmul(anew,alpha,fr);
 			vsmul(anew,fabs(vdot(wi,photon_bsdf.dg_shading.nn))/pdf,anew);
 			float continue_prob = min(1.f,spectrum_y(&anew)/spectrum_y(&alpha));
-			if (random_float(seed) > continue_prob || n_intersections > 10)
+			if (random_float(seed) > continue_prob  )
 			{
 				break;
 			}
 			vsmul(alpha,1.f/continue_prob,anew);
-			specular_path = (n_intersections == 1 || specular_path)
+			specular_path = (specular_path)
 				&& ((flags & BSDF_SPECULAR) != 0);
 			rinit(photon_ray,photon_isect.dg.p,wi);
 		}
