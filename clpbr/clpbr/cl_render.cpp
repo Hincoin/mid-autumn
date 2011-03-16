@@ -1210,7 +1210,7 @@ static void ExecuteKernelCPUPhotonMapping()
 	scene_info.lght_count = light_count;
 
 	const int print_step = 1000;
-	//#pragma omp parallel for
+	#pragma omp parallel for schedule(dynamic, 32)
 	for (int ii = 0;ii < pixel_count ; ++ii)
 	{
 
