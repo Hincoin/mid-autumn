@@ -171,8 +171,8 @@ void displayFunc(void) {
 }
 
 void reshapeFunc(int newWidth, int newHeight) {
-	width = newWidth;
-	height = newHeight;
+	width = max(64,newWidth);
+	height = max(64,newHeight);
 
 	glViewport(0, 0, width, height);
 	glLoadIdentity();

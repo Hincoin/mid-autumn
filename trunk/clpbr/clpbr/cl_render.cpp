@@ -1163,15 +1163,15 @@ static void InitializePhotonMapping()
 	photon_map.n_indirect_paths = 0;
 
 	photon_map.n_caustic_photons = 20000;//20000;//20000;
-	photon_map.n_indirect_photons = 100000;//100000;//100000;
+	photon_map.n_indirect_photons = 10000;//100000;//100000;
 
 	photon_map.n_lookup = 50;
 	photon_map.max_specular_depth = 4;
-	photon_map.max_dist_squared = 4.f;
+	photon_map.max_dist_squared = 10.f;
 	photon_map.rr_threshold = 0.01f;
 	photon_map.cos_gather_angle = 0.9;//0.984f;
 
-	photon_map.gather_samples = 32;
+	photon_map.gather_samples = 4;
 
 	photon_map.caustic_map.nodes = NULL;
 	photon_map.caustic_map.node_data = NULL;
