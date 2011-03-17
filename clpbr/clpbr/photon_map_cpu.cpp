@@ -261,7 +261,8 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,S
 	int n_direct_paths = n_shot;
 	if (photon_map->final_gather)
 	{
-		for (unsigned i = 0; i < radiance_photons.size(); ++i)
+		#pragma omp parallel for schedule(dynamic, 32)
+		for (int i = 0; i < radiance_photons.size(); ++i)
 		{
 			radiance_photon_t &rp = radiance_photons[i];
 			const spectrum_t& rho_r = rp_reflectances[i];

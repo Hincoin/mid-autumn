@@ -119,9 +119,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="3"
+				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="$(ATISTREAMSDKROOT)/include/"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
+				EnableEnhancedInstructionSet="2"
 				OpenMP="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
