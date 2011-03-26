@@ -50,6 +50,7 @@ List* ListAdd(HPoint *i,List* h){List* p=new List;p->id=i;p->next=h;return p;}
 
 unsigned int num_hash, pixel_index, num_photon;
 double hash_s; List **hash_grid; List *hitpoints = NULL; AABB hpbbox;
+double max_photon_r2=0;
 std::vector<HPoint*> hit_points_array;
 
 inline unsigned int hash(const int ix, const int iy, const int iz) {
@@ -69,10 +70,15 @@ void build_hash_grid(const int w, const int h) {
 	hpbbox.reset(); List *lst = hitpoints; while (lst != NULL) {
 		HPoint *hp=lst->id; lst=lst->next; hpbbox.fit(hp->pos);}
 	Vec ssize = hpbbox.max - hpbbox.min; // compute initial radius
-	double irad = ((ssize.x + ssize.y + ssize.z) / 3.0) / ((w + h) / 2.0) * 2.0;
+
+    double irad = sqrt(max_photon_r2);
+    if (irad == 0)
+    	irad = ((ssize.x + ssize.y + ssize.z) / 3.0) / ((w + h) / 2.0) * 2.0;
+
 	hpbbox.reset(); lst = hitpoints; int vphoton = 0; // determine hash size
+
 	while (lst != NULL) {HPoint *hp = lst->id; lst = lst->next;
-	hp->r2=irad *irad; hp->accum_photon_count = 0; hp->accum_flux = Vec();
+	hp->r2 = max_photon_r2 == 0 ? (irad * irad):hp->r2; hp->accum_photon_count = 0; hp->accum_flux = Vec();
 	vphoton++; hpbbox.fit(hp->pos-irad); hpbbox.fit(hp->pos+irad);}
 	hash_s=1.0/(irad*2.0); num_hash = vphoton; 
 
@@ -82,6 +88,7 @@ void build_hash_grid(const int w, const int h) {
     }
 	lst = hitpoints; while (lst != NULL) { // store hitpoints in the hashed grid
 		HPoint *hp = lst->id; lst = lst->next;
+        irad = sqrt(hp->r2);
 		Vec BMin = ((hp->pos - irad) - hpbbox.min) * hash_s;
 		Vec BMax = ((hp->pos + irad) - hpbbox.min) * hash_s;
 		for (int iz = abs(int(BMin.z)); iz <= abs(int(BMax.z)); iz++)
@@ -143,8 +150,14 @@ void genp(Ray* pr, Vec* f, int i) {
 			if (m) {
                 //very very slow !!!!!!!!!!!!!!!
                 HPoint* hp= hit_points_array[pixel_index];
-                hp= hp?hp:(new HPoint); hp->f=f.mul(adj); hp->pos=x;
-			hp->nrm=n; hp->pix = pixel_index; hitpoints = ListAdd(hp, hitpoints);
+                bool found = hp != NULL;
+                hp= found?hp:(new HPoint); hp->f=f.mul(adj); hp->pos=x;
+			hp->nrm=n; hp->pix = pixel_index; 
+            if(!found)
+            {
+                hitpoints = ListAdd(hp, hitpoints);
+                hit_points_array[pixel_index] = hp;
+            }
 			} else {Vec hh = (x-hpbbox.min) * hash_s;
 			int ix = abs(int(hh.x)), iy = abs(int(hh.y)), iz = abs(int(hh.z));
 			// strictly speaking, we should use #pragma omp critical here
@@ -157,7 +170,7 @@ void genp(Ray* pr, Vec* f, int i) {
 						//double g = (hitpoint->n*ALPHA+ALPHA) / (hitpoint->n*ALPHA+1.0);
 						//hitpoint->r2=hitpoint->r2*g; 
                         hitpoint->accum_photon_count++;
-						hitpoint->accum_flux=(hitpoint->accum_flux+hitpoint->f.mul(fl));// *(1./PI))*g;
+						hitpoint->accum_flux=(hitpoint->accum_flux+hitpoint->f.mul(fl)*(1./PI));// *(1./PI))*g;
                     }
 				}
 			}
@@ -181,24 +194,25 @@ void genp(Ray* pr, Vec* f, int i) {
 			}
 
 		int main(int argc, char *argv[]) {
-			int w=128, h=128, samps = (argc==2) ? MAX(atoi(argv[1])/1000,1) : 1;
+			int w=512, h=512, samps = (argc==2) ? MAX(atoi(argv[1])/1000,1) : 1;
 			Ray cam(Vec(50,48,295.6), Vec(0,-0.042612,-1).norm());
 			Vec cx=Vec(w*.5135/h), cy=(cx%cam.d).norm()*.5135, *c=new Vec[w*h], vw;
 
             hit_points_array.resize(w*h,NULL);
             unsigned photon_pass = 0;
-            unsigned total_photon = num_photon;
             unsigned ray_pass = 0;
             num_photon=samps; vw=Vec(1,1,1);
-           while(true){
+            unsigned total_photon = num_photon;
+           while(photon_pass < 13){
 
 #pragma omp parallel for schedule(dynamic, 256)
 			for (int y=0; y<h; y++){
 				fprintf(stderr, "\rHitPointPass %5.2f%%", 100.0*y/(h-1));
 				for (int x=0; x<w; x++) {
 					pixel_index = x + y * w;
-					Vec d = cx * ((x + hal(ray_pass,pixel_index)) / w - 0.5) + cy * (-(y + hal(ray_pass,pixel_index)) / h + 0.5)+cam.d;
-					trace(Ray(cam.o + d * 140, d.norm()), 0, true, Vec(), Vec(1, 1, 1),0);
+                    int ray_idx = pixel_index + w*h*photon_pass;
+					Vec d = cx * ((x + hal(0,ray_idx)) / w - 0.5) + cy * (-(y + hal(0,ray_idx)) / h + 0.5)+cam.d;
+					trace(Ray(cam.o + d * 140, d.norm()), 1, true, Vec(), Vec(1, 1, 1),ray_idx);
 					}
 			}
             ray_pass++;
@@ -212,21 +226,30 @@ void genp(Ray* pr, Vec* f, int i) {
                     genp(&r,&f,m+j); trace(r,0,0>1,f,vw,m+j);}
             }
 			List* lst=hitpoints; 
+            max_photon_r2 = 0;
             while (lst != NULL) {
                 HPoint* hp=lst->id;lst=lst->next;
                 unsigned pcount = hp->photon_count + hp->accum_photon_count;
-                float g = ALPHA*pcount / (hp->photon_count * ALPHA + hp->accum_photon_count);
-                hp->photon_count = pcount;
-                hp->r2=hp->r2*g;
-                hp->flux = (hp->flux + hp->accum_flux)*(g);
+                if(hp->accum_photon_count > 0)
+                {
+                    float g = ALPHA*pcount / (hp->photon_count * ALPHA + hp->accum_photon_count);
+                    hp->photon_count = pcount;
+                    hp->r2=hp->r2*g;
+                    hp->flux = (hp->flux + hp->accum_flux)*(g);
 
-                hp->accum_photon_count = 0;
-                hp->accum_flux = Vec();
-                hp->hit_count ++;
+                    hp->accum_photon_count = 0;
+                    hp->accum_flux = Vec();
+                    hp->hit_count ++;
+                    
+                    max_photon_r2 = MAX(max_photon_r2,hp->r2);
+                }
 
-                const double k = 1.0/(PI * hp->r2 * total_photon*1000.0);
-			    int i=hp->pix;
-                c[i] = hp->flux * k;
+                if(pcount>0)
+                {
+                    const double k = 1.0/(PI * hp->r2 * total_photon*1000.0);
+                    int i=hp->pix;
+                    c[i] = hp->flux * k;
+                }
                 //c[i]=c[i]+hp->flux*(1.0/(PI*hp->r2*total_photon*1000.0));
             }
 			FILE* f = fopen("image.ppm","w"); fprintf(f,"P3\n%d %d\n%d\n",w,h,255);
