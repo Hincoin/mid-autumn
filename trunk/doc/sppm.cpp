@@ -188,13 +188,16 @@ void genp(Ray* pr, Vec* f, int i) {
 			Vec td = (r.d*nnt - n*((into?1:-1)*(ddn*nnt+sqrt(cos2t)))).norm();
 			double a=nt-nc, b=nt+nc, R0=a*a/(b*b), c = 1-(into?-ddn:td.dot(n));
 			double Re=R0+(1-R0)*c*c*c*c*c,P=Re;Ray rr(x,td);Vec fa=f.mul(adj);
-			if(m){trace(lr,dpt,m,fl,fa*Re,i);trace(rr,dpt,m,fl,fa*(1.0-Re),i);}
+			if(m)
+			{
+				(hal(d3-1,i) < P)? trace(lr,dpt,m,fl,fa,i):trace(rr,dpt,m,fl,fa,i);
+			}
 			else {(hal(d3-1,i)<P)?trace(lr,dpt,m,fl,fa,i):trace(rr,dpt,m,fl,fa,i);}}
 			
 			}
 
 		int main(int argc, char *argv[]) {
-			int w=512, h=512, samps = (argc==2) ? MAX(atoi(argv[1])/1000,1) : 1;
+			int w=256, h=256, samps = (argc==2) ? MAX(atoi(argv[1])/1000,1) : 1;
 			Ray cam(Vec(50,48,295.6), Vec(0,-0.042612,-1).norm());
 			Vec cx=Vec(w*.5135/h), cy=(cx%cam.d).norm()*.5135, *c=new Vec[w*h], vw;
 
@@ -203,9 +206,9 @@ void genp(Ray* pr, Vec* f, int i) {
             unsigned ray_pass = 0;
             num_photon=samps; vw=Vec(1,1,1);
             unsigned total_photon = num_photon;
-           while(photon_pass < 13){
+           while(true || photon_pass < 13){
 
-#pragma omp parallel for schedule(dynamic, 256)
+//#pragma omp parallel for schedule(dynamic, 256)
 			for (int y=0; y<h; y++){
 				fprintf(stderr, "\rHitPointPass %5.2f%%", 100.0*y/(h-1));
 				for (int x=0; x<w; x++) {
@@ -217,7 +220,7 @@ void genp(Ray* pr, Vec* f, int i) {
 			}
             ray_pass++;
 			fprintf(stderr,"\n"); build_hash_grid(w,h); 
-#pragma omp parallel for schedule(dynamic, 256)
+//#pragma omp parallel for schedule(dynamic, 256)
 			for( int i=0;i<num_photon;i++) {
                 double p=100.*(i+1)/num_photon;
 			   int m=1000*(i+photon_pass*num_photon); Ray r; Vec f;
@@ -250,6 +253,7 @@ void genp(Ray* pr, Vec* f, int i) {
                     int i=hp->pix;
                     c[i] = hp->flux * k;
                 }
+                hp->f = Vec();
                 //c[i]=c[i]+hp->flux*(1.0/(PI*hp->r2*total_photon*1000.0));
             }
 			FILE* f = fopen("image.ppm","w"); fprintf(f,"P3\n%d %d\n%d\n",w,h,255);
