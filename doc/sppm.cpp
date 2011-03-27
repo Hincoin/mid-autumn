@@ -212,7 +212,7 @@ void genp(Ray* pr, Vec* f, int i) {
             unsigned ray_pass = 0;
             num_photon=samps; vw=Vec(1,1,1);
             unsigned total_photon = num_photon;
-           while(true || photon_pass < 13){
+           while( (max_photon_r2 == 0. || max_photon_r2 > 1e-3f) ){
 
 //#pragma omp parallel for schedule(dynamic, 256)
 			for (int y=0; y<h; y++){
@@ -220,8 +220,8 @@ void genp(Ray* pr, Vec* f, int i) {
 				for (int x=0; x<w; x++) {
 					pixel_index = x + y * w;
                     int ray_idx = pixel_index + w*h*photon_pass;
-					Vec d = cx * ((x + hal(0,ray_idx)) / w - 0.5) + cy * (-(y + hal(0,ray_idx)) / h + 0.5)+cam.d;
-					trace(Ray(cam.o + d * 140, d.norm()), 1, true, Vec(), Vec(1, 1, 1),ray_idx);
+					Vec d = cx * ((x + hal(0,ray_idx)) / w - 0.5) + cy * (-(y + hal(1,ray_idx)) / h + 0.5)+cam.d;
+					trace(Ray(cam.o + d * 140, d.norm()), 2, true, Vec(), Vec(1, 1, 1),ray_idx);
 					}
 			}
             ray_pass++;
