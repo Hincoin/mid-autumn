@@ -10,8 +10,10 @@ int primes[61]={2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,
 inline int rev(const int i,const int p) {if (i==0) return i; else return p-i;}
 double hal(const int b, int j) { 
 // Halton sequence with reverse permutation
-    if(b >= sizeof(primes)/sizeof(primes[0])) return ((double)rand()) / RAND_MAX; 
-	const int p = primes[b]; double h = 0.0, f = 1.0 / (double)p, fct = f;
+    if(b >= sizeof(primes)/sizeof(primes[0]) ) return ((double)rand()) / RAND_MAX; 
+	const int p = primes[b]; 
+//    if(j/p > 10) return ((double)rand()) / RAND_MAX;
+    double h = 0.0, f = 1.0 / (double)p, fct = f;
 	while (j > 0) {h += rev(j % p, p) * fct; j /= p; fct *= f;} return h;
 }
 struct Vec {double x, y, z; // vector: position, also color (r,g,b)
@@ -38,7 +40,7 @@ inline void reset() {min=Vec(1e20,1e20,1e20); max=Vec(-1e20,-1e20,-1e20);}
 struct HPoint {
     HPoint()
     {
-        r2 = 10000000;//very large
+        r2 = -1.;//not init
     }
     Vec f,pos,nrm,flux,accum_flux; double r2; 
     unsigned int photon_count,accum_photon_count; 
@@ -78,7 +80,8 @@ void build_hash_grid(const int w, const int h) {
 	hpbbox.reset(); lst = hitpoints; int vphoton = 0; // determine hash size
 
 	while (lst != NULL) {HPoint *hp = lst->id; lst = lst->next;
-	hp->r2 = max_photon_r2 == 0 ? (irad * irad):hp->r2; hp->accum_photon_count = 0; hp->accum_flux = Vec();
+	hp->r2 = (max_photon_r2 == 0 || hp->r2 < 0) ? (irad * irad):hp->r2;
+    hp->accum_photon_count = 0; hp->accum_flux = Vec();
 	vphoton++; hpbbox.fit(hp->pos-irad); hpbbox.fit(hp->pos+irad);}
 	hash_s=1.0/(irad*2.0); num_hash = vphoton; 
 
@@ -138,7 +141,10 @@ void genp(Ray* pr, Vec* f, int i) {
         // trace both specular transmission and specular reflection but not diffuse surface for ray tracing
 		void trace(const Ray &r,int dpt,bool m,const Vec &fl,const Vec &adj,int i) 
 		{
-			double t;int id; dpt++;if(!intersect(r,t,id)||(dpt>=20))return;int d3=dpt*3;
+			double t;int id; dpt++;
+            if(!intersect(r,t,id)||(dpt>=20))return;
+
+            int d3=dpt*3;
 
 			const Sphere &obj = sph[id]; Vec x=r.o+r.d*t, n=(x-obj.p).norm(), f=obj.c;
 			Vec nl=n.dot(r.d)<0?n:n*-1; double p=f.x>f.y&&f.x>f.z?f.x:f.y>f.z?f.y:f.z;
@@ -197,7 +203,7 @@ void genp(Ray* pr, Vec* f, int i) {
 			}
 
 		int main(int argc, char *argv[]) {
-			int w=256, h=256, samps = (argc==2) ? MAX(atoi(argv[1])/1000,1) : 1;
+			int w=1024, h=768, samps = (argc==2) ? MAX(atoi(argv[1])/1000,1) : 1;
 			Ray cam(Vec(50,48,295.6), Vec(0,-0.042612,-1).norm());
 			Vec cx=Vec(w*.5135/h), cy=(cx%cam.d).norm()*.5135, *c=new Vec[w*h], vw;
 
@@ -224,7 +230,7 @@ void genp(Ray* pr, Vec* f, int i) {
 			for( int i=0;i<num_photon;i++) {
                 double p=100.*(i+1)/num_photon;
 			   int m=1000*(i+photon_pass*num_photon); Ray r; Vec f;
-                if(i%10 == 0)fprintf(stderr,"\rPhotonPass %5.2f%%, %d",p,m); 
+                fprintf(stderr,"\rPhotonPass %5.2f%%, %d",p,m); 
 			    for(int j=0;j<1000;j++){
                     genp(&r,&f,m+j); trace(r,0,0>1,f,vw,m+j);}
             }
@@ -236,6 +242,9 @@ void genp(Ray* pr, Vec* f, int i) {
                 if(hp->accum_photon_count > 0)
                 {
                     float g = ALPHA*pcount / (hp->photon_count * ALPHA + hp->accum_photon_count);
+                    if(g>1.f)
+                        fprintf(stderr,"g>1,g:%.6f,pcount:%d,photon_count:%d,accum_photon_count:%d\n",
+                                g,pcount,hp->photon_count,hp->accum_photon_count);
                     hp->photon_count = pcount;
                     hp->r2=hp->r2*g;
                     hp->flux = (hp->flux + hp->accum_flux)*(g);
@@ -256,12 +265,12 @@ void genp(Ray* pr, Vec* f, int i) {
                 hp->f = Vec();
                 //c[i]=c[i]+hp->flux*(1.0/(PI*hp->r2*total_photon*1000.0));
             }
-			FILE* f = fopen("image.ppm","w"); fprintf(f,"P3\n%d %d\n%d\n",w,h,255);
+    		FILE* f = fopen("image.ppm","w"); fprintf(f,"P3\n%d %d\n%d\n",w,h,255);
 			for(int i = 0; i< w * h; i++) {
 				fprintf(f,"%d %d %d ", toInt(c[i].x), toInt(c[i].y), toInt(c[i].z));
                 c[i].x = c[i].y=c[i].z=0.f;
             }
-            fprintf(stderr,"\nprogress %d,total_photon:%d\n",photon_pass++,total_photon*1000); 
+            fprintf(stderr,"\nprogress %d,total_photon:%d,max_photon_radius2:%.6f\n",photon_pass++,total_photon*1000,max_photon_r2); 
             total_photon += num_photon;
             clear_hash_grid();
         }
