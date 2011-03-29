@@ -169,6 +169,8 @@ std::vector<std::string> init_scene_string(
 		cuds.push_back(std::make_pair("LU","LR"));
 		cuds.push_back(std::make_pair("LU","RD"));
 		cuds.push_back(std::make_pair("LU","DL"));
+        
+        cuds.push_back(std::make_pair("RD","LU"));
     return all;
 }
 
@@ -180,14 +182,21 @@ void output(const ConnectorMatrix& m,const std::vector<std::string>& all)
 	{
 		for(size_t x = 0; x < m[z].size(); ++x)
 		{
-            if (m[z][x])
-    			printf("%-5.5s",all[m[z][x]->get_key()].c_str());
+            if (m[z][x] && m[z][x]->get_key() == UnknownConnector)
+    			fprintf(stderr,"%-5.5s","UKNW");
+            else if(m[z][x])
+    			fprintf(stderr,"%-5.5s",all[m[z][x]->get_key()].c_str());
             else
-                printf("%-5.5s","EPTY");
+                fprintf(stderr,"%-5.5s","EPTY");
 		}
-		printf("\n");
+		fprintf(stderr,"\n");
 	}
-	printf("\n");
+	fprintf(stderr,"\n");
+}
+std::vector<std::string> all ;
+void debug_progress_output(const ConnectorMatrix& m)
+{
+    output(m,all);
 }
 void test_case()
 {
@@ -198,16 +207,17 @@ void test_case()
     std::vector<std::pair<std::string,std::string> > clrs;
     std::vector<std::pair<std::string,std::string> > cuds;
 
-    std::vector<std::string> all = init_scene_string(ls,us,rs,ds,clrs,cuds);
+    all = init_scene_string(ls,us,rs,ds,clrs,cuds);
     std::vector<Connector*> cs = build_from_string(all,ls,us,rs,ds,clrs,cuds);
 	std::set<ConnectorMatrix> all_results;
 	std::map<ConnectorMatrix,size_t> statistic;
 	for(int seed = 0; seed < 10; ++seed)
 	{ 
-		//printf("seed %d\n",seed);
-		for(int i = 15;i < 16; ++i)
-        for(int j = 15;j < 16; ++j)
+		printf("seed %d\n",seed);
+		for(int i = 6;i < 16; ++i)
+        for(int j = 8;j < 16; ++j)
         {
+            printf("i,j:%d,%d\n",i,j);
             ConnectorMatrix m = construct_by_connection(i,j,seed,cs);
 			if (is_solution(m))
 			{
