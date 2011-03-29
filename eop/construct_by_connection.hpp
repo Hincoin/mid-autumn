@@ -216,6 +216,109 @@ std::vector<Connector*> intersect_filter(Connector* const lc,
 
 typedef std::vector< std::vector<Connector* > > ConnectorMatrix;
 
+	inline bool is_connected(const ConnectorMatrix& m)	
+	{		
+		if(m.size() == 0 || m[0].size() == 0) return true;		
+		typedef std::pair<size_t , size_t > coord2d_t;		
+		std::stack<coord2d_t> connector_stack;		
+	    std::vector<std::vector<bool> > visited;		
+	    //init visited flags		
+	    std::vector<bool> visited_row(m[0].size(),false);		
+	    visited.resize(m.size(),visited_row);		
+		//std::set<coord2d_t> visited;		
+		coord2d_t coord(0,0);		
+        for(size_t i = 0;i < visited.size();++i)
+            for(size_t j = 0;j < visited[i].size(); ++j)
+            {
+                if(!m[i][j])
+                {
+                    visited[i][j] = true;//ignore empty
+                }
+                else
+                {
+                    if(connector_stack.size() == 0)
+                    {
+                            coord.first = i;
+                            coord.second= j;
+		                    connector_stack.push(coord);		
+                    }
+ 
+                }
+            }
+        if (connector_stack.size() == 0) connector_stack.push(coord);
+
+		while(!connector_stack.empty())		
+		{		
+			coord = connector_stack.top();		
+			connector_stack.pop();		
+			if(visited[coord.first][coord.second])		
+				continue;		
+			visited[coord.first][coord.second] = true;		
+			Connector* t = m[coord.first][coord.second];		
+       		if (t -> get_path_type() == UnknownPath)		
+			{		
+				if( coord.first > 0 &&		
+                    m[coord.first-1][coord.second] &&
+					((m[coord.first-1][coord.second]->get_path_type() & PD) ||		
+					m[coord.first-1][coord.second]->get_path_type() == UnknownPath))		
+				{		
+					connector_stack.push(std::make_pair(coord.first - 1, coord.second ));		
+				}		
+				if( coord.first < m.size() - 1 &&		
+					m[coord.first+1][coord.second] && 
+                    ((m[coord.first+1][coord.second]->get_path_type() & PU) ||		
+					m[coord.first+1][coord.second]->get_path_type() == UnknownPath		
+					))		
+				{		
+					connector_stack.push(std::make_pair(coord.first + 1, coord.second ));		
+				}		
+				if( coord.second > 0 &&		
+                    m[coord.first][coord.second-1] &&
+					((m[coord.first][coord.second-1]->get_path_type() & PR) ||		
+					m[coord.first][coord.second-1]->get_path_type() == UnknownPath		
+					))		
+				{		
+					connector_stack.push(std::make_pair(coord.first, coord.second - 1));		
+				}		
+				if( coord.second < m[coord.first].size()-1&&		
+                    m[coord.first][coord.second+1] &&
+					((m[coord.first][coord.second+1]->get_path_type() & PL) ||		
+					m[coord.first][coord.second+1]->get_path_type() == UnknownPath		
+					))		
+				{		
+					connector_stack.push(std::make_pair(coord.first, coord.second + 1));		
+				}		
+	            continue;		
+			}		
+			if (t -> get_path_type() & PL)		
+			{		
+				connector_stack.push(std::make_pair(coord.first, coord.second - 1));		
+			}		
+			if (t -> get_path_type() & PU)		
+			{		
+				connector_stack.push(std::make_pair(coord.first - 1, coord.second ));		
+			}		
+			if ( t -> get_path_type() & PR)		
+			{		
+				connector_stack.push(std::make_pair(coord.first, coord.second + 1));		
+			}		
+			if ( t -> get_path_type() & PD)		
+			{		
+				connector_stack.push(std::make_pair(coord.first + 1, coord.second ));		
+			}		
+			
+		}		
+		for(size_t i= 0 ;i < visited.size(); ++i)		
+		{		
+			for (size_t j = 0; j < visited[i].size(); ++j)		
+			{		
+				if(!visited[i][j])		
+					return false;		
+			}		
+		}		
+		return true;		
+	}
+
 inline bool is_solution(const ConnectorMatrix& m)
 {
 	if(m.empty()) return false;
@@ -230,13 +333,29 @@ inline bool is_solution(const ConnectorMatrix& m)
 	return true;
 }
 
+void debug_progress_output(const ConnectorMatrix& m);
+
 inline ConnectorMatrix construct_matrix(size_t z, size_t x, const ConnectorMatrix& m, const std::vector<Connector*> normal_connectors)
 {
+    //debug_progress_output(m);
+
 	if( !(z < m.size() && x < m[z].size()) ) return m;
 	int pt = PL | PU | PR | PD;
 	Connector *lc,*uc,*rc,*dc;
 	lc = uc = rc = dc = 0;
 	size_t next_x,next_z;
+    //get next available position
+    while (z < m.size() && !m[z][x])
+    {
+        if(x+1 < m[z].size()) x++;
+        else{
+            x=0;z++;
+        }
+    }
+    if (z == m.size())
+    {
+        return m;
+    }
 	next_x = x;
 	next_z = z;
 	if( x != 0 )
@@ -267,14 +386,16 @@ inline ConnectorMatrix construct_matrix(size_t z, size_t x, const ConnectorMatri
     if( dc == 0 ) pt = pt & ~PD;
 
 	std::vector<Connector*> cs = intersect_filter(lc,uc,rc,dc,filter_by_path_strict(pt,normal_connectors));//filter_by_path_strict(pt, intersect_filter(lc,uc,rc,dc,normal_connectors));
+    //assert(!cs.empty());
 	std::random_shuffle(cs.begin(),cs.end());
 	ConnectorMatrix cur = m;
+
 	//filter by neighbor 
 	for(size_t i = 0;i < cs.size();++i)
 	{
         if(cur[z][x] && cur[z][x]->get_key() == UnknownConnector)
     		cur[z][x] = cs[i];
-		//if(is_connected(cur))
+		if(is_connected(cur))
 		{
 			ConnectorMatrix ret;
 			construct_matrix(next_z,next_x, cur, normal_connectors).swap(ret);
@@ -283,6 +404,130 @@ inline ConnectorMatrix construct_matrix(size_t z, size_t x, const ConnectorMatri
 		}
 	}
 	return ConnectorMatrix();
+}
+inline bool filter_check(std::vector<std::vector<Connector*> >& m,
+const std::vector<Connector*>& normal_connectors
+        )
+{
+    for (size_t z = 0; z < m.size(); ++z)
+        for(size_t x = 0; x < m[z].size(); ++x)
+        {
+            if(!m[z][x])continue;
+
+        	int pt = PL | PU | PR | PD;
+	        Connector *lc,*uc,*rc,*dc;
+	        lc = uc = rc = dc = 0;
+	
+            if( x != 0 )
+            {
+                lc = (m[z][x-1]);
+            }
+            if( z != 0 )
+            {
+                uc = (m[z-1][x]);
+            }
+            if( z < m.size() - 1 )
+            {
+                dc = m[z+1][x];
+            }
+            if ( x < m[z].size() - 1)
+            {
+                rc = m[z][x+1];
+            }
+            if( lc == 0 ) pt = pt & ~PL;
+            if( uc == 0 ) pt = pt & ~PU;
+            if( rc == 0 ) pt = pt & ~PR;
+            if( dc == 0 ) pt = pt & ~PD;
+
+            std::vector<Connector*> cs = intersect_filter(lc,uc,rc,dc,filter_by_path_strict(pt,normal_connectors));
+            if(cs.empty()) return false;
+        }
+    return true;
+
+}
+inline void init_matrix(std::vector<std::vector<Connector*> >& initial,int seed,
+        int prob_pz,int prob_px,int prob_nz,int prob_nx,int min_num_blocks)
+{
+    typedef std::pair<size_t,size_t> coord_t;
+    coord_t coord;
+    std::stack<coord_t> coord_stack;
+    //pick random start
+    float u0 = float(rand()) / RAND_MAX;
+    float u1 = float(rand()) / RAND_MAX;
+    coord.first = initial.size()/2;//std::min(size_t(initial.size()* u0), initial.size() - 1);
+    size_t sz = initial[coord.first].size();
+    coord.second = sz/2;//std::min(size_t(sz * u1) ,sz - 1);
+    coord_stack.push(coord);
+    std::vector<bool> visited_row(initial[0].size(),false);
+    std::vector<std::vector<bool> > visited(initial.size(),visited_row);
+    while(!coord_stack.empty())
+    {
+        coord = coord_stack.top();
+        coord_stack.pop();
+        if(visited[coord.first][coord.second])
+            continue;
+        visited[coord.first][coord.second] = true;
+        min_num_blocks --;
+        {
+            bool go_nx = coord.second > 0 && float(rand())/RAND_MAX * 100 < prob_nx;
+            bool go_px = coord.second + 1 < initial[coord.first].size() && float(rand())/RAND_MAX * 100 < prob_px;
+            bool go_nz = coord.first > 0 && float(rand())/RAND_MAX * 100 < prob_nz;
+            bool go_pz = coord.first + 1 < initial.size() && float(rand())/RAND_MAX * 100 < prob_pz;
+
+            if(go_nx) {coord_stack.push(std::make_pair(coord.first,coord.second-1));}
+            if(go_px) {coord_stack.push(std::make_pair(coord.first,coord.second+1));}
+            if(go_nz) {coord_stack.push(std::make_pair(coord.first-1,coord.second));}
+            if(go_pz) {coord_stack.push(std::make_pair(coord.first+1,coord.second));}
+        }
+        if ( min_num_blocks > 0 && coord_stack.empty())
+        {
+            //vote for direction to go
+            float go[] = {0,0,0,0};//nx,px,nz,pz
+            go[0] = coord.second > 0 ? 1.f:0.f;
+            go[1] = coord.second + 1 < initial[coord.first].size()? 1.f:0.f;
+            go[2] = coord.first > 0 ? 1.f:0.f;
+            go[3] = coord.first + 1 < initial.size()? 1.f:0.f;
+            float p0 = float(rand())/RAND_MAX;
+            float p1 = float(rand())/RAND_MAX; 
+            go[0] =go[0] * p0 * p1;
+            go[1] =go[1] * p0 * (1.f-p1);
+            go[2] =go[2] * (1.f-p0) * p1;
+            go[3] =go[3] * (1.f-p0) * (1.f-p1);
+            int k = 0;
+            float current_max = 0.f;
+            for (int i = 0;i < sizeof(go)/sizeof(go[0]);++i)
+            {
+                if(go[i] > current_max) {
+                    k = i;
+                    current_max = go[i];
+                }
+            }
+
+            if(current_max > 0.f)
+            {
+                if(k == 0) coord.second--;
+                else if(k == 1) coord.second++;
+                else if(k == 2) coord.first--;
+                else if(k == 3) coord.first++;
+                assert(coord.first < visited.size() && coord.second < visited[coord.first].size());
+                coord_stack.push(coord);
+            }
+           //else exhausted
+       }
+        //debug
+        if(!coord_stack.empty())
+        {   
+            coord = coord_stack.top();
+            assert(coord.first < visited.size() && coord.second < visited[coord.first].size());
+        }
+
+    }
+    for(size_t i = 0;i < visited.size(); ++i)
+        for(size_t j = 0;j < visited[i].size(); ++j)
+        {
+            if(!visited[i][j])
+                initial[i][j] = 0;
+        }
 }
 
 inline ConnectorMatrix construct_by_connection(int width,int height, int seed, const std::vector<Connector*>& normal_connectors)
@@ -295,10 +540,43 @@ inline ConnectorMatrix construct_by_connection(int width,int height, int seed, c
 	unknown.set_connector_1d<R>(normal_connectors.begin(),normal_connectors.end());
 	unknown.set_connector_1d<D>(normal_connectors.begin(),normal_connectors.end());
 
-	std::vector<Connector*> row(width, &unknown);
-	ConnectorMatrix inited_matrix(height,row);
-	//
-	return construct_matrix(0,0,inited_matrix,input_connectors);
+//inited_matrix[0][0]=0;
+    //inited_matrix[height-1][width-1]=0;
+    int prob_nx = 50;
+    int prob_px = 50;
+    int prob_nz = 80;
+    int prob_pz = 80;
+    while(true)
+    {
+    	std::vector<Connector*> row(width, &unknown);
+       	ConnectorMatrix inited_matrix;
+        do{
+            inited_matrix.resize(0);
+            row.resize(width, &unknown);
+       	    inited_matrix.resize(height,row);
+            init_matrix(inited_matrix,seed,prob_pz,prob_px,prob_nz,prob_nx,width*height);//test
+            //prob_pz *= 1.5;
+            //prob_px *= 1.5;
+            //prob_nx *= 1.5;
+            //prob_nz *= 1.5;
+
+        }while(!filter_check(inited_matrix,normal_connectors));
+
+        //fprintf(stderr,"input\n");
+        ConnectorMatrix ret (construct_matrix(0,0,inited_matrix,input_connectors));
+        //if(ret.empty()) 
+         //   debug_progress_output(inited_matrix);
+        //assert(!ret.empty());
+        if(ret.empty())
+        {
+            prob_pz *= 1.5;
+            prob_px *= 1.5;
+            prob_nx *= 1.5;
+            prob_nz *= 1.5;
+        }
+        else
+            return ret;
+    }
 }
 
 #endif
