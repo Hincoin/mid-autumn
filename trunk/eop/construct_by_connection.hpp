@@ -454,16 +454,20 @@ inline void init_matrix(std::vector<std::vector<Connector*> >& initial,int seed,
     coord_t coord;
     std::queue<coord_t> coord_queue;
     //pick random start
-    float u0 = float(rand()) / RAND_MAX;
-    float u1 = float(rand()) / RAND_MAX;
-    coord.first = initial.size()/2;//std::min(size_t(initial.size()* u0), initial.size() - 1);
+    float u0 = 0.5f;
+    float u1 = 0.5f;
+    if(prob_pz + prob_nz > 0)
+        u0 = float(prob_nz) / (prob_pz+prob_nz);
+    if(prob_px + prob_nx > 0)
+        u1 = float(prob_nx) / (prob_px+prob_pz);
+    coord.first = std::min(size_t(initial.size()* u0), initial.size() - 1);
     size_t sz = initial[coord.first].size();
-    coord.second = sz/2;//std::min(size_t(sz * u1) ,sz - 1);
+    coord.second = std::min(size_t(sz * u1) ,sz - 1);
     coord_queue.push(coord);
     std::vector<bool> visited_row(initial[0].size(),false);
     std::vector<std::vector<bool> > visited(initial.size(),visited_row);
     //breadth first 
-    while(!coord_queue.empty())
+    while(!coord_queue.empty() && min_num_blocks > 0)
     {
         coord = coord_queue.front();
         coord_queue.pop();
@@ -471,6 +475,26 @@ inline void init_matrix(std::vector<std::vector<Connector*> >& initial,int seed,
             continue;
         visited[coord.first][coord.second] = true;
         min_num_blocks --;
+        {
+            bool go_nx = coord.second > 0 ;
+            bool go_px = coord.second + 1 < initial[coord.first].size() ;
+            bool go_nz = coord.first > 0 ;
+            bool go_pz = coord.first + 1 < initial.size() ;
+
+            if(go_nx) {coord_queue.push(std::make_pair(coord.first,coord.second-1));}
+            if(go_px) {coord_queue.push(std::make_pair(coord.first,coord.second+1));}
+            if(go_nz) {coord_queue.push(std::make_pair(coord.first-1,coord.second));}
+            if(go_pz) {coord_queue.push(std::make_pair(coord.first+1,coord.second));}
+        }
+ 
+    }
+    while(!coord_queue.empty())
+    {
+        coord = coord_queue.front();
+        coord_queue.pop();
+        if(visited[coord.first][coord.second])
+            continue;
+        visited[coord.first][coord.second] = true;
         {
             bool go_nx = coord.second > 0 && float(rand())/RAND_MAX * 100 < prob_nx;
             bool go_px = coord.second + 1 < initial[coord.first].size() && float(rand())/RAND_MAX * 100 < prob_px;
@@ -504,9 +528,9 @@ inline ConnectorMatrix construct_by_connection(int width,int height, int seed, c
 //inited_matrix[0][0]=0;
     //inited_matrix[height-1][width-1]=0;
     int prob_nx = 80;
-    int prob_px = 70;
-    int prob_nz = 30;
-    int prob_pz = 30;
+    int prob_px = 80;
+    int prob_nz = 1;
+    int prob_pz = 1;
     while(true)
     {
     	std::vector<Connector*> row(width, &unknown);
@@ -515,7 +539,7 @@ inline ConnectorMatrix construct_by_connection(int width,int height, int seed, c
             inited_matrix.resize(0);
             row.resize(width, &unknown);
        	    inited_matrix.resize(height,row);
-            init_matrix(inited_matrix,seed,prob_pz,prob_px,prob_nz,prob_nx,width*height);//test
+            init_matrix(inited_matrix,seed,prob_pz,prob_px,prob_nz,prob_nx,width);//test
             //prob_pz *= 1.5;
             //prob_px *= 1.5;
             //prob_nx *= 1.5;
