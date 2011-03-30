@@ -5,6 +5,7 @@
 #include <vector>
 #include <set>
 #include <stack>
+#include <queue>
 #include <utility>
 #include <cassert>
 
@@ -445,25 +446,27 @@ const std::vector<Connector*>& normal_connectors
     return true;
 
 }
+
 inline void init_matrix(std::vector<std::vector<Connector*> >& initial,int seed,
         int prob_pz,int prob_px,int prob_nz,int prob_nx,int min_num_blocks)
 {
     typedef std::pair<size_t,size_t> coord_t;
     coord_t coord;
-    std::stack<coord_t> coord_stack;
+    std::queue<coord_t> coord_queue;
     //pick random start
     float u0 = float(rand()) / RAND_MAX;
     float u1 = float(rand()) / RAND_MAX;
     coord.first = initial.size()/2;//std::min(size_t(initial.size()* u0), initial.size() - 1);
     size_t sz = initial[coord.first].size();
     coord.second = sz/2;//std::min(size_t(sz * u1) ,sz - 1);
-    coord_stack.push(coord);
+    coord_queue.push(coord);
     std::vector<bool> visited_row(initial[0].size(),false);
     std::vector<std::vector<bool> > visited(initial.size(),visited_row);
-    while(!coord_stack.empty())
+    //breadth first 
+    while(!coord_queue.empty())
     {
-        coord = coord_stack.top();
-        coord_stack.pop();
+        coord = coord_queue.front();
+        coord_queue.pop();
         if(visited[coord.first][coord.second])
             continue;
         visited[coord.first][coord.second] = true;
@@ -474,53 +477,11 @@ inline void init_matrix(std::vector<std::vector<Connector*> >& initial,int seed,
             bool go_nz = coord.first > 0 && float(rand())/RAND_MAX * 100 < prob_nz;
             bool go_pz = coord.first + 1 < initial.size() && float(rand())/RAND_MAX * 100 < prob_pz;
 
-            if(go_nx) {coord_stack.push(std::make_pair(coord.first,coord.second-1));}
-            if(go_px) {coord_stack.push(std::make_pair(coord.first,coord.second+1));}
-            if(go_nz) {coord_stack.push(std::make_pair(coord.first-1,coord.second));}
-            if(go_pz) {coord_stack.push(std::make_pair(coord.first+1,coord.second));}
+            if(go_nx) {coord_queue.push(std::make_pair(coord.first,coord.second-1));}
+            if(go_px) {coord_queue.push(std::make_pair(coord.first,coord.second+1));}
+            if(go_nz) {coord_queue.push(std::make_pair(coord.first-1,coord.second));}
+            if(go_pz) {coord_queue.push(std::make_pair(coord.first+1,coord.second));}
         }
-        if ( min_num_blocks > 0 && coord_stack.empty())
-        {
-            //vote for direction to go
-            float go[] = {0,0,0,0};//nx,px,nz,pz
-            go[0] = coord.second > 0 ? 1.f:0.f;
-            go[1] = coord.second + 1 < initial[coord.first].size()? 1.f:0.f;
-            go[2] = coord.first > 0 ? 1.f:0.f;
-            go[3] = coord.first + 1 < initial.size()? 1.f:0.f;
-            float p0 = float(rand())/RAND_MAX;
-            float p1 = float(rand())/RAND_MAX; 
-            go[0] =go[0] * p0 * p1;
-            go[1] =go[1] * p0 * (1.f-p1);
-            go[2] =go[2] * (1.f-p0) * p1;
-            go[3] =go[3] * (1.f-p0) * (1.f-p1);
-            int k = 0;
-            float current_max = 0.f;
-            for (int i = 0;i < sizeof(go)/sizeof(go[0]);++i)
-            {
-                if(go[i] > current_max) {
-                    k = i;
-                    current_max = go[i];
-                }
-            }
-
-            if(current_max > 0.f)
-            {
-                if(k == 0) coord.second--;
-                else if(k == 1) coord.second++;
-                else if(k == 2) coord.first--;
-                else if(k == 3) coord.first++;
-                assert(coord.first < visited.size() && coord.second < visited[coord.first].size());
-                coord_stack.push(coord);
-            }
-           //else exhausted
-       }
-        //debug
-        if(!coord_stack.empty())
-        {   
-            coord = coord_stack.top();
-            assert(coord.first < visited.size() && coord.second < visited[coord.first].size());
-        }
-
     }
     for(size_t i = 0;i < visited.size(); ++i)
         for(size_t j = 0;j < visited[i].size(); ++j)
@@ -542,10 +503,10 @@ inline ConnectorMatrix construct_by_connection(int width,int height, int seed, c
 
 //inited_matrix[0][0]=0;
     //inited_matrix[height-1][width-1]=0;
-    int prob_nx = 50;
-    int prob_px = 50;
-    int prob_nz = 80;
-    int prob_pz = 80;
+    int prob_nx = 80;
+    int prob_px = 70;
+    int prob_nz = 30;
+    int prob_pz = 30;
     while(true)
     {
     	std::vector<Connector*> row(width, &unknown);
