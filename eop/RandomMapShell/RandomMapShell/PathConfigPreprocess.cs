@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace RandomMapShell
 {
@@ -28,6 +29,14 @@ namespace RandomMapShell
 
             //todo: call the generate process
             //generate the bounding box info
+            Process gen_aabb = new Process();
+            gen_aabb.StartInfo.FileName = wdir + "bin\\Release\\";
+            gen_aabb.StartInfo.FileName += "MapGenUtility.exe";
+            gen_aabb.StartInfo.Arguments = "";
+            gen_aabb.StartInfo.Arguments += "generate_aabb" + " " + artist_res + " " + artist_res + "/scene/AllArpLIst.txt";
+            gen_aabb.StartInfo.WorkingDirectory = wdir + "bin\\Release\\";
+            Debug.Assert(System.IO.File.Exists(gen_aabb.StartInfo.FileName));
+            gen_aabb.Start();
         }
         public string GetArtistResPath() { return this.ArtistDataResourceText.Text; }
         public string GetWorkDir() { return this.WorkingDirText.Text; }

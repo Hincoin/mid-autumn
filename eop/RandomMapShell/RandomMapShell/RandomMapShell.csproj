@@ -49,6 +49,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="IniFile.cs" />
+    <Compile Include="ModelSetting.cs" />
     <Compile Include="PathConfigPreprocess.cs">
       <SubType>Form</SubType>
     </Compile>
