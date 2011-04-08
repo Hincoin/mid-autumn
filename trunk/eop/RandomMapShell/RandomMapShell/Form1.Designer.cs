@@ -90,10 +90,16 @@
             this.label7 = new System.Windows.Forms.Label();
             this.CommonSettingTabSetting = new System.Windows.Forms.TabControl();
             this.ModelSetting = new System.Windows.Forms.TabPage();
+            this.PathModelWithBarrierIntensitytextBox = new System.Windows.Forms.TextBox();
+            this.DecoratorIntensitytextBox = new System.Windows.Forms.TextBox();
+            this.MiddleIntensitytextBox = new System.Windows.Forms.TextBox();
+            this.PathModelWithBarriertreeView = new System.Windows.Forms.TreeView();
+            this.DecoratorModeltreeView = new System.Windows.Forms.TreeView();
+            this.MiddleModeltreeView = new System.Windows.Forms.TreeView();
             this.label23 = new System.Windows.Forms.Label();
             this.FlowerIntensitytextBox = new System.Windows.Forms.TextBox();
             this.GrassIntensitytextBox = new System.Windows.Forms.TextBox();
-            this.textBox7 = new System.Windows.Forms.TextBox();
+            this.MixModelIntensitytextBox = new System.Windows.Forms.TextBox();
             this.LinkWallIntensitytextBox = new System.Windows.Forms.TextBox();
             this.BarrierModelIntensitytextBox = new System.Windows.Forms.TextBox();
             this.CornerModelIntensitytextBox = new System.Windows.Forms.TextBox();
@@ -115,12 +121,24 @@
             this.label20 = new System.Windows.Forms.Label();
             this.MapTypeCmb = new System.Windows.Forms.ComboBox();
             this.label19 = new System.Windows.Forms.Label();
-            this.textBox8 = new System.Windows.Forms.TextBox();
+            this.MapUnitSizeText = new System.Windows.Forms.TextBox();
             this.MapHeightText = new System.Windows.Forms.TextBox();
             this.MapWidthText = new System.Windows.Forms.TextBox();
             this.MapParameterText = new System.Windows.Forms.TextBox();
             this.label18 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
+            this.FilePreprocess = new System.Windows.Forms.TabPage();
+            this.label25 = new System.Windows.Forms.Label();
+            this.ScenePreprocess = new System.Windows.Forms.GroupBox();
+            this.SceneFilePreprocessBtn = new System.Windows.Forms.Button();
+            this.CutAndPasteSceneHeightText = new System.Windows.Forms.TextBox();
+            this.CutAndPasteSceneWidthText = new System.Windows.Forms.TextBox();
+            this.label28 = new System.Windows.Forms.Label();
+            this.label27 = new System.Windows.Forms.Label();
+            this.ArtistSceneFileText = new System.Windows.Forms.TextBox();
+            this.label26 = new System.Windows.Forms.Label();
+            this.OutPutFileScenePathText = new System.Windows.Forms.TextBox();
+            this.label24 = new System.Windows.Forms.Label();
             this.Room = new System.Windows.Forms.TabPage();
             this.TabMaze = new System.Windows.Forms.TabPage();
             this.MainMenuStrip = new System.Windows.Forms.MenuStrip();
@@ -149,6 +167,8 @@
             this.CommonSettingTabSetting.SuspendLayout();
             this.ModelSetting.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            this.FilePreprocess.SuspendLayout();
+            this.ScenePreprocess.SuspendLayout();
             this.MainMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -172,7 +192,7 @@
             this.GroundSetting.Location = new System.Drawing.Point(4, 21);
             this.GroundSetting.Name = "GroundSetting";
             this.GroundSetting.Padding = new System.Windows.Forms.Padding(3);
-            this.GroundSetting.Size = new System.Drawing.Size(601, 454);
+            this.GroundSetting.Size = new System.Drawing.Size(972, 513);
             this.GroundSetting.TabIndex = 3;
             this.GroundSetting.Text = "地表设置";
             this.GroundSetting.UseVisualStyleBackColor = true;
@@ -401,7 +421,7 @@
             this.WaterSetting.Location = new System.Drawing.Point(4, 21);
             this.WaterSetting.Name = "WaterSetting";
             this.WaterSetting.Padding = new System.Windows.Forms.Padding(3);
-            this.WaterSetting.Size = new System.Drawing.Size(601, 454);
+            this.WaterSetting.Size = new System.Drawing.Size(972, 513);
             this.WaterSetting.TabIndex = 2;
             this.WaterSetting.Text = "水面设置";
             this.WaterSetting.UseVisualStyleBackColor = true;
@@ -554,7 +574,7 @@
             this.EnvironmentSetting.Location = new System.Drawing.Point(4, 21);
             this.EnvironmentSetting.Name = "EnvironmentSetting";
             this.EnvironmentSetting.Padding = new System.Windows.Forms.Padding(3);
-            this.EnvironmentSetting.Size = new System.Drawing.Size(601, 454);
+            this.EnvironmentSetting.Size = new System.Drawing.Size(972, 513);
             this.EnvironmentSetting.TabIndex = 1;
             this.EnvironmentSetting.Text = "环境设置";
             this.EnvironmentSetting.UseVisualStyleBackColor = true;
@@ -664,7 +684,7 @@
             this.ResourceSetting.Location = new System.Drawing.Point(4, 21);
             this.ResourceSetting.Name = "ResourceSetting";
             this.ResourceSetting.Padding = new System.Windows.Forms.Padding(3);
-            this.ResourceSetting.Size = new System.Drawing.Size(601, 454);
+            this.ResourceSetting.Size = new System.Drawing.Size(972, 513);
             this.ResourceSetting.TabIndex = 0;
             this.ResourceSetting.Text = "图素设置";
             this.ResourceSetting.UseVisualStyleBackColor = true;
@@ -739,19 +759,26 @@
             this.CommonSettingTabSetting.Controls.Add(this.WaterSetting);
             this.CommonSettingTabSetting.Controls.Add(this.ModelSetting);
             this.CommonSettingTabSetting.Controls.Add(this.tabPage1);
+            this.CommonSettingTabSetting.Controls.Add(this.FilePreprocess);
             this.CommonSettingTabSetting.Location = new System.Drawing.Point(17, 47);
             this.CommonSettingTabSetting.Multiline = true;
             this.CommonSettingTabSetting.Name = "CommonSettingTabSetting";
             this.CommonSettingTabSetting.SelectedIndex = 0;
-            this.CommonSettingTabSetting.Size = new System.Drawing.Size(609, 479);
+            this.CommonSettingTabSetting.Size = new System.Drawing.Size(980, 538);
             this.CommonSettingTabSetting.TabIndex = 0;
             // 
             // ModelSetting
             // 
+            this.ModelSetting.Controls.Add(this.PathModelWithBarrierIntensitytextBox);
+            this.ModelSetting.Controls.Add(this.DecoratorIntensitytextBox);
+            this.ModelSetting.Controls.Add(this.MiddleIntensitytextBox);
+            this.ModelSetting.Controls.Add(this.PathModelWithBarriertreeView);
+            this.ModelSetting.Controls.Add(this.DecoratorModeltreeView);
+            this.ModelSetting.Controls.Add(this.MiddleModeltreeView);
             this.ModelSetting.Controls.Add(this.label23);
             this.ModelSetting.Controls.Add(this.FlowerIntensitytextBox);
             this.ModelSetting.Controls.Add(this.GrassIntensitytextBox);
-            this.ModelSetting.Controls.Add(this.textBox7);
+            this.ModelSetting.Controls.Add(this.MixModelIntensitytextBox);
             this.ModelSetting.Controls.Add(this.LinkWallIntensitytextBox);
             this.ModelSetting.Controls.Add(this.BarrierModelIntensitytextBox);
             this.ModelSetting.Controls.Add(this.CornerModelIntensitytextBox);
@@ -772,10 +799,54 @@
             this.ModelSetting.Location = new System.Drawing.Point(4, 21);
             this.ModelSetting.Name = "ModelSetting";
             this.ModelSetting.Padding = new System.Windows.Forms.Padding(3);
-            this.ModelSetting.Size = new System.Drawing.Size(601, 454);
+            this.ModelSetting.Size = new System.Drawing.Size(972, 513);
             this.ModelSetting.TabIndex = 4;
             this.ModelSetting.Text = "模型设置";
             this.ModelSetting.UseVisualStyleBackColor = true;
+            // 
+            // PathModelWithBarrierIntensitytextBox
+            // 
+            this.PathModelWithBarrierIntensitytextBox.Location = new System.Drawing.Point(296, 324);
+            this.PathModelWithBarrierIntensitytextBox.Name = "PathModelWithBarrierIntensitytextBox";
+            this.PathModelWithBarrierIntensitytextBox.Size = new System.Drawing.Size(38, 21);
+            this.PathModelWithBarrierIntensitytextBox.TabIndex = 26;
+            // 
+            // DecoratorIntensitytextBox
+            // 
+            this.DecoratorIntensitytextBox.Location = new System.Drawing.Point(704, 189);
+            this.DecoratorIntensitytextBox.Name = "DecoratorIntensitytextBox";
+            this.DecoratorIntensitytextBox.Size = new System.Drawing.Size(38, 21);
+            this.DecoratorIntensitytextBox.TabIndex = 25;
+            // 
+            // MiddleIntensitytextBox
+            // 
+            this.MiddleIntensitytextBox.Location = new System.Drawing.Point(704, 61);
+            this.MiddleIntensitytextBox.Name = "MiddleIntensitytextBox";
+            this.MiddleIntensitytextBox.Size = new System.Drawing.Size(41, 21);
+            this.MiddleIntensitytextBox.TabIndex = 24;
+            // 
+            // PathModelWithBarriertreeView
+            // 
+            this.PathModelWithBarriertreeView.Location = new System.Drawing.Point(221, 351);
+            this.PathModelWithBarriertreeView.Name = "PathModelWithBarriertreeView";
+            this.PathModelWithBarriertreeView.Size = new System.Drawing.Size(169, 97);
+            this.PathModelWithBarriertreeView.TabIndex = 23;
+            // 
+            // DecoratorModeltreeView
+            // 
+            this.DecoratorModeltreeView.AllowDrop = true;
+            this.DecoratorModeltreeView.Location = new System.Drawing.Point(626, 211);
+            this.DecoratorModeltreeView.Name = "DecoratorModeltreeView";
+            this.DecoratorModeltreeView.Size = new System.Drawing.Size(168, 97);
+            this.DecoratorModeltreeView.TabIndex = 22;
+            // 
+            // MiddleModeltreeView
+            // 
+            this.MiddleModeltreeView.AllowDrop = true;
+            this.MiddleModeltreeView.Location = new System.Drawing.Point(626, 86);
+            this.MiddleModeltreeView.Name = "MiddleModeltreeView";
+            this.MiddleModeltreeView.Size = new System.Drawing.Size(168, 97);
+            this.MiddleModeltreeView.TabIndex = 21;
             // 
             // label23
             // 
@@ -788,24 +859,24 @@
             // 
             // FlowerIntensitytextBox
             // 
-            this.FlowerIntensitytextBox.Location = new System.Drawing.Point(491, 324);
+            this.FlowerIntensitytextBox.Location = new System.Drawing.Point(688, 324);
             this.FlowerIntensitytextBox.Name = "FlowerIntensitytextBox";
             this.FlowerIntensitytextBox.Size = new System.Drawing.Size(38, 21);
             this.FlowerIntensitytextBox.TabIndex = 19;
             // 
             // GrassIntensitytextBox
             // 
-            this.GrassIntensitytextBox.Location = new System.Drawing.Point(291, 324);
+            this.GrassIntensitytextBox.Location = new System.Drawing.Point(488, 324);
             this.GrassIntensitytextBox.Name = "GrassIntensitytextBox";
             this.GrassIntensitytextBox.Size = new System.Drawing.Size(44, 21);
             this.GrassIntensitytextBox.TabIndex = 18;
             // 
-            // textBox7
+            // MixModelIntensitytextBox
             // 
-            this.textBox7.Location = new System.Drawing.Point(120, 324);
-            this.textBox7.Name = "textBox7";
-            this.textBox7.Size = new System.Drawing.Size(50, 21);
-            this.textBox7.TabIndex = 17;
+            this.MixModelIntensitytextBox.Location = new System.Drawing.Point(120, 324);
+            this.MixModelIntensitytextBox.Name = "MixModelIntensitytextBox";
+            this.MixModelIntensitytextBox.Size = new System.Drawing.Size(50, 21);
+            this.MixModelIntensitytextBox.TabIndex = 17;
             // 
             // LinkWallIntensitytextBox
             // 
@@ -851,14 +922,14 @@
             // 
             // FlowertreeView
             // 
-            this.FlowertreeView.Location = new System.Drawing.Point(416, 351);
+            this.FlowertreeView.Location = new System.Drawing.Point(613, 351);
             this.FlowertreeView.Name = "FlowertreeView";
             this.FlowertreeView.Size = new System.Drawing.Size(169, 97);
             this.FlowertreeView.TabIndex = 10;
             // 
             // GrasstreeView
             // 
-            this.GrasstreeView.Location = new System.Drawing.Point(223, 351);
+            this.GrasstreeView.Location = new System.Drawing.Point(420, 351);
             this.GrasstreeView.Name = "GrasstreeView";
             this.GrasstreeView.Size = new System.Drawing.Size(158, 97);
             this.GrasstreeView.TabIndex = 9;
@@ -946,7 +1017,7 @@
             this.tabPage1.Controls.Add(this.label20);
             this.tabPage1.Controls.Add(this.MapTypeCmb);
             this.tabPage1.Controls.Add(this.label19);
-            this.tabPage1.Controls.Add(this.textBox8);
+            this.tabPage1.Controls.Add(this.MapUnitSizeText);
             this.tabPage1.Controls.Add(this.MapHeightText);
             this.tabPage1.Controls.Add(this.MapWidthText);
             this.tabPage1.Controls.Add(this.MapParameterText);
@@ -955,7 +1026,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 21);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(601, 454);
+            this.tabPage1.Size = new System.Drawing.Size(972, 513);
             this.tabPage1.TabIndex = 5;
             this.tabPage1.Text = "道路与障碍结构";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -996,12 +1067,12 @@
             this.label19.TabIndex = 6;
             this.label19.Text = "当前参数";
             // 
-            // textBox8
+            // MapUnitSizeText
             // 
-            this.textBox8.Location = new System.Drawing.Point(149, 65);
-            this.textBox8.Name = "textBox8";
-            this.textBox8.Size = new System.Drawing.Size(100, 21);
-            this.textBox8.TabIndex = 5;
+            this.MapUnitSizeText.Location = new System.Drawing.Point(149, 65);
+            this.MapUnitSizeText.Name = "MapUnitSizeText";
+            this.MapUnitSizeText.Size = new System.Drawing.Size(100, 21);
+            this.MapUnitSizeText.TabIndex = 5;
             // 
             // MapHeightText
             // 
@@ -1022,7 +1093,7 @@
             this.MapParameterText.Location = new System.Drawing.Point(96, 161);
             this.MapParameterText.Name = "MapParameterText";
             this.MapParameterText.ReadOnly = true;
-            this.MapParameterText.Size = new System.Drawing.Size(277, 21);
+            this.MapParameterText.Size = new System.Drawing.Size(410, 21);
             this.MapParameterText.TabIndex = 2;
             // 
             // label18
@@ -1042,6 +1113,118 @@
             this.label17.Size = new System.Drawing.Size(71, 12);
             this.label17.TabIndex = 0;
             this.label17.Text = "地图的宽/高";
+            // 
+            // FilePreprocess
+            // 
+            this.FilePreprocess.Controls.Add(this.label25);
+            this.FilePreprocess.Controls.Add(this.ScenePreprocess);
+            this.FilePreprocess.Location = new System.Drawing.Point(4, 21);
+            this.FilePreprocess.Name = "FilePreprocess";
+            this.FilePreprocess.Padding = new System.Windows.Forms.Padding(3);
+            this.FilePreprocess.Size = new System.Drawing.Size(972, 513);
+            this.FilePreprocess.TabIndex = 6;
+            this.FilePreprocess.Text = "场景切割与拼接";
+            this.FilePreprocess.UseVisualStyleBackColor = true;
+            // 
+            // label25
+            // 
+            this.label25.AutoSize = true;
+            this.label25.Location = new System.Drawing.Point(15, 3);
+            this.label25.Name = "label25";
+            this.label25.Size = new System.Drawing.Size(0, 12);
+            this.label25.TabIndex = 1;
+            // 
+            // ScenePreprocess
+            // 
+            this.ScenePreprocess.Controls.Add(this.SceneFilePreprocessBtn);
+            this.ScenePreprocess.Controls.Add(this.CutAndPasteSceneHeightText);
+            this.ScenePreprocess.Controls.Add(this.CutAndPasteSceneWidthText);
+            this.ScenePreprocess.Controls.Add(this.label28);
+            this.ScenePreprocess.Controls.Add(this.label27);
+            this.ScenePreprocess.Controls.Add(this.ArtistSceneFileText);
+            this.ScenePreprocess.Controls.Add(this.label26);
+            this.ScenePreprocess.Controls.Add(this.OutPutFileScenePathText);
+            this.ScenePreprocess.Controls.Add(this.label24);
+            this.ScenePreprocess.Location = new System.Drawing.Point(31, 39);
+            this.ScenePreprocess.Name = "ScenePreprocess";
+            this.ScenePreprocess.Size = new System.Drawing.Size(795, 181);
+            this.ScenePreprocess.TabIndex = 0;
+            this.ScenePreprocess.TabStop = false;
+            this.ScenePreprocess.Text = "场景切割与拼接";
+            // 
+            // SceneFilePreprocessBtn
+            // 
+            this.SceneFilePreprocessBtn.Location = new System.Drawing.Point(469, 31);
+            this.SceneFilePreprocessBtn.Name = "SceneFilePreprocessBtn";
+            this.SceneFilePreprocessBtn.Size = new System.Drawing.Size(90, 20);
+            this.SceneFilePreprocessBtn.TabIndex = 8;
+            this.SceneFilePreprocessBtn.Text = "文件预处理";
+            this.SceneFilePreprocessBtn.UseVisualStyleBackColor = true;
+            this.SceneFilePreprocessBtn.Click += new System.EventHandler(this.SceneFilePreprocessBtn_Click);
+            // 
+            // CutAndPasteSceneHeightText
+            // 
+            this.CutAndPasteSceneHeightText.Location = new System.Drawing.Point(73, 122);
+            this.CutAndPasteSceneHeightText.Name = "CutAndPasteSceneHeightText";
+            this.CutAndPasteSceneHeightText.Size = new System.Drawing.Size(217, 21);
+            this.CutAndPasteSceneHeightText.TabIndex = 7;
+            // 
+            // CutAndPasteSceneWidthText
+            // 
+            this.CutAndPasteSceneWidthText.Location = new System.Drawing.Point(72, 88);
+            this.CutAndPasteSceneWidthText.Name = "CutAndPasteSceneWidthText";
+            this.CutAndPasteSceneWidthText.Size = new System.Drawing.Size(219, 21);
+            this.CutAndPasteSceneWidthText.TabIndex = 6;
+            // 
+            // label28
+            // 
+            this.label28.AutoSize = true;
+            this.label28.Location = new System.Drawing.Point(20, 124);
+            this.label28.Name = "label28";
+            this.label28.Size = new System.Drawing.Size(17, 12);
+            this.label28.TabIndex = 5;
+            this.label28.Text = "高";
+            // 
+            // label27
+            // 
+            this.label27.AutoSize = true;
+            this.label27.Location = new System.Drawing.Point(20, 91);
+            this.label27.Name = "label27";
+            this.label27.Size = new System.Drawing.Size(17, 12);
+            this.label27.TabIndex = 4;
+            this.label27.Text = "宽";
+            // 
+            // ArtistSceneFileText
+            // 
+            this.ArtistSceneFileText.Location = new System.Drawing.Point(218, 18);
+            this.ArtistSceneFileText.Name = "ArtistSceneFileText";
+            this.ArtistSceneFileText.Size = new System.Drawing.Size(198, 21);
+            this.ArtistSceneFileText.TabIndex = 3;
+            // 
+            // label26
+            // 
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(6, 21);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(215, 12);
+            this.label26.TabIndex = 2;
+            this.label26.Text = "美术导出的场景文件（相对于map目录）";
+            // 
+            // OutPutFileScenePathText
+            // 
+            this.OutPutFileScenePathText.Location = new System.Drawing.Point(215, 45);
+            this.OutPutFileScenePathText.Name = "OutPutFileScenePathText";
+            this.OutPutFileScenePathText.Size = new System.Drawing.Size(198, 21);
+            this.OutPutFileScenePathText.TabIndex = 1;
+            // 
+            // label24
+            // 
+            this.label24.AutoSize = true;
+            this.label24.Location = new System.Drawing.Point(6, 51);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(203, 12);
+            this.label24.TabIndex = 0;
+            this.label24.Text = "场景文件输出文件（相对于map目录）";
             // 
             // Room
             // 
@@ -1072,7 +1255,7 @@
             this.HelpToolStripMenuItem});
             this.MainMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.MainMenuStrip.Name = "MainMenuStrip";
-            this.MainMenuStrip.Size = new System.Drawing.Size(638, 24);
+            this.MainMenuStrip.Size = new System.Drawing.Size(1009, 24);
             this.MainMenuStrip.TabIndex = 1;
             this.MainMenuStrip.Text = "MainMenu";
             // 
@@ -1181,7 +1364,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(638, 538);
+            this.ClientSize = new System.Drawing.Size(1009, 587);
             this.Controls.Add(this.CommonSettingTabSetting);
             this.Controls.Add(this.MainMenuStrip);
             this.Name = "RMapShell";
@@ -1204,6 +1387,10 @@
             this.ModelSetting.PerformLayout();
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
+            this.FilePreprocess.ResumeLayout(false);
+            this.FilePreprocess.PerformLayout();
+            this.ScenePreprocess.ResumeLayout(false);
+            this.ScenePreprocess.PerformLayout();
             this.MainMenuStrip.ResumeLayout(false);
             this.MainMenuStrip.PerformLayout();
             this.ResumeLayout(false);
@@ -1281,7 +1468,7 @@
         private System.Windows.Forms.TextBox InnerBarrierHeightText;
         private System.Windows.Forms.TextBox PathHeightText;
         private System.Windows.Forms.TextBox OutMostBarrierHeightText;
-        private System.Windows.Forms.TextBox textBox8;
+        private System.Windows.Forms.TextBox MapUnitSizeText;
         private System.Windows.Forms.TextBox MapHeightText;
         private System.Windows.Forms.TextBox MapWidthText;
         private System.Windows.Forms.TextBox MapParameterText;
@@ -1311,7 +1498,7 @@
         private System.Windows.Forms.TreeView MixModeltreeView;
         private System.Windows.Forms.TextBox FlowerIntensitytextBox;
         private System.Windows.Forms.TextBox GrassIntensitytextBox;
-        private System.Windows.Forms.TextBox textBox7;
+        private System.Windows.Forms.TextBox MixModelIntensitytextBox;
         private System.Windows.Forms.TextBox LinkWallIntensitytextBox;
         private System.Windows.Forms.TextBox BarrierModelIntensitytextBox;
         private System.Windows.Forms.TextBox CornerModelIntensitytextBox;
@@ -1325,6 +1512,24 @@
         private System.Windows.Forms.TextBox FogColortextBox;
         private System.Windows.Forms.TextBox EnvColortextBox;
         private System.Windows.Forms.TextBox SunColortextBox;
+        private System.Windows.Forms.TextBox PathModelWithBarrierIntensitytextBox;
+        private System.Windows.Forms.TextBox DecoratorIntensitytextBox;
+        private System.Windows.Forms.TextBox MiddleIntensitytextBox;
+        private System.Windows.Forms.TreeView PathModelWithBarriertreeView;
+        private System.Windows.Forms.TreeView DecoratorModeltreeView;
+        private System.Windows.Forms.TreeView MiddleModeltreeView;
+        private System.Windows.Forms.TabPage FilePreprocess;
+        private System.Windows.Forms.GroupBox ScenePreprocess;
+        private System.Windows.Forms.TextBox OutPutFileScenePathText;
+        private System.Windows.Forms.Label label24;
+        private System.Windows.Forms.Label label25;
+        private System.Windows.Forms.TextBox ArtistSceneFileText;
+        private System.Windows.Forms.Label label26;
+        private System.Windows.Forms.Label label28;
+        private System.Windows.Forms.Label label27;
+        private System.Windows.Forms.TextBox CutAndPasteSceneHeightText;
+        private System.Windows.Forms.TextBox CutAndPasteSceneWidthText;
+        private System.Windows.Forms.Button SceneFilePreprocessBtn;
     }
 }
 

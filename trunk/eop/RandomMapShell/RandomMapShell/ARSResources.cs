@@ -8,6 +8,8 @@ using System.Windows.Forms;
 using System.Xml;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
+using System.Collections;
 
 namespace RandomMapShell
 {
@@ -21,9 +23,74 @@ namespace RandomMapShell
 
         private void ARSResources_Load(object sender, EventArgs e)
         {
-
             this.ARSResourcetreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.treeView_ItemDrag);
             this.ARSResourcetreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.treeView_DragEnter);
+        }
+        public void GenerateBarrierInfo(string working_dir,string artist_res,string file_name)
+        {
+            //generate_barrier
+
+            string wdir = working_dir ;
+            string file_name_no_path = System.IO.Path.GetFileNameWithoutExtension(file_name);
+            //todo: call the generate process
+            //generate the bounding box info
+            Process gen_barrier = new Process();
+            gen_barrier.StartInfo.FileName = wdir + "bin\\Release\\";
+            gen_barrier.StartInfo.FileName += "MapGenUtility.exe";
+            gen_barrier.StartInfo.Arguments = "";
+            gen_barrier.StartInfo.Arguments += "generate_barrier" + " " + file_name +" "+  artist_res + "/scene/AllArpLIst.txt" + " " + artist_res + "/map/"+ file_name_no_path+".rmp";
+            gen_barrier.StartInfo.WorkingDirectory = wdir + "bin\\Release\\";
+            Debug.Assert(System.IO.File.Exists(gen_barrier.StartInfo.FileName));
+            gen_barrier.Start();
+            gen_barrier.WaitForExit();
+            //add to all_rmp.txt
+            string all_rmp = artist_res + "/map/all_rmp.txt";
+            string[] all_lines = System.IO.File.ReadAllLines(all_rmp, Encoding.GetEncoding("gb2312"));
+            foreach(string line in all_lines)
+            {
+                //
+                if (line.Equals(file_name_no_path+".rmp"))
+                {
+                    return;
+                }
+            }
+           string[] new_lines = new string[all_lines.Length + 1];
+           new_lines[all_lines.Length] = file_name_no_path + ".rmp";
+            for(int i = 0;i < all_lines.Length ; ++i)
+            {
+                new_lines[i] = all_lines[i];
+            }
+            System.IO.File.Delete(all_rmp);
+            System.IO.File.WriteAllLines(all_rmp, new_lines, Encoding.GetEncoding("gb2312"));
+        }
+        public ArrayList GetAllNames(string fold_name)
+        {
+            //
+            ArrayList arr = null;
+            foreach (TreeNode tn in ARSResourcetreeView.Nodes[0].Nodes[0].Nodes)
+            {
+                if (tn.Text.Equals(fold_name))
+                {
+                    arr = new ArrayList();
+                    foreach (TreeNode subtn in tn.Nodes)
+                    {
+                        arr.Add(subtn.Text);
+                    }
+                }
+            }
+            if (arr == null)
+                foreach (TreeNode tn in ARSResourcetreeView.Nodes[0].Nodes[1].Nodes)
+                {
+                    if (tn.Text.Equals(fold_name))
+                    {
+                        arr = new ArrayList();
+                        foreach (TreeNode subtn in tn.Nodes)
+                        {
+                            arr.Add(subtn.Text);
+                        }
+                    }
+                }
+            return arr;
         }
         public void LoadArs(string file_name)
         {

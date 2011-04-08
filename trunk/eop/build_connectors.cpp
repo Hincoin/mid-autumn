@@ -86,6 +86,16 @@ std::vector<std::string> init_scene_string(
     all.push_back("RDL");
     all.push_back("DLU");
 
+	//
+	all.push_back("L");
+	all.push_back("U");
+	all.push_back("R");
+	all.push_back("D");
+	ls.push_back("L");
+	us.push_back("U");
+	rs.push_back("R");
+	ds.push_back("D");
+
     ls.push_back("DL");
     ls.push_back("LU");
     ls.push_back("LUR");
