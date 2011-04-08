@@ -4,6 +4,12 @@
 
 #include "construct_by_connection.hpp"
 
+struct default_rng{
+    int operator()(int N)
+    {
+        return std::min(N-1,(int)(N * (float)rand()/RAND_MAX));
+    }
+};
 //Ex.
 //PL=a;b;c;d
 //PU=b;c;e;
@@ -224,11 +230,12 @@ void test_case()
 	for(int seed = 0; seed < 10; ++seed)
 	{ 
 		printf("seed %d\n",seed);
-		for(int i = 6;i < 16; ++i)
-        for(int j = 8;j < 16; ++j)
+		for(int i = 3;i < 12; ++i)
+        for(int j = 3;j < 12; ++j)
         {
             printf("i,j:%d,%d\n",i,j);
-            ConnectorMatrix m = construct_by_connection(i,j,seed,cs);
+            default_rng rng;
+            ConnectorMatrix m = construct_by_connection(i,j,cs,rng,rng(100),rng(100),rng(100),rng(100));
 			if (is_solution(m))
 			{
 				output(m,all);
