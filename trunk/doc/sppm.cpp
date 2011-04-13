@@ -52,7 +52,7 @@ struct List {HPoint *id; List *next;};
 List* ListAdd(HPoint *i,List* h){List* p=new List;p->id=i;p->next=h;return p;}
 
 unsigned int num_hash, pixel_index, num_photon;
-double hash_s; List **hash_grid; List *hitpoints = NULL; AABB hpbbox;
+double hash_s;  AABB hpbbox;
 double max_photon_r2=0;
 std::vector<HPoint*> hit_points_array;
 
@@ -61,27 +61,18 @@ inline unsigned int hash(const int ix, const int iy, const int iz) {
 	return (unsigned int)((ix*73856093)^(iy*19349663)^(iz*83492791))%num_hash;
 }
 
-void clear_hash_grid()
-{
-	for (unsigned int i=0; i<num_hash;i++){
-        List* lst = hash_grid[i];
-        while(lst){List* elm = lst;lst=lst->next;delete elm;}
-    }
-	delete []hash_grid;
-    hash_grid = NULL;
-}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct const_hash_entry_t{
-	HPoint** start;
+	unsigned* start;
 	unsigned size;
 };
 struct const_hash_table_t{
 	unsigned num_hash;
 	unsigned *num_per_entry;
-	HPoint** hash_tbl;
+	unsigned* hash_tbl;
 };
 
-typedef vector<vector<HPoint*> > hash_array_t;
+typedef vector<vector<unsigned> > hash_array_t;
 void construct_const_hash_table_from_array(const_hash_table_t *const_hash_table,const hash_array_t& array)
 {
 	const_hash_table->num_hash = array.size();
@@ -93,7 +84,7 @@ void construct_const_hash_table_from_array(const_hash_table_t *const_hash_table,
 		const_hash_table->num_per_entry[i+1] = cum_sum + array[i].size();
 		cum_sum += array[i].size();
 	}
-	const_hash_table->hash_tbl = new HPoint*[cum_sum];
+	const_hash_table->hash_tbl = new unsigned[cum_sum];
 	cum_sum = 0;
 	for(size_t i = 0;i < array.size(); ++i)
 	{
@@ -116,17 +107,23 @@ void get_element(const_hash_table_t *const_hash_table,unsigned hashed_val, const
 }
 
 void build_hash_grid(const int w, const int h, const_hash_table_t *const_hash_table) {
-	hpbbox.reset(); List *lst = hitpoints; while (lst != NULL) {
-		HPoint *hp=lst->id; lst=lst->next; hpbbox.fit(hp->pos);}
-	Vec ssize = hpbbox.max - hpbbox.min; // compute initial radius
+	hpbbox.reset(); 
+    for(size_t i = 0;i < hit_points_array.size();++i)
+    {
+        if(!hit_points_array[i])continue;
+        hpbbox.fit(hit_points_array[i]->pos);
+    }
+    Vec ssize = hpbbox.max - hpbbox.min; // compute initial radius
 
     double irad = sqrt(max_photon_r2);
     if (irad == 0)
     	irad = ((ssize.x + ssize.y + ssize.z) / 3.0) / ((w + h) / 2.0) * 2.0;
 
-	hpbbox.reset(); lst = hitpoints; int vphoton = 0; // determine hash size
+	hpbbox.reset();  int vphoton = 0; // determine hash size
 
-	while (lst != NULL) {HPoint *hp = lst->id; lst = lst->next;
+	for(size_t i = 0;i < hit_points_array.size();++i){
+        if(!hit_points_array[i])continue;
+        HPoint *hp = hit_points_array[i];
 	hp->r2 = (max_photon_r2 == 0 || hp->r2 < 0) ? (irad * irad):hp->r2;
     hp->accum_photon_count = 0; hp->accum_flux = Vec();
 	vphoton++; hpbbox.fit(hp->pos-irad); hpbbox.fit(hp->pos+irad);}
@@ -134,16 +131,16 @@ void build_hash_grid(const int w, const int h, const_hash_table_t *const_hash_ta
 
 	hash_array_t tbl;
 	tbl.resize(num_hash);
-	lst = hitpoints;
-   	while (lst != NULL) { // store hitpoints in the hashed grid
-		HPoint *hp = lst->id; lst = lst->next;
+   	for(size_t i = 0;i < hit_points_array.size();++i){ // store hitpoints in the hashed grid
+        if(!hit_points_array[i])continue;
+		HPoint *hp = hit_points_array[i];
         irad = sqrt(hp->r2);
 		Vec BMin = ((hp->pos - irad) - hpbbox.min) * hash_s;
 		Vec BMax = ((hp->pos + irad) - hpbbox.min) * hash_s;
 		for (int iz = abs(int(BMin.z)); iz <= abs(int(BMax.z)); iz++)
 			for (int iy = abs(int(BMin.y)); iy <= abs(int(BMax.y)); iy++)
 				for (int ix = abs(int(BMin.x)); ix <= abs(int(BMax.x)); ix++)
-				{int hv=hash(ix,iy,iz); tbl[hv].push_back(hp);}
+				{int hv=hash(ix,iy,iz); tbl[hv].push_back(i);}
 		}
 	construct_const_hash_table_from_array(const_hash_table,tbl);
 }
@@ -211,7 +208,6 @@ void genp(Ray* pr, Vec* f, int i) {
 			hp->nrm=n; hp->pix = pixel_index; 
             if(!found)
             {
-                hitpoints = ListAdd(hp, hitpoints);
                 hit_points_array[pixel_index] = hp;
             }
 			} else {Vec hh = (x-hpbbox.min) * hash_s;
@@ -224,7 +220,7 @@ void genp(Ray* pr, Vec* f, int i) {
 				get_element(&const_hash,hash(ix,iy,iz),&entry);
 				for(unsigned i = 0;i < entry.size; ++i)
 				{
-					HPoint *hitpoint = *(entry.start + i); Vec v = hitpoint->pos - x;
+					HPoint *hitpoint = hit_points_array[*(entry.start + i)]; Vec v = hitpoint->pos - x;
 					if ((hitpoint->nrm.dot(n) > 1e-3) && (v.dot(v) <= hitpoint->r2)) {
 						//double g = (hitpoint->n*ALPHA+ALPHA) / (hitpoint->n*ALPHA+1.0);
 						//hitpoint->r2=hitpoint->r2*g; 
@@ -288,10 +284,10 @@ void genp(Ray* pr, Vec* f, int i) {
 			    for(int j=0;j<1000;j++){
                     genp(&r,&f,m+j); trace(r,0,0>1,f,vw,m+j);}
             }
-			List* lst=hitpoints; 
             max_photon_r2 = 0;
-            while (lst != NULL) {
-                HPoint* hp=lst->id;lst=lst->next;
+            for(size_t i = 0;i < hit_points_array.size(); ++i){
+                HPoint* hp = hit_points_array[i];
+                if(!hp)continue;
                 unsigned pcount = hp->photon_count + hp->accum_photon_count;
                 if(hp->accum_photon_count > 0)
                 {
