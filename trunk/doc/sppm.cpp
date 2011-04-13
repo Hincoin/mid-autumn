@@ -2,6 +2,7 @@
 #include <stdlib.h> // originally smallpt, a path tracer by Kevin Beason, 2008
 #include <stdio.h>  // Usage: ./smallppm 100000 && xv image.ppm
 #include <vector>
+using namespace std;
 #define PI ((double)3.14159265358979) // ^^^^^^:number of photons emitted
 #define ALPHA ((double)0.7) // the alpha parameter of PPM
 int primes[61]={2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,
@@ -55,6 +56,7 @@ double hash_s; List **hash_grid; List *hitpoints = NULL; AABB hpbbox;
 double max_photon_r2=0;
 std::vector<HPoint*> hit_points_array;
 
+
 inline unsigned int hash(const int ix, const int iy, const int iz) {
 	return (unsigned int)((ix*73856093)^(iy*19349663)^(iz*83492791))%num_hash;
 }
@@ -68,7 +70,52 @@ void clear_hash_grid()
 	delete []hash_grid;
     hash_grid = NULL;
 }
-void build_hash_grid(const int w, const int h) {
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct const_hash_entry_t{
+	HPoint** start;
+	unsigned size;
+};
+struct const_hash_table_t{
+	unsigned num_hash;
+	unsigned *num_per_entry;
+	HPoint** hash_tbl;
+};
+
+typedef vector<vector<HPoint*> > hash_array_t;
+void construct_const_hash_table_from_array(const_hash_table_t *const_hash_table,const hash_array_t& array)
+{
+	const_hash_table->num_hash = array.size();
+	const_hash_table->num_per_entry = new unsigned[array.size() + 1];
+	unsigned cum_sum = 0;
+	const_hash_table->num_per_entry[0] = 0;
+	for(size_t i = 0;i < array.size(); ++i)
+	{
+		const_hash_table->num_per_entry[i+1] = cum_sum + array[i].size();
+		cum_sum += array[i].size();
+	}
+	const_hash_table->hash_tbl = new HPoint*[cum_sum];
+	cum_sum = 0;
+	for(size_t i = 0;i < array.size(); ++i)
+	{
+		for(size_t j = 0; j < array[i].size(); ++j)
+			const_hash_table->hash_tbl[cum_sum + j] = array[i][j];
+		cum_sum += array[i].size();
+	}
+}
+void destroy_const_hash_table(const_hash_table_t *const_hash_table)
+{
+	const_hash_table->num_hash = 0;
+	delete [] const_hash_table->num_per_entry;
+	delete [] const_hash_table->hash_tbl;
+}
+void get_element(const_hash_table_t *const_hash_table,unsigned hashed_val, const_hash_entry_t* entry)
+{
+	unsigned idx = const_hash_table->num_per_entry[hashed_val];
+	entry->size = const_hash_table->num_per_entry[hashed_val + 1] - idx;
+	entry->start = const_hash_table->hash_tbl + idx;
+}
+
+void build_hash_grid(const int w, const int h, const_hash_table_t *const_hash_table) {
 	hpbbox.reset(); List *lst = hitpoints; while (lst != NULL) {
 		HPoint *hp=lst->id; lst=lst->next; hpbbox.fit(hp->pos);}
 	Vec ssize = hpbbox.max - hpbbox.min; // compute initial radius
@@ -85,11 +132,10 @@ void build_hash_grid(const int w, const int h) {
 	vphoton++; hpbbox.fit(hp->pos-irad); hpbbox.fit(hp->pos+irad);}
 	hash_s=1.0/(irad*2.0); num_hash = vphoton; 
 
-    hash_grid=new List*[num_hash];
-	for (unsigned int i=0; i<num_hash;i++){
-        hash_grid[i] = NULL;
-    }
-	lst = hitpoints; while (lst != NULL) { // store hitpoints in the hashed grid
+	hash_array_t tbl;
+	tbl.resize(num_hash);
+	lst = hitpoints;
+   	while (lst != NULL) { // store hitpoints in the hashed grid
 		HPoint *hp = lst->id; lst = lst->next;
         irad = sqrt(hp->r2);
 		Vec BMin = ((hp->pos - irad) - hpbbox.min) * hash_s;
@@ -97,9 +143,13 @@ void build_hash_grid(const int w, const int h) {
 		for (int iz = abs(int(BMin.z)); iz <= abs(int(BMax.z)); iz++)
 			for (int iy = abs(int(BMin.y)); iy <= abs(int(BMax.y)); iy++)
 				for (int ix = abs(int(BMin.x)); ix <= abs(int(BMax.x)); ix++)
-				{int hv=hash(ix,iy,iz); hash_grid[hv]=ListAdd(hp,hash_grid[hv]);}
+				{int hv=hash(ix,iy,iz); tbl[hv].push_back(hp);}
 		}
+	construct_const_hash_table_from_array(const_hash_table,tbl);
 }
+
+const_hash_table_t const_hash;
+
 struct Ray {Vec o, d; Ray(){}; Ray(Vec o_, Vec d_) : o(o_), d(d_) {}};
 enum Refl_t {DIFF, SPEC, REFR};  // material types, used in radiance()
 
@@ -169,15 +219,19 @@ void genp(Ray* pr, Vec* f, int i) {
 			// strictly speaking, we should use #pragma omp critical here
 			//#pragma omp critical
 			{
-				List* hp = hash_grid[hash(ix, iy, iz)]; 
-				while (hp != NULL) {
-					HPoint *hitpoint = hp->id; hp = hp->next; Vec v = hitpoint->pos - x;
+				const_hash_entry_t entry;
+				entry.size = 0;
+				get_element(&const_hash,hash(ix,iy,iz),&entry);
+				for(unsigned i = 0;i < entry.size; ++i)
+				{
+					HPoint *hitpoint = *(entry.start + i); Vec v = hitpoint->pos - x;
 					if ((hitpoint->nrm.dot(n) > 1e-3) && (v.dot(v) <= hitpoint->r2)) {
 						//double g = (hitpoint->n*ALPHA+ALPHA) / (hitpoint->n*ALPHA+1.0);
 						//hitpoint->r2=hitpoint->r2*g; 
                         hitpoint->accum_photon_count++;
 						hitpoint->accum_flux=(hitpoint->accum_flux+hitpoint->f.mul(fl)*(1./PI));// *(1./PI))*g;
                     }
+
 				}
 			}
 
@@ -225,7 +279,7 @@ void genp(Ray* pr, Vec* f, int i) {
 					}
 			}
             ray_pass++;
-			fprintf(stderr,"\n"); build_hash_grid(w,h); 
+			fprintf(stderr,"\n"); build_hash_grid(w,h,&const_hash); 
 //#pragma omp parallel for schedule(dynamic, 256)
 			for( int i=0;i<num_photon;i++) {
                 double p=100.*(i+1)/num_photon;
@@ -272,7 +326,7 @@ void genp(Ray* pr, Vec* f, int i) {
             }
             fprintf(stderr,"\nprogress %d,total_photon:%d,max_photon_radius2:%.6f\n",photon_pass++,total_photon*1000,max_photon_r2); 
             total_photon += num_photon;
-            clear_hash_grid();
+			destroy_const_hash_table(&const_hash);
         }
 
 		}
