@@ -121,7 +121,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="3"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="$(ATISTREAMSDKROOT)/include/"
+				AdditionalIncludeDirectories="$(AMDAPPSDKROOT)/include/"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="2"
@@ -144,7 +144,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="OpenCL.lib freeglut.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="$(ATISTREAMSDKROOT)/lib/x86"
+				AdditionalLibraryDirectories="$(AMDAPPSDKROOT)/lib/x86"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -221,6 +221,18 @@
 				RelativePath=".\photon_map_cpu.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\sppm_hash_grid.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sppm_renderer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sppm_test.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -245,6 +257,10 @@
 			</File>
 			<File
 				RelativePath=".\display_func.h"
+				>
+			</File>
+			<File
+				RelativePath=".\film.h"
 				>
 			</File>
 			<File
@@ -296,6 +312,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\perspective_camera.h"
+				>
+			</File>
+			<File
+				RelativePath=".\photon_ray.h"
+				>
+			</File>
+			<File
 				RelativePath=".\primitive.h"
 				>
 			</File>
@@ -312,11 +336,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ray_buffer.h"
+				>
+			</File>
+			<File
 				RelativePath=".\reflection.h"
 				>
 			</File>
 			<File
+				RelativePath=".\renderer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sampler.h"
+				>
+			</File>
+			<File
 				RelativePath=".\sampling.h"
+				>
+			</File>
+			<File
+				RelativePath=".\scene.h"
 				>
 			</File>
 			<File
@@ -329,6 +369,26 @@
 			</File>
 			<File
 				RelativePath=".\spectrum.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sppm.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sppm_hash_grid.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sppm_hit_point.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sppm_renderer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sppm_test.h"
 				>
 			</File>
 			<File

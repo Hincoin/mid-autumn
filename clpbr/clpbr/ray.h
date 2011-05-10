@@ -18,6 +18,7 @@ typedef struct
 
 	char has_differential;
 	ray_t rx,ry;
+	unsigned ray_id;
 }ray_differential_t;
 
 #define rinit(r, a, b) { vassign((r).o, a); vassign((r).d, b);(r).mint = EPSILON;(r).maxt = FLT_MAX; }

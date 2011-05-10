@@ -199,9 +199,9 @@ static void SetUpScene()
 	texture_data[24] = 0.1f;
 	texture_data[25] = 0.1f;
 	texture_data[26] = 0.1f;
-	texture_data[27] = 1.f;
-	texture_data[28] = 1.f;
-	texture_data[29] = 1.f;
+	texture_data[27] = 2.f;
+	texture_data[28] = 2.f;
+	texture_data[29] = 2.f;
 	texture_data[30] = 1.33f;
 	//for mirror
 	texture_data[31] = 1.f;
@@ -1163,9 +1163,9 @@ static void InitializePhotonMapping()
 	photon_map.n_indirect_paths = 0;
 
 	photon_map.n_caustic_photons = 20000;//20000;//20000;
-	photon_map.n_indirect_photons = 10000;//100000;//100000;
+	photon_map.n_indirect_photons = 100000;//100000;//100000;
 
-	photon_map.n_lookup = 50;
+	photon_map.n_lookup = 5;
 	photon_map.max_specular_depth = 4;
 	photon_map.max_dist_squared = 10.f;
 	photon_map.rr_threshold = 0.01f;
@@ -1210,7 +1210,10 @@ static void ExecuteKernelCPUPhotonMapping()
 	scene_info.lght_count = light_count;
 
 	const int print_step = 1000;
-	#pragma omp parallel for schedule(dynamic, 32)
+
+	const double startTime= WallClockTime();
+
+	#pragma omp parallel for schedule(dynamic, 256)
 	for (int ii = 0;ii < pixel_count ; ++ii)
 	{
 
@@ -1267,16 +1270,18 @@ static void ExecuteKernelCPUPhotonMapping()
 		seeds[gid] = random_uint(&s);
 		if(ii % print_step == 0)
 		{
-			printf("rendering %.2f%% \t",(100*ii/float(pixel_count)));
+			printf("\rrendering %.2f%% \t",(100*ii/float(pixel_count)));
 		}
 	}
-	printf("frame complete \n");
+
+	const double elapsedTime = WallClockTime() - startTime;
+	printf("frame complete sec:%.3f \n",elapsedTime);
 }
 static void ExecuteKernelCPUPathTracing()
 {
 	const int pixel_count = width * height;
-
-	//#pragma omp parallel for
+	
+	#pragma omp parallel for schedule(dynamic, 256)
 	for (int ii = 0;ii < pixel_count ; ++ii)
 	{
 	
