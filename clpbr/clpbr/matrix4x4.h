@@ -1,8 +1,6 @@
 #ifndef _MATRIX4x4_H_
 #define _MATRIX4x4_H_
 
-//遇到问题请看这里
-//注意： 宏里面的 a.b 需要写成 (a).b ,如果a是宏参数
 //no type cast allowed: a = float(b); is not allowed
 
 typedef float matrix4x4_t[16];
