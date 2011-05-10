@@ -121,7 +121,7 @@ typedef struct
 
 
 //bxdf interface
-INLINE void bxdf_f(bxdf_t *self,vector3f_t wo,vector3f_t wi,spectrum_t *f)
+INLINE void bxdf_f(const bxdf_t *self,vector3f_t wo,vector3f_t wi,spectrum_t *f)
 {
 	//todo
 	switch(self->bxdf_model)
@@ -242,7 +242,7 @@ INLINE void bxdf_sample_f(bxdf_t *self, vector3f_t wo,vector3f_t* wi,
 		bxdf_f(self,wo, *wi,f);
 	}
 }
-INLINE bool bxdf_matches(bxdf_t* bxdf,int flags)
+INLINE bool bxdf_matches(const bxdf_t* bxdf,int flags)
 {
 	return (bxdf->type & flags) == bxdf->type;
 }
@@ -293,7 +293,7 @@ INLINE void bsdf_local_to_world(const bsdf_t *bsdf,const vector3f_t *v,vector3f_
 		(bsdf->sn.y * v->x + bsdf->tn.y * v->y + bsdf->nn.y * v->z),
 		(bsdf->sn.z * v->x + bsdf->tn.z * v->y + bsdf->nn.z * v->z));
 }
-INLINE void bsdf_f(bsdf_t* bsdf,
+INLINE void bsdf_f(const bsdf_t* bsdf,
 				   const vector3f_t* woW,const vector3f_t* wiW,BxDFType flags,
 				   spectrum_t* f)
 {

@@ -14,6 +14,10 @@ typedef struct
 	vector3f_t dir,x,y;
 } camera_t;
 
+class Camera{
+public:
+	virtual ray_differential_t GenerateRay(const camera_sample_t& cam_samp) = 0;	
+};
 
 INLINE void GenerateCameraRay(OCL_CONSTANT_BUFFER camera_t *camera,
 							  Seed* s,
