@@ -5,6 +5,7 @@
 #include "geometry.h"
 #include "ray.h"
 #include "random_number_generator.h"
+#include "sampler.h"
 
 typedef struct  
 {

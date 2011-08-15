@@ -1,10 +1,23 @@
+
+#include <math.h>
+#include "perspective_camera.h"
+
+#include "clscene.h"
+#include "image_film.h"
+
 #include "sppm_test.h"
 #include "sppm_renderer.h"
+#include "random_sampler.h"
 
-Scene* scene = NULL:
+
+Scene* scene = NULL;
 Camera* camera = NULL;
 Film* film = NULL;
 Sampler* sampler = NULL;
+
+
+unsigned w = 256;
+unsigned h = 256;
 
 static primitive_info_t* primitives;
 static unsigned int primitive_count;
@@ -16,7 +29,7 @@ static void setup_scene();
 void sppm_test()
 {
 	setup_scene();
-	SPPMRenderer* renderer = new SPPMRenderer(c,film,sampler);
+	SPPMRenderer* renderer = new SPPMRenderer(camera,film,sampler);
 	renderer->Render(scene);
 }
 
@@ -275,8 +288,13 @@ void setup_scene()
 	lights = dummy_light;
 	light_count = sizeof(dummy_light)/sizeof(dummy_light[0]);
 
-	vinit(camera.eye, 50.f, 45.f, 205.6f);
-	vinit(camera.center, 50.f, 45 - 0.042612f, 204.6);
+	point3f_t eye_pos,eye_center;
+	
+	vinit(eye_pos, 50.f, 45.f, 205.6f);
+	vinit(eye_center, 50.f, 45 - 0.042612f, 204.6);
 
+	camera = new PerspectiveCamera(eye_pos, eye_center);
+	film = new ImageFilm(w,h);
+	sampler = new RandomSampler(0,w,0,h,2,2);
 	scene = new CLScene(cl_scene_info);
 }

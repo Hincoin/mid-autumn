@@ -1,34 +1,15 @@
 #ifndef _SPPM_H_
 #define _SPPM_H_
 
+#include <math.h>
 #include "spectrum.h"
 #include "geometry.h"
 #include "sampling.h"
 #include "random_number_generator.h"
 #include "primitive_funcs.h"
 #include "integrator_funcs.h"
+#include "ray_hit_point.h"
 
-typedef enum{hp_constant_color,hp_surface}hit_point_type;
-
-typedef struct  
-{
-	/*spectrum_t flux,accum_flux;
-	spectrum_t radiance,accum_radiance;
-	float r2;
-	unsigned photon_count,accum_photon_count;
-	unsigned pixel_sample_index,hit_count;
-	unsigned constant_hit_count;
-	unsigned surface_hit_count;*/
-
-	//ray tracing pass
-	unsigned index;
-	hit_point_type type;
-	spectrum_t throughput;
-	point3f_t pos;
-	vector3f_t wo;
-	normal3f_t normal;
-	bsdf_t bsdf;
-}ray_hit_point_t;
 
 typedef struct{
 	spectrum_t flux;

@@ -3,7 +3,7 @@
 
 #include "fresnel.h"
 #include "mc.h"
-
+#include "differential_geometry.h"
 
 // BSDF Inline Functions
 INLINE float cos_theta(vector3f_t w) { return w.z; }
