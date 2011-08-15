@@ -1,15 +1,18 @@
 #ifndef _FILM_H_
 #define _FILM_H_
 
+#include <math.h>
 #include "sampler.h"
+#include "spectrum.h"
 
 class Film
 {
 public:
-	void WriteImage();
-	void AddSample(const camera_sample_t& cam_samp,const spectrum_t& c);
-	unsigned GetWidth()const;
-	unsigned GetHeight()const;
+	virtual void WriteImage()=0;
+	virtual void AddSample(const camera_sample_t& cam_samp,const spectrum_t& c)=0;
+	virtual unsigned GetWidth()const=0;
+	virtual unsigned GetHeight()const=0;
+	virtual ~Film(){};
 protected:
 private:
 };

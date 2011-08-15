@@ -1,3 +1,4 @@
+#include <cassert>
 #include "sppm_hash_grid.h"
 
 
@@ -33,9 +34,9 @@ SPPMHashGrid::SPPMHashGrid(const std::vector<ray_hit_point_t>& ray_hits,
 			irad * irad : final_hits[i].r2);
 		vphoton++;
 		vsub(ptmp,ray_hits[i].pos,vtmp);
-		bbox_union_with_point(ptmp);
+		bbox_union_with_point(&hpbbox_,&ptmp);
 		vadd(ptmp,ray_hits[i].pos,vtmp)
-		bbox_union_with_point(ptmp);
+		bbox_union_with_point(&hpbbox_,&ptmp);
 	}
 	hash_s_= 1.f/(irad*2.f);
 	impl_.resize(vphoton);

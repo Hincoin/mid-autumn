@@ -40,12 +40,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(ATISTREAMSDKROOT)/include/"
+				AdditionalIncludeDirectories="$(AMDAPPSDKROOT)/include/"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				OpenMP="true"
+				OpenMP="false"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
@@ -62,9 +62,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OpenCL.lib freeglut.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="$(ATISTREAMSDKROOT)/lib/x86"
+				AdditionalLibraryDirectories="$(AMDAPPSDKROOT)/lib/x86"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -142,7 +141,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OpenCL.lib freeglut.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(AMDAPPSDKROOT)/lib/x86"
 				GenerateDebugInformation="true"
@@ -186,27 +184,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\cl_render.cpp"
+				RelativePath=".\clscene.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\glut_display.cpp"
+				RelativePath=".\image_film.cpp"
 				>
 			</File>
 			<File
@@ -218,7 +200,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\perspective_camera.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\photon_map_cpu.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\random_sampler.cpp"
 				>
 			</File>
 			<File
@@ -252,11 +242,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\clscene.h"
+				>
+			</File>
+			<File
 				RelativePath=".\config.h"
 				>
 			</File>
 			<File
-				RelativePath=".\display_func.h"
+				RelativePath=".\differential_geometry.h"
 				>
 			</File>
 			<File
@@ -269,6 +263,10 @@
 			</File>
 			<File
 				RelativePath=".\geometry.h"
+				>
+			</File>
+			<File
+				RelativePath=".\image_film.h"
 				>
 			</File>
 			<File
@@ -332,11 +330,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\random_sampler.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ray.h"
 				>
 			</File>
 			<File
 				RelativePath=".\ray_buffer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ray_hit_point.h"
 				>
 			</File>
 			<File
