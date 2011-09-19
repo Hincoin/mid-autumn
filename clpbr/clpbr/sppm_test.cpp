@@ -293,8 +293,11 @@ void setup_scene()
 	vinit(eye_pos, 50.f, 45.f, 205.6f);
 	vinit(eye_center, 50.f, 45 - 0.042612f, 204.6);
 
-	camera = new PerspectiveCamera(eye_pos, eye_center);
+	transform_t camera_to_world,world_to_camera;
+	lookat( 50.f, 45.f, 205.6f,50.f, 45 - 0.042612f, 204.6, 0,1,0,&world_to_camera);
+	transform_inverse(camera_to_world,world_to_camera);
 	film = new ImageFilm(w,h);
+	camera = new PerspectiveCamera(camera_to_world,screen_window_t(0,1,0,1),radians(90),film);
 	sampler = new RandomSampler(0,w,0,h,2,2);
 	scene = new CLScene(cl_scene_info);
 }

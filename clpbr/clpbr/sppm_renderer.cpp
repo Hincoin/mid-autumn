@@ -24,11 +24,14 @@ void SPPMRenderer::Render(const Scene *scene)
 			std::vector<ray_hit_point_t> ray_hit_buffer;
 
 			camera_sample_t sample;
+			ray_differential_t ray;
+			float ray_weight;
 			while(!ray_buffer.IsFull() && has_more_sample)
 			{
 				if(sampler_->GetNextSample(&sample))
 				{
-					ray_buffer.Push(camera_->GenerateRay(sample));
+					camera_->GenerateRay(sample, &ray, &ray_weight);
+					ray_buffer.Push(ray);
 					ray_buffer.Back().ray_id = samples.size();
 					samples.push_back(sample);
 				}
