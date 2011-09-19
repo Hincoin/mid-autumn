@@ -134,6 +134,7 @@ typedef struct
 #define transform_construct_from_matrix(t,mm) {matrix_assign(t.m,mm);matrix_inverse(t.inv_m,mm);}
 #define transform_construct_from_matrix2(t,mm,invm) {matrix_assign(t.m,mm);matrix_assign(t.inv_m,invm);}
 #define transform_assign(tl,tr) {matrix_assign((tl).m,(tr).m);matrix_assign((tl).inv_m,(tr).inv_m);}
+#define transform_inverse(tl,tr){matrix_assign((tl).m,(tr).inv_m);matrix_assign((tl).inv_m,(tr).m);}
 #define transform_identity(t) {matrix_identity(t.m);matrix_identity(t.inv_m);}
 #define transform_translate(t,tx,ty,tz ) \
 	{	matrix_element(t.m,0,3) += tx;matrix_element(t.m,1,3) += ty;matrix_element(t.m,2,3) += tz;\
@@ -152,7 +153,7 @@ typedef struct
 #define transform_rotate_z(t,angle) {}
 
 //operations on concate
-#define transform_concate(tl,tr0,tr1) {matrix_multiply(tl.m,tr0.m,tr1.m);matrix_multiply(tl.inv_m,tr1.inv_m,tr0.inv_m);}
+#define transform_concat(tl,tr0,tr1) {matrix_multiply(tl.m,tr0.m,tr1.m);matrix_multiply(tl.inv_m,tr1.inv_m,tr0.inv_m);}
 
 #define matrix_point(pl,m,p)\
 	{\
@@ -234,5 +235,74 @@ bool Transform::SwapsHandedness() const {
 }
 */
 
+		inline void lookat(
+			float ex,
+			float ey,
+			float ez,
+			float lx,
+			float ly,
+			float lz,
+			float ux,
+			float uy,
+			float uz,
+			transform_t *transform)
+		{
+			matrix4x4_t m;
+			// Initialize fourth column of viewing matrix
+			matrix_element(m,0,3) = ex;
+			matrix_element(m,1,3) = ey;
+			matrix_element(m,2,3) = ez;
+			matrix_element(m,3,3) = 1;
+			// Initialize first three columns of viewing matrix
+			vector3f_t dir = {lx-ex,ly-ey,lz-ez};
+			vnorm(dir);
+			//left or right
+			vector3f_t right = {ux,uy,uz};
+			vector3f_t normalized_right = right;
+			vnorm(normalized_right);
+			vxcross(right,dir,normalized_right);
+			vector3f_t newUp;
+			vxcross(newUp, right,dir);
+			matrix_element(m,0,0) = right.x;
+			matrix_element(m,1,0) = right.y;
+			matrix_element(m,2,0) = right.z;
+			matrix_element(m,3,0) = 0.;
+			matrix_element(m,0,1) = newUp.x;
+			matrix_element(m,1,1) = newUp.y;
+			matrix_element(m,2,1) = newUp.z;
+			matrix_element(m,3,1) = 0.;
+			matrix_element(m,0,2) = dir.x;
+			matrix_element(m,1,2) = dir.y;
+			matrix_element(m,2,2) = dir.z;
+			matrix_element(m,3,2) = 0.;
+			matrix4x4_t inv_m;
+			matrix_inverse(inv_m,m);
+			transform_construct_from_matrix2((*transform),inv_m,m);
+
+			//vector_t eye_pos(ex,ey,ez);
+			//vector_t center_pos(lx,ly,lz);
+			//vector_t up_dir(ux,uy,uz);
+			//const vector_t forward = ((center_pos.self() - eye_pos.self()).normalized());//(center - eye);
+			//const vector_t side = ((forward.cross(up_dir)).normalized());//normalize(cross(forward, up));
+
+			//const vector_t up2 = side.cross(forward);//cross(side, forward);
+
+			//trans_t m ;//= transform3f::Identity();
+			//m.setIdentity();
+
+			//m(0,0) = side[0];
+			//m(0,1) = side[1];
+			//m(0,2) = side[2];
+
+			//m(1,0) = up2[0];
+			//m(1,1) = up2[1];
+			//m(1,2) = up2[2];
+
+			//m(2,0) = -forward[0];
+			//m(2,1) = -forward[1];
+			//m(2,2) = -forward[2];
+
+			//return m.translate(-eye_pos);
+		}
 
 #endif

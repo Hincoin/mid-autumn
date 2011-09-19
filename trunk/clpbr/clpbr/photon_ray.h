@@ -6,7 +6,7 @@
 struct photon_ray_t:ray_t
 {
     photon_ray_t(){vclr(flux);}
-	spectrum_t flux;
+	mutable spectrum_t flux;
 };
 struct photon_ray_hit_point_t{
 	vector3f_t n;

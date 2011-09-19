@@ -1,12 +1,12 @@
 #include "camera.h"
 
 
-class PerspectiveCamera:public Camera
+class PerspectiveCamera:public ProjectiveCamera
 {
 public:
-	PerspectiveCamera(point3f_t eye,point3f_t center);
-	ray_differential_t GenerateRay(const camera_sample_t& cam_samp);
+	PerspectiveCamera(const transform_t& camera_to_world,const screen_window_t &screen_window,float field_of_view,Film *f);
+	virtual void GenerateRay(const camera_sample_t& cam_samp, ray_t *ray, float *weight);
 protected:
 private:
-	point3f_t center_,eye_;
+	
 };
