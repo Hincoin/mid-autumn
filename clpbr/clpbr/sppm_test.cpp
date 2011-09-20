@@ -287,6 +287,11 @@ void setup_scene()
 	dummy_light[0].memory_start = 0;
 	lights = dummy_light;
 	light_count = sizeof(dummy_light)/sizeof(dummy_light[0]);
+	
+	cl_scene_info.lght_count = light_count;
+	cl_scene_info.lghts = lights;
+	cl_scene_info.primitive_count = primitive_count;
+
 
 	point3f_t eye_pos,eye_center;
 	

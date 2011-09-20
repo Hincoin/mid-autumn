@@ -139,12 +139,13 @@ void SPPMRenderer::PhotonTrace(const Scene* scene,
                 photon_ray_buffer.Push(scene->GeneratePhotonRay());//todo use sampler to generate light samples
 				num_total_photons_ ++;
             }
+			photon_hits.clear();
             scene->PhotonHit(photon_ray_buffer,&photon_hits);
 			assert(photon_ray_buffer.size() == photon_hits.size());
             //iterate through photon_ray_buffer and swap not hitted one with last one
             for(unsigned i = 0;i < photon_ray_buffer.size();)
             {
-                if(color_is_black(photon_ray_buffer[i].flux))
+                if(color_is_black(photon_ray_buffer[i].flux) || photon_ray_buffer[i].ray_depth > max_photon_ray_depth_)
 				{
 					photon_ray_buffer.DeleteWithoutOrder(i);
 					photon_hits[i] = photon_hits.back();
@@ -160,8 +161,10 @@ void SPPMRenderer::PhotonTrace(const Scene* scene,
 					{
 						unsigned idx = *it;
 						const ray_hit_point_t& ray_hp = ray_hits[idx];
+						vector3f_t v_area;
+						vsub(v_area, ray_hp.pos,hp.pos);
 						if(vdot(ray_hp.normal,hp.n) > 1e-3f && 
-								vdot(ray_hp.normal,ray_hp.normal) <= accum_hits[idx].r2)
+								vdot(v_area,v_area) <= accum_hits[idx].r2)
 						{
 							accum_hits[idx].accum_photon_count ++; 
 							spectrum_t f ;

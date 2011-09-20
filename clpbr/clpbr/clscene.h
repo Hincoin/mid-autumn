@@ -13,11 +13,14 @@ public:
 	virtual void RayHit(const RayBuffer<ray_differential_t>& rays,std::vector<ray_hit_point_t>* ray_hits)const;
 	~CLScene();
 private:
+	void RayTrace(const ray_differential_t& ray, ray_hit_point_t *hit_point)const;
+private:
 	cl_scene_info_t scene_info_;
 
 	float *lights_power_;
 	float *light_cdf_;
 	float total_power_;
+	Seed *seed_;
 };
 
 

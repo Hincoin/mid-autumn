@@ -5,7 +5,7 @@
 //per pass information
 struct accum_hit_point_t 
 {
-	explicit accum_hit_point_t(float radius2 = -1.f):accum_photon_count(0),r2(radius2){}
+	explicit accum_hit_point_t(float radius2 = -1.f):accum_photon_count(0),r2(radius2){vclr(accum_flux);}
 	spectrum_t accum_flux;
 	float r2;
 	unsigned accum_photon_count;
@@ -14,7 +14,11 @@ struct accum_hit_point_t
 struct final_hit_point_t 
 {
 	final_hit_point_t():photon_count(0),hit_count(0),constant_hit_count(0),
-		surface_hit_count(0){}
+		surface_hit_count(0){
+			vclr(flux);
+			vclr(radiance);
+			vclr(accum_radiance);
+	}
 	unsigned photon_count;
 	unsigned hit_count;
 	unsigned constant_hit_count;
