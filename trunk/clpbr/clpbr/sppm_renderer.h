@@ -18,7 +18,7 @@ class SPPMRenderer:public Renderer
 {
 public:
 	SPPMRenderer(Camera* c,Film* im,Sampler* s)
-		:camera_(c),image_(im),sampler_(s){}
+		:camera_(c),image_(im),sampler_(s){max_photon_r2_ = 10000;max_photon_ray_depth_ = 8;num_photons_per_pass_ = 8096;}
 
 	virtual void Render(const Scene* scene);
 	virtual ~SPPMRenderer();
@@ -35,6 +35,8 @@ private:
 	unsigned num_photons_per_pass_;
 	mutable float max_photon_r2_;
 	unsigned num_total_photons_;
+
+	int max_photon_ray_depth_;
 };
 
 #endif

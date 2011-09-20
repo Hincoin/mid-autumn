@@ -6,7 +6,7 @@
 
 void Camera::GenerateRay(const camera_sample_t &camera_sample, ray_differential_t *ray, float *weight)
 {
-	GenerateRay(camera_sample, &(static_cast<ray_t>(*ray)), weight);
+	GenerateRay(camera_sample, static_cast<ray_t*>(ray), weight);
 	ray->has_differential = 0;
 	//todo
 	//shift x and y direction

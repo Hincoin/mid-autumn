@@ -24,12 +24,17 @@ CLScene::CLScene(const cl_scene_info_t &scene_info)
 	}
 	compute_step_1d_cdf(lights_power_,n_lights,&total_power_,light_cdf_);
 
+	seed_ = new Seed();
+	seed_->s1 = rand();
+	seed_->s2 = rand();
+	seed_->s3 = rand();
 	//todo
 }
 CLScene::~CLScene()
 {
 	free(lights_power_);
 	free(light_cdf_);
+	delete seed_;
 }
 photon_ray_t CLScene::GeneratePhotonRay() const
 {
@@ -85,9 +90,9 @@ void CLScene::PhotonHit(RayBuffer<photon_ray_t> &photon_rays, std::vector<photon
 			float pdf;
 			BxDFType flags;
 
-			float u1 = random_float(0);
-			float u2 = random_float(0);
-			float u3 = random_float(0);
+			float u1 = random_float(seed_);
+			float u2 = random_float(seed_);
+			float u3 = random_float(seed_);
 
 			vassign(photon_hit.n, bsdf.nn);
 			photon_hit.pos = bsdf.dg_shading.p;
@@ -102,12 +107,132 @@ void CLScene::PhotonHit(RayBuffer<photon_ray_t> &photon_rays, std::vector<photon
 				//float co = fabs(vdot(photon_wi,bsdf.nn)) / pdf;
 				//vmul(ray.flux,ray.flux,fr);
 				//vsmul(ray.flux,co,ray.flux);
+				ray.o = photon_hit.pos;
+				ray.d = photon_hit.wo;
+				ray.ray_depth ++;
 			}
-			photon_hits->push_back(photon_hit);
 		}
+		else
+		{
+			ray.flux.x = ray.flux.y = ray.flux.z = 0.f;
+			photon_hit = photon_ray_hit_point_t();
+		}
+		photon_hits->push_back(photon_hit);
+	}
+}
+
+INLINE bool is_hit_light(intersection_t* isect,cl_scene_info_t scene_info)
+{
+	return (scene_info.primitives[isect->primitive_idx].material_info.material_type == 0);//light type
+}
+void CLScene::RayTrace(const ray_differential_t& ray, ray_hit_point_t *hit_point)const
+{
+	int depth = 0;
+	int max_depth = 5;
+	int rr_depth = 3;
+	int specular_bounce = 1;
+	spectrum_t throughtput; vinit(throughtput,1,1,1);
+
+	ray_t cur_ray = static_cast<ray_t>(ray);
+	intersection_t isect;
+
+
+	bool is_debug_ray = false;
+	for (;;++depth)
+	{
+		if (depth > max_depth ||!intersect(scene_info_.accelerator_data, scene_info_.shape_data, scene_info_.primitives, 
+			scene_info_.primitive_count, &cur_ray,&isect) )
+		{
+			hit_point->type = hp_constant_color;
+			vclr(hit_point->throughput);
+			return;
+		}
+
+		if (depth > rr_depth && !specular_bounce)
+		{
+			float continue_prob = .5f;
+			if (random_float(seed_) > continue_prob)
+			{
+				hit_point->type = hp_constant_color;
+				vclr(hit_point->throughput);
+				return;
+			}
+			continue_prob = 1.f/continue_prob;
+			vsmul(throughtput,continue_prob,throughtput);
+		}
+		if (depth == 0 || specular_bounce)
+		{
+			spectrum_t tmp;
+			vector3f_t v;
+			vneg(v,cur_ray.d);
+			vclr(tmp)
+			intersection_le(&isect,scene_info_,&v,&tmp);
+			vmul(tmp,throughtput,tmp);
+			if(is_hit_light(&isect,scene_info_))
+			{
+				hit_point->type = hp_constant_color;
+				hit_point->throughput = tmp;
+				return;
+			}
+		}
+		bsdf_t bsdf;
+
+		//compute
+		intersection_get_bsdf(&isect,scene_info_,&cur_ray,&bsdf);//do following
+		//compute_differential_geometry(isect.dg,ray);
+		//differential_geometry dgs;
+		//get_dg_shading_geometry(shape,dg,&dgs)//dgs = dg;
+		//material_get_bsdf(scene,material,dg,dgs,&bsdf);
+		point3f_t p = bsdf.dg_shading.p;
+		normal3f_t n = bsdf.dg_shading.nn;
+		vector3f_t wo;vneg(wo,cur_ray.d);
+
+		float bs1 = random_float(seed_);
+		float bs2 = random_float(seed_);
+		float bcs = random_float(seed_);
+		vector3f_t wi;
+		float pdf;
+		BxDFType flags;
+		spectrum_t f;
+		bsdf_sample_f(&bsdf,&wo,&wi,bs1,bs2,bcs,&pdf,BSDF_ALL,&flags,&f);
+		if (pdf <= 0.f || color_is_black(f))
+		{
+			hit_point->type = hp_constant_color;
+			vclr(hit_point->throughput);
+			break;
+		}
+		specular_bounce = (flags & BSDF_SPECULAR) != 0;
+		float co = fabs(vdot(wi,n)) / pdf;
+		vmul(throughtput,throughtput,f);
+		vsmul(throughtput,co,throughtput);
+
+
+		if (!specular_bounce)
+		{
+			hit_point->type = hp_surface;
+			hit_point->bsdf = bsdf;
+			hit_point->pos = p;
+			hit_point->normal = n;
+			hit_point->wo = wo;
+			hit_point->throughput = throughtput;
+			return;
+		}
+
+
+		cur_ray.o = p;
+		cur_ray.d = wi;
+		cur_ray.mint = EPSILON;
+		cur_ray.maxt = FLT_MAX;
 	}
 }
 void CLScene::RayHit(const RayBuffer<ray_differential_t> &rays, std::vector<ray_hit_point_t> *ray_hits)const
 {
 	//todo
+	ray_hit_point_t hit_point;	
+	for(int i = 0;i < rays.size(); ++i)
+	{
+		RayTrace(rays[i],&hit_point);
+		hit_point.index = i;
+		ray_hits->push_back(hit_point);
+	}
 }
