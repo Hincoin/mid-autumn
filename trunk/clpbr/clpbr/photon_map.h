@@ -427,7 +427,7 @@ INLINE void photon_map_li(photon_map_t* photon_map,
 				uniform_sample_all_lights(scene_info,
 					seed,&p,&n,&wo,bsdf_stack+ray_stack_top-1,&l);
 				vadd(li_val,li_val,l);
-//#define DIRECT_LIGHTING
+#define DIRECT_LIGHTING
 #ifndef DIRECT_LIGHTING
 				photon_map_lphoton(photon_map,
 					&photon_map->caustic_map,photon_map->n_caustic_paths,

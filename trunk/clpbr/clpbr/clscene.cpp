@@ -99,14 +99,14 @@ void CLScene::PhotonHit(RayBuffer<photon_ray_t> &photon_rays, std::vector<photon
 
 			
 			spectrum_t fr;
-			bsdf_sample_f(&bsdf,&photon_hit.wo,&photon_wi,u1,u2,u3,&pdf,BSDF_ALL,&flags,&fr);
+			bsdf_sample_f(&bsdf,&photon_wi,&photon_hit.wo,u1,u2,u3,&pdf,BSDF_ALL,&flags,&fr);
 			if(pdf <= 0.f || color_is_black(fr))
 				ray.flux.x = ray.flux.y = ray.flux.z = 0.f;
 			else
 			{
-				//float co = fabs(vdot(photon_wi,bsdf.nn)) / pdf;
-				//vmul(ray.flux,ray.flux,fr);
-				//vsmul(ray.flux,co,ray.flux);
+				float co = fabs(vdot(photon_wi,bsdf.nn)) / pdf;
+				vmul(ray.flux,ray.flux,fr);
+				vsmul(ray.flux,co,ray.flux);
 				ray.o = photon_hit.pos;
 				ray.d = photon_hit.wo;
 				ray.ray_depth ++;
@@ -229,10 +229,19 @@ void CLScene::RayHit(const RayBuffer<ray_differential_t> &rays, std::vector<ray_
 {
 	//todo
 	ray_hit_point_t hit_point;	
+	float zmax,zmin;
+	zmax = -1000;
+	zmin = 1000;
 	for(int i = 0;i < rays.size(); ++i)
 	{
 		RayTrace(rays[i],&hit_point);
 		hit_point.index = i;
 		ray_hits->push_back(hit_point);
+		if(hit_point.type != hp_constant_color)
+		{
+			zmax = max(zmax, hit_point.pos.z);
+			zmin = min(zmin, hit_point.pos.z);
+		}
 	}
+	printf("zmax, zmin : %.3f, %.3f",zmax, zmin);
 }

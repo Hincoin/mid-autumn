@@ -17,6 +17,7 @@ void SPPMRenderer::Render(const Scene *scene)
 		std::vector<ray_hit_point_t> ray_hit_points;//all hit points
 	
 		bool has_more_sample = true;
+		sampler_->ResetSamplePosition();
 		while(has_more_sample)//do eye pass
 		{
 			//
@@ -67,7 +68,7 @@ void SPPMRenderer::Render(const Scene *scene)
 		assert(samples.size() == ray_hit_points.size());
 
 		//compute radiance
-		unsigned max_photon_r2 = 0;
+		float max_photon_r2 = 0;
 		for(unsigned i = 0;i < final_hit_points.size(); ++i)
 		{
 			final_hit_point_t& fhp = final_hit_points[i];
@@ -172,6 +173,7 @@ void SPPMRenderer::PhotonTrace(const Scene* scene,
 							vsub(wi,hp.pos,ray_hp.pos);
 							wo = hp.wo;
 						   	bsdf_f(&ray_hp.bsdf,&wo,&wi,BSDF_ALL,&f);
+							vmul(f,f,photon_ray_buffer[i].flux);
 							vadd(accum_hits[idx].accum_flux,accum_hits[idx].accum_flux,f);
 						}
 					}
