@@ -106,8 +106,10 @@ void SPPMRenderer::Render(const Scene *scene)
 				float k = 1.f / (FLOAT_PI * fhp.r2 * num_total_photons_);
 				spectrum_t f;
 				vsmul(f,fhp.surface_hit_count*k,fhp.flux);
-				vadd(f,f,fhp.accum_radiance);
-				vsmul(fhp.radiance,1.f/hit_count,f);
+				//todo
+				vassign(fhp.radiance,f);
+				//vadd(f,f,fhp.accum_radiance);
+				//vsmul(fhp.radiance,1.f/hit_count,f);
 			}
 		}
 		if(max_photon_r2 > 0) max_photon_r2_ = max_photon_r2;

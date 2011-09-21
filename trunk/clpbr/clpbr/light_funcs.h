@@ -7,7 +7,7 @@
 
 INLINE void light_l(const point3f_t p,const normal3f_t n,const vector3f_t* wi,spectrum_t *c){
 	//todo
-	vinit(*c,10.f,10.f,10.f);
+	vinit(*c,25.f * 10.f,25.f * 10.f,25.f * 10.f);
 }
 
 

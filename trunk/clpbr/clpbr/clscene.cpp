@@ -123,7 +123,7 @@ void CLScene::PhotonHit(RayBuffer<photon_ray_t> &photon_rays, std::vector<photon
 
 INLINE bool is_hit_light(intersection_t* isect,cl_scene_info_t scene_info)
 {
-	return (scene_info.primitives[isect->primitive_idx].material_info.material_type == 0);//light type
+	return (scene_info.primitives[isect->primitive_idx].material_info.material_type == LIGHT_MATERIAL);//light type
 }
 void CLScene::RayTrace(const ray_differential_t& ray, ray_hit_point_t *hit_point)const
 {
