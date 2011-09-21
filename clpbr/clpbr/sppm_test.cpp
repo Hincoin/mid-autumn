@@ -35,7 +35,7 @@ void sppm_test()
 
 void setup_scene()
 {
-#define WALL_RAD 1e4f
+#define WALL_RAD 1e5f
 	const int cornell_sphere_count = 9;
 	static  sphere_t CornellSpheres[cornell_sphere_count];
 	for (unsigned i = 0;i < sizeof(CornellSpheres)/sizeof(CornellSpheres[0]); ++i)
@@ -48,14 +48,15 @@ void setup_scene()
 		transform_identity(CornellSpheres[i].o2w);
 		sphere_init(CornellSpheres+i,&CornellSpheres[i].o2w,rad,zmin,zmax,pm,1);
 	}
-	transform_translate(CornellSpheres[0].o2w,WALL_RAD + 1.f, 40.8f, 81.6f);
-	transform_translate(CornellSpheres[1].o2w,-WALL_RAD + 99.f, 40.8f, 81.6f);
-	transform_translate(CornellSpheres[2].o2w,50.f, 40.8f, WALL_RAD);
-	transform_translate(CornellSpheres[3].o2w,50.f, 40.8f, -WALL_RAD + 270.f);
-	transform_translate(CornellSpheres[4].o2w,50.f, WALL_RAD, 81.6f);
-	transform_translate(CornellSpheres[5].o2w,50.f, -WALL_RAD + 81.6f, 81.6f);
+
+	transform_translate(CornellSpheres[0].o2w,WALL_RAD + 1.f, 40.8f, 81.6f);//left
+	transform_translate(CornellSpheres[1].o2w,-WALL_RAD + 99.f, 40.8f, 81.6f);//right
+	transform_translate(CornellSpheres[2].o2w,50.f, 40.8f, WALL_RAD);//back
+	transform_translate(CornellSpheres[3].o2w,50.f, 40.8f, -WALL_RAD + 170.f);//front
+	transform_translate(CornellSpheres[4].o2w,50.f, WALL_RAD, 81.6f);//bottom
+	transform_translate(CornellSpheres[5].o2w,50.f, -WALL_RAD + 81.6f, 81.6f);//top
 	transform_translate(CornellSpheres[6].o2w,27.f, 16.5f, 47.f);//mirror
-	transform_translate(CornellSpheres[7].o2w,73.f, 16.5f, 78.f);//glass
+	transform_translate(CornellSpheres[7].o2w,73.f, 16.5f, 88.f);//glass
 	transform_translate(CornellSpheres[8].o2w,50.f, 81.6f - 15.f, 81.6f);//light
 	float ball_rad0,ball_rad1,light_ball_rad;
 	ball_rad0 = 16.5f;
@@ -113,9 +114,9 @@ void setup_scene()
 	texture_mem[10]= 1.6f;
 	texture_mem[11] =0.f;
 
-	texture_mem[12] = 0.f;
-	texture_mem[13]= 0.f;
-	texture_mem[14]= 0.f;
+	texture_mem[12] = 1.f;
+	texture_mem[13]= 1.f;
+	texture_mem[14]= 1.f;
 	texture_mem[15] =0.f;
 
 	texture_mem[16] = 1.f;
@@ -143,7 +144,8 @@ void setup_scene()
 
 
 	static light_material_t lm;
-	vinit(lm.color,10.f,10.f,10.f);
+	vinit(lm.color,1.f,1.f,1.f);
+	vsmul(lm.color,4*3.1416*2500,lm.color);
 	unsigned material_buffer_size = 1024;
 	float *material_data = new float[material_buffer_size];
 	material_data[0] = lm.color.x;
@@ -302,7 +304,7 @@ void setup_scene()
 	lookat( eye_pos.x,eye_pos.y,eye_pos.z, eye_center.x, eye_center.y, eye_center.z , 0,1,0,&world_to_camera);
 	transform_inverse(camera_to_world,world_to_camera);
 	film = new ImageFilm(w,h);
-	camera = new PerspectiveCamera(camera_to_world,screen_window_t(0,1,0,1),radians(90),film);
+	camera = new PerspectiveCamera(camera_to_world,screen_window_t(0,1,0,1),radians(30),film);
 	sampler = new RandomSampler(0,w,0,h,1,1);
 	scene = new CLScene(cl_scene_info);
 }
