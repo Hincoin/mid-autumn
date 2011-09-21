@@ -14,6 +14,7 @@ public:
 		x_pixel_end_(x_end),y_pixel_start_(y_start),y_pixel_end_(y_end),
 		samples_per_pixel_(spp){}
 	virtual bool GetNextSample(camera_sample_t* cam_samp)=0;
+	virtual void ResetSamplePosition() = 0;
 	virtual ~Sampler(){}
 protected:
 	int x_pixel_start_,x_pixel_end_;

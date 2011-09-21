@@ -17,6 +17,13 @@ RandomSampler::RandomSampler(int x_start,int x_end,
 	seed_->s2 = y_start << 16 | y_end;
 	seed_->s3 = x_start << 16 | y_start;
 }
+
+void RandomSampler::ResetSamplePosition() 
+{
+	x_pos_ = x_pixel_start_;
+	y_pos_ = y_pixel_start_;
+	sample_pos_ = 0;
+}
 RandomSampler::~RandomSampler()
 {
 	delete seed_;
