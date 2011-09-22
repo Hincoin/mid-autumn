@@ -84,8 +84,6 @@ void SPPMRenderer::Render(const Scene *scene)
 			{
 				if(ahp.accum_photon_count > 0)
 				{
-
-					unsigned pcount = fhp.photon_count + ahp.accum_photon_count;
 					const float g = alpha_ * pcount / (fhp.photon_count*alpha_+ahp.accum_photon_count);
 					spectrum_t flux ;
 					vadd(flux,fhp.flux,ahp.accum_flux);
@@ -100,7 +98,7 @@ void SPPMRenderer::Render(const Scene *scene)
 				fhp.surface_hit_count ++;
 			}
 			const unsigned hit_count = fhp.constant_hit_count + fhp.surface_hit_count;
-			if(hit_count > 0)
+			if(pcount > 0)
 			{
 				//todo: compute final radiance
 				double k = 1. / (FLOAT_PI * fhp.r2 * num_total_photons_);
