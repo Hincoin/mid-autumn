@@ -31,6 +31,7 @@ void PerspectiveCamera::GenerateRay(const camera_sample_t &cam_samp, ray_t *ray,
 
 	point3f_t origin = {0,0,0};
 	ray_t r;
+	vnorm(point_camera);
 	ray_init(r,origin, point_camera);
 
 	transform_ray(*ray,camera_to_world_,r);

@@ -21,7 +21,7 @@ ProjectiveCamera::ProjectiveCamera(const transform_t& camera_to_world,const tran
 	transform_identity(screen_to_raster_);
 	transform_scale(screen_to_raster_,float(film_->GetWidth()),float(film_->GetHeight()),1.f);
 	transform_scale(screen_to_raster_,1.f/(screen_window.x_max-screen_window.x_min),1.f/(screen_window.y_min - screen_window.y_max),1.f);
-	transform_translate(screen_to_raster_, -screen_window.x_min, screen_window.y_max,0.f);
+	transform_translate(screen_to_raster_, -screen_window.x_min, -screen_window.y_max,0.f);
 	transform_inverse(raster_to_screen_,screen_to_raster_);
 
 	transform_t transform_tmp;
