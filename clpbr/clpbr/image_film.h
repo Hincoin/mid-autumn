@@ -11,9 +11,11 @@ public:
 	void AddSample(const camera_sample_t& cam_samp,const spectrum_t& c);
 	unsigned GetWidth()const;
 	unsigned GetHeight()const;
+	~ImageFilm();
 protected:
 private:
 	unsigned width_,height_;
+	unsigned char *color_array_;
 };
 
 
