@@ -14,7 +14,7 @@ struct accum_hit_point_t
 struct final_hit_point_t 
 {
 	final_hit_point_t():photon_count(0),hit_count(0),constant_hit_count(0),
-		surface_hit_count(0){
+		surface_hit_count(0),r2(-1){
 			vclr(flux);
 			vclr(radiance);
 			vclr(accum_radiance);

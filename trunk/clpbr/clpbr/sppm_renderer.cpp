@@ -156,6 +156,10 @@ void SPPMRenderer::PhotonTrace(const Scene* scene,
 					const photon_ray_hit_point_t& hp = photon_hits[i];
 					std::pair<SPPMHashGrid::range_iterator,SPPMHashGrid::range_iterator> range = 
 						hash_grid.EqualRange(hp.pos);
+					if(hash_grid.IsInBBox(hp.pos))
+					{
+						int debug_break = 0;
+					}
 					for(SPPMHashGrid::range_iterator it = range.first;it != range.second;++it)
 					{
 						unsigned idx = *it;
@@ -173,6 +177,7 @@ void SPPMRenderer::PhotonTrace(const Scene* scene,
 						   	bsdf_f(&ray_hp.bsdf,&wo,&wi,BSDF_ALL,&f);
 							vmul(f,f,photon_ray_buffer[i].flux);
 							vadd(accum_hits[idx].accum_flux,accum_hits[idx].accum_flux,f);
+							printf("%d",color_is_black(accum_hits[idx].accum_flux));
 						}
 					}
                     i++;
