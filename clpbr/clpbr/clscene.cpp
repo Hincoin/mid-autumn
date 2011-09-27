@@ -229,6 +229,7 @@ void CLScene::RayHit(const RayBuffer<ray_differential_t> &rays, std::vector<ray_
 {
 	//todo
 	ray_hit_point_t hit_point;	
+	//debug
 	float zmax,zmin;
 	zmax = -1000;
 	zmin = 1000;

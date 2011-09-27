@@ -30,6 +30,11 @@ public:
 	unsigned int hash(const int ix, const int iy, const int iz)const {
 		return (unsigned int)((ix*73856093)^(iy*19349663)^(iz*83492791))%impl_.size();
 	}
+	bool IsInBBox(const point3f_t& p)const
+	{
+		return hpbbox_.pmin.x < p.x && hpbbox_.pmin.y < p.y && hpbbox_.pmin.z < p.z
+			&& hpbbox_.pmax.x > p.x && hpbbox_.pmax.y > p.y && hpbbox_.pmax.z > p.z;
+	}
 protected:
 private:
 	container_type impl_;
