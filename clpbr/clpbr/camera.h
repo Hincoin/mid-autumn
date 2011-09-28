@@ -11,9 +11,7 @@
 
 typedef struct  
 {
-	point3f_t eye;
-	vector3f_t center;
-	//todo
+	vector3f_t eye;
 	vector3f_t dir,x,y;
 } camera_t;
 
@@ -50,7 +48,7 @@ INLINE void GenerateCameraRay(OCL_CONSTANT_BUFFER camera_t *camera,
 								  const float r1 = random_float(s) - .5f;
 								  const float r2 = random_float(s) - .5f;
 								  const float kcx = (x + r1) * invWidth - .5f;
-								  const float kcy = (y + r2) * invHeight - .5f;
+								  const float kcy = -((y + r2) * invHeight - .5f);
 
 								  vector3f_t rdir;
 								  vinit(rdir,
@@ -59,7 +57,7 @@ INLINE void GenerateCameraRay(OCL_CONSTANT_BUFFER camera_t *camera,
 									  camera->x.z * kcx + camera->y.z * kcy + camera->dir.z);
 
 								  vector3f_t rorig;
-								  vsmul(rorig, 0.1f, rdir);
+								  vsmul(rorig, 140, rdir);
 								  vadd(rorig, rorig, camera->eye)
 
 									  vnorm(rdir);

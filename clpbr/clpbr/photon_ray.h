@@ -12,6 +12,6 @@ struct photon_ray_t:ray_t
 struct photon_ray_hit_point_t{
 	vector3f_t n;
 	point3f_t pos;
-	vector3f_t wo;
+	vector3f_t wi;
 };
 #endif
