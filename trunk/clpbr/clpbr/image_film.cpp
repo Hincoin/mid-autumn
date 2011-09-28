@@ -24,6 +24,7 @@ void ImageFilm::WriteImage()
 		  int idx = 3*i;
           fprintf(f,"%d %d %d ", color_array_[idx],color_array_[idx+1],color_array_[idx+2]);
 	  }
+	  ::fflush(f);
 	  ::fclose(f);
 	  ::memset(color_array_,0,width_*height_*3*sizeof(char));
 }
@@ -35,6 +36,7 @@ void ImageFilm::AddSample(const camera_sample_t& camera_sample,const spectrum_t&
 	color_array_[3*idx] = toInt(c.x);
 	color_array_[3*idx + 1] = toInt(c.y);
 	color_array_[3*idx+2] = toInt(c.z);
+	return;
 	//todo
 	if(!color_is_black(c))
 		printf("add sample at (%.3f,%.3f) value:(%d,%d,%d)\n",

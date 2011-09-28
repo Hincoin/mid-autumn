@@ -51,6 +51,10 @@ void SPPMRenderer::Render(const Scene *scene)
 					sample.image_x = 128;
 					sample.image_y = 256;
 					camera_->GenerateRay(sample, &ray, &ray_weight);
+
+					sample.image_x = 128;
+					sample.image_y = 0;
+					camera_->GenerateRay(sample, &ray, &ray_weight);
 				}
 				else
 					has_more_sample = false;
@@ -173,7 +177,7 @@ void SPPMRenderer::PhotonTrace(const Scene* scene,
 					const photon_ray_hit_point_t& hp = photon_hits[i];
 					std::pair<SPPMHashGrid::range_iterator,SPPMHashGrid::range_iterator> range = 
 						hash_grid.EqualRange(hp.pos);
-					printf("photon_ray_hit :(%.3f,%.3f,%.3f)(%d)\t",hp.pos.x,hp.pos.y,hp.pos.z,photon_ray_buffer[i].ray_depth);
+					//printf("photon_ray_hit :(%.3f,%.3f,%.3f)(%d)\t",hp.pos.x,hp.pos.y,hp.pos.z,photon_ray_buffer[i].ray_depth);
 					if(hash_grid.IsInBBox(hp.pos))
 					{
 						int debug_break = 0;
@@ -190,13 +194,14 @@ void SPPMRenderer::PhotonTrace(const Scene* scene,
 							accum_hits[idx].accum_photon_count ++; 
 							spectrum_t f ;
 							vector3f_t wo,wi;
-							vsub(wi,hp.pos,ray_hp.pos);
+							wi = hp.wi;
+							//vsub(wi,hp.pos,ray_hp.pos);
 							wo = ray_hp.wo;
 						   	bsdf_f(&ray_hp.bsdf,&wo,&wi,BSDF_ALL,&f);
 							vmul(f,f,photon_ray_buffer[i].flux);
 							vadd(accum_hits[idx].accum_flux,accum_hits[idx].accum_flux,f);
 							debug_count ++;
-							printf("%d",color_is_black(accum_hits[idx].accum_flux));
+							//printf("%d",color_is_black(accum_hits[idx].accum_flux));
 						}
 					}
                     i++;

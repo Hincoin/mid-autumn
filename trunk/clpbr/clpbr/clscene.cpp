@@ -85,8 +85,8 @@ void CLScene::PhotonHit(RayBuffer<photon_ray_t> &photon_rays, std::vector<photon
 
 			intersection_get_bsdf(&photon_isect,scene_info_,
 					&ray, &bsdf);
-			vector3f_t photon_wi ; 
-			vneg(photon_wi,ray.d);
+			vector3f_t photon_wo ; 
+			vneg(photon_hit.wi,ray.d);
 			float pdf;
 			BxDFType flags;
 
@@ -99,16 +99,16 @@ void CLScene::PhotonHit(RayBuffer<photon_ray_t> &photon_rays, std::vector<photon
 
 			
 			spectrum_t fr;
-			bsdf_sample_f(&bsdf,&photon_wi,&photon_hit.wo,u1,u2,u3,&pdf,BSDF_ALL,&flags,&fr);
+			bsdf_sample_f(&bsdf,&photon_hit.wi,&photon_wo,u1,u2,u3,&pdf,BSDF_ALL,&flags,&fr);
 			if(pdf <= 0.f || color_is_black(fr))
 				ray.flux.x = ray.flux.y = ray.flux.z = 0.f;
 			else
 			{
-				float co = fabs(vdot(photon_wi,bsdf.nn)) / pdf;
+				float co = fabs(vdot(photon_hit.wi,bsdf.nn)) / pdf;
 				vmul(ray.flux,ray.flux,fr);
 				vsmul(ray.flux,co,ray.flux);
 				ray.o = photon_hit.pos;
-				ray.d = photon_hit.wo;
+				ray.d = photon_wo;
 				ray.ray_depth ++;
 			}
 		}

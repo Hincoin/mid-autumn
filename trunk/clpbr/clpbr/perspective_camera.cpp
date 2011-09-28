@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstdlib>
 #include "perspective_camera.h"
 
 transform_t perspective_transform(float fov_radian, float n, float f)
@@ -36,4 +37,26 @@ void PerspectiveCamera::GenerateRay(const camera_sample_t &cam_samp, ray_t *ray,
 
 	transform_ray(*ray,camera_to_world_,r);
 	*weight = 1.f;
+
+
+	////////////////////////////////////////////////////
+	camera_t camera;
+
+	vinit(camera.eye,50,48,295.6);
+	vinit(camera.dir,0,-0.042612,-1);
+	vnorm(camera.dir);
+
+	float cx = film_->GetWidth() * 0.5135 / film_->GetHeight();
+	vinit(camera.x, cx,0,0);
+	vector3f_t cy ;
+	vxcross(cy,camera.x,camera.dir);
+	vnorm(cy);
+	vsmul(camera.y,0.5135f,cy);
+
+	static Seed seed;
+	seed.s1 = rand();
+	seed.s2 = rand();
+	seed.s3 = rand();
+	
+	GenerateCameraRay(&camera,&seed,film_->GetWidth(),film_->GetHeight(),int(cam_samp.image_x),int (cam_samp.image_y),ray);
 }
