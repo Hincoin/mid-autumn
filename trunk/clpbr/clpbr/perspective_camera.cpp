@@ -19,7 +19,7 @@ transform_t perspective_transform(float fov_radian, float n, float f)
 	return result;
 }
 PerspectiveCamera::PerspectiveCamera(const transform_t& camera_to_world,const screen_window_t &screen_window,float field_of_view_radian,Film *f)
-:ProjectiveCamera(camera_to_world,perspective_transform(field_of_view_radian, 1e-2f, 1000.f),screen_window, f)
+:ProjectiveCamera(camera_to_world,perspective_transform(field_of_view_radian, 10.f, 300.f),screen_window, f)
 {
 	//todo
 }
@@ -34,6 +34,8 @@ void PerspectiveCamera::GenerateRay(const camera_sample_t &cam_samp, ray_t *ray,
 	ray_t r;
 	vnorm(point_camera);
 	ray_init(r,origin, point_camera);
+	r.mint = 0;
+	r.maxt = (300.f - 10.f)/r.d.z;
 
 	transform_ray(*ray,camera_to_world_,r);
 	*weight = 1.f;

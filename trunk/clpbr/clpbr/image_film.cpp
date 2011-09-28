@@ -17,16 +17,20 @@ ImageFilm::~ImageFilm()
 }
 void ImageFilm::WriteImage()
 {
+	int debug_non_black_count = 0;
 	  FILE* f = fopen("image.ppm","w"); 
 	  fprintf(f,"P3\n%d %d\n%d\n",width_,height_,255);
 	  for(int i = 0; i< width_ * height_; i++) 
 	  {
 		  int idx = 3*i;
+		  if(color_array_[idx] > 0 && color_array_[idx+1] > 0 && color_array_[idx+2] > 0)
+			  debug_non_black_count ++;
           fprintf(f,"%d %d %d ", color_array_[idx],color_array_[idx+1],color_array_[idx+2]);
 	  }
 	  ::fflush(f);
 	  ::fclose(f);
 	  ::memset(color_array_,0,width_*height_*3*sizeof(char));
+	  printf("non_black_count:%d\n",debug_non_black_count);
 }
 void ImageFilm::AddSample(const camera_sample_t& camera_sample,const spectrum_t& c)
 {

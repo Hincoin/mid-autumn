@@ -118,7 +118,7 @@ void SPPMRenderer::Render(const Scene *scene)
 				fhp.surface_hit_count ++;
 			}
 			const unsigned hit_count = fhp.constant_hit_count + fhp.surface_hit_count;
-			if(pcount > 0)
+			//if(pcount > 0)
 			{
 				//todo: compute final radiance
 				double k = 1. / (FLOAT_PI * fhp.r2 * num_total_photons_);
