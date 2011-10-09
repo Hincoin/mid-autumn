@@ -9,12 +9,6 @@
 #include "sampler.h"
 #include "film.h"
 
-typedef struct  
-{
-	vector3f_t eye;
-	vector3f_t dir,x,y;
-} camera_t;
-
 class Camera{
 public:
 	Camera(const transform_t& camera_to_world, Film* f):film_(f){transform_assign(camera_to_world_,camera_to_world);}
@@ -23,23 +17,39 @@ public:
 	virtual void GenerateRay(const camera_sample_t& camera_sample, ray_t *ray, float *weight) = 0;
 	virtual ~Camera(){}
 protected:
+	const Film* GetFilm(){return film_;}
+	const transform_t& CameraToWorld(){return camera_to_world_;}
+private:
 	transform_t camera_to_world_;
 	Film* film_;
 };
 
 struct screen_window_t{
-	screen_window_t(float xmin,float xmax,float ymin,float ymax):x_min(xmin),x_max(xmax),y_min(ymin),y_max(ymax){}
-	float x_min,x_max;
-	float y_min,y_max;
+	explicit screen_window_t(float frame_aspect_ratio);
+	void set_window(float xmin,float xmax,float ymin,float ymax);
+	float x_min,x_max;//[-1,1]
+	float y_min,y_max;//[-1,1]
 };
 class ProjectiveCamera:public Camera
 {
 public:
 	ProjectiveCamera(const transform_t& camera_to_world,const transform_t& proj, const screen_window_t& screen_window,Film *film);
 protected:
+	const transform_t& CameraToScreen(){return camera_to_screen_;}
+	const transform_t& RasterToCamera(){return raster_to_camera_;}
+	const transform_t& RasterToScreen(){return raster_to_screen_;}
+	const transform_t& ScreenToRaster(){return screen_to_raster_;}
+private:
 	transform_t camera_to_screen_,raster_to_camera_;
 	transform_t raster_to_screen_,screen_to_raster_;
 };
+
+//todo: be deleted
+typedef struct  
+{
+	vector3f_t eye;
+	vector3f_t dir,x,y;
+} camera_t;
 INLINE void GenerateCameraRay(OCL_CONSTANT_BUFFER camera_t *camera,
 							  Seed* s,
 							  const int width, const int height, const int x, const int y, ray_t *ray) {

@@ -2,8 +2,27 @@
 #include "camera.h"
 
 
+screen_window_t::screen_window_t(float frame_aspect_ratio)
+{
+	if (frame_aspect_ratio > 1.f) 
+	{
+		x_min = -frame_aspect_ratio;
+		x_max =  frame_aspect_ratio;
+		y_min = -1.f;
+		y_max =  1.f;
+	}
+	else {
+		x_min = -1.f;
+		x_max =  1.f;
+		y_min = -1.f / frame_aspect_ratio;
+		y_max =  1.f / frame_aspect_ratio;
+	}
+}
 
-
+void screen_window_t::set_window(float xmin,float xmax,float ymin,float ymax)
+{
+	x_min = xmin;x_max = xmax;y_min = ymin;y_max=ymax;
+}
 void Camera::GenerateRay(const camera_sample_t &camera_sample, ray_differential_t *ray, float *weight)
 {
 	GenerateRay(camera_sample, static_cast<ray_t*>(ray), weight);
@@ -26,7 +45,7 @@ ProjectiveCamera::ProjectiveCamera(const transform_t& camera_to_world,const tran
 	transform_identity(translate);
 
 	transform_identity(screen_to_raster_);
-	transform_scale(scale0,float(film_->GetWidth()),float(film_->GetHeight()),1.f);
+	transform_scale(scale0,float(GetFilm()->GetWidth()),float(GetFilm()->GetHeight()),1.f);
 	transform_scale(scale1,1.f/(screen_window.x_max-screen_window.x_min),1.f/(screen_window.y_min - screen_window.y_max),1.f);
 	transform_translate(translate, -screen_window.x_min, -screen_window.y_max,0.f);
 

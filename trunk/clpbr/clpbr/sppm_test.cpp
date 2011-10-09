@@ -52,7 +52,7 @@ void setup_scene()
 	transform_translate(CornellSpheres[0].o2w,WALL_RAD + 1.f, 40.8f, 81.6f);//left
 	transform_translate(CornellSpheres[1].o2w,-WALL_RAD + 99.f, 40.8f, 81.6f);//right
 	transform_translate(CornellSpheres[2].o2w,50.f, 40.8f, WALL_RAD);//back
-	transform_translate(CornellSpheres[3].o2w,50.f, 40.8f, -WALL_RAD + 170.f);//front
+	transform_translate(CornellSpheres[3].o2w,50.f, 40.8f, -WALL_RAD + 570.f);//front
 	transform_translate(CornellSpheres[4].o2w,50.f, WALL_RAD, 81.6f);//bottom
 	transform_translate(CornellSpheres[5].o2w,50.f, -WALL_RAD + 81.6f, 81.6f);//top
 	transform_translate(CornellSpheres[6].o2w,27.f, 16.5f, 47.f);//mirror
@@ -297,14 +297,14 @@ void setup_scene()
 
 	point3f_t eye_pos,eye_center;
 	
-	vinit(eye_pos, 50.f, 48.f, 295.6f);
-	vinit(eye_center, 50.f, 48.f - 0.042612f, 295.6 - 1.f);
+	vinit(eye_pos, 50.f, 48.f, 365);
+	vinit(eye_center, 50.f, 48.f - 0.042612f, 365 - 1.f);
 
 	transform_t camera_to_world,world_to_camera;
 	lookat( eye_pos.x,eye_pos.y,eye_pos.z, eye_center.x, eye_center.y, eye_center.z , 0,1,0,&world_to_camera);
 	transform_inverse(camera_to_world,world_to_camera);
 	film = new ImageFilm(w,h);
-	camera = new PerspectiveCamera(camera_to_world,screen_window_t(0,1,0,1),radians(90),film);
+	camera = new PerspectiveCamera(camera_to_world,screen_window_t(1.f),degree_to_radian(degree_t(30)),film);
 	sampler = new RandomSampler(0,w,0,h,1,1);
 	scene = new CLScene(cl_scene_info);
 }
