@@ -330,6 +330,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\radian_degree.h"
+				>
+			</File>
+			<File
 				RelativePath=".\random_number_generator.h"
 				>
 			</File>

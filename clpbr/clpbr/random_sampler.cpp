@@ -44,8 +44,8 @@ bool RandomSampler::GetNextSample(camera_sample_t* cam_samp)
 		sample_pos_ = 0;
 	}
 
-	cam_samp->image_x = x_pos_ + random_float(seed_) - 0.5f;
-	cam_samp->image_y = y_pos_ + random_float(seed_) - 0.5f;
+	cam_samp->image_x = x_pos_ + random_float(seed_) ;//- 0.5f;
+	cam_samp->image_y = y_pos_ + random_float(seed_) ;//- 0.5f;
 	++sample_pos_;
 	return true;
 }
