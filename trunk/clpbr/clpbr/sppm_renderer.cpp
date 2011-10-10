@@ -28,9 +28,6 @@ void SPPMRenderer::Render(const Scene *scene)
 			ray_differential_t ray;
 			float ray_weight;
 
-			vector3f_t debug_vmin,debug_vmax;
-			vinit(debug_vmin,10000,10000,10000);
-			vinit(debug_vmax,-10000,-10000,-10000);
 			while(!ray_buffer.IsFull() && has_more_sample)
 			{
 				if(sampler_->GetNextSample(&sample))
@@ -40,21 +37,6 @@ void SPPMRenderer::Render(const Scene *scene)
 					ray_buffer.Push(ray);
 					ray_buffer.Back().ray_id = samples.size();
 					samples.push_back(sample);
-
-					debug_vmin.x = min(debug_vmin.x,ray.d.x);
-					debug_vmin.y = min(debug_vmin.y,ray.d.y);
-					debug_vmin.z = min(debug_vmin.z,ray.d.z);
-					debug_vmax.x = max(debug_vmax.x,ray.d.x);
-					debug_vmax.y = max(debug_vmax.y,ray.d.y);
-					debug_vmax.z = max(debug_vmax.z,ray.d.z);
-
-					sample.image_x = 128;
-					sample.image_y = 256;
-					camera_->GenerateRay(sample, &ray, &ray_weight);
-
-					sample.image_x = 128;
-					sample.image_y = 0;
-					camera_->GenerateRay(sample, &ray, &ray_weight);
 				}
 				else
 					has_more_sample = false;
@@ -146,7 +128,6 @@ void SPPMRenderer::PhotonTrace(const Scene* scene,
 		const SPPMHashGrid& hash_grid,const std::vector<ray_hit_point_t>& ray_hits,
 		std::vector<accum_hit_point_t>& accum_hits)
 {
-	int debug_count = 0;
 	for(unsigned num_photons = 0;num_photons < num_photons_per_pass_;)
 	{
 		RayBuffer<photon_ray_t> photon_ray_buffer(1024);
@@ -178,10 +159,6 @@ void SPPMRenderer::PhotonTrace(const Scene* scene,
 					std::pair<SPPMHashGrid::range_iterator,SPPMHashGrid::range_iterator> range = 
 						hash_grid.EqualRange(hp.pos);
 					//printf("photon_ray_hit :(%.3f,%.3f,%.3f)(%d)\t",hp.pos.x,hp.pos.y,hp.pos.z,photon_ray_buffer[i].ray_depth);
-					if(hash_grid.IsInBBox(hp.pos))
-					{
-						int debug_break = 0;
-					}
 					for(SPPMHashGrid::range_iterator it = range.first;it != range.second;++it)
 					{
 						unsigned idx = *it;
@@ -200,7 +177,6 @@ void SPPMRenderer::PhotonTrace(const Scene* scene,
 						   	bsdf_f(&ray_hp.bsdf,&wo,&wi,BSDF_ALL,&f);
 							vmul(f,f,photon_ray_buffer[i].flux);
 							vadd(accum_hits[idx].accum_flux,accum_hits[idx].accum_flux,f);
-							debug_count ++;
 							//printf("%d",color_is_black(accum_hits[idx].accum_flux));
 						}
 					}
@@ -211,5 +187,4 @@ void SPPMRenderer::PhotonTrace(const Scene* scene,
         while(!photon_ray_buffer.Empty());
     }
 	
-	printf("%d\n",debug_count);
 }

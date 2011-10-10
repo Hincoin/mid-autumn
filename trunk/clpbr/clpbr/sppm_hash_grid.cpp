@@ -62,10 +62,4 @@ SPPMHashGrid::SPPMHashGrid(const std::vector<ray_hit_point_t>& ray_hits,
 			int hv = hash(ix,iy,iz);impl_[hv].push_back(i);
 		}
 	}
-	int debug_count = 0;
-	for(int i = 0;i < impl_.size(); ++i)
-	{
-		if(!impl_[i].empty()) debug_count ++;
-	}
-	printf("non empty count: %d\n",debug_count);
 }

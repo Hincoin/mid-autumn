@@ -66,7 +66,6 @@ INLINE void sppm_ray_trace(
 
 	int specular_bounce = 1;
 
-	bool is_debug_ray = false;
 	for (;;++depth)
 	{
 		if (depth > max_depth ||!intersect(accelerator_data, shape_data, primitives, primitive_count, &cur_ray,&isect) )
@@ -185,7 +184,6 @@ INLINE void sppm_photon_trace(
 
 	int specular_bounce = 1;
 
-	bool is_debug_ray = false;
 	for (;;++depth)
 	{
 		if(!specular_bounce)
