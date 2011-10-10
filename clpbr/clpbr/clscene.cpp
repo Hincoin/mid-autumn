@@ -137,7 +137,6 @@ void CLScene::RayTrace(const ray_differential_t& ray, ray_hit_point_t *hit_point
 	intersection_t isect;
 
 
-	bool is_debug_ray = false;
 	for (;;++depth)
 	{
 		if (depth > max_depth ||!intersect(scene_info_.accelerator_data, scene_info_.shape_data, scene_info_.primitives, 
@@ -229,20 +228,10 @@ void CLScene::RayHit(const RayBuffer<ray_differential_t> &rays, std::vector<ray_
 {
 	//todo
 	ray_hit_point_t hit_point;	
-	//debug
-	float zmax,zmin;
-	zmax = -1000;
-	zmin = 1000;
 	for(int i = 0;i < rays.size(); ++i)
 	{
 		RayTrace(rays[i],&hit_point);
 		hit_point.index = i;
 		ray_hits->push_back(hit_point);
-		if(hit_point.type != hp_constant_color)
-		{
-			zmax = max(zmax, hit_point.pos.z);
-			zmin = min(zmin, hit_point.pos.z);
-		}
 	}
-	printf("zmax, zmin : %.3f, %.3f",zmax, zmin);
 }

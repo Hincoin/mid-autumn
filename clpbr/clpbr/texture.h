@@ -43,12 +43,6 @@ INLINE void color_texture_evaluate(color_texture_info_t* tex,cl_scene_info_t* sc
 	case COLOR_CONSTANT:
 		{
 			GLOBAL float* mem = scene_data->texture_data + tex->memory_start;
-			if (tex->memory_start == 24 || 
-				tex->memory_start == 27 ||
-				tex->memory_start == 30)
-			{
-				int debug_a = 0;
-			}
 			c->x = mem[0];
 			c->y = mem[1];
 			c->z = mem[2];
