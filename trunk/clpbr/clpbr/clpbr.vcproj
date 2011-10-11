@@ -212,6 +212,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\progressive_photon_map_renderer.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\random_sampler.cpp"
 				>
 			</File>
@@ -327,6 +331,10 @@
 			</File>
 			<File
 				RelativePath=".\primitive_funcs.h"
+				>
+			</File>
+			<File
+				RelativePath=".\progressive_photon_map_renderer.h"
 				>
 			</File>
 			<File
