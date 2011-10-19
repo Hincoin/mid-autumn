@@ -166,7 +166,7 @@ INLINE void bxdf_f(const bxdf_t *self,vector3f_t wo,vector3f_t wi,spectrum_t *f)
 }
 
 
-INLINE float bxdf_pdf(bxdf_t *self, vector3f_t wi,vector3f_t wo)
+INLINE float bxdf_pdf(bxdf_t *self, vector3f_t wo,vector3f_t wi)
 {
 	switch(self->bxdf_model)
 	{
@@ -355,6 +355,7 @@ INLINE void bsdf_sample_f(bsdf_t* bsdf,const vector3f_t *woW,vector3f_t *wiW,
 	if (matching_comps == 0) {
 		*pdf = 0.f;
 		vclr(*f);
+		return;
 	}
 	int which = min((u3 * matching_comps),
 		matching_comps-1);

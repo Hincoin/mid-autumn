@@ -23,7 +23,7 @@ INLINE void fr_diel(float cosi,float cost,spectrum_t etai,spectrum_t etat,spectr
 	vsmul(tmp0,cosi,etai);
 	vsmul(tmp1,cost,etat);
 	vsub(tmp_u,tmp0,tmp1);
-	vsub(tmp_d,tmp0,tmp1);
+	vadd(tmp_d,tmp0,tmp1);
 	vdiv(Rperp,tmp_u,tmp_d);
 
 

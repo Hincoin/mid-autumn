@@ -204,6 +204,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\permuted_halton.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\perspective_camera.cpp"
 				>
 			</File>
@@ -213,6 +217,10 @@
 			</File>
 			<File
 				RelativePath=".\progressive_photon_map_renderer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\random_number_generator_mt19937.cpp"
 				>
 			</File>
 			<File
@@ -302,10 +310,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\math.h"
-				>
-			</File>
-			<File
 				RelativePath=".\matrix4x4.h"
 				>
 			</File>
@@ -315,6 +319,10 @@
 			</File>
 			<File
 				RelativePath=".\memory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\permuted_halton.h"
 				>
 			</File>
 			<File
@@ -338,11 +346,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\quadratic_math.h"
+				>
+			</File>
+			<File
 				RelativePath=".\radian_degree.h"
 				>
 			</File>
 			<File
 				RelativePath=".\random_number_generator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\random_number_generator_mt19937.h"
 				>
 			</File>
 			<File

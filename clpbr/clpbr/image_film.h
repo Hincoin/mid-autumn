@@ -7,7 +7,7 @@ class ImageFilm:public Film
 {
 public:
 	ImageFilm(unsigned w,unsigned h);
-	void WriteImage();
+	void WriteImage(unsigned progressive_iteration);
 	void AddSample(const camera_sample_t& cam_samp,const spectrum_t& c);
 	unsigned GetWidth()const;
 	unsigned GetHeight()const;
@@ -15,7 +15,8 @@ public:
 protected:
 private:
 	unsigned width_,height_;
-	unsigned char *color_array_;
+	float *color_array_;
+	float *color_buffer_;
 };
 
 

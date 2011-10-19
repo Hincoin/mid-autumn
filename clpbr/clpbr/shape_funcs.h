@@ -2,7 +2,7 @@
 #define _SHAPE_FUNC_H_
 
 #include "shape.h"
-#include "math.h"
+#include "quadratic_math.h"
 
 //
 //float SphereIntersect(
@@ -171,7 +171,8 @@ INLINE int intersect_sphereP(GLOBAL float* shape_data,const unsigned int memory_
 INLINE int intersect_sphere(GLOBAL float* shape_data,const unsigned int memory_start,
 					 ray_t *r,
 					 float *tHit,
-					 differential_geometry_t *dg)
+					 differential_geometry_t *dg,
+					 float *epsilon)
 {
 	sphere_t sphere ;
 	load_sphere(shape_data+memory_start,&sphere);
@@ -188,7 +189,8 @@ INLINE int intersect_sphere(GLOBAL float* shape_data,const unsigned int memory_s
 	float B = 2 * (ray.d.x*ray.o.x + ray.d.y*ray.o.y +
 		ray.d.z*ray.o.z);
 	float C = ray.o.x*ray.o.x + ray.o.y*ray.o.y +
-		ray.o.z*ray.o.z - sphere.rad*sphere.rad;
+		(ray.o.z-sphere.rad)*(ray.o.z+sphere.rad);
+		//ray.o.z*ray.o.z - sphere.rad*sphere.rad;
 	// Solve quadratic equation for _t_ values
 	float t0, t1;
 	if (!Quadratic(A, B, C, &t0, &t1))
@@ -300,6 +302,7 @@ INLINE int intersect_sphere(GLOBAL float* shape_data,const unsigned int memory_s
 	differential_geometry_init(*dg,dg->p,dg->dpdu,dg->dpdv,dg->dndu,dg->dndv,u,v,&sphere)
 		// Update _tHit_ for quadric intersection
 		*tHit = thit;
+	*epsilon = 5e-4f * *tHit;
 	return 1;
 }
 #include "cl_scene.h"
@@ -372,7 +375,8 @@ INLINE void shape_sample(shape_info_t* shape_info,cl_scene_info_t scene_info,con
 		vector3f_t r_dir;
 		uniform_sample_cone(u0,u1,cos_theta_max,&wc_x,&wc_y,&wc,&r_dir);
 		rinit(r,*p,r_dir);
-		if(!intersect_sphere(scene_info.shape_data,shape_info->memory_start,&r,&thit,&dg_sphere))
+		float epsilon;
+		if(!intersect_sphere(scene_info.shape_data,shape_info->memory_start,&r,&thit,&dg_sphere,&epsilon))
 		{
 			vsmul(ps,s.rad,wc);
 			vsub(ps,pcenter,ps);
@@ -407,7 +411,7 @@ INLINE float shape_pdf(shape_info_t shape_info,cl_scene_info_t scene_info,const 
 		differential_geometry_t dg;
 		if(!(intersect_sphere(scene_info.shape_data,
 			shape_info.memory_start,
-			&r,&thit,&dg)))
+			&r,&thit,&dg,&isect.ray_epsilon)))
 		{
 			return 0.f;
 		}

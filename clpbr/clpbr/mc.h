@@ -53,6 +53,10 @@ INLINE void concentric_sample_disk(float u1, float u2,
 											   theta = 6.0f + sx/r;
 										   }
 									   }
+
+#ifndef FLOAT_PI
+#define FLOAT_PI 3.1415926f
+#endif
 									   theta *= FLOAT_PI / 4.f;
 									   *dx = r*cos(theta);
 									   *dy = r*sin(theta);

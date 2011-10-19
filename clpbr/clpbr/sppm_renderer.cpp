@@ -114,7 +114,7 @@ void SPPMRenderer::Render(const Scene *scene)
 
 		for(size_t i = 0;i < samples.size(); ++i)
 			image_->AddSample(samples[i],final_hit_points[i].radiance);
-		image_->WriteImage();
+		image_->WriteImage(0);
 	}
 }
 SPPMRenderer::~SPPMRenderer()

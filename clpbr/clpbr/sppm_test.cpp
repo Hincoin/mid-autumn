@@ -6,7 +6,7 @@
 #include "image_film.h"
 
 #include "sppm_test.h"
-#include "sppm_renderer.h"
+#include "progressive_photon_map_renderer.h"
 #include "random_sampler.h"
 
 
@@ -24,18 +24,39 @@ static unsigned int primitive_count;
 static light_info_t* lights;
 static unsigned int light_count;
 
+cl_scene_info_t cl_scene_info;
+
 static void setup_scene();
 
 void sppm_test()
 {
 	setup_scene();
-	SPPMRenderer* renderer = new SPPMRenderer(camera,film,sampler);
-	renderer->Render(scene);
+	photon_map_t* photon_map = new photon_map_t();
+	photon_map->final_gather = false;
+	photon_map->cos_gather_angle = 0.95f;
+	photon_map->gather_samples = 32;
+	
+	photon_map->max_dist_squared = 10;
+	photon_map->max_specular_depth = 5;
+	photon_map->n_caustic_paths = 0;
+	photon_map->n_caustic_photons = 100000;
+	photon_map->n_indirect_paths = 0;
+	photon_map->n_indirect_photons = 100000;
+	photon_map->n_lookup = 50;
+	photon_map->total_photons = 0;
+	photon_map->rr_threshold = 0.125f;
+	photon_map->progressive_iteration = 0;
+
+	photon_map->alpha = 0.618;
+
+	PPMRenderer* renderer = new PPMRenderer(camera,film,sampler,photon_map);
+	renderer->Render(cl_scene_info);
+	delete photon_map;
 }
 
 void setup_scene()
 {
-#define WALL_RAD 1e5f
+#define WALL_RAD 1e4f
 	const int cornell_sphere_count = 9;
 	static  sphere_t CornellSpheres[cornell_sphere_count];
 	for (unsigned i = 0;i < sizeof(CornellSpheres)/sizeof(CornellSpheres[0]); ++i)
@@ -57,11 +78,11 @@ void setup_scene()
 	transform_translate(CornellSpheres[5].o2w,50.f, -WALL_RAD + 81.6f, 81.6f);//top
 	transform_translate(CornellSpheres[6].o2w,27.f, 16.5f, 47.f);//mirror
 	transform_translate(CornellSpheres[7].o2w,73.f, 16.5f, 88.f);//glass
-	transform_translate(CornellSpheres[8].o2w,50.f, 81.6f - 15.f, 81.6f);//light
+	transform_translate(CornellSpheres[8].o2w,50.f, 81.6f - 21.f, 81.6f);//light
 	float ball_rad0,ball_rad1,light_ball_rad;
 	ball_rad0 = 16.5f;
 	ball_rad1 = 16.5f;
-	light_ball_rad = 7.f;
+	light_ball_rad = .5f;
 	sphere_init(CornellSpheres + 6,&CornellSpheres[6].o2w,
 		ball_rad0,-ball_rad0,ball_rad0,360.f,0);
 	sphere_init(CornellSpheres + 7,&CornellSpheres[7].o2w,
@@ -86,7 +107,6 @@ void setup_scene()
 	}
 	primitives = primitive_array;
 
-	cl_scene_info_t cl_scene_info;
 
 	cl_scene_info.shape_data = (float*)(CornellSpheres);
 	unsigned shape_buffer_size = sizeof(CornellSpheres)/sizeof(float);
@@ -100,18 +120,18 @@ void setup_scene()
 
 	unsigned texture_buffer_size = sizeof(texture_mem)/sizeof(float);
 	texture_mem[0]= 1.f;
-	texture_mem[1]= 0.1f;
-	texture_mem[2] =0.1f;
+	texture_mem[1]= 0.0f;
+	texture_mem[2] =0.0f;
 	texture_mem[3] = 0.f;
 
-	texture_mem[4] = 0.1f;
+	texture_mem[4] = 0.0f;
 	texture_mem[5]= 1.f;
-	texture_mem[6]= 0.1f;
+	texture_mem[6]= 0.0f;
 	texture_mem[7] =0.f;
 
-	texture_mem[8] = 0.1f;
-	texture_mem[9]= 0.1f;
-	texture_mem[10]= 1.6f;
+	texture_mem[8] = 0.0f;
+	texture_mem[9]= 0.0f;
+	texture_mem[10]= 1.f;
 	texture_mem[11] =0.f;
 
 	texture_mem[12] = 1.f;
@@ -130,13 +150,13 @@ void setup_scene()
 	texture_mem[23] =0.f;
 
 	//for glass
-	texture_mem[24] = 0.1f;
-	texture_mem[25] = 0.1f;
-	texture_mem[26] = 0.1f;
-	texture_mem[27] = 2.f;
-	texture_mem[28] = 2.f;
-	texture_mem[29] = 2.f;
-	texture_mem[30] = 1.33f;
+	texture_mem[24] = 1.0f;
+	texture_mem[25] = 1.0f;
+	texture_mem[26] = 1.0f;
+	texture_mem[27] = 1.f;
+	texture_mem[28] = 1.f;
+	texture_mem[29] = 1.f;
+	texture_mem[30] = 1.7f;
 	//for mirror
 	texture_mem[31] = 1.f;
 	texture_mem[32] = 1.f;
@@ -145,7 +165,7 @@ void setup_scene()
 
 	static light_material_t lm;
 	vinit(lm.color,1.f,1.f,1.f);
-	vsmul(lm.color,4*3.1416*2500,lm.color);
+	vsmul(lm.color,2500,lm.color);
 	unsigned material_buffer_size = 1024;
 	float *material_data = new float[material_buffer_size];
 	material_data[0] = lm.color.x;

@@ -1,6 +1,7 @@
 #ifndef _KDTREE_H_
 #define _KDTREE_H_
 
+
 typedef struct  
 {
 	float split_pos;
@@ -193,7 +194,7 @@ void kd_tree_init(KDTree* kd_tree,
 	_kd_tree_recursive_build(kd_tree,0,0,kd_tree->n_nodes,&build_nodes[0]);
 }
 
-template<typename KDTree,typename NodeData> 
+template<typename NodeData,typename KDTree> 
 void kd_tree_destroy(KDTree* kd_tree)
 {
 	free_aligned(kd_tree->nodes);

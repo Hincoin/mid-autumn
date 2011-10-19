@@ -158,6 +158,7 @@ INLINE void specular_reflect(ray_t *ray, bsdf_t *bsdf,
 							 if (pdf > 0.f && !color_is_black(f) && fabs(vdot(wi, n)) != 0.f) {
 								 // Compute ray differential _rd_ for specular reflection
 								 rinit(*out,p,wi);
+								 out->mint = isect->ray_epsilon;
 								 //Spectrum Li = renderer->Li(scene, rd, sample, rng, arena);
 								 //L = f * Li * AbsDot(wi, n) / pdf;
 								 vsmul(*L, fabs(vdot(wi,n))/pdf,f);
@@ -183,6 +184,7 @@ INLINE void specular_transmit(ray_t *ray, bsdf_t *bsdf,
 							  if (pdf > 0.f && !color_is_black(f) && fabs(vdot(wi, n)) != 0.f) {
 								  // Compute ray differential _rd_ for specular transmission
 								 rinit(*out,p,wi);
+								 out->mint = isect->ray_epsilon;
 								  //Spectrum Li = renderer->Li(scene, rd, sample, rng, arena);
 								  //L = f * Li * AbsDot(wi, n) / pdf;
 								  vsmul(*L,fabs(vdot(wi,n))/pdf,f);
