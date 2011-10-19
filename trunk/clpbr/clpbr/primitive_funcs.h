@@ -56,15 +56,17 @@ static int intersect(
 	//
 	int ret = 0;
 	float thit;
+	float epsilon;
 	for (unsigned int i = 0;i < primitive_count; ++i)
 	{
 		switch(primitives[i].shape_info.shape_type)//intersect with shape
 		{
 		case 0:
-			if(intersect_sphere(shape_data,primitives[i].shape_info.memory_start,r,&thit,&(isect->dg)))
+			if(intersect_sphere(shape_data,primitives[i].shape_info.memory_start,r,&thit,&(isect->dg),&epsilon))
 			{
 				ret = 1;
 				isect->primitive_idx = i;
+				isect->ray_epsilon = epsilon;
 				r->maxt = thit;
 			}
 			break;

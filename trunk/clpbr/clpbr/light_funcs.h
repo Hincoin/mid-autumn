@@ -7,7 +7,7 @@
 
 INLINE void light_l(const point3f_t p,const normal3f_t n,const vector3f_t* wi,spectrum_t *c){
 	//todo
-	vinit(*c,10.f,10.f, 10.f);
+	vinit(*c,2500.f,2500.f, 2500.f);
 }
 
 
@@ -169,7 +169,8 @@ INLINE void light_sample_l(cl_scene_info_t scene_info,const light_info_t* light,
 						vector3f_t dir;
 						uniform_sample_cone(u1,u2,cos_theta_max,&wc_x,&wc_y,&wc,&dir);
 						ray_t ray;rinit(ray,*p,dir);
-						if(!intersect_sphere(scene_info.shape_data , ms,&ray,&thit,&dg_sphere))
+						float epsilon;
+						if(!intersect_sphere(scene_info.shape_data , ms,&ray,&thit,&dg_sphere,&epsilon))
 						{
 							vsmul(ps,s.rad,wc);
 							vsub(ps,p_center,ps);
@@ -199,7 +200,8 @@ INLINE void light_sample_l(cl_scene_info_t scene_info,const light_info_t* light,
 						vector3f_t wi_neg;
 						ray_t ray;rinit(ray,*p,*wo);
 						vneg(wi_neg,*wo);
-						if(!intersect_sphere(scene_info.shape_data , ms,&ray,&thit,&dg_light))*pdf = 0;
+						float epsilon;
+						if(!intersect_sphere(scene_info.shape_data , ms,&ray,&thit,&dg_light,&epsilon))*pdf = 0;
 						else *pdf = (len *len) / ((4.f * FLOAT_PI * s.rad * s.rad)  * fabs(vdot(dg_light.nn,wi_neg))) ;
 					}
 					else

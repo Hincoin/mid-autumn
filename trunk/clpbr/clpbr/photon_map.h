@@ -2,9 +2,9 @@
 #define _PHOTON_MAP_H_
 
 //
-#include "kdtree.h"
 #include "spectrum.h"
 #include "geometry.h"
+#include "kdtree.h"
 #include "sampling.h"
 #include "random_number_generator.h"
 #include "primitive_funcs.h"
@@ -54,17 +54,15 @@ INLINE bool close_photon_less_than(close_photon_t a,close_photon_t b)
 }
 typedef struct  
 {
-	const point3f_t* p;
 	close_photon_t *photons;
 	unsigned n_lookup;
 	unsigned found_photons;
 }photon_process_data_t;
 
 INLINE void photon_process_data_init(photon_process_data_t* photon_process_data,
-						 unsigned mp,
-						 const point3f_t* p)
+						 unsigned mp
+						 )
 {
-	photon_process_data->p = p;
 	photon_process_data->photons = 0;
 	photon_process_data->n_lookup = mp;
 	photon_process_data->found_photons = 0;
@@ -124,27 +122,41 @@ typedef struct {
 	unsigned  n_lookup;
 	int max_specular_depth;
 	float max_dist_squared, rr_threshold;
-	float cos_gather_angle;
-	int gather_samples;
 	// Declare sample parameters for light source sampling
 	int n_caustic_paths, n_indirect_paths;
 	photon_kd_tree_t caustic_map;
 	photon_kd_tree_t indirect_map;
 	radiance_photon_kd_tree_t radiance_map;
+	unsigned total_photons;
+	//
     bool final_gather;
+	float cos_gather_angle;
+	int gather_samples;
+	//ppm data
+	unsigned progressive_iteration;
+	float alpha;
 }
 photon_map_t;
 
 
 INLINE float photon_map_kernel(const photon_t *photon, const point3f_t *p,
 		float md2) {
-//	return 1.f / (md2 * M_PI); // NOBOOK
 	float s = (1.f - distance_squared(photon->p, *p) / md2);
 	return 3.f / (md2 * FLOAT_PI) * s * s;
 }
 
 #define MAX_CLOSE_PHOTON_LOOKUP 100
 
+INLINE float photon_map_get_radius(photon_map_t* photon_map,float reference_radius_squared)
+{
+	int n = photon_map->progressive_iteration;
+	float radius_squared = reference_radius_squared;
+	while(n--)
+	{
+		radius_squared *= (n + photon_map->alpha)/(n+1);
+	}
+	return max(1.f,radius_squared);
+}
 INLINE void photon_map_lphoton(photon_map_t* photon_map,
 							   photon_kd_tree_t *map,
 							   int n_paths,
@@ -165,8 +177,7 @@ INLINE void photon_map_lphoton(photon_map_t* photon_map,
 		return;
 	}
 	photon_process_data_t photon_map_data;
-	photon_process_data_init(&photon_map_data,photon_map->n_lookup,
-		&isect->dg.p);
+	photon_process_data_init(&photon_map_data,photon_map->n_lookup);
 	close_photon_t close_photon_data_store[MAX_CLOSE_PHOTON_LOOKUP];
 	photon_map_data.photons = close_photon_data_store;
 	kd_tree_lookup(*map,isect->dg.p,&photon_map_data,photon_process,max_dist_sqr);
@@ -180,15 +191,19 @@ INLINE void photon_map_lphoton(photon_map_t* photon_map,
 	}
 	else
 		vassign(n_f,bsdf->dg_shading.nn);
+	float radius_i_squared = true||n_found == photon_map->n_lookup ? 
+		photon_map_get_radius(photon_map,max_dist_sqr):max_dist_sqr;
 	if (bsdf_num_components(bsdf,BSDF_REFLECTION|BSDF_TRANSMISSION|BSDF_GLOSSY)> 0)
 	{
 		spectrum_t L;
 		//compute exitant radiance from photons for glossy
 		for(int i = 0;i < n_found; ++i)
 		{
+			if(photons[i].distance_squared > radius_i_squared)
+				continue;
 			const photon_t *p = photons[i].photon;
 			BxDFType flag = vdot(n_f,p->wi) > 0 ?BSDF_ALL_REFLECTION:BSDF_ALL_TRANSMISSION;
-			float k = photon_map_kernel(p,&isect->dg.p, max_dist_sqr);
+			float k = photon_map_kernel(p,&isect->dg.p, radius_i_squared);
 			bsdf_f(bsdf,wo,&p->wi,flag,&L);
 			vmul(L,L,p->alpha);
 			vsmul(L,(k/n_paths),L);
@@ -202,8 +217,11 @@ INLINE void photon_map_lphoton(photon_map_t* photon_map,
 		spectrum_t L;
 		for (int i = 0;i < n_found; ++i)
 		{
+
+			if(photons[i].distance_squared > radius_i_squared)
+				continue;
 			float k = photon_map_kernel(photons[i].photon,&isect->dg.p,
-				max_dist_sqr);
+				radius_i_squared);
 			if(vdot(n_f,photons[i].photon->wi) > 0.f)
 			{
 				vsmul(L,(k/n_paths),photons[i].photon->alpha);
@@ -242,7 +260,7 @@ INLINE void photon_map_final_gather(photon_map_t* photon_map,cl_scene_info_t sce
 
 		photon_process_data_t proc_data;
 		photon_process_data_init(&proc_data,
-			n_indir_sample_photons,&p);
+			n_indir_sample_photons);
 		close_photon_t photon_buffer[n_indir_sample_photons];
 		proc_data.photons = photon_buffer;
 		float search_dist2 = photon_map->max_dist_squared;
@@ -405,7 +423,7 @@ INLINE void photon_map_li(photon_map_t* photon_map,
 	{
 		ray_t cur_ray;rassign(cur_ray,ray_stack[ray_stack_top-1]);
 
-		if (intersect(scene_info.accelerator_data,scene_info.shape_data,scene_info.primitives,
+		if (visit != post && intersect(scene_info.accelerator_data,scene_info.shape_data,scene_info.primitives,
 			scene_info.primitive_count,&cur_ray,&isect))
 		{
 			//evaluate bsdf at hit point
@@ -427,7 +445,8 @@ INLINE void photon_map_li(photon_map_t* photon_map,
 				uniform_sample_all_lights(scene_info,
 					seed,&p,&n,&wo,bsdf_stack+ray_stack_top-1,&l);
 				vadd(li_val,li_val,l);
-#define DIRECT_LIGHTING
+				
+//#define DIRECT_LIGHTING
 #ifndef DIRECT_LIGHTING
 				photon_map_lphoton(photon_map,
 					&photon_map->caustic_map,photon_map->n_caustic_paths,
@@ -555,11 +574,11 @@ INLINE void photon_map_li(photon_map_t* photon_map,
 
 
 #ifndef CL_KERNEL
-
-void photon_map_init(photon_map_t* photon_map,GLOBAL float* light_data,GLOBAL float* material_data,GLOBAL float* shape_data,
-					 GLOBAL float* texture_data,GLOBAL float* integrator_data,GLOBAL float* accelerator_data,
-					 GLOBAL primitive_info_t* primitives,const unsigned int primitive_count,
-					 GLOBAL light_info_t* lghts, const unsigned int lght_count,
-					 Seed* seed);
+#include "random_number_generator_mt19937.h"
+void photon_map_init(photon_map_t* photon_map,cl_scene_info_t scene_info,
+					 RandomNumberGeneratorMT19937& rng);
+void photon_map_destroy(photon_map_t* photon_map);//free up kd-tree memory
 #endif
+
+
 #endif

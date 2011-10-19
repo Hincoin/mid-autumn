@@ -8,7 +8,7 @@
 class Film
 {
 public:
-	virtual void WriteImage()=0;
+	virtual void WriteImage(unsigned progressive_iteration)=0;
 	virtual void AddSample(const camera_sample_t& cam_samp,const spectrum_t& c)=0;
 	virtual unsigned GetWidth()const=0;
 	virtual unsigned GetHeight()const=0;

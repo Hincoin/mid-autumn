@@ -8,6 +8,7 @@ typedef struct
 	differential_geometry_t dg;
 	unsigned primitive_idx;
 	//todo
+	float ray_epsilon;
 }intersection_t;
 
 typedef struct  
