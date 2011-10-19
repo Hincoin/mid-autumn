@@ -569,7 +569,6 @@ INLINE void photon_map_li(photon_map_t* photon_map,
 			//visit = pre;
 		}
 	}
-
 }
 
 

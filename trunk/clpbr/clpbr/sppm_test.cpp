@@ -36,13 +36,13 @@ void sppm_test()
 	photon_map->cos_gather_angle = 0.95f;
 	photon_map->gather_samples = 32;
 	
-	photon_map->max_dist_squared = 10;
+	photon_map->max_dist_squared = 50;
 	photon_map->max_specular_depth = 5;
 	photon_map->n_caustic_paths = 0;
-	photon_map->n_caustic_photons = 100000;
+	photon_map->n_caustic_photons = 10000;
 	photon_map->n_indirect_paths = 0;
-	photon_map->n_indirect_photons = 100000;
-	photon_map->n_lookup = 50;
+	photon_map->n_indirect_photons = 10000;
+	photon_map->n_lookup = 10;
 	photon_map->total_photons = 0;
 	photon_map->rr_threshold = 0.125f;
 	photon_map->progressive_iteration = 0;
@@ -120,17 +120,17 @@ void setup_scene()
 
 	unsigned texture_buffer_size = sizeof(texture_mem)/sizeof(float);
 	texture_mem[0]= 1.f;
-	texture_mem[1]= 0.0f;
-	texture_mem[2] =0.0f;
+	texture_mem[1]= 0.1f;
+	texture_mem[2] =0.1f;
 	texture_mem[3] = 0.f;
 
-	texture_mem[4] = 0.0f;
+	texture_mem[4] = 0.1f;
 	texture_mem[5]= 1.f;
-	texture_mem[6]= 0.0f;
+	texture_mem[6]= 0.1f;
 	texture_mem[7] =0.f;
 
-	texture_mem[8] = 0.0f;
-	texture_mem[9]= 0.0f;
+	texture_mem[8] = 0.1f;
+	texture_mem[9]= 0.1f;
 	texture_mem[10]= 1.f;
 	texture_mem[11] =0.f;
 
