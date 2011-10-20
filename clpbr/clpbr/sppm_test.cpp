@@ -42,7 +42,7 @@ void sppm_test()
 	photon_map->n_caustic_photons = 10000;
 	photon_map->n_indirect_paths = 0;
 	photon_map->n_indirect_photons = 10000;
-	photon_map->n_lookup = 10;
+	photon_map->n_lookup = 30;
 	photon_map->total_photons = 0;
 	photon_map->rr_threshold = 0.125f;
 	photon_map->progressive_iteration = 0;
