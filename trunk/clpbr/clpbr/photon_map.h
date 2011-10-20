@@ -191,7 +191,7 @@ INLINE void photon_map_lphoton(photon_map_t* photon_map,
 	}
 	else
 		vassign(n_f,bsdf->dg_shading.nn);
-	float radius_i_squared = true||n_found == photon_map->n_lookup ? 
+	float radius_i_squared = n_found >= photon_map->n_lookup ? 
 		photon_map_get_radius(photon_map,max_dist_sqr):max_dist_sqr;
 	if (bsdf_num_components(bsdf,BSDF_REFLECTION|BSDF_TRANSMISSION|BSDF_GLOSSY)> 0)
 	{
