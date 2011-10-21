@@ -20,17 +20,18 @@ void PPMRenderer::Render(const cl_scene_info_t scene_info)
 {
 	Seed *seed = new Seed;
 
+	seed->s1 = rand()<<16 | rand();
+	seed->s2 = rand()<<16 | rand();
+	seed->s3 = rand()<<16 | rand();
+
 	int iteration = 0;
 
-	RandomNumberGeneratorMT19937 rng(rand() << 16 | rand());
+	RandomNumberGeneratorMT19937 *rng = new RandomNumberGeneratorMT19937(rand() << 16 | rand());
 	while(true)
 	{
-		seed->s1 = rand()<<16 | rand();
-		seed->s2 = rand()<<16 | rand();
-		seed->s3 = rand()<<16 | rand();
 		
 		sampler_->ResetSamplePosition();
-		photon_map_init(photon_map_,scene_info,rng);
+		photon_map_init(photon_map_,scene_info,*rng);
 		
 		
 		bool has_more_sample = true;
@@ -82,5 +83,6 @@ void PPMRenderer::Render(const cl_scene_info_t scene_info)
 		photon_map_->progressive_iteration = iteration;
 		printf("iteration:%d max_dist_sqr:%.3f ,total_photons: %d\n",iteration,photon_map_->max_dist_squared,photon_map_->total_photons);
 	}
+	delete rng;
 	delete seed;
 }

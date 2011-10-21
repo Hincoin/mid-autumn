@@ -32,7 +32,7 @@ void sppm_test()
 {
 	setup_scene();
 	photon_map_t* photon_map = new photon_map_t();
-	photon_map->final_gather = false;
+	photon_map->final_gather = true;
 	photon_map->cos_gather_angle = 0.95f;
 	photon_map->gather_samples = 32;
 	

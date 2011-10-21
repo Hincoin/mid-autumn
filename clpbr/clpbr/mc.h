@@ -112,7 +112,7 @@ INLINE float sample_step_1d(float *f, float *cdf, float c,
 	// Find surrounding cdf segments
 	float *ptr = cdf;
 	c_lower_bound(ptr, cdf+nSteps+1, u);
-	int offset = (int) (ptr-cdf-1);
+	int offset = max(0,(int) (ptr-cdf-1));
 	// Return offset along current cdf segment
 	u = (u - cdf[offset]) / (cdf[offset+1] - cdf[offset]);
 	*pdf = f[offset] / c;

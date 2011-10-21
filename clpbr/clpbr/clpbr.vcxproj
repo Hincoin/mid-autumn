@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1ED2F9D0-0391-419A-9F5B-B3F03CECC26C}</ProjectGuid>
+    <RootNamespace>clpbr</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(AMDAPPSDKROOT)/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <OpenMPSupport>false</OpenMPSupport>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(AMDAPPSDKROOT)/lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>$(AMDAPPSDKROOT)/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <OpenMPSupport>true</OpenMPSupport>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(AMDAPPSDKROOT)/lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="camera.cpp" />
+    <ClCompile Include="clscene.cpp" />
+    <ClCompile Include="image_film.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="memory.cpp" />
+    <ClCompile Include="permuted_halton.cpp" />
+    <ClCompile Include="perspective_camera.cpp" />
+    <ClCompile Include="photon_map_cpu.cpp" />
+    <ClCompile Include="progressive_photon_map_renderer.cpp" />
+    <ClCompile Include="random_number_generator_mt19937.cpp" />
+    <ClCompile Include="random_sampler.cpp" />
+    <ClCompile Include="sppm_hash_grid.cpp" />
+    <ClCompile Include="sppm_renderer.cpp" />
+    <ClCompile Include="sppm_test.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="calgorithm.h" />
+    <ClInclude Include="camera.h" />
+    <ClInclude Include="cl_config.h" />
+    <ClInclude Include="clscene.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="differential_geometry.h" />
+    <ClInclude Include="film.h" />
+    <ClInclude Include="fresnel.h" />
+    <ClInclude Include="geometry.h" />
+    <ClInclude Include="image_film.h" />
+    <ClInclude Include="integrator_funcs.h" />
+    <ClInclude Include="kdtree.h" />
+    <ClInclude Include="light.h" />
+    <ClInclude Include="light_funcs.h" />
+    <ClInclude Include="material.h" />
+    <ClInclude Include="material_funcs.h" />
+    <ClInclude Include="matrix4x4.h" />
+    <ClInclude Include="mc.h" />
+    <ClInclude Include="memory.h" />
+    <ClInclude Include="permuted_halton.h" />
+    <ClInclude Include="perspective_camera.h" />
+    <ClInclude Include="photon_ray.h" />
+    <ClInclude Include="primitive.h" />
+    <ClInclude Include="primitive_funcs.h" />
+    <ClInclude Include="progressive_photon_map_renderer.h" />
+    <ClInclude Include="quadratic_math.h" />
+    <ClInclude Include="radian_degree.h" />
+    <ClInclude Include="random_number_generator.h" />
+    <ClInclude Include="random_number_generator_mt19937.h" />
+    <ClInclude Include="random_sampler.h" />
+    <ClInclude Include="ray.h" />
+    <ClInclude Include="ray_buffer.h" />
+    <ClInclude Include="ray_hit_point.h" />
+    <ClInclude Include="reflection.h" />
+    <ClInclude Include="renderer.h" />
+    <ClInclude Include="sampler.h" />
+    <ClInclude Include="sampling.h" />
+    <ClInclude Include="scene.h" />
+    <ClInclude Include="shape.h" />
+    <ClInclude Include="shape_funcs.h" />
+    <ClInclude Include="spectrum.h" />
+    <ClInclude Include="sppm.h" />
+    <ClInclude Include="sppm_hash_grid.h" />
+    <ClInclude Include="sppm_hit_point.h" />
+    <ClInclude Include="sppm_renderer.h" />
+    <ClInclude Include="sppm_test.h" />
+    <ClInclude Include="texture.h" />
+    <ClInclude Include="cl_scene.h" />
+    <ClInclude Include="path_tracing.h" />
+    <ClInclude Include="photon_map.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="rendering_kernel.cl" />
+    <None Include="VTune\clpbr.vpj" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
