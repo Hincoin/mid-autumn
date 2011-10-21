@@ -1,5 +1,7 @@
 #include <cassert>
 #include <cmath>
+#include <iterator>
+#include <vector>
 #include "photon_ray.h"
 #include "sppm_renderer.h"
 #include "film.h"

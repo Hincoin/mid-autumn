@@ -53,7 +53,11 @@ void photon_map_destroy(photon_map_t* photon_map)//free up kd-tree memory
 }
 void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,RandomNumberGeneratorMT19937 &rng)
 {
-	
+	Seed seed;
+	seed.s1 = rng.RandomUnsignedInt();
+	seed.s2 = rng.RandomUnsignedInt();
+	seed.s3 = rng.RandomUnsignedInt();
+	//seed.s3 = rng.RandomUnsignedInt();
 	if (scene_info.lght_count == 0) return ;
 	//
 	using namespace std;
@@ -107,6 +111,11 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,R
 
 		//choose light of shoot photon from
 		float lpdf;
+
+		bool debug_tracing = false;//total_shot == 2;
+		if(debug_tracing)
+			printf("debug\nt");
+
 		int lnum = floor(sample_step_1d(lights_power,light_cdf,
 			total_power,n_lights,u[0],&lpdf));
 		lnum = min(lnum, n_lights - 1);
@@ -127,7 +136,7 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,R
 		int n_intersections = 0;
 		spectrum_t ltranmittance;
 
-		bool debug_tracing = false;//total_shot == 353;
+	
 		while (intersect(scene_info.accelerator_data,scene_info.shape_data,scene_info.primitives,scene_info.primitive_count,
 					&photon_ray,&photon_isect))
 		{
@@ -196,7 +205,6 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,R
 						}
 					}
 				}
-				/*
 				if(deposited && photon_map->final_gather && rng.RandomFloat() < photon_map->rr_threshold)
 				{
 					//store data for radiance photon
@@ -206,13 +214,12 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,R
 					radiance_photon_init(&r,&(photon_isect.dg.p),(&n));
 					radiance_photons.push_back(r);
 					spectrum_t rho_r;
-					bsdf_rho_hh(&photon_bsdf,seed,BSDF_ALL_REFLECTION,&rho_r);
+					bsdf_rho_hh(&photon_bsdf,&seed,BSDF_ALL_REFLECTION,&rho_r);
 					rp_reflectances.push_back(rho_r);
 					spectrum_t rho_t;
-					bsdf_rho_hh(&photon_bsdf,seed,BSDF_ALL_TRANSMISSION,&rho_t);
+					bsdf_rho_hh(&photon_bsdf,&seed,BSDF_ALL_TRANSMISSION,&rho_t);
 					rp_transmittances.push_back(rho_t);
 				}
-				*/
 			}
 			if (n_intersections > 8)
 			{
@@ -234,6 +241,7 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,R
 				u1 = rng.RandomFloat();//random_float(seed);
 				u2 = rng.RandomFloat();//random_float(seed);
 				u3 = rng.RandomFloat();//random_float(seed);
+				//printf("%.3f,%.3f,%.3f\t",u1,u2,u3);
 			}
 			//compute new photon weight and possibly terminate with rr
 			spectrum_t fr;

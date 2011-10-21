@@ -4,7 +4,11 @@
 #include "image_film.h"
 
 
-int toInt(double x){return int(pow(1-exp(-x),1/2.2)*255+.5);} //tone mapping
+int toInt(double x)
+{
+	return int(pow(1-exp(-x),1/2.2)*255+.5);
+	//return int(255*x);
+} //tone mapping
 
 ImageFilm::ImageFilm(unsigned w,unsigned h):
 width_(w),height_(h)
@@ -27,17 +31,18 @@ void ImageFilm::WriteImage(unsigned progressive_iteration)
 		  int idx = 3*i;
 		  if(color_array_[idx] > 0 && color_array_[idx+1] > 0 && color_array_[idx+2] > 0)
 			  debug_non_black_count ++;
-		  float r=(color_array_[idx]+color_buffer_[idx]*progressive_iteration)/(progressive_iteration+1);
-		  float g=(color_array_[idx+1]+color_buffer_[idx+1]*progressive_iteration)/(progressive_iteration+1);
-		  float b=(color_array_[idx+2]+color_buffer_[idx+2]*progressive_iteration)/(progressive_iteration+1);
+		  float r=(color_array_[idx]+color_buffer_[idx]*progressive_iteration)/float(progressive_iteration+1);
+		  float g=(color_array_[idx+1]+color_buffer_[idx+1]*progressive_iteration)/float(progressive_iteration+1);
+		  float b=(color_array_[idx+2]+color_buffer_[idx+2]*progressive_iteration)/float(progressive_iteration+1);
 		  color_buffer_[idx]   = r;
 		  color_buffer_[idx+1] = g;
 		  color_buffer_[idx+2] = b;
+
           fprintf(f,"%d %d %d ", toInt(r),toInt(g),toInt(b));
 	  }
 	  ::fflush(f);
 	  ::fclose(f);
-	  ::memset(color_array_,0,width_*height_*3*sizeof(char));
+	  ::memset(color_array_,0,width_*height_*3*sizeof(float));
 	  printf("non_black_count:%d\n",debug_non_black_count);
 }
 void ImageFilm::AddSample(const camera_sample_t& camera_sample,const spectrum_t& c)
