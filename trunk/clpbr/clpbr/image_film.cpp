@@ -24,7 +24,9 @@ ImageFilm::~ImageFilm()
 void ImageFilm::WriteImage(unsigned progressive_iteration)
 {
 	int debug_non_black_count = 0;
-	  FILE* f = fopen("image.ppm","w"); 
+	char file_name[256] = {0};
+	sprintf(file_name,"image_%d.ppm",progressive_iteration);
+	  FILE* f = fopen(file_name,"w"); 
 	  fprintf(f,"P3\n%d %d\n%d\n",width_,height_,255);
 	  for(int i = 0; i< width_ * height_; i++) 
 	  {
