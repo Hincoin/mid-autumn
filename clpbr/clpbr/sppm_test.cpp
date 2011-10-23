@@ -16,8 +16,8 @@ Film* film = NULL;
 Sampler* sampler = NULL;
 
 
-unsigned w = 256;
-unsigned h = 256;
+unsigned w = 512;
+unsigned h = 512;
 
 static primitive_info_t* primitives;
 static unsigned int primitive_count;
@@ -32,11 +32,11 @@ void sppm_test()
 {
 	setup_scene();
 	photon_map_t* photon_map = new photon_map_t();
-	photon_map->final_gather = true;
+	photon_map->final_gather = false;
 	photon_map->cos_gather_angle = 0.95f;
 	photon_map->gather_samples = 32;
 	
-	photon_map->max_dist_squared = 50;
+	photon_map->max_dist_squared = 30;
 	photon_map->max_specular_depth = 5;
 	photon_map->n_caustic_paths = 0;
 	photon_map->n_caustic_photons = 10000;
@@ -57,7 +57,7 @@ void sppm_test()
 void setup_scene()
 {
 #define WALL_RAD 1e4f
-	const int cornell_sphere_count = 9;
+	const int cornell_sphere_count = 10;
 	static  sphere_t CornellSpheres[cornell_sphere_count];
 	for (unsigned i = 0;i < sizeof(CornellSpheres)/sizeof(CornellSpheres[0]); ++i)
 	{
@@ -79,9 +79,15 @@ void setup_scene()
 	transform_translate(CornellSpheres[6].o2w,27.f, 16.5f, 47.f);//mirror
 	transform_translate(CornellSpheres[7].o2w,73.f, 16.5f, 88.f);//glass
 	transform_translate(CornellSpheres[8].o2w,50.f, 81.6f - 21.f, 81.6f);//light
-	float ball_rad0,ball_rad1,light_ball_rad;
+	
+	transform_translate(CornellSpheres[9].o2w,50.f, 30, 60.6f);//anistropic ball
+
+
+	float ball_rad0,ball_rad1,light_ball_rad,anistropic_ball_rad;
 	ball_rad0 = 16.5f;
 	ball_rad1 = 16.5f;
+	anistropic_ball_rad = 10;
+	
 	light_ball_rad = .5f;
 	sphere_init(CornellSpheres + 6,&CornellSpheres[6].o2w,
 		ball_rad0,-ball_rad0,ball_rad0,360.f,0);
@@ -89,6 +95,9 @@ void setup_scene()
 		ball_rad1,-ball_rad1,ball_rad1,360.f,0);
 	sphere_init(CornellSpheres + 8,&CornellSpheres[8].o2w,
 		light_ball_rad,-light_ball_rad,light_ball_rad,360.f,0);
+
+	sphere_init(CornellSpheres + 9,&CornellSpheres[9].o2w,
+		anistropic_ball_rad,-anistropic_ball_rad,anistropic_ball_rad,360.f,0);
 
 	for (unsigned i = 0;i < sizeof(CornellSpheres)/sizeof(CornellSpheres[0]); ++i)
 	{
@@ -162,6 +171,19 @@ void setup_scene()
 	texture_mem[32] = 1.f;
 	texture_mem[33] = 1.f;
 
+	//for anistropic
+	//et,k
+	texture_mem[34] = 1;
+	texture_mem[35] = 1;
+	texture_mem[36] = 1;
+
+	texture_mem[37] = 0.1f;
+	texture_mem[38] = 0.1f;
+	texture_mem[39] = 0.1f;
+	//nu,nv
+	texture_mem[40] = 0.8f;
+	texture_mem[41] = 0.05f;
+
 
 	static light_material_t lm;
 	vinit(lm.color,1.f,1.f,1.f);
@@ -216,6 +238,19 @@ void setup_scene()
 	mirror.kr.texture_type = COLOR_CONSTANT;
 	mirror.kr.memory_start = 31;
 
+	brushed_metal_material_t metal;
+	metal.et.memory_start = 34;
+	metal.et.texture_type = COLOR_CONSTANT;
+
+	metal.k.memory_start = 37;
+	metal.k.texture_type = COLOR_CONSTANT;
+
+	metal.nu.memory_start = 40;
+	metal.nu.texture_type = FLOAT_CONSTANT;
+
+	metal.nv.memory_start  = 41;
+	metal.nv.texture_type = FLOAT_CONSTANT;
+
 	material_data[3] = as_float(m0.kd.texture_type);
 	material_data[4] = as_float(m0.kd.memory_start);
 	material_data[5] = as_float(m0.sig.texture_type);
@@ -261,6 +296,18 @@ void setup_scene()
 	//mirror
 	material_data[33] = as_float(mirror.kr.texture_type);
 	material_data[34] = as_float(mirror.kr.memory_start);
+	//brshed metal
+	material_data[35] = as_float(metal.et.texture_type);
+	material_data[36] = as_float(metal.et.memory_start);
+
+	material_data[37] = as_float(metal.k.texture_type);
+	material_data[38] = as_float(metal.k.memory_start);
+
+	material_data[39] = as_float(metal.nu.texture_type);
+	material_data[40] = as_float(metal.nu.memory_start);
+
+	material_data[41] = as_float(metal.nv.texture_type);
+	material_data[42] = as_float(metal.nv.memory_start);
 //////////////////////////////////////////////////////////////////////////
 	cl_scene_info.material_data = material_data;
 	//////////////////////////////////////////////////////////////////////////
@@ -296,6 +343,9 @@ void setup_scene()
 
 	primitives[8].material_info.material_type = LIGHT_MATERIAL;
 	primitives[8].material_info.memory_start= 0;
+	//
+	primitives[9].material_info.material_type = BRUSHED_METAL_MATERIAL;
+	primitives[9].material_info.memory_start = 35;
 
 	cl_scene_info.primitives = primitives;
 	static float dummy[1];

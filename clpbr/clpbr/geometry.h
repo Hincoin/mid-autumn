@@ -71,15 +71,15 @@ typedef struct
 #define EPSILON 1e-3f //1.192092896e-07F 
 #endif
 #ifndef FLOAT_PI
-#define FLOAT_PI 3.1415926f
+#define FLOAT_PI       3.14159265358979323846f
+#define INV_PI     0.31830988618379067154f
+#define INV_TWOPI  0.15915494309189533577f
+#define INV_FOURPI 0.07957747154594766788f
+
 #endif
 
 #ifndef FLT_MAX
 #define FLT_MAX 3.402823466e+38F
-#endif
-
-#ifndef INV_PI
-#define INV_PI 0.3183099f //0.318309886183790671538
 #endif
 
 #define RAD_PER_DEGREE 0.0174533f //FLOAT_PI / 180.f
@@ -131,5 +131,9 @@ INLINE void coordinate_system(const vector3f_t *v1, vector3f_t *v2, vector3f_t *
 	vxcross(*v3,*v1, *v2);
 }
 
+INLINE void spherical_direction(float sin_theta,
+								 float cos_theta, float phi, vector3f_t *v) {
+									 vinit(*v,(sin_theta*cosf(phi)),(sin_theta*sinf(phi)),(cos_theta));
+}
 
 #endif
