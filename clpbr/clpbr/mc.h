@@ -118,4 +118,10 @@ INLINE float sample_step_1d(float *f, float *cdf, float c,
 	*pdf = f[offset] / c;
 	return (offset + u) / nSteps;
 }
+INLINE void uniform_sample_triangle(float ud1,float ud2,float *u, float *v)
+{
+	float su1 = sqrt(ud1);
+	*u = 1.f - su1;
+	*v = ud2 * su1;
+}
 #endif

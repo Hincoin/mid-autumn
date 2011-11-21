@@ -200,4 +200,5 @@ INLINE void material_get_bsdf(material_info_t* mat,cl_scene_info_t* scene_info,
 	default:break;
 	}
 }
+
 #endif

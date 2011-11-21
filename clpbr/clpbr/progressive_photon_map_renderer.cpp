@@ -7,7 +7,6 @@
 
 #include "film.h"
 #include "camera.h"
-#include "scene.h"
 #include "random_number_generator_mt19937.h"
 
 PPMRenderer::~PPMRenderer()
@@ -66,7 +65,7 @@ void PPMRenderer::Render(const cl_scene_info_t scene_info)
 			#pragma omp parallel for schedule(dynamic, 32)
 			for(int i = 0;i < ray_buffer.size(); ++i)
 			{
-				if(i == 163+ 140    * 68)
+				if(i == 151+ 19 * 256)
 				{
 					int xxxxx= 0;
 				}
@@ -77,7 +76,8 @@ void PPMRenderer::Render(const cl_scene_info_t scene_info)
 
 		for(size_t i = 0;i < samples.size(); ++i)
 			image_->AddSample(samples[i],color_buffer[i]);
-		image_->WriteImage(iteration);
+		if(0 == iteration % 20)
+			image_->WriteImage(iteration);
 		iteration ++;
 		//photon_map_->max_dist_squared = photon_map_->max_dist_squared * (iteration + photon_map_->alpha_)/(iteration + 1);
 		photon_map_->progressive_iteration = iteration;

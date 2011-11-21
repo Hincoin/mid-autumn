@@ -5,9 +5,20 @@
 #include "cl_scene.h"
 #include "shape_funcs.h"
 
-INLINE void light_l(const point3f_t p,const normal3f_t n,const vector3f_t* wi,spectrum_t *c){
+INLINE void light_l(cl_scene_info_t scene_info, material_info_t light_material,const point3f_t p,const normal3f_t n,const vector3f_t* wi,spectrum_t *c){
 	//todo
-	vinit(*c,2500.f,2500.f, 2500.f);
+	if(vdot(n,*wi) > 0)
+	{
+		unsigned texture_type = as_uint(*(scene_info.material_data+light_material.memory_start));
+		unsigned memory_start = as_uint(*(scene_info.material_data+light_material.memory_start+1));
+		GLOBAL float* mem = scene_info.texture_data + memory_start;
+		c->x = mem[0];
+		c->y = mem[1];
+		c->z = mem[2];
+	}
+	else
+		vclr((*c));
+
 }
 
 
@@ -221,6 +232,32 @@ INLINE void light_sample_l(cl_scene_info_t scene_info,const light_info_t* light,
 					default:break;
 					}
 				}
+			case TRIANGLE_VERTEX8:
+				{
+					point3f_t pr;
+					normal3f_t ns;
+					shape_sample_on_shape(&scene_info.primitives[l.primitive_idx].shape_info,scene_info,u1,u2,&ns,&pr);
+					vsub((*wo),(pr),(*p));
+					(*shadow_ray).d = *wo;
+					(*shadow_ray).maxt = 1.f-EPSILON;
+					(*shadow_ray).mint =	EPSILON;
+					vnorm((*wo));
+					*pdf = shape_pdf(scene_info.primitives[l.primitive_idx].shape_info,scene_info,p,wo);
+					switch(light_material.material_type)
+					{
+					case 0:
+						{
+							//todo
+							//load light color;
+							//color_texture_info_t intensity;
+							vector3f_t wi_neg;
+							vneg(wi_neg,*wo);
+							light_l(scene_info,light_material,pr,ns,&wi_neg,clr);
+						}
+						break;
+					default:break;
+					}
+				}
 			default:
 				break;
 			}
@@ -257,7 +294,10 @@ INLINE void light_le(cl_scene_info_t scene_info,const intersection_t* isect,cons
 {
 	//todo
 	if(scene_info.primitives[isect->primitive_idx].material_info.material_type == 0)//light type
-		light_l(isect->dg.p,isect->dg.nn,wi,c);//vinit(*c,1.f,1.f,1.f);
+	{
+		int debug = 0;
+		light_l(scene_info,scene_info.primitives[isect->primitive_idx].material_info,isect->dg.p,isect->dg.nn,wi,c);//vinit(*c,1.f,1.f,1.f);
+	}
 }
 #include "shape_funcs.h"
 INLINE void light_power(light_info_t* light,cl_scene_info_t scene_info,spectrum_t *e)
@@ -274,7 +314,14 @@ INLINE void light_power(light_info_t* light,cl_scene_info_t scene_info,spectrum_
 			{
 			case 0:
 				{
-					load_color(scene_info.material_data+light_material.memory_start,&lemit);
+					//load_color(scene_info.material_data+light_material.memory_start,&lemit);
+
+					unsigned texture_type = as_uint(*(scene_info.material_data+light_material.memory_start));
+					unsigned memory_start = as_uint(*(scene_info.material_data+light_material.memory_start+1));
+					GLOBAL float* mem = scene_info.texture_data + memory_start;
+					lemit.x = mem[0];
+					lemit.y = mem[1];
+					lemit.z = mem[2];
 				}
 				break;
 			default:vclr(lemit);break;
@@ -303,7 +350,7 @@ INLINE void light_ray_sample_l(light_info_t* light,cl_scene_info_t scene_info,fl
 		if (vdot(ray->d, *ns) < 0.) vsmul(ray->d , -1, ray->d);
 		*pdf = /*shape_pdf(shape_info,&ray->o)*/(1.f/shape_area(shape_info,scene_info)) * INV_PI;
 		rinit(*ray,ray->o,ray->d);
-		return light_l(ray->o, *ns, &ray->d,alpha);
+		return light_l(scene_info,scene_info.primitives[lght.primitive_idx].material_info,ray->o, *ns, &ray->d,alpha);
 	}
 
 }
