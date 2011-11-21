@@ -3,7 +3,6 @@
 
 #include "shape.h"
 #include "quadratic_math.h"
-
 //
 //float SphereIntersect(
 //#ifdef CL_KERNEL
@@ -306,6 +305,8 @@ INLINE int intersect_sphere(GLOBAL float* shape_data,const unsigned int memory_s
 	return 1;
 }
 #include "cl_scene.h"
+#include "triangle_mesh_ocl.h"
+
 INLINE float shape_area(shape_info_t shape_info,cl_scene_info_t scene_info)
 {
 	switch(shape_info.shape_type)
@@ -318,6 +319,15 @@ INLINE float shape_area(shape_info_t shape_info,cl_scene_info_t scene_info)
 			return FLOAT_PI * s.rad * s.rad * 4;
 		}
 		break;
+	case TRIANGLE_VERTEX8:
+		{
+			triangle_t triangle;
+			unsigned memory_start = shape_info.memory_start;
+			unsigned mesh_memory_start = as_uint(scene_info.shape_data[memory_start]);
+			unsigned triangle_index = as_uint(scene_info.shape_data[memory_start + 1]);
+			load_triangle_vertex8(scene_info.shape_data,mesh_memory_start,triangle_index,&triangle);
+			return triangle_area(&triangle);
+		}
 	default:
 		return 0;
 	}
@@ -343,6 +353,15 @@ INLINE void shape_sample_on_shape(shape_info_t* shape_info,cl_scene_info_t scene
 		load_sphere(scene_info.shape_data + shape_info->memory_start
 			,&s);
 		sphere_shape_sample(&s,scene_info,u0,u1,ns,pr);
+	}
+	else if(shape_info->shape_type == TRIANGLE_VERTEX8)
+	{
+		triangle_t triangle;
+		unsigned memory_start = shape_info->memory_start;
+		unsigned mesh_memory_start = as_uint(scene_info.shape_data[memory_start]);
+		unsigned triangle_index = as_uint(scene_info.shape_data[memory_start + 1]);
+		load_triangle_vertex8(scene_info.shape_data,mesh_memory_start,triangle_index,&triangle);
+		triangle_sample(&triangle,u0,u1,ns,pr);
 	}
 }
 INLINE void shape_sample(shape_info_t* shape_info,cl_scene_info_t scene_info,const point3f_t* p,float u0,float u1,normal3f_t *ns,point3f_t *pr)
@@ -387,6 +406,15 @@ INLINE void shape_sample(shape_info_t* shape_info,cl_scene_info_t scene_info,con
 		if(s.reverse_orientation)vsmul(*ns,-1.f,*ns);
 		vassign(*pr,ps);
 	}
+	else if(shape_info->shape_type == TRIANGLE_VERTEX8)
+	{
+		triangle_t triangle;
+		unsigned memory_start = shape_info->memory_start;
+		unsigned mesh_memory_start = as_uint(scene_info.shape_data[memory_start]);
+		unsigned triangle_index = as_uint(scene_info.shape_data[memory_start + 1]);
+		load_triangle_vertex8(scene_info.shape_data,mesh_memory_start,triangle_index,&triangle);
+		triangle_sample(&triangle,u0,u1,ns,pr);
+	}
 
 }
 #include "primitive.h"
@@ -394,38 +422,60 @@ INLINE float shape_pdf(shape_info_t shape_info,cl_scene_info_t scene_info,const 
 {
 	if (shape_info.shape_type == 0)
 	{
-	sphere_t s;
-	load_sphere(scene_info.shape_data + shape_info.memory_start
-		,&s);
-	vector3f_t v_tmp ;
-	point3f_t p_tmp,pcenter;vinit(pcenter,0,0,0);
-	transform_point(p_tmp,s.o2w,pcenter);
-	vsub(v_tmp,*p,p_tmp);
-	float dist_sqr = vdot(v_tmp,v_tmp);
-	//inside sphere
-	if (dist_sqr - s.rad * s.rad < 0.00001f)
-	{
-		ray_t r;rinit(r,*p,*wi);
-		intersection_t isect;
-		float thit;
-		differential_geometry_t dg;
-		if(!(intersect_sphere(scene_info.shape_data,
-			shape_info.memory_start,
-			&r,&thit,&dg,&isect.ray_epsilon)))
+		sphere_t s;
+		load_sphere(scene_info.shape_data + shape_info.memory_start
+			,&s);
+		vector3f_t v_tmp ;
+		point3f_t p_tmp,pcenter;vinit(pcenter,0,0,0);
+		transform_point(p_tmp,s.o2w,pcenter);
+		vsub(v_tmp,*p,p_tmp);
+		float dist_sqr = vdot(v_tmp,v_tmp);
+		//inside sphere
+		if (dist_sqr - s.rad * s.rad < 0.00001f)
 		{
-			return 0.f;
+			ray_t r;rinit(r,*p,*wi);
+			intersection_t isect;
+			float thit;
+			differential_geometry_t dg;
+			if(!(intersect_sphere(scene_info.shape_data,
+				shape_info.memory_start,
+				&r,&thit,&dg,&isect.ray_epsilon)))
+			{
+				return 0.f;
+			}
+			float wod = fabs(vdot(dg.nn,*wi));
+			vsub(v_tmp,dg.p,*p);
+			float dsqr = vdot(v_tmp,v_tmp);
+			return (dsqr) / (4.f * FLOAT_PI * s.rad * s.rad)  * wod ;
 		}
-		float wod = fabs(vdot(dg.nn,*wi));
-		vsub(v_tmp,dg.p,*p);
-		float dsqr = vdot(v_tmp,v_tmp);
-		return (dsqr) / (4.f * FLOAT_PI * s.rad * s.rad)  * wod ;
+		else
+		{
+			float cosThetaMax = sqrt(max(0.f, (1.f - s.rad * s.rad /
+				dist_sqr)));
+			return 1.f / (2.f * FLOAT_PI * (1.f - cosThetaMax));
+		}
 	}
-	else
+	else if(shape_info.shape_type == TRIANGLE_VERTEX8)
 	{
-		float cosThetaMax = sqrt(max(0.f, (1.f - s.rad * s.rad /
-			dist_sqr)));
-		return 1.f / (2.f * FLOAT_PI * (1.f - cosThetaMax));
-	}
+		differential_geometry_t dg_light;
+		ray_t ray;
+		rinit(ray,*p,*wi);
+		float thit,epsilon;
+		triangle_t triangle;
+		unsigned memory_start = shape_info.memory_start;
+		unsigned mesh_memory_start = as_uint(scene_info.shape_data[memory_start]);
+		unsigned triangle_index = as_uint(scene_info.shape_data[memory_start + 1]);
+		load_triangle_vertex8(scene_info.shape_data,mesh_memory_start,triangle_index,&triangle);
+		if(!intersect_triangle(&triangle,&ray,&thit,&dg_light,&epsilon))
+		{return 0.f;}
+
+		vector3f_t v_tmp;
+		vsub(v_tmp,dg_light.p,*p);
+		float dsqr = vdot(v_tmp,v_tmp);
+		float wod = fabs(vdot(dg_light.nn,*wi));
+		float down = (wod * triangle_area(&triangle));
+		if (down == 0.f) return 0.f;
+		return dsqr / down;
 	}
 
 	return 0.f;

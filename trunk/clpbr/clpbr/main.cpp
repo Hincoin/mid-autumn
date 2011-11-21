@@ -1,8 +1,11 @@
-#include "sppm_test.h"
 
+#include "test.h"
 
 int main(int argc, char *argv[])
 {
-	sppm_test();
+	//sppm_test();
+	any_test();
+	parameter_test();
+	triangle_test();
 	return 0;
 }

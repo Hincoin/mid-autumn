@@ -36,5 +36,5 @@ void UniformSampleSphere(const float u1, const float u2, vector3f_t *v) {
 	const float yy = r * sin(phi);
 	vinit(*v, xx, yy, zz);
 }
-
+enum ShapeType{SPHERE = 0,TRIANGLE_VERTEX8=1,TRIANGLE_VERTEX16=2, TRIANGLE_VERTEX32=4};
 #endif

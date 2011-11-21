@@ -4,12 +4,13 @@
 #include "primitive.h"
 #include "light_funcs.h"
 #include "material_funcs.h"
+#include "triangle_mesh_ocl.h"
+
 INLINE void intersection_le(const intersection_t *isect,cl_scene_info_t scene_info,const vector3f_t* v,spectrum_t *c)
 {
 	if(scene_info.primitives[isect->primitive_idx].material_info.material_type == 0)//light type
 	{
-		load_color(scene_info.material_data+scene_info.primitives[isect->primitive_idx].material_info.memory_start,c);
-		//light_l(isect->dg.p,isect->dg.nn,v,c);
+		light_l(scene_info,scene_info.primitives[isect->primitive_idx].material_info,isect->dg.p,isect->dg.nn,v,c);
 	}
 }
 
@@ -70,6 +71,22 @@ static int intersect(
 				r->maxt = thit;
 			}
 			break;
+		case TRIANGLE_VERTEX8:
+			{
+				triangle_t triangle;
+				unsigned memory_start = primitives[i].shape_info.memory_start;
+				unsigned mesh_memory_start = as_uint(shape_data[memory_start]);
+				unsigned triangle_index = as_uint(shape_data[memory_start + 1]);
+				load_triangle_vertex8(shape_data,mesh_memory_start,triangle_index,&triangle);
+				if(intersect_triangle(&triangle,r,&thit,&(isect->dg),&epsilon))
+				{
+					ret = 1;
+					isect->primitive_idx = i;
+					isect->ray_epsilon = epsilon;
+					r->maxt = thit;
+				}
+			}
+			break;
 		default:
 			break;
 		}
@@ -88,6 +105,19 @@ INLINE int intersectP(cl_scene_info_t scene,ray_t *r)
 			{
 				//printf("intersect test failed : %d %f,%f\n",i,r->mint,r->maxt);
 				return 1;
+			}
+			break;
+		case TRIANGLE_VERTEX8:
+			{
+				triangle_t triangle;
+				unsigned memory_start = scene.primitives[i].shape_info.memory_start;
+				unsigned mesh_memory_start = as_uint(scene.shape_data[memory_start]);
+				unsigned triangle_index = as_uint(scene.shape_data[memory_start + 1]);
+				load_triangle_vertex8(scene.shape_data,mesh_memory_start,triangle_index,&triangle);
+				if(intersect_triangleP(&triangle,r))
+				{
+					return 1;
+				}
 			}
 			break;
 		default:
