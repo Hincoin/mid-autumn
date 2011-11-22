@@ -97,10 +97,10 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,R
 		//give up if we are not storing enough photons
 		if (n_shot > 500000 && 
 			(unsuccessful(photon_map->n_caustic_photons,
-			caustic_photons.size(),
+			(unsigned)caustic_photons.size(),
 			n_shot)) && 
 			(unsuccessful(photon_map->n_indirect_photons,
-			indirect_photons.size(),
+			(unsigned)indirect_photons.size(),
 			n_shot)))
 		{
 			return;
@@ -116,7 +116,7 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,R
 		if(debug_tracing)
 			printf("debug\nt");
 
-		int lnum = floor(sample_step_1d(lights_power,light_cdf,
+		int lnum = (int)floor(sample_step_1d(lights_power,light_cdf,
 			total_power,n_lights,u[0],&lpdf));
 		lnum = min(lnum, n_lights - 1);
 
@@ -279,8 +279,8 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,R
 		kd_tree_init(&direct_map,direct_photons);
 		int n_direct_paths = n_shot;
 
-		#pragma omp parallel for schedule(dynamic, 32)
-		for (int i = 0; i < radiance_photons.size(); ++i)
+		//#pragma omp parallel for schedule(dynamic, 32)
+		for (unsigned int i = 0; i < radiance_photons.size(); ++i)
 		{
 			radiance_photon_t &rp = radiance_photons[i];
 			const spectrum_t& rho_r = rp_reflectances[i];

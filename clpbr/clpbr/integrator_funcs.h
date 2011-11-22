@@ -76,7 +76,7 @@ INLINE void estimate_direct(   cl_scene_info_t scene_info,
 				if (intersect(scene_info.accelerator_data,scene_info.shape_data,scene_info.primitives,scene_info.primitive_count,
 					&ray,&light_isect))
 				{
-					unsigned primitive_idx = -1;
+					unsigned primitive_idx = 0xffffffff;
 					switch(light->light_type)
 					{
 					case 0:

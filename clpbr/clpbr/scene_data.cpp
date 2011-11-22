@@ -42,7 +42,7 @@ cl_scene_info_t SceneData::ConvertToCLSceneInfo()
 		{
 			cl_scene_info.lght_count ++;
 			light_info.light_type = 0;	
-			light_info.memory_start = light_data.size();
+			light_info.memory_start = unsigned(light_data.size());
 			light_info_array.push_back(light_info);
 			light_data.push_back(as_float(cl_scene_info.primitive_count));
 		}
@@ -63,7 +63,7 @@ void LightMaterialData::AppendDataTo(std::vector<float> *material_data,std::vect
 {
 	color_texture_info_t emit;
 	emit_->AppendDataTo(texture_data,&emit);
-	info->memory_start = material_data->size();
+	info->memory_start = unsigned(material_data->size());
 	info->material_type = LIGHT_MATERIAL;
 	material_data->push_back(as_float(emit.texture_type));
 	material_data->push_back(as_float(emit.memory_start));
@@ -78,7 +78,7 @@ void GlassMaterialData::AppendDataTo(std::vector<float> *material_data,std::vect
 	kt_->AppendDataTo(texture_data,&kt);
 	index_->AppendDataTo(texture_data,&index);
 
-	info->memory_start = material_data->size();
+	info->memory_start =unsigned( material_data->size() );
 	info->material_type = GLASS_MATERIAL;
 	material_data->push_back(as_float(kr.texture_type));
 	material_data->push_back(as_float(kr.memory_start));
@@ -93,7 +93,7 @@ void MirrorMaterialData::AppendDataTo(std::vector<float> *material_data,std::vec
 	//
 	color_texture_info_t kr;
 	kr_->AppendDataTo(texture_data,&kr);
-	info->memory_start = material_data->size();
+	info->memory_start = unsigned(material_data->size());
 	info->material_type = MIRROR_MATERIAL;
 	material_data->push_back(as_float(kr.texture_type));
 	material_data->push_back(as_float(kr.memory_start));
@@ -106,7 +106,7 @@ void MatteMaterialData::AppendDataTo(std::vector<float> *material_data,std::vect
 	float_texture_info_t sigma;
 	kd_->AppendDataTo(texture_data, &kd);
 	sigma_->AppendDataTo(texture_data,&sigma);
-	info->memory_start = material_data->size();
+	info->memory_start = unsigned( material_data->size() );
 	info->material_type = MATTE_MATERIAL;
 	material_data->push_back(as_float(kd.texture_type));
 	material_data->push_back(as_float(kd.memory_start));

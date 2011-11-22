@@ -26,8 +26,8 @@ inline double PermutedRadicalInverse(unsigned n, unsigned base,
 
     while (n > 0) {
         unsigned d_i = p[n % base];
-        val += d_i * invBi;
-        n *= invBase;
+        val += double(d_i) * invBi;
+        n = unsigned int(n * invBase);
         invBi *= invBase;
     }
     return val;

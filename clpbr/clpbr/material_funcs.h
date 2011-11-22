@@ -184,18 +184,6 @@ INLINE void material_get_bsdf(material_info_t* mat,cl_scene_info_t* scene_info,
 			vinit(r,1.f,1.f,1.f);
 			bxdf_init_microfacet(bxdf,r,d,fr);
 			bsdf_add(bsdf,&bxdf);
-
-
-			//test
-			mirror_t mirror;
-			color_clamp(r,0.f,FLT_MAX);
-			if (!color_is_black(r))
-			{
-				fresnel_t fresnel;
-				fresnel_noop_init(fresnel);
-				bxdf_init_specular_reflection(bxdf,r,fresnel);
-				bsdf_add(bsdf,&bxdf);
-			}
 		}
 	default:break;
 	}

@@ -183,7 +183,7 @@ INLINE void photon_map_lphoton(photon_map_t* photon_map,
 	kd_tree_lookup(*map,isect->dg.p,&photon_map_data,photon_process,max_dist_sqr);
 	//estimate reflected light from photons
 	close_photon_t *photons = photon_map_data.photons;
-	int n_found = photon_map_data.found_photons;
+	unsigned int n_found = photon_map_data.found_photons;
 	normal3f_t n_f;
 	if(vdot(*wo,bsdf->dg_shading.nn) < 0)
 	{
@@ -197,7 +197,7 @@ INLINE void photon_map_lphoton(photon_map_t* photon_map,
 	{
 		spectrum_t L;
 		//compute exitant radiance from photons for glossy
-		for(int i = 0;i < n_found; ++i)
+		for(unsigned int i = 0;i < n_found; ++i)
 		{
 			if(photons[i].distance_squared > radius_i_squared)
 				continue;
@@ -215,7 +215,7 @@ INLINE void photon_map_lphoton(photon_map_t* photon_map,
 		spectrum_t Lr,Lt;
 		vclr(Lr);vclr(Lt);
 		spectrum_t L;
-		for (int i = 0;i < n_found; ++i)
+		for (unsigned int i = 0;i < n_found; ++i)
 		{
 
 			if(photons[i].distance_squared > radius_i_squared)
