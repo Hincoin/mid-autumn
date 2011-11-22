@@ -95,12 +95,12 @@ INLINE void load_triangle_vertex8(GLOBAL float* triangle_mesh_data,unsigned tria
 	unsigned vertex_index_next = as_uint(triangle_mesh_memory[vertex_index_start + 1]);
 
 	unsigned char v_index[] = {
-		vertex_index & 0x000000ff,
-		(vertex_index & 0x0000ff00) >> 8,
-		(vertex_index & 0x00ff0000) >> 16,
-		(vertex_index & 0xff000000) >> 24,
-		(vertex_index_next & 0x000000ff),
-		(vertex_index_next & 0x0000ff00) >> 8
+		unsigned char(vertex_index & 0x000000ff),
+		unsigned char((vertex_index & 0x0000ff00) >> 8),
+		unsigned char((vertex_index & 0x00ff0000) >> 16),
+		unsigned char((vertex_index & 0xff000000) >> 24),
+		unsigned char((vertex_index_next & 0x000000ff)),
+		unsigned char((vertex_index_next & 0x0000ff00) >> 8)
 	};
 	unsigned char v0_index = v_index[(3*triangle_index)%4];
 	unsigned char v1_index = v_index[(3*triangle_index)%4+1];

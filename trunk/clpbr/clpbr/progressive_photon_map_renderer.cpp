@@ -54,7 +54,7 @@ void PPMRenderer::Render(const cl_scene_info_t scene_info)
 					camera_->GenerateRay(sample, &ray, &ray_weight);
 
 					ray_buffer.Push(ray);
-					ray_buffer.Back().ray_id = samples.size();
+					ray_buffer.Back().ray_id = unsigned(samples.size());
 					samples.push_back(sample);
 				}
 				else
@@ -62,8 +62,8 @@ void PPMRenderer::Render(const cl_scene_info_t scene_info)
 			}
 
 			color_buffer.resize(color_buffer.size()+ray_buffer.size(),spectrum_t());
-			#pragma omp parallel for schedule(dynamic, 32)
-			for(int i = 0;i < ray_buffer.size(); ++i)
+			//#pragma omp parallel for schedule(dynamic, 32)
+			for(unsigned int i = 0;i < ray_buffer.size(); ++i)
 			{
 				if(i == 151+ 19 * 256)
 				{

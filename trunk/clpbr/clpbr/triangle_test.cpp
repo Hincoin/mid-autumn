@@ -69,14 +69,14 @@ TriangleMesh<cl_uchar>* build_triangle_mesh(int *index_buffer,int index_count,
 	}
 	for (int i = 0;i < index_count; ++i)
 	{
-		mesh->vertex_index_buffer[i] = index_buffer[i];
+		mesh->vertex_index_buffer[i] = (cl_uchar)index_buffer[i];
 	}
 	return mesh;
 }
 void get_triangle_mesh_shapes(std::vector<TriangleMesh<cl_uchar>* > *mesh_shape)
 {
 	int ceil_light_index_buffer[] = {0,1,2,2,3,0};
-	vector3f_t ceil_light_points[] = {{256,508.8,200},{256,508.8,259.2},{200,508.8,259.2},{200,508.8,200}};
+	vector3f_t ceil_light_points[] = {{256,508.8f,200},{256,508.8f,259.2f},{200,508.8f,259.2f},{200,508.8f,200}};
 	normal3f_t ceil_light_normals[] = {{0,-1,0},{0,-1,0},{0,-1,0},{0,-1,0}};
 	float uvs[][2] = {{0,0},{0,1},{1,1},{1,0}};
 	vector3f_t ceil_light_tangent[] ={{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
@@ -90,7 +90,7 @@ void get_triangle_mesh_shapes(std::vector<TriangleMesh<cl_uchar>* > *mesh_shape)
 		));
 	//Cornell box
 	int floor_index_buffer[] = {0,1,2,2,3,0};
-	vector3f_t floor_points[] = {{552.8,0,0},{0,0,0},{0,0,559.2},{552.8,0,559.2},{549.6,0,559.2}};
+	vector3f_t floor_points[] = {{552.8f,0,0},{0,0,0},{0,0,559.2f},{552.8f,0,559.2f},{549.6f,0,559.2f}};
 	normal3f_t floor_normals[] = {{0,1,0},{0,1,0},{0,1,0},{0,1,0}};
 	float floor_uvs[][2] = {{0,0},{0,1},{1,1},{1,0}};
 	vector3f_t floor_tangent[] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
@@ -105,7 +105,7 @@ void get_triangle_mesh_shapes(std::vector<TriangleMesh<cl_uchar>* > *mesh_shape)
 		));
 
 	int ceil_index_buffer[] = {0,1,2,2,3,0};
-	vector3f_t ceil_points[] = {{556,548.8,0},{556,548.8,559.2},{0,548.8,559.2},{0,548.8,0}};
+	vector3f_t ceil_points[] = {{556,548.8f,0},{556,548.8f,559.2f},{0,548.8f,559.2f},{0,548.8f,0}};
 	normal3f_t ceil_normals[] = {{0,-1,0},{0,-1,0},{0,-1,0},{0,-1,0}};
 	float ceil_uvs[][2] = {{0,0,},{0,1},{1,1},{1,0}};
 	vector3f_t ceil_tangent[] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
@@ -121,7 +121,7 @@ void get_triangle_mesh_shapes(std::vector<TriangleMesh<cl_uchar>* > *mesh_shape)
 
 
 	int back_index_buffer[] = {0,1,2,2,3,0};
-	vector3f_t back_points[] = {{549.6,0,559.2},{0,0,559.2},{0,548.8,559.2},{556.0,548.8,559.2}};
+	vector3f_t back_points[] = {{549.6f,0,559.2f},{0,0,559.2f},{0,548.8f,559.2f},{556.0f,548.8f,559.2f}};
 	normal3f_t back_normals[]= {{0,0,-1},{0,0,-1},{0,0,-1},{0,0,-1}};
 	float back_uvs[][2] = {{0,0},{0,1},{1,1},{1,0}};
 	vector3f_t back_tangent[]={{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
@@ -136,7 +136,7 @@ void get_triangle_mesh_shapes(std::vector<TriangleMesh<cl_uchar>* > *mesh_shape)
 		));
 
 	int right_index_buffer[] = {0,1,2,2,3,0};
-	vector3f_t right_points[] = {{0,0,559.2},{0,0,0},{0,548.8,0},{0,548.8,559.2}};
+	vector3f_t right_points[] = {{0,0,559.2f},{0,0,0},{0,548.8f,0},{0,548.8f,559.2f}};
 	normal3f_t right_normals[] = {{1,0,0},{1,0,0},{1,0,0},{1,0,0}};
 	float right_uvs[][2] = {{0,0},{0,1},{1,1},{1,0}};
 	vector3f_t right_tangent[] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
@@ -148,7 +148,7 @@ void get_triangle_mesh_shapes(std::vector<TriangleMesh<cl_uchar>* > *mesh_shape)
 		);
 
 	int left_index_buffer[] = {0,1,2,2,3,0};
-	vector3f_t left_points[] = {{552.8,0,0},{549.6,0,559.2},{556.0,548.8,559.2},{556.0,548.8,0}};
+	vector3f_t left_points[] = {{552.8f,0,0},{549.6f,0,559.2f},{556.0f,548.8f,559.2f},{556.0f,548.8f,0}};
 	normal3f_t left_normals[] = {{-1,0,0},{-1,0,0},{-1,0,0},{-1,0,0}};
 	float left_uvs[][2] = {
 		{0,0},{0,1},{1,1},{1,0}
@@ -331,7 +331,7 @@ void triangle_test()
 	MaterialData* matte_red = new MatteMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(1.f,0.f,0.f)),new ConstantTextureData<float>(0.f));
 	MaterialData* matte_green = new MatteMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(0.f,1.f,0.f)),new ConstantTextureData<float>(0.f));
 	MaterialData* matte_gray = new MatteMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(.4f,0.5f,0.7f)),new ConstantTextureData<float>(0.f));
-	MaterialData* glass = new GlassMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(1.f,1.f,1.f)),new ConstantTextureData<spectrum_t>(spectrum_t(1.f,1.f,1.f)),new ConstantTextureData<float>(1.6));
+	MaterialData* glass = new GlassMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(1.f,1.f,1.f)),new ConstantTextureData<spectrum_t>(spectrum_t(1.f,1.f,1.f)),new ConstantTextureData<float>(1.7f));
 	MaterialData* mirror= new MirrorMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(1.f,1.f,1.f)));
 	MaterialData* light_material = new LightMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(250.f,250.f,250.f)));
 
@@ -383,7 +383,7 @@ void triangle_test()
 	photon_map->rr_threshold = 0.125f;
 	photon_map->progressive_iteration = 0;
 
-	photon_map->alpha = 0.618;
+	photon_map->alpha = 0.618f;
 
 	PPMRenderer* renderer = new PPMRenderer(camera,film,sampler,photon_map);
 	renderer->Render(scene_data->ConvertToCLSceneInfo());

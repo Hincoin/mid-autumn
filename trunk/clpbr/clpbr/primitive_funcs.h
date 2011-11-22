@@ -30,17 +30,6 @@ INLINE void	intersection_get_bsdf(intersection_t *isect,cl_scene_info_t scene_in
 
 	/////////////////////////////////////
 	material_get_bsdf(&mi,&scene_info,&dgs,&dgs,bsdf);
-	return;
-	switch(mi.material_type)
-	{
-	case MATTE_MATERIAL:
-		break;
-	}
-	//hard code
-	spectrum_t r;
-	vinit(r,1,1,1);
-	bxdf_init_lambertian(bsdf->bxdfs[0],r);
-	//material_get_bsdf(scene,mi,dg,dgs,&bsdf); 
 }
 
 //this is a simple test without accelerator privided
@@ -62,15 +51,6 @@ static int intersect(
 	{
 		switch(primitives[i].shape_info.shape_type)//intersect with shape
 		{
-		case 0:
-			if(intersect_sphere(shape_data,primitives[i].shape_info.memory_start,r,&thit,&(isect->dg),&epsilon))
-			{
-				ret = 1;
-				isect->primitive_idx = i;
-				isect->ray_epsilon = epsilon;
-				r->maxt = thit;
-			}
-			break;
 		case TRIANGLE_VERTEX8:
 			{
 				triangle_t triangle;
@@ -100,13 +80,6 @@ INLINE int intersectP(cl_scene_info_t scene,ray_t *r)
 	{
 		switch(scene.primitives[i].shape_info.shape_type)//intersect with shape
 		{
-		case 0:
-			if(intersect_sphereP(scene.shape_data,scene.primitives[i].shape_info.memory_start,r))
-			{
-				//printf("intersect test failed : %d %f,%f\n",i,r->mint,r->maxt);
-				return 1;
-			}
-			break;
 		case TRIANGLE_VERTEX8:
 			{
 				triangle_t triangle;

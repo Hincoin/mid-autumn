@@ -45,7 +45,7 @@ public:
 	virtual void AppendDataTo(std::vector<float>* data, typename TextureInfoTraits<T>::texture_info_t* texture_info) 
 	{
 		texture_info->texture_type = get_constant_texture_type(T());
-		texture_info->memory_start = data->size();
+		texture_info->memory_start = (unsigned)data->size();
 		AppendDataTo(data,value_);
 	}
 private:
@@ -129,7 +129,7 @@ private:
 template<typename IndexType>
 void TriangleMeshShapeData<IndexType>::AppendRefinedDataTo(std::vector<float>* shape_data, std::vector<shape_info_t> *refined_shape)
 {
-	unsigned mesh_start = shape_data->size();
+	unsigned mesh_start = (unsigned)shape_data->size();
 	shape_data->push_back(as_float(mesh_data_->number_triangle));
 	shape_data->push_back(as_float(mesh_data_->number_vertex));
 	shape_data->push_back(as_float(mesh_data_->reverse_orientation));
@@ -177,7 +177,7 @@ void TriangleMeshShapeData<IndexType>::AppendRefinedDataTo(std::vector<float>* s
 			if (i < index_count)
 			{
 				if(i % 3 == 0) {
-					triangle_index.push_back(i/3);
+					triangle_index.push_back(unsigned(i)/3);
 				}
 				value.b[k] = mesh_data_->vertex_index_buffer[i];
 				i++;
@@ -187,7 +187,7 @@ void TriangleMeshShapeData<IndexType>::AppendRefinedDataTo(std::vector<float>* s
 	}
 	for(size_t i = 0;i < triangle_index.size(); ++i)
 	{
-		triangle.memory_start = shape_data->size();
+		triangle.memory_start = (unsigned)shape_data->size();
 		shape_data->push_back(as_float(mesh_start));
 		shape_data->push_back(as_float(triangle_index[i]));
 		refined_shape->push_back(triangle);

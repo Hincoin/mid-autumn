@@ -208,7 +208,7 @@ bxdf_microfacet_distribution_t self, vector3f_t wo,vector3f_t* wi,
 				bxdf_microfacet_distribution_anisotropic_sample_first_quadrant(self,4.f*u1,u2,&phi,&cos_theta_quadrant);
 			else if (u1 < 0.5f)
 			{
-				u1 = 4.f * (0.5 - u1);
+				u1 = 4.f * (0.5f - u1);
 				bxdf_microfacet_distribution_anisotropic_sample_first_quadrant(self,u1,u2,&phi,&cos_theta_quadrant);
 				phi = FLOAT_PI - phi;
 			}
@@ -556,7 +556,7 @@ INLINE void bsdf_sample_f(bsdf_t* bsdf,const vector3f_t *woW,vector3f_t *wiW,
 		vclr(*f);
 		return;
 	}
-	int which = min((u3 * matching_comps),
+	int which = min(int(u3 * matching_comps),
 		matching_comps-1);
 	//BxDF *bxdf = NULL;
 	int bxdf_idx = -1;

@@ -7,6 +7,9 @@
 
 #include "config.h"
 
+#ifndef CL_KERNEL 
+#include <cassert>
+#endif
 
 typedef struct 
 {
@@ -19,15 +22,17 @@ typedef struct
 #ifndef CL_KERNEL
 	float& operator[](int i)
 	{
+		assert(i>=0 && i <=3);
 		if(i == 0)return x;
-		if(i == 1)return y;
-		if(i == 2)return z;
+		else if(i == 1)return y;
+		else return z;
 	}
 	float operator[](int i)const
 	{
+		assert(i>=0 && i <=3);
 		if(i == 0)return x;
-		if(i == 1)return y;
-		if(i == 2)return z;
+		else if(i == 1)return y;
+		else return z;
 	}
 #endif
 }point3f_t;
@@ -107,7 +112,7 @@ INLINE void bbox_union_with_point(bbox_t* bbox,const point3f_t* p)
     bbox->pmax.z = max(bbox->pmax.z, p->z);
 }
 //return which axis is has max distance
-INLINE int bbox_max_extent(const bbox_t* bbox)
+INLINE unsigned int bbox_max_extent(const bbox_t* bbox)
 {
 	vector3f_t diag;
 	vsub(diag,bbox->pmax,bbox->pmin);

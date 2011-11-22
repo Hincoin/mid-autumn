@@ -127,12 +127,12 @@ INLINE float distance_squared(point3f_t v0,point3f_t v1)
 #include "memory.h"
 
 template <typename NodeData> struct CompareNode {
-	CompareNode(int a) { axis = a; }
-	int axis;
+	CompareNode(unsigned int a) { axis = a; }
 	bool operator()(const NodeData *d1, const NodeData *d2) const {
 		return d1->p[axis] == d2->p[axis] ? (d1 < d2) :
 			d1->p[axis] < d2->p[axis];
 	}
+	unsigned int axis;
 };
 
 
@@ -155,10 +155,10 @@ void _kd_tree_recursive_build(KDTree* kd_tree,
 	// Compute bounds of data from _start_ to _end_
 	bbox_t bound;
 	bbox_init(&bound);
-	for (int i = start; i < end; ++i)
+	for (unsigned int i = start; i < end; ++i)
 		bbox_union_with_point(&bound,&(build_nodes[i]->p))	;
-	int splitAxis = bbox_max_extent(&bound);
-	int splitPos = (start+end)/2;
+	unsigned int splitAxis = bbox_max_extent(&bound);
+	unsigned int splitPos = (start+end)/2;
 	std::nth_element(&build_nodes[start], &build_nodes[splitPos],
 		&build_nodes[end], CompareNode<NodeData>(splitAxis));
 
@@ -182,7 +182,7 @@ template<typename KDTree,typename NodeData>
 void kd_tree_init(KDTree* kd_tree,
 				  const std::vector<NodeData>& d)
 {
-	kd_tree->n_nodes = d.size();
+	kd_tree->n_nodes = (unsigned)d.size();
 	kd_tree->nodes = alloc_aligned<kd_node_t>(kd_tree->n_nodes);
 	kd_tree->node_data = alloc_aligned<NodeData>(kd_tree->n_nodes);
 	kd_tree->next_free_node = 1;
