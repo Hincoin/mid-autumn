@@ -2,6 +2,7 @@
 #include "any.h"
 #include "test.h"
 #include "parameter_map.h"
+#include "opencl_device.h"
 
 void any_test()
 {
@@ -34,4 +35,11 @@ void parameter_test()
 	assert(m.get("help",&b));
 	assert(b == a);
 	assert(!m.get("help1",&b));
+}
+
+void opencl_compile_test()
+{
+	OpenCLDevice device;
+	device.SetKernelFile("rendering_kernel.cl");
+	device.Run();
 }

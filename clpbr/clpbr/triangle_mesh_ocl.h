@@ -81,7 +81,7 @@ INLINE void load_triangle_data_(GLOBAL float* triangle_mesh_memory, unsigned v0_
 }
 INLINE void load_triangle_vertex8(GLOBAL float* triangle_mesh_data,unsigned triangle_mesh_start,unsigned triangle_index,triangle_t *triangle)
 {
-	float* triangle_mesh_memory = triangle_mesh_data + triangle_mesh_start;
+	GLOBAL float* triangle_mesh_memory = triangle_mesh_data + triangle_mesh_start;
 	unsigned number_triangles = as_uint(triangle_mesh_memory[1]);
 	unsigned number_vertex = as_uint(triangle_mesh_memory[1]);
 	unsigned transform_start = 3;
@@ -95,12 +95,12 @@ INLINE void load_triangle_vertex8(GLOBAL float* triangle_mesh_data,unsigned tria
 	unsigned vertex_index_next = as_uint(triangle_mesh_memory[vertex_index_start + 1]);
 
 	unsigned char v_index[] = {
-		unsigned char(vertex_index & 0x000000ff),
-		unsigned char((vertex_index & 0x0000ff00) >> 8),
-		unsigned char((vertex_index & 0x00ff0000) >> 16),
-		unsigned char((vertex_index & 0xff000000) >> 24),
-		unsigned char((vertex_index_next & 0x000000ff)),
-		unsigned char((vertex_index_next & 0x0000ff00) >> 8)
+		(unsigned char)(vertex_index & 0x000000ff),
+		(unsigned char)((vertex_index & 0x0000ff00) >> 8),
+		(unsigned char)((vertex_index & 0x00ff0000) >> 16),
+		(unsigned char)((vertex_index & 0xff000000) >> 24),
+		(unsigned char)((vertex_index_next & 0x000000ff)),
+		(unsigned char)((vertex_index_next & 0x0000ff00) >> 8)
 	};
 	unsigned char v0_index = v_index[(3*triangle_index)%4];
 	unsigned char v1_index = v_index[(3*triangle_index)%4+1];

@@ -8,13 +8,19 @@ typedef
 	}spectrum_t;
 	*/
 //because of compiler bug, cannot use union here
+#ifndef CL_KERNEL
 struct spectrum_t
 {
-#ifndef CL_KERNEL
 	spectrum_t(float xx=0,float yy=0, float zz=0):x(xx),y(yy),z(zz){}
-#endif
 	float x,y,z;
 };
+#else 
+typedef struct 
+{
+	float x,y,z;
+}spectrum_t;
+
+#endif
 
 #define color_is_black(_x) ((_x).x == 0.f && (_x).y == 0.f && (_x).z == 0.f)
 

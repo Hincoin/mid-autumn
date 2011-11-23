@@ -1,8 +1,8 @@
 #ifndef _RANDOM_SAMPLER_H_
 #define _RANDOM_SAMPLER_H_
 #include "sampler.h"
+#include "random_number_generator.h"
 
-struct Seed;
 class RandomSampler:public Sampler
 {
 public:

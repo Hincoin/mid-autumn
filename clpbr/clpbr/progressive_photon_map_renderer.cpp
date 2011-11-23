@@ -8,6 +8,7 @@
 #include "film.h"
 #include "camera.h"
 #include "random_number_generator_mt19937.h"
+#include "opencl_device.h"
 
 PPMRenderer::~PPMRenderer()
 {

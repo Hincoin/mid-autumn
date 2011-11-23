@@ -29,19 +29,19 @@ INLINE float shape_area(shape_info_t shape_info,cl_scene_info_t scene_info)
 	}
 }
 
-INLINE void shape_sample_on_shape(shape_info_t* shape_info,cl_scene_info_t scene_info,float u0,float u1,normal3f_t *ns,point3f_t *pr)
+INLINE void shape_sample_on_shape(shape_info_t shape_info,cl_scene_info_t scene_info,float u0,float u1,normal3f_t *ns,point3f_t *pr)
 {
-	if(shape_info->shape_type == TRIANGLE_VERTEX8)
+	if(shape_info.shape_type == TRIANGLE_VERTEX8)
 	{
 		triangle_t triangle;
-		unsigned memory_start = shape_info->memory_start;
+		unsigned memory_start = shape_info.memory_start;
 		unsigned mesh_memory_start = as_uint(scene_info.shape_data[memory_start]);
 		unsigned triangle_index = as_uint(scene_info.shape_data[memory_start + 1]);
 		load_triangle_vertex8(scene_info.shape_data,mesh_memory_start,triangle_index,&triangle);
 		triangle_sample(&triangle,u0,u1,ns,pr);
 	}
 }
-INLINE void shape_sample(shape_info_t* shape_info,cl_scene_info_t scene_info,const point3f_t* p,float u0,float u1,normal3f_t *ns,point3f_t *pr)
+INLINE void shape_sample(GLOBAL shape_info_t* shape_info,cl_scene_info_t scene_info,const point3f_t* p,float u0,float u1,normal3f_t *ns,point3f_t *pr)
 {
 	if(shape_info->shape_type == TRIANGLE_VERTEX8)
 	{
