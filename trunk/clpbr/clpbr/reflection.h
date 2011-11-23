@@ -58,7 +58,7 @@ typedef enum{
 }
 MicrofacetDistributionType;
 
-struct bxdf_microfacet_distribution_t
+typedef struct 
 {
 	MicrofacetDistributionType distribution_type;
 	union{
@@ -68,7 +68,7 @@ struct bxdf_microfacet_distribution_t
 		//todo
 		//blinn
 	};
-};
+}bxdf_microfacet_distribution_t;
 
 #define bxdf_init_microfacet_distribution_anisotropic(_x,_ex,_ey)\
 {\
@@ -169,7 +169,7 @@ INLINE float bxdf_microfacet_distribution_anisotropic(bxdf_microfacet_distributi
 	float d = 1.f - cos_theta_h * cos_theta_h;
 	if(d== 0.f) return 0.f;
 	float e = (self.ex*wh.x*wh.x + self.ey*wh.y*wh.y)/d;
-	return sqrtf((self.ex+2.f) * (self.ey+2.f)) * INV_TWOPI * powf(cos_theta_h,e);
+	return sqrt((self.ex+2.f) * (self.ey+2.f)) * INV_TWOPI * pow(cos_theta_h,e);
 }
 INLINE float bxdf_microfacet_distribution(bxdf_microfacet_distribution_t d,vector3f_t wh)
 {
@@ -189,9 +189,9 @@ INLINE void bxdf_microfacet_distribution_anisotropic_sample_first_quadrant(
 	if(self.ex == self.ey)
 		*phi = FLOAT_PI * u1 * 0.5f;
 	else
-		*phi = atanf(sqrtf((self.ex+1.f)/(self.ey+1.f)) * tanf(FLOAT_PI*u1*0.5f));
-	float cos_phi_quadrant = cosf(*phi),sin_phi_quadrant = sinf(*phi);
-	*cos_theta_quadrant = powf(u2,
+		*phi = atan(sqrt((self.ex+1.f)/(self.ey+1.f)) * tan(FLOAT_PI*u1*0.5f));
+	float cos_phi_quadrant = cos(*phi),sin_phi_quadrant = sin(*phi);
+	*cos_theta_quadrant = pow(u2,
 		1.f/(self.ex * cos_phi_quadrant * cos_phi_quadrant + self.ey * sin_phi_quadrant * sin_phi_quadrant+1));
 }
 INLINE void bxdf_microfacet_distribution_sample_f(
@@ -223,7 +223,7 @@ bxdf_microfacet_distribution_t self, vector3f_t wo,vector3f_t* wi,
 				bxdf_microfacet_distribution_anisotropic_sample_first_quadrant(self,u1,u2,&phi,&cos_theta_quadrant);
 				phi = 2.f * FLOAT_PI - phi;
 			}
-			float sin_theta_qudrant = sqrtf(max(0.f,1.f-cos_theta_quadrant*cos_theta_quadrant));
+			float sin_theta_qudrant = sqrt(max(0.f,1.f-cos_theta_quadrant*cos_theta_quadrant));
 			vector3f_t wh;
 			spherical_direction(sin_theta_qudrant, cos_theta_quadrant, phi,&wh);
 			if(!same_hemisphere(wo, wh)) vneg(wh,wh);
@@ -238,7 +238,7 @@ bxdf_microfacet_distribution_t self, vector3f_t wo,vector3f_t* wi,
 			if (ds > 0.f && vdot(wo, wh) > 0.f)
 			{
 				float e = (self.ex * wh.x*wh.x + self.ey * wh.y * wh.y) / ds;
-				float d = sqrtf((self.ex+1.f) *(self.ey + 1.f)) * INV_TWOPI * powf(cos_theta_h,e);
+				float d = sqrt((self.ex+1.f) *(self.ey + 1.f)) * INV_TWOPI * pow(cos_theta_h,e);
 				anisotropic_pdf = d / (4.f*vdot(wo,wh));
 			}
 			*pdf = anisotropic_pdf;
@@ -259,7 +259,7 @@ INLINE float bxdf_microfacet_distribution_pdf(bxdf_microfacet_distribution_t sel
 	if (ds > 0.f && vdot(wo,wh) > 0.f)
 	{
 		float e = (self.ex*wh.x*wh.x + self.ey * wh.y * wh.y)/ds;
-		float d = sqrtf((self.ex+1.f)*(self.ey+1.f)) * INV_TWOPI * powf(cos_theta_h,e);
+		float d = sqrt((self.ex+1.f)*(self.ey+1.f)) * INV_TWOPI * pow(cos_theta_h,e);
 		anisotropic_pdf = d / (4.f*vdot(wo,wh));
 	}
 	return anisotropic_pdf;
@@ -556,7 +556,7 @@ INLINE void bsdf_sample_f(bsdf_t* bsdf,const vector3f_t *woW,vector3f_t *wiW,
 		vclr(*f);
 		return;
 	}
-	int which = min(int(u3 * matching_comps),
+	int which = min((int)(u3 * matching_comps),
 		matching_comps-1);
 	//BxDF *bxdf = NULL;
 	int bxdf_idx = -1;

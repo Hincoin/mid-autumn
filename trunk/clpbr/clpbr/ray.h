@@ -10,8 +10,16 @@ typedef struct
 	float mint,maxt;
 } ray_t;
 
-struct ray_differential_t:public ray_t
+struct ray_differential_t
+#ifndef CL_KERNEL 
+	:public ray_t
+#endif
 {
+#ifdef CL_KERNEL
+	point3f_t o;
+	vector3f_t d;
+	float mint,maxt;
+#endif
 	char has_differential;
 	ray_t rx,ry;
 	unsigned ray_id;

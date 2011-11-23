@@ -138,7 +138,7 @@ INLINE void coordinate_system(const vector3f_t *v1, vector3f_t *v2, vector3f_t *
 
 INLINE void spherical_direction(float sin_theta,
 								 float cos_theta, float phi, vector3f_t *v) {
-									 vinit(*v,(sin_theta*cosf(phi)),(sin_theta*sinf(phi)),(cos_theta));
+									 vinit(*v,(sin_theta*cos(phi)),(sin_theta*sin(phi)),(cos_theta));
 }
 
 #endif

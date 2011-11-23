@@ -19,9 +19,9 @@ INLINE float GetRandom(unsigned int *seed0, unsigned int *seed1) {
 }
 
 
-struct Seed{
+typedef struct {
 	unsigned s1, s2, s3;
-	} ;
+} Seed;
 
  //------------------------------------------------------------------------------
 // Random number generator

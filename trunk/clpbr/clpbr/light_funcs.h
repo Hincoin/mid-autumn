@@ -59,7 +59,7 @@ INLINE void light_sample_l(cl_scene_info_t scene_info,const light_info_t* light,
 				{
 					point3f_t pr;
 					normal3f_t ns;
-					shape_sample_on_shape(&scene_info.primitives[l.primitive_idx].shape_info,scene_info,u1,u2,&ns,&pr);
+					shape_sample_on_shape(scene_info.primitives[l.primitive_idx].shape_info,scene_info,u1,u2,&ns,&pr);
 					vsub((*wo),(pr),(*p));
 					(*shadow_ray).d = *wo;
 					(*shadow_ray).maxt = 1.f-EPSILON;
@@ -167,7 +167,7 @@ INLINE void light_ray_sample_l(light_info_t* light,cl_scene_info_t scene_info,fl
 		area_light_t lght;
 		lght.primitive_idx = as_uint((scene_info.light_data+light->memory_start)[0]);
 		shape_info_t shape_info = (scene_info.primitives[lght.primitive_idx].shape_info);
-		shape_sample_on_shape(&shape_info,scene_info,u0,u1,ns,&(ray->o));
+		shape_sample_on_shape(shape_info,scene_info,u0,u1,ns,&(ray->o));
 		UniformSampleSphere(u2, u3,&(ray->d));
 		if (vdot(ray->d, *ns) < 0.) vsmul(ray->d , -1, ray->d);
 		*pdf = /*shape_pdf(shape_info,&ray->o)*/(1.f/shape_area(shape_info,scene_info)) * INV_PI;
