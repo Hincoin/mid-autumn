@@ -81,8 +81,14 @@ void OpenCLDevice::SetArg(size_t arg_idx,const std::vector<T>& arg,cl_mem_flags 
 	}
 	cl_int status;
 	if(NULL == kernel_args_[arg_idx])
+	{
 		kernel_args_[arg_idx] = clCreateBuffer(context_,flags,
 		sizeof(T) * arg.size(),NULL,&status);
+		if(status != CL_SUCCESS)
+		{
+			exit(-1);
+		}
+	}
 	status = clEnqueueWriteBuffer(
 			command_queue_,
 			kernel_args_[arg_idx],
@@ -93,6 +99,11 @@ void OpenCLDevice::SetArg(size_t arg_idx,const std::vector<T>& arg,cl_mem_flags 
 			0,
 			NULL,
 			NULL);
+
+	if(status != CL_SUCCESS)
+	{
+		exit(-1);
+	}
 }
 
 

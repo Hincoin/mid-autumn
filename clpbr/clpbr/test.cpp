@@ -41,5 +41,5 @@ void opencl_compile_test()
 {
 	OpenCLDevice device;
 	device.SetKernelFile("rendering_kernel.cl");
-	device.Run();
+//	device.Run();
 }

@@ -208,17 +208,29 @@ private:
 	MaterialData* material_data_;
 	ShapeData* shape_data_;		
 };
+struct scene_info_memory_t
+{
+	std::vector<float> light_data;
+	std::vector<float> material_data;
+	std::vector<float> shape_data;
+	std::vector<float> texture_data;
+	std::vector<float> integrator_data;
+	std::vector<float> accelerator_data;
 
+	std::vector<primitive_info_t> primitives;
+	std::vector<light_info_t> lghts; 
+};
 class SceneData{
 public:
 	SceneData(const std::vector<PrimitiveData*>& primitives)
 		:primitives_(primitives)
 	{}
-	cl_scene_info_t ConvertToCLSceneInfo();
+	scene_info_memory_t ConvertToCLSceneInfo();
 private:
 	std::vector<PrimitiveData*> primitives_;
 	bbox_t world_bound_;
 };
 
+cl_scene_info_t as_cl_scene_info(scene_info_memory_t& scene_mem);
 
 #endif

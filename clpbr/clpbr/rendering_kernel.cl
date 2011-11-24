@@ -8,6 +8,7 @@
 #include "random_number_generator.h"
 #include "shape_funcs.h"
 #include "photon_map.h"
+#include "ray.h"
 
 //light param data
 //material param data
@@ -15,11 +16,11 @@
 //texture param data
 
 __kernel void render(
-__global spectrum_t *colors, __global unsigned int *seeds,
+__global spectrum_t *colors , __global Seed *seeds,
 GLOBAL float* light_data,GLOBAL float* material_data,GLOBAL float* shape_data,
 GLOBAL float* texture_data,GLOBAL float* integrator_data,GLOBAL float* accelerator_data,
 GLOBAL primitive_info_t* primitives,const unsigned int primitive_count,
-GLOBAL light_info_t* lghts, const unsigned int lght_count
+GLOBAL light_info_t* lghts, const unsigned int lght_count,GLOBAL ray_differential_t *ray,const unsigned int number_work_items
 )
 {
     const int gid = get_global_id(0);

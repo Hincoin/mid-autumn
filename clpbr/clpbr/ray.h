@@ -10,9 +10,11 @@ typedef struct
 	float mint,maxt;
 } ray_t;
 
-struct ray_differential_t
 #ifndef CL_KERNEL 
-	:public ray_t
+struct ray_differential_t: public ray_t
+#else
+typedef 
+struct 
 #endif
 {
 #ifdef CL_KERNEL
@@ -23,7 +25,11 @@ struct ray_differential_t
 	char has_differential;
 	ray_t rx,ry;
 	unsigned ray_id;
-};
+}
+#ifdef CL_KERNEL
+ray_differential_t
+#endif
+;
 
 #define rinit(r, a, b) { vassign((r).o, a); vassign((r).d, b);(r).mint = EPSILON;(r).maxt = FLT_MAX; }
 #define rassign(a, b) { vassign((a).o, (b).o); vassign((a).d, (b).d);(a).mint = (b).mint;(a).maxt = (b).maxt; }
