@@ -5,6 +5,8 @@ static std::vector<float> shape_data;
 static std::vector<float> material_data;
 static std::vector<float> texture_data;
 static std::vector<float> light_data;
+static std::vector<float> accelerator_data;
+static std::vector<float> integrator_data;
 static std::vector<light_info_t> light_info_array;
 static std::vector<primitive_info_t> primitive_info_array;
 
@@ -17,16 +19,26 @@ static void clear_scene_info()
 	light_info_array.clear();
 	primitive_info_array.clear();
 }
-cl_scene_info_t SceneData::ConvertToCLSceneInfo()
+cl_scene_info_t as_cl_scene_info(scene_info_memory_t& scene_mem)
 {
 	cl_scene_info_t cl_scene_info;
+	cl_scene_info.lghts = &scene_mem.lghts[0];
+	cl_scene_info.material_data  = &scene_mem.material_data[0];
+	cl_scene_info.shape_data = &scene_mem.shape_data[0];
+	cl_scene_info.texture_data = &scene_mem.texture_data[0];
+	cl_scene_info.light_data = &scene_mem.light_data[0];
+	cl_scene_info.primitives = &scene_mem.primitives[0];
 
-	cl_scene_info.accelerator_data = NULL;
-	cl_scene_info.integrator_data = NULL;
-	cl_scene_info.light_data = NULL;
+	cl_scene_info.lght_count = (unsigned)scene_mem.lghts.size();
+	cl_scene_info.primitive_count = (unsigned)scene_mem.primitives.size();
 
-	cl_scene_info.primitive_count = 0;
-	cl_scene_info.lght_count = 0;
+	cl_scene_info.accelerator_data = scene_mem.accelerator_data.empty()? NULL : &scene_mem.accelerator_data[0];
+	cl_scene_info.integrator_data = scene_mem.integrator_data.empty()? NULL : &scene_mem.integrator_data[0];
+	return cl_scene_info;
+}
+scene_info_memory_t SceneData::ConvertToCLSceneInfo()
+{
+	scene_info_memory_t cl_scene_info;
 
 	clear_scene_info();
 
@@ -40,22 +52,25 @@ cl_scene_info_t SceneData::ConvertToCLSceneInfo()
 	{
 		if (primitive_info[j].material_info.material_type == LIGHT_MATERIAL)
 		{
-			cl_scene_info.lght_count ++;
 			light_info.light_type = 0;	
 			light_info.memory_start = unsigned(light_data.size());
 			light_info_array.push_back(light_info);
-			light_data.push_back(as_float(cl_scene_info.primitive_count));
+			light_data.push_back(as_float(j));
 		}
-		cl_scene_info.primitive_count ++;
 		primitive_info_array.push_back(primitive_info[j]);
 	}
 
-	cl_scene_info.lghts = &light_info_array[0];
-	cl_scene_info.material_data  = &material_data[0];
-	cl_scene_info.shape_data = &shape_data[0];
-	cl_scene_info.texture_data = &texture_data[0];
-	cl_scene_info.light_data = &light_data[0];
-	cl_scene_info.primitives = &primitive_info_array[0];
+	cl_scene_info.lghts = light_info_array;
+	cl_scene_info.material_data  = material_data;
+	cl_scene_info.shape_data = shape_data;
+	cl_scene_info.texture_data = texture_data;
+	cl_scene_info.light_data = light_data;
+	cl_scene_info.primitives = primitive_info_array;
+
+	accelerator_data.push_back(0.f);
+	cl_scene_info.accelerator_data = accelerator_data;
+	cl_scene_info.integrator_data = integrator_data;
+
 	return cl_scene_info;
 }
 

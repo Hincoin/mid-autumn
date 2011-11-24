@@ -56,7 +56,13 @@ OpenCLDevice::OpenCLDevice()
 	}
 	cl_context_properties cps[3] = {CL_CONTEXT_PLATFORM, (cl_context_properties)platform,0};
 
-	context_ = clCreateContextFromType(cps,CL_DEVICE_TYPE_ALL,NULL,NULL,&status);
+	cl_device_type device_type = CL_DEVICE_TYPE_CPU;
+	context_ = clCreateContextFromType(cps,device_type,NULL,NULL,&status);
+	if (status != CL_SUCCESS)
+	{
+		device_type = CL_DEVICE_TYPE_CPU;
+		context_ = clCreateContextFromType(cps,device_type,NULL,NULL,&status);
+	}
 	if(status != CL_SUCCESS)
 	{
 		return ;
@@ -82,7 +88,7 @@ OpenCLDevice::OpenCLDevice()
 			sizeof(cl_device_type),
 			&type,
 			NULL);
-		if(type == CL_DEVICE_TYPE_CPU)
+		if(type == device_type)
 		{
 			status = clGetDeviceInfo(devices_[i],
 				CL_DEVICE_MAX_COMPUTE_UNITS,
@@ -98,6 +104,12 @@ OpenCLDevice::OpenCLDevice()
 			selected_device_ = devices_[i];
 			break;
 		}
+	}
+	cl_command_queue_properties prop = 0;
+	command_queue_ = clCreateCommandQueue(context_,selected_device_,prop,&status);
+	if(status != CL_SUCCESS)
+	{
+		fprintf(stderr,"Failed to create OpenCL command queue: %d\n",status);
 	}
 }
 OpenCLDevice::~OpenCLDevice()
@@ -134,7 +146,7 @@ void OpenCLDevice::Run()
 		/* Set kernel arguments */
 		cl_int status = clSetKernelArg(
 			kernel_,
-			0,
+			i,
 			sizeof(cl_mem),
 			(void *)&kernel_args_[i]);
 		if (status != CL_SUCCESS) {
@@ -220,13 +232,12 @@ void OpenCLDevice::SetKernelFile(const char* file)
 
 		fprintf(stderr, "OpenCL Program Build Log: %s\n", buildLog);
 		free(buildLog);
-
+	}
 		kernel_ = clCreateKernel(program_, "render", &status);
 		if (status != CL_SUCCESS) {
 			fprintf(stderr, "Failed to create OpenCL kernel: %d\n", status);
 			exit(-1);
 		}
-	}
 }
 
 
