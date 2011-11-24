@@ -24,6 +24,26 @@ GLOBAL light_info_t* lghts, const unsigned int lght_count,GLOBAL ray_differentia
 )
 {
     const int gid = get_global_id(0);
+	if(gid < number_work_items)
+	{
+		ray_differential_t per_ray = ray[gid];
+		photon_map_t photon_map;
+		cl_scene_info_t scene_info;
+		scene_info.light_data = light_data;
+		scene_info.material_data = material_data;
+		scene_info.shape_data = shape_data;
+		scene_info.texture_data = texture_data;
+		scene_info.integrator_data = integrator_data;
+		scene_info.accelerator_data = accelerator_data;
+		scene_info.primitives = primitives;
+		scene_info.primitive_count = primitive_count;
+		scene_info.lghts = lghts;
+		scene_info.lght_count = lght_count;
+
+		Seed seed = seeds[gid];
+		//photon_map_li(photon_map,per_ray,scene_info,seed,&color[gid]);
+	}
+
 /*	const int gid2 = 2 * gid;
 	const int x = gid % width;
 	const int y = gid / width;
