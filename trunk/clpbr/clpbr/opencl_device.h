@@ -111,6 +111,7 @@ template<typename T>
 void OpenCLDevice::ReadBuffer(unsigned arg_idx,T* output,unsigned count)
 {
 	/* Enqueue readBuffer */
+	clFinish(command_queue_);
 	cl_uint status = clEnqueueReadBuffer(
 			command_queue_,
 			kernel_args_[arg_idx],
