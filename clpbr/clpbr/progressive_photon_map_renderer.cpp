@@ -42,22 +42,23 @@ static std::vector<float> as_float_array(const photon_kd_tree_t& photon_kd_tree)
 	v.push_back(as_float(photon_kd_tree.n_nodes));
 	for (unsigned int i = 0;i < photon_kd_tree.n_nodes; ++i)
 	{
+		v.push_back((photon_kd_tree.nodes[i].split_pos));
 		v.push_back(as_float(photon_kd_tree.nodes[i].data));
-		v.push_back(as_float(photon_kd_tree.nodes[i].split_pos));
 	}
 	for(unsigned int i = 0;i < photon_kd_tree.n_nodes; ++i)
 	{
-		v.push_back(as_float(photon_kd_tree.node_data[i].alpha.x));
-		v.push_back(as_float(photon_kd_tree.node_data[i].alpha.y));
-		v.push_back(as_float(photon_kd_tree.node_data[i].alpha.z));
 
-		v.push_back(as_float(photon_kd_tree.node_data[i].p.x));
-		v.push_back(as_float(photon_kd_tree.node_data[i].p.y));
-		v.push_back(as_float(photon_kd_tree.node_data[i].p.z));
+		v.push_back((photon_kd_tree.node_data[i].p.x));
+		v.push_back((photon_kd_tree.node_data[i].p.y));
+		v.push_back((photon_kd_tree.node_data[i].p.z));
 
-		v.push_back(as_float(photon_kd_tree.node_data[i].wi.x));
-		v.push_back(as_float(photon_kd_tree.node_data[i].wi.y));
-		v.push_back(as_float(photon_kd_tree.node_data[i].wi.z));
+		v.push_back((photon_kd_tree.node_data[i].alpha.x));
+		v.push_back((photon_kd_tree.node_data[i].alpha.y));
+		v.push_back((photon_kd_tree.node_data[i].alpha.z));
+
+		v.push_back((photon_kd_tree.node_data[i].wi.x));
+		v.push_back((photon_kd_tree.node_data[i].wi.y));
+		v.push_back((photon_kd_tree.node_data[i].wi.z));
 	}
 	v.push_back(as_float(photon_kd_tree.next_free_node));
 	return v;
@@ -69,23 +70,23 @@ static std::vector<float> as_float_array(const radiance_photon_kd_tree_t& photon
 	v.push_back(as_float(photon_kd_tree.n_nodes));
 	for (unsigned int i = 0;i < photon_kd_tree.n_nodes; ++i)
 	{
+		v.push_back((photon_kd_tree.nodes[i].split_pos));
 		v.push_back(as_float(photon_kd_tree.nodes[i].data));
-		v.push_back(as_float(photon_kd_tree.nodes[i].split_pos));
 	}
 	for(unsigned int i = 0;i < photon_kd_tree.n_nodes; ++i)
 	{
 
-		v.push_back(as_float(photon_kd_tree.node_data[i].p.x));
-		v.push_back(as_float(photon_kd_tree.node_data[i].p.y));
-		v.push_back(as_float(photon_kd_tree.node_data[i].p.z));
+		v.push_back((photon_kd_tree.node_data[i].p.x));
+		v.push_back((photon_kd_tree.node_data[i].p.y));
+		v.push_back((photon_kd_tree.node_data[i].p.z));
 
-		v.push_back(as_float(photon_kd_tree.node_data[i].n.x));
-		v.push_back(as_float(photon_kd_tree.node_data[i].n.y));
-		v.push_back(as_float(photon_kd_tree.node_data[i].n.z));
+		v.push_back((photon_kd_tree.node_data[i].n.x));
+		v.push_back((photon_kd_tree.node_data[i].n.y));
+		v.push_back((photon_kd_tree.node_data[i].n.z));
 
-		v.push_back(as_float(photon_kd_tree.node_data[i].lo.x));
-		v.push_back(as_float(photon_kd_tree.node_data[i].lo.y));
-		v.push_back(as_float(photon_kd_tree.node_data[i].lo.z));
+		v.push_back((photon_kd_tree.node_data[i].lo.x));
+		v.push_back((photon_kd_tree.node_data[i].lo.y));
+		v.push_back((photon_kd_tree.node_data[i].lo.z));
 	}
 	v.push_back(as_float(photon_kd_tree.next_free_node));
 	return v;
@@ -177,6 +178,8 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 			}
 
 			color_buffer.resize(color_buffer.size()+ray_buffer.size(),spectrum_t());
+			photon_map_t loaded_photon_map;
+			load_photon_map(&loaded_photon_map,&scene_info.integrator_data[0]);
 			//#pragma omp parallel for schedule(dynamic, 32)
 			for(unsigned int i = 0;i < ray_buffer.size(); ++i)
 			{
@@ -184,13 +187,14 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 				{
 					int xxxxx= 0;
 				}
-				//photon_map_li(photon_map_,&ray_buffer[i],scene_info,seed,&color_buffer[i]);
+				//photon_map_li(&loaded_photon_map,&ray_buffer[i],as_cl_scene_info(scene_info),&seeds[i],&color_buffer[i]);
 			}
 			device_->SetReadWriteArg(0,color_buffer);
 			device_->SetReadOnlyArg(12,ray_buffer);
+			unsigned sz = (unsigned)color_buffer.size();
 			device_->SetReadOnlyArg(13,color_buffer.size());
 			device_->Run();
-
+			device_->ReadBuffer(0,&color_buffer[0],(unsigned)color_buffer.size());
 			//////////////////////////////////////////////////////////////////////////
 		}
 		photon_map_destroy(photon_map_);

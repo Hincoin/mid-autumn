@@ -53,8 +53,8 @@ INLINE void kd_node_init_leaf(kd_node_t* kd_node)
 #define kd_tree_t(NodeData)\
 	struct  \
 	{\
-		kd_node_t *nodes;\
-		NodeData *node_data;\
+		GLOBAL kd_node_t *nodes;\
+		GLOBAL NodeData *node_data;\
 		unsigned n_nodes,next_free_node;\
 	}\
 
@@ -78,7 +78,7 @@ INLINE float distance_squared(point3f_t v0,point3f_t v1)
 	while (stack_top != 0)\
 	{\
 		node_num = node_stack[stack_top-1];\
-		kd_node_t* node = (_kd_tree).nodes + node_num;\
+		GLOBAL kd_node_t* node = (_kd_tree).nodes + node_num;\
 		unsigned axis = kd_node_get_split_axis(*node);\
 		{\
 			float dist2 = distance_squared((_kd_tree).node_data[node_num].p, (_p));\

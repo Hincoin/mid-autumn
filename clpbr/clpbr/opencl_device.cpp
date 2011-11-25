@@ -146,7 +146,7 @@ void OpenCLDevice::Run()
 		/* Set kernel arguments */
 		cl_int status = clSetKernelArg(
 			kernel_,
-			i,
+			(cl_uint)i,
 			sizeof(cl_mem),
 			(void *)&kernel_args_[i]);
 		if (status != CL_SUCCESS) {
@@ -206,7 +206,7 @@ void OpenCLDevice::SetKernelFile(const char* file)
 		size_t retValSize;
 		status = clGetProgramBuildInfo(
 			program_,
-			devices_[0],
+			selected_device_,
 			CL_PROGRAM_BUILD_LOG,
 			0,
 			NULL,
@@ -219,7 +219,7 @@ void OpenCLDevice::SetKernelFile(const char* file)
 		char *buildLog = (char *)malloc(retValSize + 1);
 		status = clGetProgramBuildInfo(
 			program_,
-			devices_[0],
+			selected_device_,
 			CL_PROGRAM_BUILD_LOG,
 			retValSize,
 			buildLog,
