@@ -204,7 +204,7 @@ bxdf_microfacet_distribution_t self, vector3f_t wo,vector3f_t* wi,
 	case ANISOTROPIC:
 		{
 			float phi, cos_theta_quadrant;
-			if(u1 < 0.25)
+			if(u1 < 0.25f)
 				bxdf_microfacet_distribution_anisotropic_sample_first_quadrant(self,4.f*u1,u2,&phi,&cos_theta_quadrant);
 			else if (u1 < 0.5f)
 			{
@@ -322,7 +322,6 @@ INLINE void bxdf_f(const bxdf_t *self,vector3f_t wo,vector3f_t wi,spectrum_t *f)
 		{
 			return bxdf_microfacet_f(self,wo,wi,f);
 		}
-		break;
 	case BRDF_OREN_NAYAR:
 		{
 			//
@@ -366,18 +365,15 @@ INLINE float bxdf_pdf(bxdf_t *self, vector3f_t wo,vector3f_t wi)
 	{
 	case BRDF_MICROFACET:
 		return bxdf_microfacet_pdf(self,wo,wi);
-		break;
 	case BRDF_SPECULAR_REFLECTION:
 	case BTDF_SPECULAR_TRANSMISSION:
 		return 0.f;
-		break;
 	case BRDF_OREN_NAYAR:
 	case BRDF_LAMBERTIAN:
 	default:
 		return
 			same_hemisphere(wo, wi) ? fabs(wi.z) * INV_PI : 0.f;
 	}
-	return 0.f;
 }
 
 INLINE void bxdf_sample_f(bxdf_t *self, vector3f_t wo,vector3f_t* wi,
@@ -436,7 +432,7 @@ INLINE void bxdf_sample_f(bxdf_t *self, vector3f_t wo,vector3f_t* wi,
 	default:
 		// Cosine-sample the hemisphere, flipping the direction if necessary
 		cosine_sample_hemisphere(u1, u2,wi);
-		if (wo.z < 0.) wi->z *= -1.f;
+		if (wo.z < 0.f) wi->z *= -1.f;
 		*pdf = bxdf_pdf(self,wo, *wi);
 		bxdf_f(self,wo, *wi,f);
 	}
@@ -519,7 +515,7 @@ INLINE void bsdf_f(const bsdf_t* bsdf,
 INLINE float bsdf_pdf(bsdf_t* bsdf,const vector3f_t *woW,const vector3f_t* wiW,BxDFType flags)
 {
 	//todo
-	if (bsdf->n_bxdfs == 0) return 0.;
+	if (bsdf->n_bxdfs == 0) return 0.f;
 	vector3f_t wo,wi;
 	bsdf_world_to_local(bsdf,woW,&wo);
 	bsdf_world_to_local(bsdf,wiW,&wi);
@@ -632,7 +628,6 @@ INLINE void bxdf_rho_hh(bxdf_t* bxdf,int n_samples,
 				}
 			}
 			vsmul(*c,1.f/(FLOAT_PI*n_samples),*c);
-			return;
 		}
 		break;
 		
@@ -666,7 +661,6 @@ INLINE void bxdf_rho_hd(bxdf_t* bxdf,const vector3f_t *w,int n_samples,
 			vsmul(*c,1.f/n_samples,*c);
 			return;
 		}
-		break;
 		
 	}
 }

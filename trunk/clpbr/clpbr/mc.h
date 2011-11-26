@@ -21,16 +21,16 @@ INLINE void concentric_sample_disk(float u1, float u2,
 									   float sy = 2 * u2 - 1;
 									   // Map square to $(r,\theta)$
 									   // Handle degeneracy at the origin
-									   if (sx == 0.0 && sy == 0.0) {
-										   *dx = 0.0;
-										   *dy = 0.0;
+									   if (sx == 0.0f && sy == 0.0f) {
+										   *dx = 0.0f;
+										   *dy = 0.0f;
 										   return;
 									   }
 									   if (sx >= -sy) {
 										   if (sx > sy) {
 											   // Handle first region of disk
 											   r = sx;
-											   if (sy > 0.0)
+											   if (sy > 0.0f)
 												   theta = sy/r;
 											   else
 												   theta = 8.0f + sy/r;
@@ -99,7 +99,7 @@ INLINE void compute_step_1d_cdf(float *f, int nSteps, float *c,
 		float *cdf) {
 	// Compute integral of step function at $x_i$
 	int i;
-	cdf[0] = 0.;
+	cdf[0] = 0.f;
 	for (i = 1; i < nSteps+1; ++i)
 		cdf[i] = cdf[i-1] + f[i-1] / nSteps;
 	// Transform step function integral into cdf

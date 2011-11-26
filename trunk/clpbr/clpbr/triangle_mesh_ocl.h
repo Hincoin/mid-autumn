@@ -154,9 +154,9 @@ INLINE void get_uvs(const triangle_t *triangle,float uvs[3][2])
 	uvs[2][1] = triangle->uv2[1];	
 	*/
 
-	uvs[0][0] = 0.; uvs[0][1] = 0.;
-	uvs[1][0] = 1.; uvs[1][1] = 0.;
-	uvs[2][0] = 1.; uvs[2][1] = 1.;
+	uvs[0][0] = 0.f; uvs[0][1] = 0.f;
+	uvs[1][0] = 1.f; uvs[1][1] = 0.f;
+	uvs[2][0] = 1.f; uvs[2][1] = 1.f;
 }
 INLINE int intersect_triangle(const triangle_t *triangle,
 					 ray_t *r,

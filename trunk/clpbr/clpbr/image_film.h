@@ -2,6 +2,7 @@
 #define _IMAGE_FILM_H_
 #include "film.h"
 
+class MitchellFilter;
 
 class ImageFilm:public Film
 {
@@ -17,6 +18,9 @@ private:
 	unsigned width_,height_;
 	float *color_array_;
 	float *color_buffer_;
+
+	MitchellFilter* filter_;
+	float *precomputed_filter_table_;
 };
 
 

@@ -266,15 +266,15 @@ bool Transform::SwapsHandedness() const {
 			matrix_element(m,0,0) = right.x;
 			matrix_element(m,1,0) = right.y;
 			matrix_element(m,2,0) = right.z;
-			matrix_element(m,3,0) = 0.;
+			matrix_element(m,3,0) = 0.f;
 			matrix_element(m,0,1) = newUp.x;
 			matrix_element(m,1,1) = newUp.y;
 			matrix_element(m,2,1) = newUp.z;
-			matrix_element(m,3,1) = 0.;
+			matrix_element(m,3,1) = 0.f;
 			matrix_element(m,0,2) = dir.x;
 			matrix_element(m,1,2) = dir.y;
 			matrix_element(m,2,2) = dir.z;
-			matrix_element(m,3,2) = 0.;
+			matrix_element(m,3,2) = 0.f;
 			matrix4x4_t inv_m;
 			matrix_inverse(inv_m,m);
 			transform_construct_from_matrix2((*transform),inv_m,m);

@@ -33,7 +33,7 @@ INLINE void	intersection_get_bsdf(intersection_t *isect,cl_scene_info_t scene_in
 }
 
 //this is a simple test without accelerator privided
-static int intersect(
+INLINE int intersect(
 					 GLOBAL float* accelerator_data,
 					 GLOBAL float* shape_data,
 					 GLOBAL primitive_info_t* primitives,
