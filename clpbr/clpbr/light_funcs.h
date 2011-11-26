@@ -22,15 +22,6 @@ INLINE void light_l(cl_scene_info_t scene_info, material_info_t light_material,c
 }
 
 
-static void load_area_light_material(GLOBAL float* light_data,
-									 GLOBAL const light_info_t* lght,light_material_t* m)
-{
-	if (lght->light_type == 0)
-	{
-		area_light_t lght;
-		lght.primitive_idx = as_uint(light_data[0]);
-	}
-}
 INLINE void light_sample_l(cl_scene_info_t scene_info,const light_info_t* light,
 					const point3f_t *p,
 					Seed* seed,
@@ -51,7 +42,7 @@ INLINE void light_sample_l(cl_scene_info_t scene_info,const light_info_t* light,
 			(*shadow_ray).o = *p;
 			material_info_t light_material = scene_info.primitives[l.primitive_idx].material_info;
 			unsigned st = scene_info.primitives[l.primitive_idx].shape_info.shape_type;
-			unsigned ms = scene_info.primitives[l.primitive_idx].shape_info.memory_start;
+			//unsigned ms = scene_info.primitives[l.primitive_idx].shape_info.memory_start;
 
 			switch (st)
 			{
@@ -169,7 +160,7 @@ INLINE void light_ray_sample_l(light_info_t* light,cl_scene_info_t scene_info,fl
 		shape_info_t shape_info = (scene_info.primitives[lght.primitive_idx].shape_info);
 		shape_sample_on_shape(shape_info,scene_info,u0,u1,ns,&(ray->o));
 		UniformSampleSphere(u2, u3,&(ray->d));
-		if (vdot(ray->d, *ns) < 0.) vsmul(ray->d , -1, ray->d);
+		if (vdot(ray->d, *ns) < 0.f) vsmul(ray->d , -1, ray->d);
 		*pdf = /*shape_pdf(shape_info,&ray->o)*/(1.f/shape_area(shape_info,scene_info)) * INV_PI;
 		rinit(*ray,ray->o,ray->d);
 		return light_l(scene_info,scene_info.primitives[lght.primitive_idx].material_info,ray->o, *ns, &ray->d,alpha);

@@ -201,7 +201,7 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 
 		for(size_t i = 0;i < samples.size(); ++i)
 			image_->AddSample(samples[i],color_buffer[i]);
-		if(0 == iteration % 20)
+		if(0 == iteration % 10)
 			image_->WriteImage(iteration);
 		iteration ++;
 		//photon_map_->max_dist_squared = photon_map_->max_dist_squared * (iteration + photon_map_->alpha_)/(iteration + 1);

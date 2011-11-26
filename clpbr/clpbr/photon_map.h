@@ -37,12 +37,12 @@ INLINE void radiance_photon_init(radiance_photon_t* photon,const point3f_t* p,co
 }
 
 typedef struct{
-	GLOBAL const photon_t* photon;
+	GLOBAL photon_t* photon;
 	float distance_squared;
 }
 close_photon_t;
 
-INLINE void close_photon_init(close_photon_t* close_photon,GLOBAL const photon_t* photon,float dist_sqr)
+INLINE void close_photon_init(close_photon_t* close_photon,GLOBAL photon_t* photon,float dist_sqr)
 {
 	close_photon->photon = photon;
 	close_photon->distance_squared = dist_sqr;
@@ -67,7 +67,7 @@ INLINE void photon_process_data_init(photon_process_data_t* photon_process_data,
 	photon_process_data->n_lookup = mp;
 	photon_process_data->found_photons = 0;
 }
-INLINE void photon_process(photon_process_data_t* data,GLOBAL const photon_t* photon,
+INLINE void photon_process(photon_process_data_t* data,GLOBAL photon_t* photon,
 					float dist2,float* max_dist_sqred)
 {
 	if (data->found_photons < data->n_lookup) {
@@ -139,7 +139,7 @@ typedef struct {
 photon_map_t;
 
 
-INLINE float photon_map_kernel(GLOBAL const photon_t *photon, const point3f_t *p,
+INLINE float photon_map_kernel(GLOBAL photon_t *photon, const point3f_t *p,
 		float md2) {
 	float s = (1.f - distance_squared(photon->p, *p) / md2);
 	return 3.f / (md2 * FLOAT_PI) * s * s;
@@ -151,10 +151,11 @@ INLINE float photon_map_get_radius(photon_map_t* photon_map,float reference_radi
 {
 	int n = photon_map->progressive_iteration;
 	float radius_squared = reference_radius_squared;
-	while(n--)
-	{
-		radius_squared *= (n + photon_map->alpha)/(n+1);
-	}
+#ifndef CL_KERNEL
+#define pown pow
+#endif
+
+	radius_squared *= pown((float)((float)(n + photon_map->alpha)/(n+1)), n);
 	return max(1.f,radius_squared);
 }
 INLINE void photon_map_lphoton(photon_map_t* photon_map,
@@ -201,7 +202,7 @@ INLINE void photon_map_lphoton(photon_map_t* photon_map,
 		{
 			if(photons[i].distance_squared > radius_i_squared)
 				continue;
-			GLOBAL const photon_t *p = photons[i].photon;
+			GLOBAL photon_t *p = photons[i].photon;
 			BxDFType flag = vdot(n_f,p->wi) > 0 ?BSDF_ALL_REFLECTION:BSDF_ALL_TRANSMISSION;
 			float k = photon_map_kernel(p,&isect->dg.p, radius_i_squared);
 			vector3f_t wi_tmp = p->wi;
@@ -399,7 +400,7 @@ INLINE void photon_map_final_gather(photon_map_t* photon_map,cl_scene_info_t sce
 	}
 }
 INLINE void photon_map_li(photon_map_t* photon_map,
-						  const ray_t *ray,
+						  const ray_differential_t *ray,
 						  cl_scene_info_t scene_info,
 						  Seed *seed,
 						  spectrum_t* color
@@ -502,10 +503,6 @@ INLINE void photon_map_li(photon_map_t* photon_map,
                         }
                         else
                         {
-							if (ray_stack_top == 1)
-							{
-								bool specular_trans = true;
-							}
 							vmul(*(passthrough+ray_stack_top),*(passthrough+ray_stack_top),*(passthrough+ray_stack_top-1));
 							left_stack[ray_stack_top] = false;
                             visit = pre;
@@ -531,10 +528,6 @@ INLINE void photon_map_li(photon_map_t* photon_map,
                     }
                     else
                     {
-						if (ray_stack_top == 1)
-						{
-							bool specular_trans = true;
-						}
 						vmul(*(passthrough+ray_stack_top),*(passthrough+ray_stack_top),*(passthrough+ray_stack_top-1));
 						left_stack[ray_stack_top] = false;
                         visit = pre;

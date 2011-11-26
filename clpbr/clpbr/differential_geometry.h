@@ -39,8 +39,8 @@ typedef struct {
 //todo
 #define compute_differential_geometry(_dg,r)\
 {\
-	(_dg).dudx = (_dg).dvdx = 0.;\
-	(_dg).dudy = (_dg).dvdy = 0.;\
+	(_dg).dudx = (_dg).dvdx = 0.f;\
+	(_dg).dudy = (_dg).dvdy = 0.f;\
 	vclr((_dg).dpdx) ;\
 	vclr((_dg).dpdy);\
 }\

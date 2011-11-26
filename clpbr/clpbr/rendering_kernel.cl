@@ -40,13 +40,12 @@ GLOBAL light_info_t* lghts, GLOBAL unsigned int *lght_count,GLOBAL ray_different
 		scene_info.lghts = lghts;
 		scene_info.lght_count = *lght_count;
 
-		GLOBAL kd_node_t* nodes = (GLOBAL kd_node_t*)(integrator_data);
-
 		Seed seed = seeds[gid];
 		spectrum_t color;
 		load_photon_map(&photon_map,integrator_data);
 		photon_map_li(&photon_map,&per_ray,scene_info,&seed,&color);
 		colors[gid] = color;
+		seeds[gid] = seed;
 		//photon_map_li(photon_map,per_ray,scene_info,seed,&color[gid]);
 	}
 

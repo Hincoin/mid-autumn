@@ -7,7 +7,7 @@ INLINE int Quadratic(float A, float B, float C, float *t0,
 			  float *t1) {
 				  // Find quadratic discriminant
 				  float discrim = B * B - 4.f * A * C;
-				  if (discrim < 0.) return 0;
+				  if (discrim < 0.f) return 0;
 				  float rootDiscrim = sqrt(discrim);
 				  // Compute quadratic _t_ values
 				  float q;

@@ -365,10 +365,10 @@ void triangle_test()
 	w=h = 256;
 	Film* film = new ImageFilm(w,h);
 	PerspectiveCamera* camera = new PerspectiveCamera(camera_to_world,screen_window_t(1.f),degree_to_radian(degree_t(40)),film);
-	RandomSampler* sampler = new RandomSampler(0,w,0,h,1,1);
+	RandomSampler* sampler = new RandomSampler(0,w,0,h,16,16);
 	
 	photon_map_t* photon_map = new photon_map_t();
-	photon_map->final_gather = false;
+	photon_map->final_gather = true;
 	photon_map->cos_gather_angle = 0.95f;
 	photon_map->gather_samples = 32;
 	
