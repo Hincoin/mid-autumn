@@ -43,10 +43,7 @@ OpenCLDevice::OpenCLDevice()
 				return;
 			}
 			platform = platforms[i];
-			if (!strcmp(pbuffer,"Advanced Micro Devices, Inc."))
-			{
-				break;
-			}
+			fprintf(stdout,"OpenCL Platform %d: %s\n",i,pbuffer);
 		}
 		delete []platforms;
 	}
@@ -150,25 +147,25 @@ void OpenCLDevice::Run(size_t total_threads)
 			sizeof(cl_mem),
 			(void *)&kernel_args_[i]);
 		if (status != CL_SUCCESS) {
-			fprintf(stderr, "Failed to set OpenCL arg. #1: %d\n", status);
+			fprintf(stderr, "Failed to set OpenCL arg. #%d: %d\n", i,status);
 			exit(-1);
 		}
 	}
 	//run
-	size_t globalThreads[1];
-	globalThreads[0] = total_threads; //todo
-	if (globalThreads[0] % max_work_group_size_!= 0)
-		globalThreads[0] = (globalThreads[0] / max_work_group_size_ + 1) * max_work_group_size_;
-	size_t localThreads[1];
-	localThreads[0] = max_work_group_size_;
+	size_t global_threads[1];
+	global_threads[0] = total_threads; //todo
+	if (global_threads[0] % max_work_group_size_!= 0)
+		global_threads[0] = (global_threads[0] / max_work_group_size_ + 1) * max_work_group_size_;
+	size_t local_threads[1];
+	local_threads[0] = max_work_group_size_;
 
 	cl_int status = clEnqueueNDRangeKernel(
 		command_queue_,
 		kernel_,
 		1,
 		NULL,
-		globalThreads,
-		localThreads,
+		global_threads,
+		local_threads,
 		0,
 		NULL,
 		NULL);
@@ -203,35 +200,35 @@ void OpenCLDevice::SetKernelFile(const char* file)
 	if (status != CL_SUCCESS) {
 		fprintf(stderr, "Failed to build OpenCL kernel: %d\n", status);
 
-		size_t retValSize;
+		size_t kernel_info_size;
 		status = clGetProgramBuildInfo(
 			program_,
 			selected_device_,
 			CL_PROGRAM_BUILD_LOG,
 			0,
 			NULL,
-			&retValSize);
+			&kernel_info_size);
 		if (status != CL_SUCCESS) {
 			fprintf(stderr, "Failed to get OpenCL kernel info size: %d\n", status);
 			exit(-1);
 		}
 
-		char *buildLog = (char *)malloc(retValSize + 1);
+		char *build_log = (char *)malloc(kernel_info_size+ 1);
 		status = clGetProgramBuildInfo(
 			program_,
 			selected_device_,
 			CL_PROGRAM_BUILD_LOG,
-			retValSize,
-			buildLog,
+			kernel_info_size,
+			build_log,
 			NULL);
 		if (status != CL_SUCCESS) {
 			fprintf(stderr, "Failed to get OpenCL kernel info: %d\n", status);
 			exit(-1);
 		}
-		buildLog[retValSize] = '\0';
+		build_log[kernel_info_size] = '\0';
 
-		fprintf(stderr, "OpenCL Program Build Log: %s\n", buildLog);
-		free(buildLog);
+		fprintf(stderr, "OpenCL Program Build Log: %s\n", build_log);
+		free(build_log);
 	}
 		kernel_ = clCreateKernel(program_, "render", &status);
 		if (status != CL_SUCCESS) {
