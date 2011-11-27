@@ -138,7 +138,7 @@ OpenCLDevice::~OpenCLDevice()
 	}
 	delete []devices_;
 }
-void OpenCLDevice::Run()
+void OpenCLDevice::Run(size_t total_threads)
 {
 	//set args
 	for(size_t i = 0;i < kernel_args_.size(); ++i)
@@ -156,7 +156,7 @@ void OpenCLDevice::Run()
 	}
 	//run
 	size_t globalThreads[1];
-	globalThreads[0] = 256*256; //todo
+	globalThreads[0] = total_threads; //todo
 	if (globalThreads[0] % max_work_group_size_!= 0)
 		globalThreads[0] = (globalThreads[0] / max_work_group_size_ + 1) * max_work_group_size_;
 	size_t localThreads[1];

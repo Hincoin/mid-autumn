@@ -31,7 +31,7 @@ private:
 					(8 * b_ + 24 * c_)) * one_over_six;
 		else
 			return ((12 - 9 * b_ - 6 * c_) * x * x * x +
-					(-18 + 12 * b_) * x * x + 
+					(-18 + 12 * b_ + 6 * c_) * x * x + 
 					//() * x +
 					(6 - 2 * b_)) * one_over_six;
 	}

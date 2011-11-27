@@ -29,7 +29,7 @@ void PPMRenderer::InitializeDeviceData(const scene_info_memory_t& scene_info)
 	device_->SetReadOnlyArg(2,scene_info.light_data);
 	device_->SetReadOnlyArg(3,scene_info.material_data);
 	device_->SetReadOnlyArg(4,scene_info.shape_data);
-	device_->SetReadOnlyArg(5,scene_info.texture_data);
+	device_->SetReadOnlyArg(5,scene_info.texture_data);//to be texture data
 	device_->SetReadOnlyArg(7,scene_info.accelerator_data);
 	device_->SetReadOnlyArg(8,scene_info.primitives);
 	device_->SetReadOnlyArg(9,scene_info.primitives.size());
@@ -144,16 +144,18 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 		photon_map_init(photon_map_,as_cl_scene_info(scene_info),*rng);
 		
 		scene_info.integrator_data = as_float_array(*photon_map_);
-		device_->SetReadOnlyArg(6,scene_info.integrator_data);
+		device_->SetReadOnlyArg(6,scene_info.integrator_data);//to be texture data
 		
 		
 		bool has_more_sample = true;
-		std::vector<camera_sample_t> samples;//all sample per path
-		std::vector<spectrum_t> color_buffer;
+		//std::vector<camera_sample_t> samples;//all sample per path
+		//std::vector<spectrum_t> color_buffer;
 
 		sampler_->ResetSamplePosition();
 		while(has_more_sample)//do eye pass
 		{
+			std::vector<spectrum_t> local_color_buffer;
+			std::vector<camera_sample_t> local_samples;//all sample per path
 			//
 			//RayBuffer<ray_differential_t> ray_buffer(buffer_size);//todo change to configurable size
 			std::vector<ray_differential_t> ray_buffer;
@@ -170,38 +172,42 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 					camera_->GenerateRay(sample, &ray, &ray_weight);
 
 					ray_buffer.push_back(ray);
-					ray_buffer.back().ray_id = unsigned(samples.size());
-					samples.push_back(sample);
+					ray_buffer.back().ray_id = unsigned(local_samples.size());
+					local_samples.push_back(sample);
 				}
 				else
 					has_more_sample = false;
 			}
 
-			color_buffer.resize(color_buffer.size()+ray_buffer.size(),spectrum_t());
-			photon_map_t loaded_photon_map;
+			local_color_buffer.resize(ray_buffer.size(),spectrum_t());
+			/*photon_map_t loaded_photon_map;
 			load_photon_map(&loaded_photon_map,&scene_info.integrator_data[0]);
-			//#pragma omp parallel for schedule(dynamic, 32)
+			#pragma omp parallel for schedule(dynamic, 32)
 			for(unsigned int i = 0;i < ray_buffer.size(); ++i)
 			{
 				if(i == 151+ 19 * 256)
 				{
 					int xxxxx= 0;
 				}
-				//photon_map_li(&loaded_photon_map,&ray_buffer[i],as_cl_scene_info(scene_info),&seeds[i],&color_buffer[i]);
+				photon_map_li(&loaded_photon_map,&local_ray_buffer[i],as_cl_scene_info(scene_info),&seeds[i],&local_color_buffer[i]);
 			}
-			device_->SetReadWriteArg(0,color_buffer);
-			device_->SetReadOnlyArg(12,ray_buffer);
-			unsigned sz = (unsigned)color_buffer.size();
-			device_->SetReadOnlyArg(13,color_buffer.size());
-			device_->Run();
-			device_->ReadBuffer(0,&color_buffer[0],(unsigned)color_buffer.size());
-			//////////////////////////////////////////////////////////////////////////
+			*/
+			if(!ray_buffer.empty())
+			{
+				device_->SetReadWriteArg(0,local_color_buffer);
+				device_->SetReadOnlyArg(12,ray_buffer);
+				device_->SetReadOnlyArg(13,local_color_buffer.size());
+				device_->Run(local_color_buffer.size());
+				device_->ReadBuffer(0,&local_color_buffer[0],(unsigned)local_color_buffer.size());
+				//////////////////////////////////////////////////////////////////////////
+
+				for(size_t i = 0;i < local_samples.size(); ++i)
+					image_->AddSample(local_samples[i],local_color_buffer[i]);
+			}
 		}
 		photon_map_destroy(photon_map_);
 
-		for(size_t i = 0;i < samples.size(); ++i)
-			image_->AddSample(samples[i],color_buffer[i]);
-		if(0 == iteration % 10)
+		if(0 == iteration % 2)
 			image_->WriteImage(iteration);
 		iteration ++;
 		//photon_map_->max_dist_squared = photon_map_->max_dist_squared * (iteration + photon_map_->alpha_)/(iteration + 1);
