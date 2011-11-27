@@ -16,7 +16,14 @@ public:
 protected:
 private:
 	unsigned width_,height_;
-	float *color_array_;
+	struct Pixel{
+		Pixel(){
+			weight_sum = 0;
+		}
+		spectrum_t l;
+		float weight_sum;
+	};
+	Pixel *color_back_;
 	float *color_buffer_;
 
 	MitchellFilter* filter_;

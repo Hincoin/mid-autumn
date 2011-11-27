@@ -24,7 +24,7 @@ public:
 	void SetReadWriteArg(size_t arg_idx,const std::vector<T>& arg){SetArg(arg_idx,arg,CL_MEM_READ_WRITE);}
 
 
-	void Run();
+	void Run(size_t total_threads);
 
 	template<typename T>
 	void ReadBuffer(unsigned arg_idx,T* output,unsigned count);
@@ -63,6 +63,7 @@ void OpenCLDevice::SetArg(size_t arg_idx,const T& arg, cl_mem_flags flags)
 		clReleaseMemObject(kernel_args_[arg_idx]);
 		kernel_args_[arg_idx] = NULL;
 	}
+	if(NULL == kernel_args_[arg_idx])
 	kernel_args_[arg_idx] = clCreateBuffer(context_,flags,
 		sizeof(T),NULL,&status);
 	status = clEnqueueWriteBuffer(
@@ -90,11 +91,14 @@ void OpenCLDevice::SetArg(size_t arg_idx,const std::vector<T>& arg,cl_mem_flags 
 		clReleaseMemObject(kernel_args_[arg_idx]);
 		kernel_args_[arg_idx] = NULL;
 	}
-	kernel_args_[arg_idx] = clCreateBuffer(context_,flags,
-		sizeof(T) * arg.size(),NULL,&status);
-	if(status != CL_SUCCESS)
+	if(NULL == kernel_args_[arg_idx])
 	{
-		exit(-1);
+		kernel_args_[arg_idx] = clCreateBuffer(context_,flags,
+			sizeof(T) * arg.size(),NULL,&status);
+		if(status != CL_SUCCESS)
+		{
+			exit(-1);
+		}
 	}
 	status = clEnqueueWriteBuffer(
 			command_queue_,

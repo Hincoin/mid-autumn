@@ -242,6 +242,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\spectrum.h"
+				>
+			</File>
+			<File
 				RelativePath=".\triangle_test.cpp"
 				>
 			</File>
@@ -417,10 +421,6 @@
 			</File>
 			<File
 				RelativePath=".\shape_funcs.h"
-				>
-			</File>
-			<File
-				RelativePath=".\spectrum.h"
 				>
 			</File>
 			<File

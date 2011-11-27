@@ -4,7 +4,7 @@
 #include "random_number_generator_mt19937.h"
 #include <utility>
 template <typename T>
-void Shuffle(T *samp, unsigned count, unsigned dims, RandomNumberGeneratorMT19937 &rng) {
+inline void Shuffle(T *samp, unsigned count, unsigned dims, RandomNumberGeneratorMT19937 &rng) {
     for (unsigned i = 0; i < count; ++i) {
         unsigned other = i + (rng.RandomUnsignedInt() % (count - i));
         for (unsigned j = 0; j < dims; ++j)
