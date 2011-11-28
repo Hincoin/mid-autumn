@@ -1,4 +1,5 @@
 #include <cmath>
+#include <iterator>
 #include <omp.h>
 #include "config.h"
 #include "progressive_photon_map_renderer.h"
@@ -14,8 +15,8 @@
 PPMRenderer::PPMRenderer(Camera* c,Film* im,Sampler* s,photon_map_t* photon_map)
 :camera_(c),image_(im),sampler_(s),photon_map_(photon_map)
 {
-	device_ = new OpenCLDevice();
-	device_->SetKernelFile("rendering_kernel.cl");
+	device_ = new OpenCLDevice(CL_DEVICE_TYPE_CPU);
+	device_->SetKernelFile("rendering_kernel.cl", "render");
 }
 PPMRenderer::~PPMRenderer()
 {
@@ -141,7 +142,7 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 	{
 		
 		sampler_->ResetSamplePosition();
-		photon_map_init(photon_map_,as_cl_scene_info(scene_info),*rng);
+		photon_map_init(photon_map_,scene_info,*rng);
 		
 		scene_info.integrator_data = as_float_array(*photon_map_);
 		device_->SetReadOnlyArg(6,scene_info.integrator_data);//to be texture data
@@ -201,7 +202,7 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 				device_->ReadBuffer(0,&local_color_buffer[0],(unsigned)local_color_buffer.size());
 				//////////////////////////////////////////////////////////////////////////
 
-				for(size_t i = 0;i < local_samples.size(); ++i)
+			for(size_t i = 0;i < local_samples.size(); ++i)
 					image_->AddSample(local_samples[i],local_color_buffer[i]);
 			}
 		}
