@@ -26,7 +26,7 @@ color_texture_info_t;
 #include "cl_scene.h"
 #include "shape.h"
 
-typedef enum{FLOAT_CONSTANT=0,COLOR_CONSTANT}TextureType;
+typedef enum _TextureType {FLOAT_CONSTANT=0,COLOR_CONSTANT} TextureType;
 //interfaces
 
 void color_texture_evaluate(color_texture_info_t* tex,cl_scene_info_t* scene_data,
