@@ -24,7 +24,7 @@ INLINE bool same_hemisphere(vector3f_t w,
 							   return w.z * wp.z > 0.f;
 }
 // BSDF Declarations
-typedef enum {
+typedef enum _BxDFType{
 	BSDF_REFLECTION   = 1<<0,
 	BSDF_TRANSMISSION = 1<<1,
 	BSDF_DIFFUSE      = 1<<2,
@@ -41,7 +41,7 @@ typedef enum {
 	BSDF_ALL_TRANSMISSION
 }BxDFType ;
 
-typedef enum{
+typedef enum _BxDFModelType{
 	BRDF_SPECULAR_REFLECTION=0,
 	BTDF_SPECULAR_TRANSMISSION,
 	BRDF_LAMBERTIAN,
@@ -52,7 +52,7 @@ typedef enum{
 }
 BxDFModelType;
 
-typedef enum{
+typedef enum _MicrofacetDistributionType{
 	BLINN = 0,
 	ANISOTROPIC = 1 //Ashikhmin and Shirley's model
 }

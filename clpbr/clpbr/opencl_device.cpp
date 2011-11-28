@@ -53,7 +53,7 @@ OpenCLDevice::OpenCLDevice()
 	}
 	cl_context_properties cps[3] = {CL_CONTEXT_PLATFORM, (cl_context_properties)platform,0};
 
-	cl_device_type device_type = CL_DEVICE_TYPE_CPU;
+	cl_device_type device_type = CL_DEVICE_TYPE_GPU;
 	context_ = clCreateContextFromType(cps,device_type,NULL,NULL,&status);
 	if (status != CL_SUCCESS)
 	{

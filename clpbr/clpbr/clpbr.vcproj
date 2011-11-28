@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(AMDAPPSDKROOT)/include/"
+				AdditionalIncludeDirectories="../inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -64,7 +64,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="OpenCL.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="$(AMDAPPSDKROOT)/lib/x86"
+				AdditionalLibraryDirectories="../lib/x86"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"

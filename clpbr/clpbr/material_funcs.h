@@ -6,8 +6,8 @@
 #include "texture.h"
 #include "reflection.h"
 
-typedef enum {LIGHT_MATERIAL=0,
-MATTE_MATERIAL,GLASS_MATERIAL,MIRROR_MATERIAL,BRUSHED_METAL_MATERIAL}MaterialType;
+typedef enum _MaterialType {LIGHT_MATERIAL=0,
+MATTE_MATERIAL,GLASS_MATERIAL,MIRROR_MATERIAL,BRUSHED_METAL_MATERIAL} MaterialType;
 
 typedef struct {
 	color_texture_info_t kd;

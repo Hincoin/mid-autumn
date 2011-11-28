@@ -102,7 +102,7 @@ INLINE void fresnel_approx_k(spectrum_t fr,spectrum_t *k)
 	vsmul(*k,2.f,*k);
 }
 
-typedef enum {FR_CONDUCTOR=0,FR_DIELECTRIC,FR_NOOP}FresnelType;
+typedef enum _FresnelType {FR_CONDUCTOR=0,FR_DIELECTRIC,FR_NOOP} FresnelType;
 
 typedef struct
 {

@@ -406,7 +406,7 @@ INLINE void photon_map_li(photon_map_t* photon_map,
 						  spectrum_t* color
 						  )
 {
-	photon_map->n_lookup = min(photon_map->n_lookup,MAX_CLOSE_PHOTON_LOOKUP);
+	photon_map->n_lookup = min((unsigned)photon_map->n_lookup,(unsigned)MAX_CLOSE_PHOTON_LOOKUP);
 	photon_map->max_specular_depth = min(photon_map->max_specular_depth,MAX_RAY_DEPTH);
 	ray_t ray_stack[MAX_RAY_DEPTH];
     spectrum_t passthrough[MAX_RAY_DEPTH];
@@ -417,7 +417,8 @@ INLINE void photon_map_li(photon_map_t* photon_map,
     vinit(passthrough[ray_stack_top],1,1,1);
 	left_stack[ray_stack_top] = true;
 	ray_stack_top++;
-    enum{pre,in,post} visit=pre;
+	typedef enum _VisitType {pre,in,post} VisitType;
+    VisitType visit=pre;
 	vclr(*color);
 	
 	intersection_t isect;
