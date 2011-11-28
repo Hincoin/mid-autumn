@@ -2,7 +2,7 @@
 #include "opencl_device.h"
 
 
-OpenCLDevice::OpenCLDevice()
+OpenCLDevice::OpenCLDevice(cl_device_type default_device_type)
 {
 	context_ = NULL;
 	devices_ = NULL;
@@ -53,7 +53,7 @@ OpenCLDevice::OpenCLDevice()
 	}
 	cl_context_properties cps[3] = {CL_CONTEXT_PLATFORM, (cl_context_properties)platform,0};
 
-	cl_device_type device_type = CL_DEVICE_TYPE_GPU;
+	cl_device_type device_type = default_device_type;
 	context_ = clCreateContextFromType(cps,device_type,NULL,NULL,&status);
 	if (status != CL_SUCCESS)
 	{
@@ -102,7 +102,7 @@ OpenCLDevice::OpenCLDevice()
 			break;
 		}
 	}
-	cl_command_queue_properties prop = 0;
+	cl_command_queue_properties prop = CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE;
 	command_queue_ = clCreateCommandQueue(context_,selected_device_,prop,&status);
 	if(status != CL_SUCCESS)
 	{
@@ -174,7 +174,7 @@ void OpenCLDevice::Run(size_t total_threads)
 		exit(-1);
 	}
 }
-void OpenCLDevice::SetKernelFile(const char* file)
+void OpenCLDevice::SetKernelFile(const char* file, const char *kernel_name)
 {
 	/* Create the kernel program */
 	cl_int status;
@@ -230,7 +230,7 @@ void OpenCLDevice::SetKernelFile(const char* file)
 		fprintf(stderr, "OpenCL Program Build Log: %s\n", build_log);
 		free(build_log);
 	}
-		kernel_ = clCreateKernel(program_, "render", &status);
+		kernel_ = clCreateKernel(program_, kernel_name, &status);
 		if (status != CL_SUCCESS) {
 			fprintf(stderr, "Failed to create OpenCL kernel: %d\n", status);
 			exit(-1);

@@ -10,7 +10,7 @@ class OpenCLDevice
 {
 public:
 	//device methods 
-	void SetKernelFile(const char* file);
+	void SetKernelFile(const char* file, const char *kernel_name);
 public:
 	//program methods
 	//All types are plain old data
@@ -35,7 +35,7 @@ private:
 	void SetArg(size_t arg_idx,const std::vector<T>& arg,cl_mem_flags flags);
 	void ReadSource(const char* source_file,std::string *source_string);
 public:
-	OpenCLDevice();
+	explicit OpenCLDevice(cl_device_type default_device_type);
 	~OpenCLDevice();
 private:
 	std::vector<cl_mem> kernel_args_;
@@ -133,5 +133,10 @@ void OpenCLDevice::ReadBuffer(unsigned arg_idx,T* output,unsigned count)
 			0,
 			NULL,
 			NULL);
+	if (status != CL_SUCCESS)
+	{
+		fprintf(stderr,"OpenCL ReadBuffer Error: %d\n",status);
+		exit(-1);
+	}
 }
 #endif

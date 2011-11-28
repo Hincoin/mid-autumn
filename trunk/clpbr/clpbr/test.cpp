@@ -39,7 +39,7 @@ void parameter_test()
 
 void opencl_compile_test()
 {
-	OpenCLDevice device;
-	device.SetKernelFile("rendering_kernel.cl");
+	//OpenCLDevice device(CL_DEVICE_TYPE_GPU);
+	//device.SetKernelFile("intersect_kernel.cl","photon_intersect");
 //	device.Run();
 }

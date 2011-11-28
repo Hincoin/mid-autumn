@@ -6,7 +6,8 @@
 #include "reflection.h"
 #include "random_number_generator_mt19937.h"
 #include "permuted_halton.h"
-#include "ray_buffer.h"
+#include "photon_intersection_data.h"
+#include "opencl_device.h"
 
 void estimate_e(photon_map_t* photon_map,photon_kd_tree_t* map,int count,
 				const point3f_t& p, const normal3f_t& n,
@@ -39,9 +40,9 @@ INLINE bool unsuccessful(int needed, int found, int shot) {
 		(found == 0 || found < shot / 1024));
 }
 
-void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,RandomNumberGeneratorMT19937& rng);
+void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_info,RandomNumberGeneratorMT19937& rng);
 
-void photon_map_init(photon_map_t* photon_map,cl_scene_info_t scene_info,RandomNumberGeneratorMT19937 &rng)
+void photon_map_init(photon_map_t* photon_map,scene_info_memory_t& scene_info,RandomNumberGeneratorMT19937 &rng)
 {
 	photon_map_preprocess(photon_map,scene_info,rng);
 }
@@ -52,17 +53,9 @@ void photon_map_destroy(photon_map_t* photon_map)//free up kd-tree memory
 	kd_tree_destroy<photon_t>(&photon_map->indirect_map);
 	kd_tree_destroy<radiance_photon_t>(&photon_map->radiance_map);
 }
-struct other_data_t
+void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_info_memory,RandomNumberGeneratorMT19937 &rng)
 {
-	//follow photon path through scene and record intersections
-	bool specular_path;
-	int n_intersections;
-	spectrum_t ltranmittance;
-	float u1,u2,u3;
-	spectrum_t alpha;
-};
-void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,RandomNumberGeneratorMT19937 &rng)
-{
+	cl_scene_info_t scene_info = as_cl_scene_info(scene_info_memory);
 	Seed seed;
 	seed.s1 = rng.RandomUnsignedInt();
 	seed.s2 = rng.RandomUnsignedInt();
@@ -103,15 +96,23 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,R
 	PermutedHalton halton(halton_dimension,rng);
 
 
-	static const int buffer_size = 1*1024;
+	static const int buffer_size = 1 * 16 * 128;
 	std::vector<ray_t> photon_rays;
-	std::vector<other_data_t> other_datas;
+	std::vector<photon_intersection_data_t> other_datas;
 	other_datas.reserve(buffer_size);
 	photon_rays.reserve(buffer_size);
+
+
+	OpenCLDevice *device = new OpenCLDevice(CL_DEVICE_TYPE_GPU);
+	device->SetKernelFile("intersect_kernel.cl", "photon_intersect");
+	device->SetReadOnlyArg(3,scene_info_memory.accelerator_data);
+	device->SetReadOnlyArg(4,scene_info_memory.shape_data);
+	device->SetReadOnlyArg(5,scene_info_memory.primitives);
+	device->SetReadOnlyArg(6,scene_info_memory.primitives.size());
 	while (!caustic_done || !indirect_done )//todo: add not photon_rays.empty
 	{
 		ray_t photon_ray;
-		other_data_t other_data;
+		photon_intersection_data_t other_data;
 		while(photon_rays.size() != buffer_size)
 		{
 			++n_shot;
@@ -136,40 +137,47 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,R
 			if (pdf == 0.f || color_is_black(alpha))continue;
 			vsmul(alpha,(fabs(vdot(nl,photon_ray.d))/(pdf*lpdf)),alpha);
 
-			other_data.u1 = u[5];
+			/*other_data.u1 = u[5];
 			other_data.u2 = u[6];
 			other_data.u3 = u[7];
+			*/
 			other_data.alpha = alpha;
 			other_data.n_intersections = 0;
 			other_data.specular_path = true;
+			other_data.isect.primitive_idx = 0xffffffff;
 			other_datas.push_back(other_data);
 			photon_rays.push_back(photon_ray);
 		}
 
-		std::vector<intersection_t> photon_isects;
-		photon_isects.resize(photon_rays.size());
-
+		device->SetReadOnlyArg(1,photon_rays);
+		device->SetReadOnlyArg(2,photon_rays.size());
+		device->SetReadWriteArg(0,other_datas);
+		device->Run(other_datas.size());
+		device->ReadBuffer(0,&other_datas[0],other_datas.size());
+		/*
 		//optimize: to be parallel
 		for(size_t i = 0;i < photon_rays.size(); ++i)
 		{
-			photon_isects[i].primitive_idx = 0xffffffff;
+			other_datas[i].isect.primitive_idx = 0xffffffff;
 			if(intersect(scene_info.accelerator_data,scene_info.shape_data,scene_info.primitives,scene_info.primitive_count,
-				&photon_rays[i],&photon_isects[i]))
+				&photon_rays[i],&other_datas[i].isect))
 			{
 				++other_datas[i].n_intersections;
 				scene_tranmittance(scene_info,&photon_rays[i],&other_datas[i].ltranmittance);
 				vmul(other_datas[i].alpha,other_datas[i].alpha,other_datas[i].ltranmittance);
 			}
 		}
+		*/
 		//
 		for(size_t i = 0;i < photon_rays.size();)
 		{
-			if(photon_isects[i].primitive_idx == 0xffffffff)
+			if(other_datas[i].isect.primitive_idx == 0xffffffff)
 			{
 				photon_rays[i] = photon_rays.back();
-				photon_rays.pop_back();
-				photon_isects[i] = photon_isects.back();
 				other_datas[i] = other_datas.back();
+				other_datas[i] = other_datas.back();
+				photon_rays.pop_back();
+				other_datas.pop_back();
 			}
 			else
 			{
@@ -177,7 +185,7 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,R
 				vneg(wo,photon_rays[i].d);
 				bsdf_t photon_bsdf;
 
-				intersection_get_bsdf(&photon_isects[i],scene_info,&photon_rays[i],
+				intersection_get_bsdf(&other_datas[i].isect,scene_info,&photon_rays[i],
 					&photon_bsdf);
 				BxDFType specular_type = 
 					BxDFType(BSDF_REFLECTION|BSDF_TRANSMISSION|BSDF_SPECULAR);
@@ -188,7 +196,7 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,R
 				{
 					//deposit photon at surface
 					photon_t photon;
-					photon_init(&photon,&photon_isects[i].dg.p,&other_datas[i].alpha,&wo);
+					photon_init(&photon,&other_datas[i].isect.dg.p,&other_datas[i].alpha,&wo);
 
 					bool deposited = false;
 					if(other_datas[i].n_intersections == 1)
@@ -221,10 +229,10 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,R
 					if(deposited && photon_map->final_gather && rng.RandomFloat() < photon_map->rr_threshold)
 					{
 						//store data for radiance photon
-						normal3f_t n = photon_isects[i].dg.nn;
+						normal3f_t n = other_datas[i].isect.dg.nn;
 						if(vdot(n,photon_ray.d) > 0.f)vneg(n,n);
 						radiance_photon_t r;
-						radiance_photon_init(&r,&(photon_isects[i].dg.p),(&n));
+						radiance_photon_init(&r,&(other_datas[i].isect.dg.p),(&n));
 						radiance_photons.push_back(r);
 						spectrum_t rho_r;
 						bsdf_rho_hh(&photon_bsdf,&seed,BSDF_ALL_REFLECTION,&rho_r);
@@ -236,7 +244,7 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,R
 				}
 				if (other_datas[i].n_intersections > 8)
 				{
-					photon_isects[i].primitive_idx = 0xffffffff;
+					other_datas[i].isect.primitive_idx = 0xffffffff;
 					continue;
 				}
 				//sample new photon ray direction
@@ -246,9 +254,9 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,R
 				float u1,u2,u3;
 				if(other_datas[i].n_intersections == 1)
 				{
-					u1 = other_datas[i].u1;//radical_inverse((int)total_shot + 1, 13);
-					u2 = other_datas[i].u2;//radical_inverse((int)total_shot + 1, 17);
-					u3 = other_datas[i].u3;//radical_inverse((int)total_shot + 1, 19);
+					u1 = rng.RandomFloat();//radical_inverse((int)total_shot + 1, 13);
+					u2 = rng.RandomFloat();//radical_inverse((int)total_shot + 1, 17);
+					u3 = rng.RandomFloat();//radical_inverse((int)total_shot + 1, 19);
 				}
 				else
 				{
@@ -262,7 +270,7 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,R
 				bsdf_sample_f(&photon_bsdf,&wo,&wi,u1,u2,u3,&pdf,BSDF_ALL,&flags,&fr);
 				if(color_is_black(fr) || pdf == 0.f)
 				{
-					photon_isects[i].primitive_idx = 0xffffffff;
+					other_datas[i].isect.primitive_idx = 0xffffffff;
 					continue;
 				}
 				spectrum_t anew;
@@ -271,7 +279,7 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,R
 				float continue_prob = min(1.f,spectrum_y(&anew)/spectrum_y(&other_datas[i].alpha));
 				if (rng.RandomFloat() > continue_prob  )
 				{
-					photon_isects[i].primitive_idx = 0xffffffff;
+					other_datas[i].isect.primitive_idx = 0xffffffff;
 					continue;
 				}
 				vsmul(other_datas[i].alpha,1.f/continue_prob,anew);
@@ -279,11 +287,11 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,R
 					&& ((flags & BSDF_SPECULAR) != 0);
 				if(indirect_done && !other_datas[i].specular_path)
 				{
-					photon_isects[i].primitive_idx = 0xffffffff;
+					other_datas[i].isect.primitive_idx = 0xffffffff;
 					continue;
 				}
-				rinit(photon_rays[i],photon_isects[i].dg.p,wi);
-				photon_rays[i].mint = photon_isects[i].ray_epsilon;
+				rinit(photon_rays[i],other_datas[i].isect.dg.p,wi);
+				photon_rays[i].mint = other_datas[i].isect.ray_epsilon;
 				++i;
 			}
 
@@ -376,4 +384,5 @@ void photon_map_preprocess(photon_map_t* photon_map,cl_scene_info_t scene_info,R
 		kd_tree_init(&(photon_map->radiance_map),radiance_photons);
 		radiance_map_inited = true;
 	}
+	delete device;
 }
