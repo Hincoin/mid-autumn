@@ -375,9 +375,9 @@ void triangle_test()
 	photon_map->max_dist_squared = 30;
 	photon_map->max_specular_depth = 5;
 	photon_map->n_caustic_paths = 0;
-	photon_map->n_caustic_photons = 1000000;
+	photon_map->n_caustic_photons = 0;
 	photon_map->n_indirect_paths = 0;
-	photon_map->n_indirect_photons = 1000000;
+	photon_map->n_indirect_photons = 100000;
 	photon_map->n_lookup = 100;
 	photon_map->total_photons = 0;
 	photon_map->rr_threshold = 0.125f;

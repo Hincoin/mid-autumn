@@ -32,6 +32,8 @@ private:
 
 	//
 	OpenCLDevice* device_;
+	OpenCLDevice* photon_intersect_device_;
+
 };
 
 #endif

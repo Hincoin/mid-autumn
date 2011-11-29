@@ -12,11 +12,16 @@
 #include "opencl_device.h"
 #include "scene_data.h"
 
+#include <ctime> 
+
+
 PPMRenderer::PPMRenderer(Camera* c,Film* im,Sampler* s,photon_map_t* photon_map)
 :camera_(c),image_(im),sampler_(s),photon_map_(photon_map)
 {
-	device_ = new OpenCLDevice(CL_DEVICE_TYPE_CPU);
+	device_ = new OpenCLDevice(CL_DEVICE_TYPE_GPU);
 	device_->SetKernelFile("rendering_kernel.cl", "render");
+	photon_intersect_device_ = new OpenCLDevice(CL_DEVICE_TYPE_CPU);
+	photon_intersect_device_->SetKernelFile("intersect_kernel.cl","photon_intersect");
 }
 PPMRenderer::~PPMRenderer()
 {
@@ -24,6 +29,7 @@ PPMRenderer::~PPMRenderer()
 	delete sampler_;
 	delete image_;
 	delete device_;
+	delete photon_intersect_device_;
 }
 void PPMRenderer::InitializeDeviceData(const scene_info_memory_t& scene_info)
 {
@@ -36,6 +42,11 @@ void PPMRenderer::InitializeDeviceData(const scene_info_memory_t& scene_info)
 	device_->SetReadOnlyArg(9,scene_info.primitives.size());
 	device_->SetReadOnlyArg(10,scene_info.lghts);
 	device_->SetReadOnlyArg(11,scene_info.lghts.size());
+
+	photon_intersect_device_->SetReadOnlyArg(3,scene_info.accelerator_data);
+	photon_intersect_device_->SetReadOnlyArg(4,scene_info.shape_data);
+	photon_intersect_device_->SetReadOnlyArg(5,scene_info.primitives);
+	photon_intersect_device_->SetReadOnlyArg(6,scene_info.primitives.size());
 }
 static std::vector<float> as_float_array(const photon_kd_tree_t& photon_kd_tree)
 {
@@ -140,17 +151,17 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 	RandomNumberGeneratorMT19937 *rng = new RandomNumberGeneratorMT19937(rand() << 16 | rand());
 	while(true)
 	{
-		
+		clock_t t0;
+		t0 = clock();
+
 		sampler_->ResetSamplePosition();
-		photon_map_init(photon_map_,scene_info,*rng);
+		photon_map_init(photon_map_,scene_info,*rng, photon_intersect_device_);
 		
 		scene_info.integrator_data = as_float_array(*photon_map_);
 		device_->SetReadOnlyArg(6,scene_info.integrator_data);//to be texture data
 		
 		
 		bool has_more_sample = true;
-		//std::vector<camera_sample_t> samples;//all sample per path
-		//std::vector<spectrum_t> color_buffer;
 
 		sampler_->ResetSamplePosition();
 		while(has_more_sample)//do eye pass
@@ -158,7 +169,6 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 			std::vector<spectrum_t> local_color_buffer;
 			std::vector<camera_sample_t> local_samples;//all sample per path
 			//
-			//RayBuffer<ray_differential_t> ray_buffer(buffer_size);//todo change to configurable size
 			std::vector<ray_differential_t> ray_buffer;
 			ray_buffer.reserve(buffer_size);
 
@@ -213,7 +223,7 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 		iteration ++;
 		//photon_map_->max_dist_squared = photon_map_->max_dist_squared * (iteration + photon_map_->alpha_)/(iteration + 1);
 		photon_map_->progressive_iteration = iteration;
-		printf("iteration:%d max_dist_sqr:%.3f ,total_photons: %d\n",iteration,photon_map_->max_dist_squared,photon_map_->total_photons);
+		printf("iteration:%d total_photons: %d clocks: %ld\n",iteration,photon_map_->total_photons,clock() - t0);
 	}
 	delete rng;
 }
