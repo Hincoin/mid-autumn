@@ -50,7 +50,7 @@ void kdtree_test()
 
 	std::make_heap(photon_map.begin(),photon_map.end(),compare(p));
 	std::vector<photon_t> pmap;
-	for (int i = 0;i<photon_map.size();++i)
+	for (int i = 0;i<(int)photon_map.size();++i)
 	{
 		if(distance_squared(photon_map[i].p,p) < dist)
 			pmap.push_back(photon_map[i]);

@@ -608,8 +608,9 @@ INLINE void load_photon_map(photon_map_t* photon_map,GLOBAL float* data)
 #ifndef CL_KERNEL
 #include "random_number_generator_mt19937.h"
 #include "scene_data.h"
+class OpenCLDevice;
 void photon_map_init(photon_map_t* photon_map,scene_info_memory_t& scene_info,
-					 RandomNumberGeneratorMT19937& rng);
+					 RandomNumberGeneratorMT19937& rng, OpenCLDevice *device);
 void photon_map_destroy(photon_map_t* photon_map);//free up kd-tree memory
 #endif
 

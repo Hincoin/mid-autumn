@@ -46,8 +46,9 @@ private:
 	cl_command_queue command_queue_;
 	cl_program program_;
 	cl_kernel kernel_;
-	cl_uint max_compute_units_;
-	cl_uint max_work_group_size_;
+	size_t max_compute_units_;
+	size_t max_work_group_size_;
+	size_t work_group_size_;
 };
 
 template<typename T>

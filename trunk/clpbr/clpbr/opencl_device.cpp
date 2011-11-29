@@ -77,6 +77,7 @@ OpenCLDevice::OpenCLDevice(cl_device_type default_device_type)
 		devices_ = NULL;
 		return ;
 	}
+	size_t max_compute_units,max_work_group_size;
 	for(size_t i = 0;i < device_list_size; ++i)
 	{
 		cl_device_type type = 0;
@@ -89,17 +90,23 @@ OpenCLDevice::OpenCLDevice(cl_device_type default_device_type)
 		{
 			status = clGetDeviceInfo(devices_[i],
 				CL_DEVICE_MAX_COMPUTE_UNITS,
-				sizeof(cl_uint),
-				&max_compute_units_,
+				sizeof(max_compute_units),
+				&max_compute_units,
 				NULL);
 			status = clGetDeviceInfo(devices_[i],
 				CL_DEVICE_MAX_WORK_GROUP_SIZE,
-				sizeof(cl_uint),
-				&max_work_group_size_,
+				sizeof(max_work_group_size),
+				&max_work_group_size,
 				NULL
 				);
-			selected_device_ = devices_[i];
-			break;
+			if(status == CL_SUCCESS)
+			{
+				selected_device_ = devices_[i];
+				max_compute_units_ = max_compute_units;
+				max_work_group_size_ = max_work_group_size;
+				work_group_size_ = max_work_group_size;
+				break;
+			}
 		}
 	}
 	cl_command_queue_properties prop = CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE;
@@ -235,6 +242,15 @@ void OpenCLDevice::SetKernelFile(const char* file, const char *kernel_name)
 			fprintf(stderr, "Failed to create OpenCL kernel: %d\n", status);
 			exit(-1);
 		}
+		size_t work_group_size = 0;
+		status = clGetKernelWorkGroupInfo(kernel_, selected_device_,
+			CL_KERNEL_WORK_GROUP_SIZE,sizeof(work_group_size),&work_group_size,NULL);
+		if(status != CL_SUCCESS)
+		{
+			fprintf(stderr, "Failed to get OpenCL kernel work group size info: %d\n", status);
+			exit(-1);
+		}
+		work_group_size_ = work_group_size;
 }
 
 

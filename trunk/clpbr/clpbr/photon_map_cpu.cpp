@@ -9,6 +9,7 @@
 #include "photon_intersection_data.h"
 #include "opencl_device.h"
 
+
 void estimate_e(photon_map_t* photon_map,photon_kd_tree_t* map,int count,
 				const point3f_t& p, const normal3f_t& n,
 				spectrum_t* ret)
@@ -40,11 +41,11 @@ INLINE bool unsuccessful(int needed, int found, int shot) {
 		(found == 0 || found < shot / 1024));
 }
 
-void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_info,RandomNumberGeneratorMT19937& rng);
+void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_info,RandomNumberGeneratorMT19937& rng, OpenCLDevice *device);
 
-void photon_map_init(photon_map_t* photon_map,scene_info_memory_t& scene_info,RandomNumberGeneratorMT19937 &rng)
+void photon_map_init(photon_map_t* photon_map,scene_info_memory_t& scene_info,RandomNumberGeneratorMT19937 &rng, OpenCLDevice *device)
 {
-	photon_map_preprocess(photon_map,scene_info,rng);
+	photon_map_preprocess(photon_map,scene_info,rng, device);
 }
 
 void photon_map_destroy(photon_map_t* photon_map)//free up kd-tree memory
@@ -53,7 +54,8 @@ void photon_map_destroy(photon_map_t* photon_map)//free up kd-tree memory
 	kd_tree_destroy<photon_t>(&photon_map->indirect_map);
 	kd_tree_destroy<radiance_photon_t>(&photon_map->radiance_map);
 }
-void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_info_memory,RandomNumberGeneratorMT19937 &rng)
+
+void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_info_memory,RandomNumberGeneratorMT19937 &rng,OpenCLDevice *device)
 {
 	cl_scene_info_t scene_info = as_cl_scene_info(scene_info_memory);
 	Seed seed;
@@ -96,28 +98,23 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 	PermutedHalton halton(halton_dimension,rng);
 
 
-	static const int buffer_size = 1 * 16 * 128;
+	//static const int buffer_size = 1 * 16 * 128;
+	static const int buffer_size = 1024*1024;
 	std::vector<ray_t> photon_rays;
 	std::vector<photon_intersection_data_t> other_datas;
 	other_datas.reserve(buffer_size);
 	photon_rays.reserve(buffer_size);
 
-
-	OpenCLDevice *device = new OpenCLDevice(CL_DEVICE_TYPE_GPU);
-	device->SetKernelFile("intersect_kernel.cl", "photon_intersect");
-	device->SetReadOnlyArg(3,scene_info_memory.accelerator_data);
-	device->SetReadOnlyArg(4,scene_info_memory.shape_data);
-	device->SetReadOnlyArg(5,scene_info_memory.primitives);
-	device->SetReadOnlyArg(6,scene_info_memory.primitives.size());
 	while (!caustic_done || !indirect_done )//todo: add not photon_rays.empty
 	{
 		ray_t photon_ray;
 		photon_intersection_data_t other_data;
+		int local_n_shot = 0;
 		while(photon_rays.size() != buffer_size)
 		{
-			++n_shot;
+			++local_n_shot;
 			float u[halton_dimension];
-			int total_shot = photon_map->total_photons + n_shot;
+			int total_shot = photon_map->total_photons + n_shot + local_n_shot;
 			halton.Sample(total_shot+1,u);
 
 			//choose light of shoot photon from
@@ -153,7 +150,7 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 		device->SetReadOnlyArg(2,photon_rays.size());
 		device->SetReadWriteArg(0,other_datas);
 		device->Run(other_datas.size());
-		device->ReadBuffer(0,&other_datas[0],other_datas.size());
+		device->ReadBuffer(0,&other_datas[0],(unsigned int)other_datas.size());
 		/*
 		//optimize: to be parallel
 		for(size_t i = 0;i < photon_rays.size(); ++i)
@@ -252,13 +249,6 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 				float pdf;
 				BxDFType flags;
 				float u1,u2,u3;
-				if(other_datas[i].n_intersections == 1)
-				{
-					u1 = rng.RandomFloat();//radical_inverse((int)total_shot + 1, 13);
-					u2 = rng.RandomFloat();//radical_inverse((int)total_shot + 1, 17);
-					u3 = rng.RandomFloat();//radical_inverse((int)total_shot + 1, 19);
-				}
-				else
 				{
 					u1 = rng.RandomFloat();//random_float(seed);
 					u2 = rng.RandomFloat();//random_float(seed);
@@ -317,13 +307,15 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 		if (n_shot > 500000 && 
 			(unsuccessful(photon_map->n_caustic_photons,
 			(unsigned)caustic_photons.size(),
-			n_shot)) && 
+			local_n_shot)) && 
 			(unsuccessful(photon_map->n_indirect_photons,
 			(unsigned)indirect_photons.size(),
-			n_shot)))
+			local_n_shot)))
 		{
+			printf("Warning: No photon found!\n");
 			break;
 		}
+		n_shot += local_n_shot;
 
 	}
 	photon_map->total_photons += n_shot;
@@ -384,5 +376,4 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 		kd_tree_init(&(photon_map->radiance_map),radiance_photons);
 		radiance_map_inited = true;
 	}
-	delete device;
 }
