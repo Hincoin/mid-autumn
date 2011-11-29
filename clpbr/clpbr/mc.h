@@ -15,49 +15,24 @@ INLINE float power_heuristic(int nf, float fPdf, int ng,
 }
 INLINE void concentric_sample_disk(float u1, float u2,
 								   float *dx, float *dy) {
+#ifndef FLOAT_PI
+#define FLOAT_PI 3.1415926f
+#endif
+									   //LZY: From Pete Shirley's Graphic blog
 									   float r, theta;
 									   // Map uniform random numbers to $[-1,1]^2$
 									   float sx = 2 * u1 - 1;
 									   float sy = 2 * u2 - 1;
-									   // Map square to $(r,\theta)$
-									   // Handle degeneracy at the origin
-									   if (sx == 0.0f && sy == 0.0f) {
-										   *dx = 0.0f;
-										   *dy = 0.0f;
-										   return;
+									   if( sx * sx > sy * sy)
+									   {
+										   r = sx;
+										   theta  = (FLOAT_PI/4.f) * (sy/sx);
 									   }
-									   if (sx >= -sy) {
-										   if (sx > sy) {
-											   // Handle first region of disk
-											   r = sx;
-											   if (sy > 0.0f)
-												   theta = sy/r;
-											   else
-												   theta = 8.0f + sy/r;
-										   }
-										   else {
-											   // Handle second region of disk
-											   r = sy;
-											   theta = 2.0f - sx/r;
-										   }
+									   else
+									   {
+										   r = sy;
+										   theta = -(FLOAT_PI/4.f) * (sx/sy) + (FLOAT_PI / 2.f);
 									   }
-									   else {
-										   if (sx <= sy) {
-											   // Handle third region of disk
-											   r = -sx;
-											   theta = 4.0f - sy/r;
-										   }
-										   else {
-											   // Handle fourth region of disk
-											   r = -sy;
-											   theta = 6.0f + sx/r;
-										   }
-									   }
-
-#ifndef FLOAT_PI
-#define FLOAT_PI 3.1415926f
-#endif
-									   theta *= FLOAT_PI / 4.f;
 									   *dx = r*cos(theta);
 									   *dy = r*sin(theta);
 }

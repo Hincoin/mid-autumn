@@ -10,6 +10,7 @@
 #include "primitive_funcs.h"
 #include "integrator_funcs.h"
 
+
 typedef struct{
 	point3f_t p;
 	spectrum_t alpha;
