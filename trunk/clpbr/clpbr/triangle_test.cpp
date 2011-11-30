@@ -76,8 +76,10 @@ TriangleMesh<cl_uchar>* build_triangle_mesh(int *index_buffer,int index_count,
 void get_triangle_mesh_shapes(std::vector<TriangleMesh<cl_uchar>* > *mesh_shape)
 {
 	int ceil_light_index_buffer[] = {0,1,2,2,3,0};
-	vector3f_t ceil_light_points[] = {{256,508.8f,200},{256,508.8f,259.2f},{200,508.8f,259.2f},{200,508.8f,200}};
-	normal3f_t ceil_light_normals[] = {{0,-1,0},{0,-1,0},{0,-1,0},{0,-1,0}};
+	//vector3f_t ceil_light_points[] = {{256,508.8f,200},{256,508.8f,259.2f},{200,508.8f,259.2f},{200,508.8f,200}};
+	//normal3f_t ceil_light_normals[] = {{0,-1,0},{0,-1,0},{0,-1,0},{0,-1,0}};
+	vector3f_t ceil_light_points[] = {{200,508.8f,200},{200,508.8f,259.2f},{256,508.8f,259.2f},{256,508.8f,200}};
+	normal3f_t ceil_light_normals[] = {{0,1,0},{0,1,0},{0,1,0},{0,1,0}};
 	float uvs[][2] = {{0,0},{0,1},{1,1},{1,0}};
 	vector3f_t ceil_light_tangent[] ={{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
 	mesh_shape->push_back(build_triangle_mesh(ceil_light_index_buffer,
@@ -331,6 +333,8 @@ void triangle_test()
 	MaterialData* matte_red = new MatteMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(1.f,0.f,0.f)),new ConstantTextureData<float>(0.f));
 	MaterialData* matte_green = new MatteMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(0.f,1.f,0.f)),new ConstantTextureData<float>(0.f));
 	MaterialData* matte_gray = new MatteMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(.4f,0.5f,0.7f)),new ConstantTextureData<float>(0.f));
+	MaterialData* matte_yellow =new MatteMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(1.f,0.7f,0.1f)),new ConstantTextureData<float>(0.f)); 
+	MaterialData* matte_purple=new MatteMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(0.8f,0.1f,0.7f)),new ConstantTextureData<float>(0.f)); 
 	MaterialData* glass = new GlassMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(1.f,1.f,1.f)),new ConstantTextureData<spectrum_t>(spectrum_t(1.f,1.f,1.f)),new ConstantTextureData<float>(1.7f));
 	MaterialData* mirror= new MirrorMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(1.f,1.f,1.f)));
 	MaterialData* light_material = new LightMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(250.f,250.f,250.f)));
@@ -338,13 +342,13 @@ void triangle_test()
 	std::vector<TriangleMesh<cl_uchar>* > meshes;
 	get_triangle_mesh_shapes(&meshes);
 	PrimitiveData* light = new PrimitiveData(light_material,new TriangleMeshShapeData<cl_uchar>(meshes[0]));
-	PrimitiveData* floor_wall = new PrimitiveData(matte_white,new TriangleMeshShapeData<cl_uchar>(meshes[1]));
-	PrimitiveData* ceil_wall = new PrimitiveData(matte_blue,new TriangleMeshShapeData<cl_uchar>(meshes[2]));
+	PrimitiveData* floor_wall = new PrimitiveData(matte_gray,new TriangleMeshShapeData<cl_uchar>(meshes[1]));
+	PrimitiveData* ceil_wall = new PrimitiveData(matte_white,new TriangleMeshShapeData<cl_uchar>(meshes[2]));
 	PrimitiveData* back_wall = new PrimitiveData(matte_red,new TriangleMeshShapeData<cl_uchar>(meshes[3]));
 	PrimitiveData* right_wall = new PrimitiveData(matte_green,new TriangleMeshShapeData<cl_uchar>(meshes[4]));
-	PrimitiveData* left_wall = new PrimitiveData(matte_gray,new TriangleMeshShapeData<cl_uchar>(meshes[5]));
-	PrimitiveData* short_block = new PrimitiveData(glass,new TriangleMeshShapeData<cl_uchar>(meshes[6]));
-	PrimitiveData* tall_block = new PrimitiveData(mirror,new TriangleMeshShapeData<cl_uchar>(meshes[7]));
+	PrimitiveData* left_wall = new PrimitiveData(matte_blue,new TriangleMeshShapeData<cl_uchar>(meshes[5]));
+	PrimitiveData* short_block = new PrimitiveData(matte_purple,new TriangleMeshShapeData<cl_uchar>(meshes[6]));
+	PrimitiveData* tall_block = new PrimitiveData(matte_yellow,new TriangleMeshShapeData<cl_uchar>(meshes[7]));
 
 	std::vector<PrimitiveData*> primitives;
 	primitives.push_back(light);
@@ -362,23 +366,23 @@ void triangle_test()
 	transform_inverse(camera_to_world,world_to_camera);
 
 	int w,h;
-	w=h = 256;
+	w=h = 768;
 	Film* film = new ImageFilm(w,h);
 	PerspectiveCamera* camera = new PerspectiveCamera(camera_to_world,screen_window_t(1.f),degree_to_radian(degree_t(40)),film);
-	RandomSampler* sampler = new RandomSampler(0,w,0,h,4,4);
+	RandomSampler* sampler = new RandomSampler(0,w,0,h,1,1);
 	
 	photon_map_t* photon_map = new photon_map_t();
 	photon_map->final_gather = false;
 	photon_map->cos_gather_angle = 0.95f;
 	photon_map->gather_samples = 32;
 	
-	photon_map->max_dist_squared = 30;
+	photon_map->max_dist_squared = 100;
 	photon_map->max_specular_depth = 5;
 	photon_map->n_caustic_paths = 0;
 	photon_map->n_caustic_photons = 0;
 	photon_map->n_indirect_paths = 0;
-	photon_map->n_indirect_photons = 100000;
-	photon_map->n_lookup = 100;
+	photon_map->n_indirect_photons = 2000000;
+	photon_map->n_lookup = 200;
 	photon_map->total_photons = 0;
 	photon_map->rr_threshold = 0.125f;
 	photon_map->progressive_iteration = 0;
