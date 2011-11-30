@@ -20,6 +20,7 @@ OpenCLDevice::OpenCLDevice(cl_device_type default_device_type)
 	{
 		return;
 	}
+	cl_device_type device_type = default_device_type;
 	if(number_platforms > 0)
 	{
 		cl_platform_id* platforms = new cl_platform_id[number_platforms];
@@ -29,36 +30,46 @@ OpenCLDevice::OpenCLDevice(cl_device_type default_device_type)
 			delete []platforms;
 			return;
 		}
-		for (cl_uint i = 0;i < number_platforms; ++i)
+		while(context_ == NULL)
 		{
-			char pbuffer[100];
-			status = clGetPlatformInfo(platforms[i],
-				CL_PLATFORM_VENDOR,
-				sizeof(pbuffer),
-				pbuffer,
-				NULL);
-			if(status != CL_SUCCESS)
+			for (cl_uint i = 0;i < number_platforms; ++i)
 			{
-				delete []platforms;
-				return;
+				char pbuffer[100];
+				status = clGetPlatformInfo(platforms[i],
+					CL_PLATFORM_VENDOR,
+					sizeof(pbuffer),
+					pbuffer,
+					NULL);
+				if(status != CL_SUCCESS)
+				{
+					delete []platforms;
+					return;
+				}
+
+				platform = platforms[i];
+				cl_context_properties cps[3] = {CL_CONTEXT_PLATFORM, (cl_context_properties)platform,0};
+
+				context_ = clCreateContextFromType(cps,device_type,NULL,NULL,&status);
+				if (status == CL_SUCCESS)
+				{
+					context_ = clCreateContextFromType(cps,device_type,NULL,NULL,&status);
+					fprintf(stdout,"OpenCL Platform %d: %s\n",i,pbuffer);
+					break;
+				}
 			}
-			platform = platforms[i];
-			fprintf(stdout,"OpenCL Platform %d: %s\n",i,pbuffer);
+			if(!context_)
+			{
+				if (device_type != CL_DEVICE_TYPE_CPU)
+					device_type = CL_DEVICE_TYPE_CPU;//auto switch
+				else
+					break;
+			}
 		}
 		delete []platforms;
 	}
 	if (NULL == platform)
 	{
 		return;
-	}
-	cl_context_properties cps[3] = {CL_CONTEXT_PLATFORM, (cl_context_properties)platform,0};
-
-	cl_device_type device_type = default_device_type;
-	context_ = clCreateContextFromType(cps,device_type,NULL,NULL,&status);
-	if (status != CL_SUCCESS)
-	{
-		device_type = CL_DEVICE_TYPE_CPU;
-		context_ = clCreateContextFromType(cps,device_type,NULL,NULL,&status);
 	}
 	if(status != CL_SUCCESS)
 	{
