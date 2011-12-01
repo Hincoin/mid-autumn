@@ -15,11 +15,9 @@ public:
 	//program methods
 	//All types are plain old data
 	template<typename T>
-	void SetReadOnlyArg(size_t arg_idx,const T& arg){SetArg(arg_idx,arg,CL_MEM_READ_ONLY);}
+	void SetReadOnlyArg(cl_uint arg_idx,const T& arg){SetArg(arg_idx,arg);}
 	template<typename T>
 	void SetReadOnlyArg(size_t arg_idx,const std::vector<T>& arg){SetArg(arg_idx,arg,CL_MEM_READ_ONLY);}
-	template<typename T>
-	void SetReadWriteArg(size_t arg_idx,const T& arg){SetArg(arg_idx,arg,CL_MEM_READ_WRITE);}
 	template<typename T>
 	void SetReadWriteArg(size_t arg_idx,const std::vector<T>& arg){SetArg(arg_idx,arg,CL_MEM_READ_WRITE);}
 
@@ -30,7 +28,7 @@ public:
 	void ReadBuffer(unsigned arg_idx,T* output,unsigned count);
 private:
 	template<typename T>
-	void SetArg(size_t arg_idx,const T& arg, cl_mem_flags flags);
+	void SetArg(cl_uint arg_idx,const T& arg);
 	template<typename T>
 	void SetArg(size_t arg_idx,const std::vector<T>& arg,cl_mem_flags flags);
 	void ReadSource(const char* source_file,std::string *source_string);
@@ -52,31 +50,17 @@ private:
 };
 
 template<typename T>
-void OpenCLDevice::SetArg(size_t arg_idx,const T& arg, cl_mem_flags flags)
+void OpenCLDevice::SetArg(cl_uint arg_idx,const T& arg)
 {
-	if (arg_idx >= kernel_args_.size())
+	cl_int status = clSetKernelArg(kernel_,
+		arg_idx,
+		sizeof(T),
+		(void*)&arg);
+	if (status != CL_SUCCESS)
 	{
-		kernel_args_.resize(arg_idx + 1,NULL);
+		fprintf(stderr,"Failed to set OpenCL arg. %d:%d\n",arg_idx,status);
+		exit(-1);
 	}
-	cl_int status;
-	if(NULL != kernel_args_[arg_idx])
-	{
-		clReleaseMemObject(kernel_args_[arg_idx]);
-		kernel_args_[arg_idx] = NULL;
-	}
-	if(NULL == kernel_args_[arg_idx])
-	kernel_args_[arg_idx] = clCreateBuffer(context_,flags,
-		sizeof(T),NULL,&status);
-	status = clEnqueueWriteBuffer(
-			command_queue_,
-			kernel_args_[arg_idx],
-			CL_TRUE,//todo: tobe async
-			0,
-			sizeof(T),
-			&arg,
-			0,
-			NULL,
-			NULL);
 }
 template<typename T>
 void OpenCLDevice::SetArg(size_t arg_idx,const std::vector<T>& arg,cl_mem_flags flags)

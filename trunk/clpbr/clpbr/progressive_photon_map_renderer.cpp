@@ -18,7 +18,7 @@
 PPMRenderer::PPMRenderer(Camera* c,Film* im,Sampler* s,photon_map_t* photon_map)
 :camera_(c),image_(im),sampler_(s),photon_map_(photon_map)
 {
-	device_ = new OpenCLDevice(CL_DEVICE_TYPE_GPU);
+	device_ = new OpenCLDevice(CL_DEVICE_TYPE_CPU);
 	device_->SetKernelFile("rendering_kernel.cl", "render");
 	photon_intersect_device_ = new OpenCLDevice(CL_DEVICE_TYPE_CPU);
 	photon_intersect_device_->SetKernelFile("intersect_kernel.cl","photon_intersect");
@@ -39,14 +39,14 @@ void PPMRenderer::InitializeDeviceData(const scene_info_memory_t& scene_info)
 	device_->SetReadOnlyArg(5,scene_info.texture_data);//to be texture data
 	device_->SetReadOnlyArg(7,scene_info.accelerator_data);
 	device_->SetReadOnlyArg(8,scene_info.primitives);
-	device_->SetReadOnlyArg(9,scene_info.primitives.size());
-	device_->SetReadOnlyArg(10,scene_info.lghts);
-	device_->SetReadOnlyArg(11,scene_info.lghts.size());
+	device_->SetReadOnlyArg(9,scene_info.lghts);
+	device_->SetReadOnlyArg(11,(unsigned int)scene_info.primitives.size());
+	device_->SetReadOnlyArg(12,(unsigned int)scene_info.lghts.size());
 
-	photon_intersect_device_->SetReadOnlyArg(3,scene_info.accelerator_data);
-	photon_intersect_device_->SetReadOnlyArg(4,scene_info.shape_data);
-	photon_intersect_device_->SetReadOnlyArg(5,scene_info.primitives);
-	photon_intersect_device_->SetReadOnlyArg(6,scene_info.primitives.size());
+	photon_intersect_device_->SetReadOnlyArg(2,scene_info.accelerator_data);
+	photon_intersect_device_->SetReadOnlyArg(3,scene_info.shape_data);
+	photon_intersect_device_->SetReadOnlyArg(4,scene_info.primitives);
+	photon_intersect_device_->SetReadOnlyArg(5,(unsigned int)scene_info.primitives.size());
 }
 static std::vector<float> as_float_array(const photon_kd_tree_t& photon_kd_tree)
 {
@@ -206,8 +206,8 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 			if(!ray_buffer.empty())
 			{
 				device_->SetReadWriteArg(0,local_color_buffer);
-				device_->SetReadOnlyArg(12,ray_buffer);
-				device_->SetReadOnlyArg(13,local_color_buffer.size());
+				device_->SetReadOnlyArg(10,ray_buffer);
+				device_->SetReadOnlyArg(13,(unsigned int)local_color_buffer.size());
 				device_->Run(local_color_buffer.size());
 				device_->ReadBuffer(0,&local_color_buffer[0],(unsigned)local_color_buffer.size());
 				//////////////////////////////////////////////////////////////////////////

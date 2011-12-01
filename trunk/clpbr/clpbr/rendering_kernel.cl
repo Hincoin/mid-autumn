@@ -19,12 +19,12 @@ __kernel void render(
 __global spectrum_t *colors , __global Seed *seeds,
 GLOBAL float* light_data,GLOBAL float* material_data,GLOBAL float* shape_data,
 GLOBAL float* texture_data,GLOBAL float* integrator_data,GLOBAL float* accelerator_data,
-GLOBAL primitive_info_t* primitives,GLOBAL unsigned int *primitive_count,
-GLOBAL light_info_t* lghts, GLOBAL unsigned int *lght_count,GLOBAL ray_differential_t *ray,GLOBAL unsigned int *number_work_items
+GLOBAL primitive_info_t* primitives,
+GLOBAL light_info_t* lghts,GLOBAL ray_differential_t *ray,const unsigned int primitive_count, const unsigned int lght_count,const unsigned int number_work_items
 )
 {
     const int gid = get_global_id(0);
-	if(gid < *number_work_items)
+	if(gid < number_work_items)
 	{
 		ray_differential_t per_ray = ray[gid];
 		photon_map_t photon_map;
@@ -36,9 +36,9 @@ GLOBAL light_info_t* lghts, GLOBAL unsigned int *lght_count,GLOBAL ray_different
 		scene_info.integrator_data = integrator_data;
 		scene_info.accelerator_data = accelerator_data;
 		scene_info.primitives = primitives;
-		scene_info.primitive_count = *primitive_count;
+		scene_info.primitive_count = primitive_count;
 		scene_info.lghts = lghts;
-		scene_info.lght_count = *lght_count;
+		scene_info.lght_count = lght_count;
 
 		Seed seed = seeds[gid];
 		spectrum_t color;

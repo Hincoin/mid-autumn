@@ -329,9 +329,9 @@ void triangle_test()
 {
 
 	MaterialData* matte_white = new MatteMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(1.f,1.f,1.f)),new ConstantTextureData<float>(0.f));
-	MaterialData* matte_blue = new MatteMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(0.f,0.f,1.f)),new ConstantTextureData<float>(0.f));
-	MaterialData* matte_red = new MatteMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(1.f,0.f,0.f)),new ConstantTextureData<float>(0.f));
-	MaterialData* matte_green = new MatteMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(0.f,1.f,0.f)),new ConstantTextureData<float>(0.f));
+	MaterialData* matte_blue = new MatteMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(0.4f,0.4f,1.f)),new ConstantTextureData<float>(0.f));
+	MaterialData* matte_red = new MatteMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(0.8f,0.1f,0.1f)),new ConstantTextureData<float>(0.f));
+	MaterialData* matte_green = new MatteMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(0.2f,.9f,0.2f)),new ConstantTextureData<float>(0.f));
 	MaterialData* matte_gray = new MatteMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(.4f,0.5f,0.7f)),new ConstantTextureData<float>(0.f));
 	MaterialData* matte_yellow =new MatteMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(1.f,0.7f,0.1f)),new ConstantTextureData<float>(0.f)); 
 	MaterialData* matte_purple=new MatteMaterialData(new ConstantTextureData<spectrum_t>(spectrum_t(0.8f,0.1f,0.7f)),new ConstantTextureData<float>(0.f)); 
