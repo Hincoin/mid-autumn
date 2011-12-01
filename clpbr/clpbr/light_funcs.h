@@ -4,6 +4,7 @@
 #include "light.h"
 #include "cl_scene.h"
 #include "shape_funcs.h"
+#include "random_number_generator.h"
 
 INLINE void light_l(cl_scene_info_t scene_info, material_info_t light_material,const point3f_t p,const normal3f_t n,const vector3f_t* wi,spectrum_t *c){
 	//todo

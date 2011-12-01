@@ -2,7 +2,7 @@
 #define _CONFIG_H_
 
 #ifdef CL_KERNEL
-#define GLOBAL __constant //__global 
+#define GLOBAL __global 
 #define CONSTANT __constant 
 #define LOCAL __local 
 

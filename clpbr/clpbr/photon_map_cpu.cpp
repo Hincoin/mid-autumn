@@ -1,6 +1,7 @@
 #include "config.h"
 #include <cmath>
 #include <omp.h>
+#include <ctime>
 #include "cl_scene.h"
 #include "photon_map.h"
 #include "reflection.h"
@@ -99,7 +100,8 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 
 
 	//static const int buffer_size = 1 * 16 * 128;
-	static const int buffer_size = 1024*1024;
+	clock_t t0 = clock();
+	static const unsigned int buffer_size = 2*1024 * 1024;
 	std::vector<ray_t> photon_rays;
 	std::vector<photon_intersection_data_t> other_datas;
 	other_datas.reserve(buffer_size);
@@ -147,7 +149,7 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 		}
 
 		device->SetReadOnlyArg(1,photon_rays);
-		device->SetReadOnlyArg(2,photon_rays.size());
+		device->SetReadOnlyArg(6,buffer_size);
 		device->SetReadWriteArg(0,other_datas);
 		device->Run(other_datas.size());
 		device->ReadBuffer(0,&other_datas[0],(unsigned int)other_datas.size());
@@ -239,7 +241,7 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 						rp_transmittances.push_back(rho_t);
 					}
 				}
-				if (other_datas[i].n_intersections > 8)
+				if (other_datas[i].n_intersections > 4)
 				{
 					other_datas[i].isect.primitive_idx = 0xffffffff;
 					continue;
@@ -319,6 +321,7 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 
 	}
 	photon_map->total_photons += n_shot;
+	printf("%d photon shooted. time: %d, indirect_photons: %d\n",n_shot,clock()-t0,indirect_photons.size());
 	if (photon_map->final_gather)
 	{
 		//precompute radiance at a subset of the photons
