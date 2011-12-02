@@ -36,6 +36,7 @@ public:
 	explicit OpenCLDevice(cl_device_type default_device_type);
 	~OpenCLDevice();
 private:
+private:
 	std::vector<cl_mem> kernel_args_;
 
 	cl_context context_;
@@ -59,6 +60,10 @@ void OpenCLDevice::SetArg(cl_uint arg_idx,const T& arg)
 	if (status != CL_SUCCESS)
 	{
 		fprintf(stderr,"Failed to set OpenCL arg. %d:%d\n",arg_idx,status);
+		exit(-1);
+	}
+	if(status != CL_SUCCESS)
+	{
 		exit(-1);
 	}
 }
