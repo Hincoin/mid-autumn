@@ -88,7 +88,8 @@ OpenCLDevice::OpenCLDevice(cl_device_type default_device_type)
 		devices_ = NULL;
 		return ;
 	}
-	size_t max_compute_units,max_work_group_size;
+	cl_uint max_compute_units;
+	size_t max_work_group_size;
 	for(size_t i = 0;i < device_list_size; ++i)
 	{
 		cl_device_type type = 0;
@@ -120,7 +121,7 @@ OpenCLDevice::OpenCLDevice(cl_device_type default_device_type)
 			}
 		}
 	}
-	cl_command_queue_properties prop = CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE;
+	cl_command_queue_properties prop = 0;//CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE;
 	command_queue_ = clCreateCommandQueue(context_,selected_device_,prop,&status);
 	if(status != CL_SUCCESS)
 	{
@@ -172,10 +173,10 @@ void OpenCLDevice::Run(size_t total_threads)
 	//run
 	size_t global_threads[1];
 	global_threads[0] = total_threads; //todo
-	if (global_threads[0] % max_work_group_size_!= 0)
-		global_threads[0] = (global_threads[0] / max_work_group_size_ + 1) * max_work_group_size_;
+	if (global_threads[0] % work_group_size_!= 0)
+		global_threads[0] = (global_threads[0] / work_group_size_ + 1) * work_group_size_;
 	size_t local_threads[1];
-	local_threads[0] = max_work_group_size_;
+	local_threads[0] = work_group_size_;
 
 	cl_int status = clEnqueueNDRangeKernel(
 		command_queue_,
