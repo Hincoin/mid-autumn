@@ -347,8 +347,8 @@ void triangle_test()
 	PrimitiveData* back_wall = new PrimitiveData(matte_red,new TriangleMeshShapeData<cl_uchar>(meshes[3]));
 	PrimitiveData* right_wall = new PrimitiveData(matte_green,new TriangleMeshShapeData<cl_uchar>(meshes[4]));
 	PrimitiveData* left_wall = new PrimitiveData(matte_blue,new TriangleMeshShapeData<cl_uchar>(meshes[5]));
-	PrimitiveData* short_block = new PrimitiveData(matte_purple,new TriangleMeshShapeData<cl_uchar>(meshes[6]));
-	PrimitiveData* tall_block = new PrimitiveData(matte_yellow,new TriangleMeshShapeData<cl_uchar>(meshes[7]));
+	PrimitiveData* short_block = new PrimitiveData(mirror,new TriangleMeshShapeData<cl_uchar>(meshes[6]));
+	PrimitiveData* tall_block = new PrimitiveData(glass,new TriangleMeshShapeData<cl_uchar>(meshes[7]));
 
 	std::vector<PrimitiveData*> primitives;
 	primitives.push_back(light);

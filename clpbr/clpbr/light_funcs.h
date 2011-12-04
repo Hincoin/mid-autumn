@@ -150,7 +150,7 @@ INLINE void light_power(light_info_t* light,cl_scene_info_t scene_info,spectrum_
 	}
 }
 
-INLINE void light_ray_sample_l(light_info_t* light,cl_scene_info_t scene_info,float u0,float u1,float u2,float u3,
+INLINE void light_ray_sample_l(GLOBAL light_info_t* light,cl_scene_info_t scene_info,float u0,float u1,float u2,float u3,
 			ray_t *ray,normal3f_t *ns,float *pdf,spectrum_t *alpha)
 {
 	//
