@@ -4,14 +4,16 @@
 #include "spectrum.h"
 #include "primitive.h"
 
+#include "photon_map.h"
 typedef struct 
 {
 	//follow photon path through scene and record intersections
 	int specular_path;
+	int has_non_specular;
 	int n_intersections;
-	spectrum_t ltranmittance;
+	int continue_trace;
 	spectrum_t alpha;
-	intersection_t isect;
+	photon_t photon;
 }
 photon_intersection_data_t;
 

@@ -129,3 +129,20 @@ PermutedHalton::PermutedHalton(unsigned d, RandomNumberGeneratorMT19937 &rng) {
         p += b[i];
     }
 }
+
+void permuted_halton16_initialize(permuted_halton16_t *halton, RandomNumberGeneratorMT19937 &rng)
+{
+    // Determine bases $b_i$ and their sum
+    unsigned sumBases = 0;
+    for (unsigned i = 0; i < 16; ++i) {
+        halton->b[i] = primes[i];
+        sumBases += halton->b[i];
+    }
+
+    // Compute permutation tables for each base
+    unsigned *p = halton->permute;
+    for (unsigned i = 0; i < 16; ++i) {
+        GeneratePermutation(p, halton->b[i], rng);
+        p += halton->b[i];
+    }
+}

@@ -20,7 +20,7 @@ PPMRenderer::PPMRenderer(Camera* c,Film* im,Sampler* s,photon_map_t* photon_map)
 {
 	device_ = new OpenCLDevice(CL_DEVICE_TYPE_CPU);
 	device_->SetKernelFile("rendering_kernel.cl", "render");
-	photon_intersect_device_ = new OpenCLDevice(CL_DEVICE_TYPE_CPU);
+	photon_intersect_device_ = new OpenCLDevice(CL_DEVICE_TYPE_GPU);
 	photon_intersect_device_->SetKernelFile("intersect_kernel.cl","photon_intersect");
 }
 PPMRenderer::~PPMRenderer()
@@ -43,10 +43,15 @@ void PPMRenderer::InitializeDeviceData(const scene_info_memory_t& scene_info)
 	device_->SetReadOnlyArg(11,(unsigned int)scene_info.primitives.size());
 	device_->SetReadOnlyArg(12,(unsigned int)scene_info.lghts.size());
 
-	photon_intersect_device_->SetReadOnlyArg(2,scene_info.accelerator_data);
-	photon_intersect_device_->SetReadOnlyArg(3,scene_info.shape_data);
-	photon_intersect_device_->SetReadOnlyArg(4,scene_info.primitives);
-	photon_intersect_device_->SetReadOnlyArg(5,(unsigned int)scene_info.primitives.size());
+	photon_intersect_device_->SetReadOnlyArg(2,scene_info.light_data);
+	photon_intersect_device_->SetReadOnlyArg(3,scene_info.material_data);
+	photon_intersect_device_->SetReadOnlyArg(4,scene_info.shape_data);
+	photon_intersect_device_->SetReadOnlyArg(5,scene_info.texture_data);//to be texture data
+	photon_intersect_device_->SetReadOnlyArg(6,scene_info.accelerator_data);
+	photon_intersect_device_->SetReadOnlyArg(7,scene_info.primitives);
+	photon_intersect_device_->SetReadOnlyArg(8,scene_info.lghts);
+	photon_intersect_device_->SetReadOnlyArg(13,(unsigned int)scene_info.primitives.size());
+	photon_intersect_device_->SetReadOnlyArg(14,(unsigned int)scene_info.lghts.size());
 }
 static std::vector<float> as_float_array(const photon_kd_tree_t& photon_kd_tree)
 {
@@ -133,6 +138,8 @@ static std::vector<float> as_float_array(const photon_map_t& photon_map)
 }
 void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 {
+	RandomNumberGeneratorMT19937 *rng = new RandomNumberGeneratorMT19937(rand() << 16 | rand());
+
 	scene_info_memory_t scene_info = scene_info_mem;
 	InitializeDeviceData(scene_info);
 	const int buffer_size = 1024*1024;
@@ -140,15 +147,12 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 	Seed seed;
 	for (int i = 0;i < buffer_size; ++i)
 	{
-		seed.s1 = rand()<<16 | rand();
-		seed.s2 = rand()<<16 | rand();
-		seed.s3 = rand()<<16 | rand();
+		init_rng(rng->RandomUnsignedInt(),&seed);
 		seeds.push_back(seed);
 	}
 	device_->SetReadWriteArg(1,seeds);
 
 	int iteration = 0;
-	RandomNumberGeneratorMT19937 *rng = new RandomNumberGeneratorMT19937(rand() << 16 | rand());
 	while(true)
 	{
 		clock_t t0;
