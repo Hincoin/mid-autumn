@@ -68,56 +68,283 @@ INLINE float distance_squared(point3f_t v0,point3f_t v1)
 	return vdot(v,v);
 }
 //stack
+#ifdef CL_KERNEL
 #define kd_tree_lookup(_kd_tree,_p,_proc_data,_proc,_max_dist_sqr)\
 {\
 	unsigned node_stack[KD_TREE_MAX_DEPTH];\
 	int stack_top=0;\
 	int node_num = 0;\
-	node_stack[stack_top++] = (node_num);\
+	node_stack[stack_top] = (node_num);\
+	typedef enum _VisitType {pre,in,post} VisitType;\
+	VisitType visit_stack[KD_TREE_MAX_DEPTH]={pre};\
 \
-	while (stack_top != 0)\
+	while (stack_top >= 0)\
 	{\
-		node_num = node_stack[stack_top-1];\
+		node_num = node_stack[stack_top];\
 		GLOBAL kd_node_t* node = (_kd_tree).nodes + node_num;\
 		unsigned axis = kd_node_get_split_axis(*node);\
+		\
+		if(axis == 3 || stack_top == KD_TREE_MAX_DEPTH - 1)\
 		{\
-			float dist2 = distance_squared((_kd_tree).node_data[node_num].p, (_p));\
-			if (dist2 < (_max_dist_sqr))\
-				(_proc)((_proc_data), &((_kd_tree).node_data[node_num]), dist2, &(_max_dist_sqr));\
+			if (visit_stack[stack_top] == pre)\
+			{\
+				visit_stack[stack_top] = in;\
+			}\
+			else if(visit_stack[stack_top] == in)\
+			{\
+				float dist2 = distance_squared((_kd_tree).node_data[node_num].p, (_p));\
+				if (dist2 < (_max_dist_sqr))\
+					(_proc)((_proc_data), &((_kd_tree).node_data[node_num]), dist2, &(_max_dist_sqr));\
+				visit_stack[stack_top] = post;\
+			}\
+			else\
+			{\
+				--stack_top;\
+				if(stack_top >= 0)\
+				{\
+					if(visit_stack[stack_top] == pre)\
+					{\
+						visit_stack[stack_top] = in;\
+					}\
+					else if(visit_stack[stack_top] == in)\
+					{\
+						visit_stack[stack_top] = post;\
+					}\
+				}\
+			}\
 		}\
-		if(axis != 3){\
+		else if(visit_stack[stack_top] == post)\
+		{\
 			--stack_top;\
+			if(stack_top >= 0)\
+			{\
+				if(visit_stack[stack_top] == pre)\
+				{\
+					visit_stack[stack_top] = in;\
+				}\
+				else if(visit_stack[stack_top] == in)\
+				{\
+					visit_stack[stack_top] = post;\
+				}\
+			}\
+		}\
+		else if(axis != 3){\
 			float project_to_axis = (_p).x;\
 			if(axis == 1)project_to_axis = (_p).y;\
 			if(axis == 2)project_to_axis = (_p).z;\
-			float dist2 = (project_to_axis - node->split_pos) * (project_to_axis - node->split_pos);\
 			if( project_to_axis <= node->split_pos)\
 			{\
-				if (kd_node_get_has_left_child(*node))\
+				if(visit_stack[stack_top] == pre)\
 				{\
-					node_stack[stack_top++] = node_num+1;\
+					if (kd_node_get_has_left_child(*node))\
+					{\
+						node_stack[++stack_top] = node_num+1;\
+						visit_stack[stack_top] = pre;\
+					}\
+					else\
+						visit_stack[stack_top] = in;\
 				}\
-				if (dist2 < (_max_dist_sqr) && kd_node_get_right_child(*node) < (_kd_tree).n_nodes)\
+				else if (visit_stack[stack_top] == in)\
 				{\
-					node_stack[stack_top++] = kd_node_get_right_child(*node);\
+					float dist2 = (project_to_axis - node->split_pos) * (project_to_axis - node->split_pos);\
+					if(dist2 < _max_dist_sqr && kd_node_get_right_child(*node) < (_kd_tree).n_nodes)\
+					{\
+						node_stack[++stack_top] = kd_node_get_right_child(*node);\
+						visit_stack[stack_top] = pre;\
+					}\
+					else\
+						visit_stack[stack_top] = post;\
 				}\
 			}\
 			else\
 			{\
-				if(kd_node_get_right_child(*node) < (_kd_tree).n_nodes)\
+				if(visit_stack[stack_top] == pre)\
 				{\
-					node_stack[stack_top++] =  kd_node_get_right_child(*node);\
+					if(kd_node_get_right_child(*node) < (_kd_tree).n_nodes)\
+					{\
+						node_stack[++stack_top] =  kd_node_get_right_child(*node);\
+						visit_stack[stack_top] = pre;\
+					}\
+					else \
+						visit_stack[stack_top] = in;\
 				}\
-				if(dist2 < (_max_dist_sqr) && (kd_node_get_has_left_child(*node)))\
+				else if (visit_stack[stack_top] == in)\
 				{\
-					node_stack[stack_top++] = node_num+1;\
+					float dist2 = (project_to_axis - node->split_pos) * (project_to_axis - node->split_pos);\
+					if((dist2 < _max_dist_sqr && kd_node_get_has_left_child(*node)))\
+					{\
+						node_stack[++stack_top] = node_num+1;\
+						visit_stack[stack_top] = pre;\
+					}\
+					else \
+						visit_stack[stack_top] = post;\
 				}\
 			}\
 		}\
-        else --stack_top;\
 	}\
 }\
 
+#else
+
+template<typename K,typename P,typename ProcData,typename Proc,typename Dist>
+void kd_tree_lookup(const K& _kd_tree,const P& _p,const ProcData& _proc_data,const Proc& _proc,Dist& _max_dist_sqr)\
+{
+	unsigned node_stack[KD_TREE_MAX_DEPTH];
+	int stack_top=0;
+	int node_num = 0;
+	node_stack[stack_top] = (node_num);
+	typedef enum _VisitType {pre,in,post} VisitType;
+	VisitType visit_stack[KD_TREE_MAX_DEPTH]={pre};
+
+	while (stack_top >= 0)
+	{
+		node_num = node_stack[stack_top];
+		GLOBAL kd_node_t* node = (_kd_tree).nodes + node_num;
+		unsigned axis = kd_node_get_split_axis(*node);
+		
+		if(axis == 3 || stack_top == KD_TREE_MAX_DEPTH - 1)
+		{
+			if (visit_stack[stack_top] == pre)
+			{
+				visit_stack[stack_top] = in;
+			}
+			else if(visit_stack[stack_top] == in)
+			{
+				float dist2 = distance_squared((_kd_tree).node_data[node_num].p, (_p));
+				if (dist2 < _max_dist_sqr)
+					(_proc)((_proc_data), &((_kd_tree).node_data[node_num]), dist2, &(_max_dist_sqr));
+				visit_stack[stack_top] = post;
+				
+				--stack_top;
+				if(stack_top >= 0)
+				{
+					if(visit_stack[stack_top] == pre)
+					{
+						visit_stack[stack_top] = in;
+					}
+					else if(visit_stack[stack_top] == in)
+					{
+						visit_stack[stack_top] = post;
+					}
+				}
+			}
+			else
+			{
+				--stack_top;
+				if(stack_top >= 0)
+				{
+					if(visit_stack[stack_top] == pre)
+					{
+						visit_stack[stack_top] = in;
+					}
+					else if(visit_stack[stack_top] == in)
+					{
+						visit_stack[stack_top] = post;
+					}
+				}
+			}
+		}
+		else if(visit_stack[stack_top] == post)
+		{
+			--stack_top;
+			if(stack_top >= 0)
+			{
+				if(visit_stack[stack_top] == pre)
+				{
+					visit_stack[stack_top] = in;
+				}
+				else if(visit_stack[stack_top] == in)
+				{
+					visit_stack[stack_top] = post;
+				}
+			}
+		}
+		else if(axis != 3){
+			float project_to_axis = (_p).x;
+			if(axis == 1)project_to_axis = (_p).y;
+			if(axis == 2)project_to_axis = (_p).z;
+			if( project_to_axis <= node->split_pos)
+			{
+				if(visit_stack[stack_top] == pre)
+				{
+					if (kd_node_get_has_left_child(*node))
+					{
+						node_stack[++stack_top] = node_num+1;
+						visit_stack[stack_top] = pre;
+					}
+					else
+						visit_stack[stack_top] = in;
+				}
+				else if (visit_stack[stack_top] == in)
+				{
+					float dist2 = (project_to_axis - node->split_pos) * (project_to_axis - node->split_pos);
+					if(dist2 < _max_dist_sqr && kd_node_get_right_child(*node) < (_kd_tree).n_nodes)
+					{
+						node_stack[++stack_top] = kd_node_get_right_child(*node);
+						visit_stack[stack_top] = pre;
+					}
+					else
+					{
+						visit_stack[stack_top] = post;
+
+						--stack_top;
+						if(stack_top >= 0)
+						{
+							if(visit_stack[stack_top] == pre)
+							{
+								visit_stack[stack_top] = in;
+							}
+							else if(visit_stack[stack_top] == in)
+							{
+								visit_stack[stack_top] = post;
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				if(visit_stack[stack_top] == pre)
+				{
+					if(kd_node_get_right_child(*node) < (_kd_tree).n_nodes)
+					{
+						node_stack[++stack_top] =  kd_node_get_right_child(*node);
+						visit_stack[stack_top] = pre;
+					}
+					else 
+						visit_stack[stack_top] = in;
+				}
+				else if (visit_stack[stack_top] == in)
+				{
+					float dist2 = (project_to_axis - node->split_pos) * (project_to_axis - node->split_pos);
+					if((dist2 < _max_dist_sqr && kd_node_get_has_left_child(*node)))
+					{
+						node_stack[++stack_top] = node_num+1;
+						visit_stack[stack_top] = pre;
+					}
+					else 
+					{
+						visit_stack[stack_top] = post;
+
+						--stack_top;
+						if(stack_top >= 0)
+						{
+							if(visit_stack[stack_top] == pre)
+							{
+								visit_stack[stack_top] = in;
+							}
+							else if(visit_stack[stack_top] == in)
+							{
+								visit_stack[stack_top] = post;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+#endif
 
 #ifndef CL_KERNEL
 //cpu code to build kd_tree
