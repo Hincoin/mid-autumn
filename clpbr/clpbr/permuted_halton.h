@@ -22,10 +22,10 @@ INLINE float permuted_radical_inverse(unsigned n, unsigned base,
     }
     return val;
 }
-INLINE void halton16_sample(GLOBAL permuted_halton16_t *halton, unsigned n,float *out)
+INLINE void halton16_sample(GLOBAL permuted_halton16_t *halton, unsigned n,float *out, unsigned n_wanted)
 {
 	GLOBAL unsigned *p = halton->permute;
-	for (unsigned i = 0; i < 16; ++i) {
+	for (unsigned i = 0; i < n_wanted; ++i) {
 		out[i] = min((float)(permuted_radical_inverse(n, halton->b[i], p)), 
 			OneMinusEpsilon);
 		p += halton->b[i];

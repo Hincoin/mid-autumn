@@ -357,8 +357,8 @@ void triangle_test()
 	primitives.push_back(back_wall);
 	primitives.push_back(right_wall);
 	primitives.push_back(left_wall);
-	primitives.push_back(short_block);
-	primitives.push_back(tall_block);
+	//primitives.push_back(short_block);
+	//primitives.push_back(tall_block);
 	SceneData* scene_data = new SceneData(primitives);
 
 	transform_t camera_to_world,world_to_camera;
@@ -372,17 +372,17 @@ void triangle_test()
 	RandomSampler* sampler = new RandomSampler(0,w,0,h,1,1);
 	
 	photon_map_t* photon_map = new photon_map_t();
-	photon_map->final_gather = false;
+	photon_map->final_gather = true;
 	photon_map->cos_gather_angle = 0.95f;
-	photon_map->gather_samples = 32;
+	photon_map->gather_samples = 8;
 	
-	photon_map->max_dist_squared = 100;
+	photon_map->max_dist_squared = 40;
 	photon_map->max_specular_depth = 5;
 	photon_map->n_caustic_paths = 0;
 	photon_map->n_caustic_photons = 0;
 	photon_map->n_indirect_paths = 0;
-	photon_map->n_indirect_photons = 2000000;
-	photon_map->n_lookup = 200;
+	photon_map->n_indirect_photons = 100000;
+	photon_map->n_lookup = 20;
 	photon_map->total_photons = 0;
 	photon_map->rr_threshold = 0.125f;
 	photon_map->progressive_iteration = 0;

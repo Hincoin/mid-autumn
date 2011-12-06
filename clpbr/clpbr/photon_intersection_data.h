@@ -14,6 +14,10 @@ typedef struct
 	int continue_trace;
 	spectrum_t alpha;
 	photon_t photon;
+	//final gather
+	Seed seed;
+	spectrum_t rho_r, rho_t;
+	radiance_photon_t radiance_photon;
 }
 photon_intersection_data_t;
 

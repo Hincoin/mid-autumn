@@ -25,11 +25,13 @@ INLINE void load_triangle_data_(GLOBAL float* triangle_mesh_memory, unsigned v0_
 	unsigned reverse_orientation = as_uint(triangle_mesh_memory[2]);
 	triangle->reverse_orientation = reverse_orientation;
 	unsigned transform_start = 3;
+	/*
 	transform_init(triangle->object_to_world,
 		triangle_mesh_memory[transform_start],triangle_mesh_memory[transform_start+1],triangle_mesh_memory[transform_start+2],triangle_mesh_memory[transform_start+3],
 		triangle_mesh_memory[transform_start+4],triangle_mesh_memory[transform_start+5],triangle_mesh_memory[transform_start+6],triangle_mesh_memory[transform_start+7],
 		triangle_mesh_memory[transform_start+8],triangle_mesh_memory[transform_start+9],triangle_mesh_memory[transform_start+10],triangle_mesh_memory[transform_start+11],
 		triangle_mesh_memory[transform_start+12],triangle_mesh_memory[transform_start+13],triangle_mesh_memory[transform_start+14],triangle_mesh_memory[transform_start+15])
+		*/
 	unsigned point_start = transform_start+16;//add transform_data
 	unsigned normal_start = point_start + 3 * number_vertex;
 	unsigned tangent_start = normal_start + 3 * number_vertex;

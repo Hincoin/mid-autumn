@@ -48,71 +48,54 @@ __kernel void photon_intersect(__global photon_intersection_data_t *intersection
 		photon_intersection_data_t other_data = intersections[i];
 		spectrum_t alpha = other_data.alpha;
 
+		intersection_t isect;
+		spectrum_t ltranmittance;
 		int try_count = 0;
+		const int max_try_count = 4;
+
 		if(other_data.continue_trace == 1)
 		{
-			halton16_sample(halton,total_shot + i + 1, u);
-			/*
-			u[0] = radical_inverse(total_shot + i + 1, 2);
-			u[1] = radical_inverse(total_shot + i + 1, 3);
-			u[2] = radical_inverse(total_shot + i + 1, 5);
-			u[3] = radical_inverse(total_shot + i + 1, 7);
-			u[4] = radical_inverse(total_shot + i + 1, 11);
-			u[5] = radical_inverse(total_shot + i + 1, 13);
-			u[6] = radical_inverse(total_shot + i + 1, 17);
-			u[7] = radical_inverse(total_shot + i + 1, 19);
-			u[8] = radical_inverse(total_shot + i + 1, 23);
-			*/
+			halton16_sample(halton,total_shot + i + 1, u, 9);
+			if(!intersect(accelerator_data, shape_data, primitives, primitive_count,&photon_ray,&isect)) 
+			{
+				other_data.continue_trace = 0;
+				other_data.n_intersections = 0;
+			}
 		}
-		else
+		if(other_data.continue_trace == 0)
 		{
-			while( try_count ++ < 3)
-		{
-			int local_shot = total_shot + i + try_count + 1;
-			/*
-			u[0] = radical_inverse(local_shot, 2);
-			u[1] = radical_inverse(local_shot, 3);
-			u[2] = radical_inverse(local_shot, 5);
-			u[3] = radical_inverse(local_shot, 7);
-			u[4] = radical_inverse(local_shot, 11);
-			u[5] = radical_inverse(local_shot, 13);
-			u[6] = radical_inverse(local_shot, 17);
-			u[7] = radical_inverse(local_shot, 19);
-			u[8] = radical_inverse(local_shot, 23);
-			*/
-			halton16_sample(halton,local_shot, u);
-			//choose light of shoot photon from
-			float lpdf;
+			while( try_count ++ < max_try_count)
+			{
+				int local_shot = total_shot + i + try_count + 1;
+				halton16_sample(halton,local_shot, u, 9);
+				//choose light of shoot photon from
+				float lpdf;
 
-			int lnum = (int)floor(sample_step_1d(lights_power,light_cdf,
-									  light_total_power,lght_count,u[0],&lpdf));
-			lnum = min(lnum, (int)lght_count - 1);
+				int lnum = (int)floor(sample_step_1d(lights_power,light_cdf,
+					light_total_power,lght_count,u[0],&lpdf));
+				lnum = min(lnum, (int)lght_count - 1);
 
-			GLOBAL light_info_t* light = lghts+lnum;
-			float pdf;
+				GLOBAL light_info_t* light = lghts+lnum;
+				float pdf;
 
-			normal3f_t nl;
-			light_ray_sample_l(light,scene_info,u[1],u[2],u[3],u[4],
+				normal3f_t nl;
+				light_ray_sample_l(light,scene_info,u[1],u[2],u[3],u[4],
 					&photon_ray,&nl,&pdf,&alpha);
-			if (pdf == 0.f || color_is_black(alpha))continue;
-			vsmul(alpha,(fabs(vdot(nl,photon_ray.d))/(pdf*lpdf)),alpha);
-			other_data.n_intersections = 0;
-			break;
-		}
-		if(try_count >= 3) return;
-	
+				if (pdf == 0.f || color_is_black(alpha))continue;
+				vsmul(alpha,(fabs(vdot(nl,photon_ray.d))/(pdf*lpdf)),alpha);
+				other_data.n_intersections = 0;
+				if(intersect(accelerator_data, shape_data, primitives, primitive_count,&photon_ray,&isect)) 
+				{
+					break;
+				}
+			}
+			if(try_count >= max_try_count){
+				intersections[i] = other_data;
+				return;
+			}
 		}
 		other_data.specular_path = other_data.n_intersections == 0 || other_data.specular_path == 1;
 
-		intersection_t isect;
-		spectrum_t ltranmittance;
-		if(!intersect(accelerator_data, shape_data, primitives, primitive_count,&photon_ray,&isect)) 
-		{
-			other_data.continue_trace = 0;
-			other_data.n_intersections = 0;
-			intersections[i] = other_data;
-			return;
-		}
 		++other_data.n_intersections ;
 
 		scene_tranmittance(scene_info,&photon_ray,&ltranmittance);
@@ -132,6 +115,13 @@ __kernel void photon_intersect(__global photon_intersection_data_t *intersection
 		{
 //deposit photon at surface
 			photon_init(&other_data.photon,&isect.dg.p,&alpha,&wo);
+
+			//store data for radiance photon
+			normal3f_t n = isect.dg.nn;
+			if(vdot(n,photon_ray.d) > 0.f)vneg(n,n);
+			radiance_photon_init(&other_data.radiance_photon,&(isect.dg.p),(&n));
+			bsdf_rho_hh(&photon_bsdf,&other_data.seed,BSDF_ALL_REFLECTION,&other_data.rho_r);
+			bsdf_rho_hh(&photon_bsdf,&other_data.seed,BSDF_ALL_TRANSMISSION,&other_data.rho_t);
 		}
 		//sample new photon ray direction
 		vector3f_t wi;

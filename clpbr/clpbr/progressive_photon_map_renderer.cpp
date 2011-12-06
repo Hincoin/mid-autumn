@@ -20,7 +20,7 @@ PPMRenderer::PPMRenderer(Camera* c,Film* im,Sampler* s,photon_map_t* photon_map)
 {
 	device_ = new OpenCLDevice(CL_DEVICE_TYPE_CPU);
 	device_->SetKernelFile("rendering_kernel.cl", "render");
-	photon_intersect_device_ = new OpenCLDevice(CL_DEVICE_TYPE_GPU);
+	photon_intersect_device_ = new OpenCLDevice(CL_DEVICE_TYPE_CPU);
 	photon_intersect_device_->SetKernelFile("intersect_kernel.cl","photon_intersect");
 }
 PPMRenderer::~PPMRenderer()
@@ -195,18 +195,21 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 			}
 
 			local_color_buffer.resize(ray_buffer.size(),spectrum_t());
-			/*photon_map_t loaded_photon_map;
+//#define USE_OPENCL
+#ifndef USE_OPENCL
+			photon_map_t loaded_photon_map;
 			load_photon_map(&loaded_photon_map,&scene_info.integrator_data[0]);
-			#pragma omp parallel for schedule(dynamic, 32)
+			//#pragma omp parallel for schedule(dynamic, 32)
 			for(unsigned int i = 0;i < ray_buffer.size(); ++i)
 			{
 				if(i == 151+ 19 * 256)
 				{
 					int xxxxx= 0;
 				}
-				photon_map_li(&loaded_photon_map,&local_ray_buffer[i],as_cl_scene_info(scene_info),&seeds[i],&local_color_buffer[i]);
+				photon_map_li(&loaded_photon_map,&ray_buffer[i],as_cl_scene_info(scene_info),&seeds[i],&local_color_buffer[i]);
+				image_->AddSample(local_samples[i],local_color_buffer[i]);
 			}
-			*/
+#else
 			if(!ray_buffer.empty())
 			{
 				device_->SetReadWriteArg(0,local_color_buffer);
@@ -219,6 +222,7 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 			for(size_t i = 0;i < local_samples.size(); ++i)
 					image_->AddSample(local_samples[i],local_color_buffer[i]);
 			}
+#endif
 		}
 		photon_map_destroy(photon_map_);
 
