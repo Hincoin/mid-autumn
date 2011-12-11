@@ -159,7 +159,6 @@ void OpenCLDevice::Run(size_t total_threads)
 	//set args
 	for(size_t i = 0;i < kernel_args_.size(); ++i)
 	{
-		/* Set kernel arguments */
 		cl_int status = clSetKernelArg(
 			kernel_,
 			(cl_uint)i,
@@ -192,6 +191,7 @@ void OpenCLDevice::Run(size_t total_threads)
 		fprintf(stderr, "Failed to enqueue OpenCL work: %d\n", status);
 		exit(-1);
 	}
+	clFlush(command_queue_);
 }
 void OpenCLDevice::SetKernelFile(const char* file, const char *kernel_name)
 {
@@ -263,6 +263,7 @@ void OpenCLDevice::SetKernelFile(const char* file, const char *kernel_name)
 			exit(-1);
 		}
 		work_group_size_ = work_group_size;
+		printf("work_group_size: %d ",work_group_size_);
 }
 
 

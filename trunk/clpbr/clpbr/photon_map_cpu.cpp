@@ -90,18 +90,19 @@ const float light_total_power,const unsigned int primitive_count, const unsigned
 
 		if(other_data.continue_trace == 1)
 		{
-			halton16_sample(halton,total_shot + i + 1, u, 9);
 			if(!intersect(accelerator_data, shape_data, primitives, primitive_count,&photon_ray,&isect)) 
 			{
 				other_data.continue_trace = 0;
 				other_data.n_intersections = 0;
 			}
+			else
+				halton16_sample(halton,total_shot + i + 1, u, 9);
 		}
 		if(other_data.continue_trace == 0)
 		{
 			while( try_count ++ < max_try_count)
 			{
-				int local_shot = total_shot + i + try_count + 1;
+				int local_shot = total_shot + i + try_count;
 				halton16_sample(halton,local_shot, u, 9);
 				//choose light of shoot photon from
 				float lpdf;
@@ -208,8 +209,10 @@ const float light_total_power,const unsigned int primitive_count, const unsigned
 }
 void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_info_memory,RandomNumberGeneratorMT19937 &rng,OpenCLDevice *device)
 {
+	photon_map->n_lookup = min(photon_map->n_lookup,MAX_CLOSE_PHOTON_LOOKUP);
+	photon_map->max_specular_depth = min(photon_map->max_specular_depth,MAX_RAY_DEPTH);
+	if (scene_info_memory.lghts.empty() ) return ;
 	cl_scene_info_t scene_info = as_cl_scene_info(scene_info_memory);
-	if (scene_info.lght_count == 0) return ;
 	//
 	using namespace std;
 	vector<photon_t> caustic_photons;
@@ -217,7 +220,6 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 	vector<photon_t> direct_photons;
 	vector<radiance_photon_t> radiance_photons;
 	bool caustice_map_inited = false,indirect_map_inited = false,radiance_map_inited=false;
-	photon_map->n_lookup = min(photon_map->n_lookup,MAX_CLOSE_PHOTON_LOOKUP);
 
 	caustic_photons.reserve(photon_map->n_caustic_photons);
 	indirect_photons.reserve(photon_map->n_indirect_photons);
@@ -249,7 +251,7 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 	//static const int buffer_size = 1 * 16 * 128;
 	printf("start shooting photons\n");
 	clock_t t0 = clock();
-	static const unsigned int buffer_size =  1024*512;
+	static const unsigned int buffer_size =  1024 * 128;
 	std::vector<photon_intersection_data_t> other_datas;
 	std::vector<ray_t> photon_rays;
 	other_datas.resize(buffer_size);
@@ -267,98 +269,103 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 	device->SetReadOnlyArg(16,buffer_size);
 	device->SetReadOnlyArg(1,photon_rays);
 	device->SetReadWriteArg(0,other_datas);
+	bool is_first_pass = true;
 	while (!caustic_done || !indirect_done )//todo: add not photon_rays.empty
 	{
 		permuted_halton16_initialize(&halton[0],rng);
 		device->SetReadOnlyArg(11,halton);
 		device->SetReadOnlyArg(15,unsigned int(photon_map->total_photons + n_shot));
 		device->Run(buffer_size);
-		/*photon_map_preprocess_cl(&other_datas[0],&photon_rays[0],scene_info.light_data,scene_info.material_data,scene_info.shape_data,scene_info.texture_data,
+		/*
+		photon_map_preprocess_cl(&other_datas[0],&photon_rays[0],scene_info.light_data,scene_info.material_data,scene_info.shape_data,scene_info.texture_data,
 			scene_info.integrator_data,scene_info.accelerator_data,scene_info.primitives,scene_info.lghts,lights_power,light_cdf,&halton[0],total_power,scene_info.primitive_count
 			,scene_info.lght_count,photon_map->total_photons + n_shot,buffer_size,rng);
 			*/
 		//
-		device->ReadBuffer(0,&other_datas[0],other_datas.size());
-		for(size_t i = 0;i < other_datas.size();++i)
+		if(!is_first_pass)
 		{
-			if(other_datas[i].n_intersections == 0)
+			for(size_t i = 0;i < other_datas.size();++i)
 			{
-			}
-			else
-			{
-				if (other_datas[i].has_non_specular)
+				n_shot += (other_datas[i].n_intersections <= 1); //1 or 0
+				if(other_datas[i].n_intersections == 0)
 				{
-					//deposit photon at surface
-					photon_t &photon = other_datas[i].photon;
-					bool deposited = false;
-					if(other_datas[i].n_intersections == 1)
+				}
+				else
+				{
+					if (other_datas[i].has_non_specular)
 					{
-						if(!indirect_done && photon_map->final_gather)
+						//deposit photon at surface
+						photon_t &photon = other_datas[i].photon;
+						bool deposited = false;
+						if(other_datas[i].n_intersections == 1)
 						{
-							direct_photons.push_back(photon);
-							deposited = true;
-						}
-					}
-					else
-					{
-						if(other_datas[i].specular_path)
-						{
-							if (!caustic_done)
+							if(!indirect_done && photon_map->final_gather)
 							{
-								caustic_photons.push_back(photon);
+								direct_photons.push_back(photon);
 								deposited = true;
 							}
 						}
 						else
 						{
-							if (!indirect_done)
+							if(other_datas[i].specular_path)
 							{
-								deposited = true;
-								indirect_photons.push_back(photon);
+								if (!caustic_done)
+								{
+									caustic_photons.push_back(photon);
+									deposited = true;
+								}
+							}
+							else
+							{
+								if (!indirect_done)
+								{
+									deposited = true;
+									indirect_photons.push_back(photon);
+								}
 							}
 						}
-					}
-					if(deposited && photon_map->final_gather && rng.RandomFloat() < photon_map->rr_threshold)
-					{
-						//store data for radiance photon
-						radiance_photons.push_back(other_datas[i].radiance_photon);
-						rp_reflectances.push_back(other_datas[i].rho_r);
-						rp_transmittances.push_back(other_datas[i].rho_t);
+						if(deposited && photon_map->final_gather && rng.RandomFloat() < photon_map->rr_threshold)
+						{
+							//store data for radiance photon
+							radiance_photons.push_back(other_datas[i].radiance_photon);
+							rp_reflectances.push_back(other_datas[i].rho_r);
+							rp_transmittances.push_back(other_datas[i].rho_t);
+						}
 					}
 				}
 			}
-		}
 
-		if (caustic_photons.size() >= photon_map->n_caustic_photons && !caustic_done)
-		{
-			caustic_done = true;
-			photon_map->n_caustic_paths = int(n_shot);
-			kd_tree_init(&(photon_map->caustic_map),
-				caustic_photons);
-			caustice_map_inited = true;
+			if (caustic_photons.size() >= photon_map->n_caustic_photons && !caustic_done)
+			{
+				caustic_done = true;
+				photon_map->n_caustic_paths = int(n_shot);
+				kd_tree_init(&(photon_map->caustic_map),
+					caustic_photons);
+				caustice_map_inited = true;
+			}
+			if (indirect_photons.size() >= photon_map->n_indirect_photons && !indirect_done)
+			{
+				indirect_done = true;
+				photon_map->n_indirect_paths = (int)n_shot;
+				kd_tree_init(&(photon_map->indirect_map),
+					indirect_photons);
+				indirect_map_inited = true;
+			}
+			//give up if we are not storing enough photons
+			if (n_shot > 500000 && 
+				(unsuccessful(photon_map->n_caustic_photons,
+				(unsigned)caustic_photons.size(),
+				buffer_size)) && 
+				(unsuccessful(photon_map->n_indirect_photons,
+				(unsigned)indirect_photons.size(),
+				buffer_size)))
+			{
+				printf("Warning: No photon found!\n");
+				break;
+			}
 		}
-		if (indirect_photons.size() >= photon_map->n_indirect_photons && !indirect_done)
-		{
-			indirect_done = true;
-			photon_map->n_indirect_paths = (int)n_shot;
-			kd_tree_init(&(photon_map->indirect_map),
-				indirect_photons);
-			indirect_map_inited = true;
-		}
-		//give up if we are not storing enough photons
-		if (n_shot > 500000 && 
-			(unsuccessful(photon_map->n_caustic_photons,
-			(unsigned)caustic_photons.size(),
-			buffer_size)) && 
-			(unsuccessful(photon_map->n_indirect_photons,
-			(unsigned)indirect_photons.size(),
-			buffer_size)))
-		{
-			printf("Warning: No photon found!\n");
-			break;
-		}
-		n_shot += buffer_size;
-
+		device->ReadBuffer(0,&other_datas[0],other_datas.size());
+		is_first_pass = false;
 	}
 	photon_map->total_photons += n_shot;
 	printf("%d/%d photon shooted. time: %d, indirect_photons: %d\n",n_shot,photon_map->total_photons,clock()-t0,indirect_photons.size());

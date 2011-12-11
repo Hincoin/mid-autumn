@@ -1,5 +1,6 @@
 #include "random_sampler.h"
-#include "random_number_generator.h"
+#include "random_number_generator_mt19937.h"
+#include <cstdlib>
 
 RandomSampler::RandomSampler(int x_start,int x_end,
 							 int y_start,int y_end,
@@ -11,11 +12,7 @@ RandomSampler::RandomSampler(int x_start,int x_end,
 	x_pixel_samples_ = xs;
 	y_pixel_samples_ = ys;
 	sample_pos_ = 0;
-	//random seed
-	seed_ = new Seed();
-	seed_->s1 = x_start << 16 | x_end;
-	seed_->s2 = y_start << 16 | y_end;
-	seed_->s3 = x_start << 16 | y_start;
+	rng = new RandomNumberGeneratorMT19937(rand() << 16 | rand());
 }
 
 void RandomSampler::ResetSamplePosition() 
@@ -26,7 +23,7 @@ void RandomSampler::ResetSamplePosition()
 }
 RandomSampler::~RandomSampler()
 {
-	delete seed_;
+	delete rng;
 }
 bool RandomSampler::GetNextSample(camera_sample_t* cam_samp)
 {
@@ -44,8 +41,8 @@ bool RandomSampler::GetNextSample(camera_sample_t* cam_samp)
 		sample_pos_ = 0;
 	}
 
-	cam_samp->image_x = x_pos_ + random_float(seed_) ;//- 0.5f;
-	cam_samp->image_y = y_pos_ + random_float(seed_) ;//- 0.5f;
+	cam_samp->image_x = x_pos_ + rng->RandomFloat();//- 0.5f;
+	cam_samp->image_y = y_pos_ + rng->RandomFloat();//- 0.5f;
 	++sample_pos_;
 	return true;
 }

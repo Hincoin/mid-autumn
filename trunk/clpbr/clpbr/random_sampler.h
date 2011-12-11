@@ -1,8 +1,8 @@
 #ifndef _RANDOM_SAMPLER_H_
 #define _RANDOM_SAMPLER_H_
 #include "sampler.h"
-#include "random_number_generator.h"
 
+class RandomNumberGeneratorMT19937;
 class RandomSampler:public Sampler
 {
 public:
@@ -14,7 +14,7 @@ public:
 private:
 	int x_pos_,y_pos_,x_pixel_samples_,y_pixel_samples_;
 	int sample_pos_;
-	Seed* seed_;
+	RandomNumberGeneratorMT19937 *rng;
 };
 
 

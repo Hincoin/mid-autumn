@@ -142,7 +142,7 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 
 	scene_info_memory_t scene_info = scene_info_mem;
 	InitializeDeviceData(scene_info);
-	const int buffer_size = 1024*1024;
+	const int buffer_size = 1024*1024*2;
 	std::vector<Seed> seeds;
 	Seed seed;
 	for (int i = 0;i < buffer_size; ++i)
@@ -168,6 +168,7 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 		bool has_more_sample = true;
 
 		sampler_->ResetSamplePosition();
+		int ray_traced = 0;
 		while(has_more_sample)//do eye pass
 		{
 			std::vector<spectrum_t> local_color_buffer;
@@ -195,7 +196,7 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 			}
 
 			local_color_buffer.resize(ray_buffer.size(),spectrum_t());
-//#define USE_OPENCL
+#define USE_OPENCL
 #ifndef USE_OPENCL
 			photon_map_t loaded_photon_map;
 			load_photon_map(&loaded_photon_map,&scene_info.integrator_data[0]);
@@ -219,8 +220,10 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 				device_->ReadBuffer(0,&local_color_buffer[0],(unsigned)local_color_buffer.size());
 				//////////////////////////////////////////////////////////////////////////
 
-			for(size_t i = 0;i < local_samples.size(); ++i)
+				for(size_t i = 0;i < local_samples.size(); ++i)
 					image_->AddSample(local_samples[i],local_color_buffer[i]);
+				ray_traced += ray_buffer.size();
+				printf("\r%d ray traced...",ray_traced);
 			}
 #endif
 		}

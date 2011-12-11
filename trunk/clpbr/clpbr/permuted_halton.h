@@ -6,11 +6,11 @@
 
 typedef struct 
 {
-    unsigned b[16], permute[381];
+    unsigned b[9], permute[103];//100 
 }permuted_halton16_t;
 
 INLINE float permuted_radical_inverse(unsigned n, unsigned base,
-                                     GLOBAL unsigned *p) {
+                                     CONSTANT unsigned *p) {
     float val = 0;
     float invBase = 1.f / base, invBi = invBase;
 
@@ -22,9 +22,9 @@ INLINE float permuted_radical_inverse(unsigned n, unsigned base,
     }
     return val;
 }
-INLINE void halton16_sample(GLOBAL permuted_halton16_t *halton, unsigned n,float *out, unsigned n_wanted)
+INLINE void halton16_sample(CONSTANT permuted_halton16_t *halton, unsigned n,float *out, unsigned n_wanted)
 {
-	GLOBAL unsigned *p = halton->permute;
+	CONSTANT unsigned *p = halton->permute;
 	for (unsigned i = 0; i < n_wanted; ++i) {
 		out[i] = min((float)(permuted_radical_inverse(n, halton->b[i], p)), 
 			OneMinusEpsilon);
