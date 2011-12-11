@@ -162,7 +162,7 @@ INLINE void light_ray_sample_l(GLOBAL light_info_t* light,cl_scene_info_t scene_
 		shape_sample_on_shape(shape_info,scene_info,u0,u1,ns,&(ray->o));
 		UniformSampleSphere(u2, u3,&(ray->d));
 		if (vdot(ray->d, *ns) < 0.f) vsmul(ray->d , -1, ray->d);
-		*pdf = /*shape_pdf(shape_info,&ray->o)*/(1.f/shape_area(shape_info,scene_info)) * INV_PI;
+		*pdf = /*shape_pdf(shape_info,&ray->o)*/(1.f/shape_area(shape_info,scene_info)) * INV_TWOPI;
 		rinit(*ray,ray->o,ray->d);
 		return light_l(scene_info,scene_info.primitives[lght.primitive_idx].material_info,ray->o, *ns, &ray->d,alpha);
 	}

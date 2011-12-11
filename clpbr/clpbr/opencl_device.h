@@ -109,6 +109,7 @@ void OpenCLDevice::SetArg(size_t arg_idx,const T* arg, size_t arg_size,cl_mem_fl
 	{
 		exit(-1);
 	}
+	clFlush(command_queue_);
 }
 
 
@@ -116,7 +117,6 @@ template<typename T>
 void OpenCLDevice::ReadBuffer(unsigned arg_idx,T* output,unsigned count)
 {
 	/* Enqueue readBuffer */
-	clFinish(command_queue_);
 	cl_uint status = clEnqueueReadBuffer(
 			command_queue_,
 			kernel_args_[arg_idx],

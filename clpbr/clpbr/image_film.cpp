@@ -15,8 +15,8 @@ int toInt(double x)
 
 static const int FILTER_TABLE_SIZE = 16;
 
-ImageFilm::ImageFilm(unsigned w,unsigned h):
-width_(w),height_(h)
+ImageFilm::ImageFilm(unsigned w,unsigned h,unsigned int wr):
+width_(w),height_(h),write_frequency_(wr),current_iteration_(0),current_sample_count_(0)
 {
 	filter_ = new MitchellFilter(1.f/3.f,1.f/3.f,2.f,2.f);
 	color_back_ = new Pixel[w*h];
@@ -42,7 +42,7 @@ ImageFilm::~ImageFilm()
 }
 void ImageFilm::WriteImage(unsigned progressive_iteration)
 {
-	int debug_non_black_count = 0;
+	current_iteration_ = progressive_iteration;
 	char file_name[256] = {0};
 	sprintf(file_name,"image_%d.ppm",progressive_iteration);
 	FILE* f = fopen(file_name,"w"); 
@@ -65,7 +65,6 @@ void ImageFilm::WriteImage(unsigned progressive_iteration)
 	::fflush(f);
 	::fclose(f);
 	::memset(color_back_,0,width_*height_* sizeof(color_back_[0]));
-	printf("non_black_count:%d\n",debug_non_black_count);
 }
 void ImageFilm::AddSample(const camera_sample_t& camera_sample,const spectrum_t& c)
 {
@@ -110,6 +109,11 @@ void ImageFilm::AddSample(const camera_sample_t& camera_sample,const spectrum_t&
 			//color_back_[idx].l = c;//current_color;
 			//color_back_[idx].weight_sum = 1.f;
 		}
+	if(write_frequency_  == ++current_sample_count_)
+	{
+		current_sample_count_ = 0;
+		WriteImage(current_iteration_);
+	}
 }
 unsigned ImageFilm::GetWidth()const
 {

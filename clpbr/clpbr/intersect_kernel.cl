@@ -19,9 +19,9 @@ __kernel void photon_intersect(__global photon_intersection_data_t *intersection
 		GLOBAL float* accelerator_data,
 		GLOBAL primitive_info_t* primitives,
 		GLOBAL light_info_t* lghts, 
-		GLOBAL float *lights_power,  //constant
-		GLOBAL float *light_cdf, //constatt
-		GLOBAL permuted_halton16_t *halton, //constant
+		CONSTANT float *lights_power,  //constant
+		CONSTANT float *light_cdf, //constatt
+		CONSTANT permuted_halton16_t *halton, //constant
 		const float light_total_power,
 		const unsigned int primitive_count, 
 		const unsigned int lght_count,
@@ -30,7 +30,6 @@ __kernel void photon_intersect(__global photon_intersection_data_t *intersection
 )		
 {
 	const int i = get_global_id(0);
-	//intersections[0].n_intersections = 100;
 	if(i < number_work_items)
 	{
 		cl_scene_info_t scene_info;
@@ -43,7 +42,7 @@ __kernel void photon_intersect(__global photon_intersection_data_t *intersection
 		scene_info.primitive_count = primitive_count;
 		scene_info.lghts = lghts;
 		scene_info.lght_count = lght_count;
-		float u[16];
+		float u[12];
 		ray_t photon_ray = photon_rays[i];
 		photon_intersection_data_t other_data = intersections[i];
 		spectrum_t alpha = other_data.alpha;
@@ -51,22 +50,24 @@ __kernel void photon_intersect(__global photon_intersection_data_t *intersection
 		intersection_t isect;
 		spectrum_t ltranmittance;
 		int try_count = 0;
-		const int max_try_count = 4;
+		const int max_try_count = 2;
 
 		if(other_data.continue_trace == 1)
 		{
-			halton16_sample(halton,total_shot + i + 1, u, 9);
 			if(!intersect(accelerator_data, shape_data, primitives, primitive_count,&photon_ray,&isect)) 
 			{
 				other_data.continue_trace = 0;
 				other_data.n_intersections = 0;
 			}
+			else
+				halton16_sample(halton,total_shot + i + 1, u, 9);
 		}
+
 		if(other_data.continue_trace == 0)
 		{
 			while( try_count ++ < max_try_count)
 			{
-				int local_shot = total_shot + i + try_count + 1;
+				int local_shot = total_shot + i + try_count;
 				halton16_sample(halton,local_shot, u, 9);
 				//choose light of shoot photon from
 				float lpdf;
@@ -94,6 +95,7 @@ __kernel void photon_intersect(__global photon_intersection_data_t *intersection
 				return;
 			}
 		}
+
 		other_data.specular_path = other_data.n_intersections == 0 || other_data.specular_path == 1;
 
 		++other_data.n_intersections ;
@@ -111,9 +113,11 @@ __kernel void photon_intersect(__global photon_intersection_data_t *intersection
 		other_data.has_non_specular = (
 							   photon_bsdf.n_bxdfs > bsdf_num_components(&photon_bsdf,specular_type)
 							   );
+	
+
 		if (other_data.has_non_specular)
 		{
-//deposit photon at surface
+			//deposit photon at surface
 			photon_init(&other_data.photon,&isect.dg.p,&alpha,&wo);
 
 			//store data for radiance photon
@@ -123,20 +127,15 @@ __kernel void photon_intersect(__global photon_intersection_data_t *intersection
 			bsdf_rho_hh(&photon_bsdf,&other_data.seed,BSDF_ALL_REFLECTION,&other_data.rho_r);
 			bsdf_rho_hh(&photon_bsdf,&other_data.seed,BSDF_ALL_TRANSMISSION,&other_data.rho_t);
 		}
+
 		//sample new photon ray direction
 		vector3f_t wi;
 		float pdf;
 		BxDFType flags;
-		float u1,u2,u3;
-		{
-			u1 = u[5];//random_float(&seed);
-			u2 = u[6];//random_float(&seed);
-			u3 = u[7];//random_float(&seed);
-			//printf("%.3f,%.3f,%.3f\t",u1,u2,u3);
-		}
+
 		//compute new photon weight and possibly terminate with rr
 		spectrum_t fr;
-		bsdf_sample_f(&photon_bsdf,&wo,&wi,u1,u2,u3,&pdf,BSDF_ALL,&flags,&fr);
+		bsdf_sample_f(&photon_bsdf,&wo,&wi,u[5],u[6],u[7],&pdf,BSDF_ALL,&flags,&fr);
 		if(color_is_black(fr) || pdf == 0.f)
 		{
 			other_data.continue_trace = 0;
@@ -154,10 +153,9 @@ __kernel void photon_intersect(__global photon_intersection_data_t *intersection
 			return;
 		}
 		vsmul(alpha,1.f/continue_prob,anew);
+		other_data.alpha = alpha;
 		other_data.specular_path = (other_data.specular_path)
 			&& ((flags & BSDF_SPECULAR) != 0);
-		rinit(photon_ray,isect.dg.p,wi);
-		photon_ray.mint = isect.ray_epsilon;
 
 		if(other_data.n_intersections > 4)
 		{
@@ -165,9 +163,13 @@ __kernel void photon_intersect(__global photon_intersection_data_t *intersection
 		}
 		else
 			other_data.continue_trace = 1;
-
-		photon_rays[i] = photon_ray;
-		other_data.alpha = alpha;
 		intersections[i] = other_data;
+		
+		rinit(photon_ray,isect.dg.p,wi);
+		photon_ray.mint = isect.ray_epsilon;
+		photon_rays[i] = photon_ray;
+		/*
+	////////////////////////////////////////////////
+		*/
 	}
 }

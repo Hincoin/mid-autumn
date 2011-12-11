@@ -7,6 +7,7 @@
 #include "image_film.h"
 #include "perspective_camera.h"
 #include "progressive_photon_map_renderer.h"
+#include "path_tracing_renderer.h"
 
 /*
 typedef struct{
@@ -367,21 +368,21 @@ void triangle_test()
 
 	int w,h;
 	w=h = 768;
-	Film* film = new ImageFilm(w,h);
+	Film* film = new ImageFilm(w,h,1024*1024);
 	PerspectiveCamera* camera = new PerspectiveCamera(camera_to_world,screen_window_t(1.f),degree_to_radian(degree_t(40)),film);
-	RandomSampler* sampler = new RandomSampler(0,w,0,h,1,1);
+	RandomSampler* sampler = new RandomSampler(0,w,0,h,4,4);
 	
 	photon_map_t* photon_map = new photon_map_t();
-	photon_map->final_gather = true;
+	photon_map->final_gather = false;
 	photon_map->cos_gather_angle = 0.95f;
-	photon_map->gather_samples = 8;
+	photon_map->gather_samples = 10;
 	
 	photon_map->max_dist_squared = 40;
 	photon_map->max_specular_depth = 5;
 	photon_map->n_caustic_paths = 0;
 	photon_map->n_caustic_photons = 0;
 	photon_map->n_indirect_paths = 0;
-	photon_map->n_indirect_photons = 100000;
+	photon_map->n_indirect_photons = 5000000;
 	photon_map->n_lookup = 20;
 	photon_map->total_photons = 0;
 	photon_map->rr_threshold = 0.125f;
@@ -390,6 +391,8 @@ void triangle_test()
 	photon_map->alpha = 0.618f;
 
 	PPMRenderer* renderer = new PPMRenderer(camera,film,sampler,photon_map);
+	//PathTracingRenderer* renderer = new PathTracingRenderer(camera,film,sampler);
+	
 	renderer->Render(scene_data->ConvertToCLSceneInfo());
 	delete photon_map;
 }

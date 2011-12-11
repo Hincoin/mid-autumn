@@ -7,7 +7,7 @@ class MitchellFilter;
 class ImageFilm:public Film
 {
 public:
-	ImageFilm(unsigned w,unsigned h);
+	ImageFilm(unsigned w,unsigned h, unsigned int wr);
 	void WriteImage(unsigned progressive_iteration);
 	void AddSample(const camera_sample_t& cam_samp,const spectrum_t& c);
 	unsigned GetWidth()const;
@@ -15,6 +15,9 @@ public:
 	~ImageFilm();
 protected:
 private:
+	unsigned int write_frequency_;
+	unsigned int current_iteration_;
+	unsigned int current_sample_count_;
 	unsigned width_,height_;
 	struct Pixel{
 		Pixel(){
@@ -28,6 +31,7 @@ private:
 
 	MitchellFilter* filter_;
 	float *precomputed_filter_table_;
+
 };
 
 

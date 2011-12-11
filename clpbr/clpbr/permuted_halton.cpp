@@ -134,14 +134,15 @@ void permuted_halton16_initialize(permuted_halton16_t *halton, RandomNumberGener
 {
     // Determine bases $b_i$ and their sum
     unsigned sumBases = 0;
-    for (unsigned i = 0; i < 16; ++i) {
+	const int dim = sizeof(halton->b)/sizeof(halton->b[0]);
+    for (unsigned i = 0; i < dim; ++i) {
         halton->b[i] = primes[i];
         sumBases += halton->b[i];
     }
 
     // Compute permutation tables for each base
     unsigned *p = halton->permute;
-    for (unsigned i = 0; i < 16; ++i) {
+    for (unsigned i = 0; i < dim; ++i) {
         GeneratePermutation(p, halton->b[i], rng);
         p += halton->b[i];
     }

@@ -26,6 +26,17 @@ GLOBAL light_info_t* lghts,GLOBAL ray_differential_t *ray,const unsigned int pri
     const int gid = get_global_id(0);
 	if(gid < number_work_items)
 	{
+	LOCAL ray_t ray_stack[MAX_RAY_DEPTH];
+    LOCAL spectrum_t passthrough[MAX_RAY_DEPTH];
+	LOCAL bsdf_t bsdf_stack[MAX_RAY_DEPTH];
+	LOCAL bool left_stack[MAX_RAY_DEPTH];//todo: change to bit 
+	//lphoton data
+	LOCAL close_photon_t close_photon_data_store[MAX_CLOSE_PHOTON_LOOKUP];
+	//final gather data
+	LOCAL close_photon_t photon_buffer[n_indir_sample_photons];
+	LOCAL vector3f_t photon_dirs [n_indir_sample_photons];
+
+
 		ray_differential_t per_ray = ray[gid];
 		photon_map_t photon_map;
 		cl_scene_info_t scene_info;
@@ -43,7 +54,8 @@ GLOBAL light_info_t* lghts,GLOBAL ray_differential_t *ray,const unsigned int pri
 		Seed seed = seeds[gid];
 		spectrum_t color;
 		load_photon_map(&photon_map,integrator_data);
-		photon_map_li(&photon_map,&per_ray,scene_info,&seed,&color);
+		photon_map_li(&photon_map,&per_ray,scene_info,&seed,&color,
+				ray_stack,passthrough,bsdf_stack,left_stack,close_photon_data_store,photon_buffer,photon_dirs);
 		colors[gid] = color;
 		seeds[gid] = seed;
 		//photon_map_li(photon_map,per_ray,scene_info,seed,&color[gid]);

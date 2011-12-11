@@ -43,7 +43,7 @@ typedef struct{
 }
 close_photon_t;
 
-INLINE void close_photon_init(close_photon_t* close_photon,GLOBAL photon_t* photon,float dist_sqr)
+INLINE void close_photon_init(LOCAL close_photon_t* close_photon,GLOBAL photon_t* photon,float dist_sqr)
 {
 	close_photon->photon = photon;
 	close_photon->distance_squared = dist_sqr;
@@ -55,7 +55,7 @@ INLINE bool close_photon_less_than(close_photon_t a,close_photon_t b)
 }
 typedef struct  
 {
-	close_photon_t *photons;
+	LOCAL close_photon_t *photons;
 	unsigned n_lookup;
 	unsigned found_photons;
 }photon_process_data_t;
@@ -81,8 +81,8 @@ INLINE void photon_process(photon_process_data_t* data,GLOBAL photon_t* photon,
 	}
 	else {
 		// Remove most distant photon from heap and add new photon
-		close_photon_t *begin = data->photons;
-		close_photon_t *end = data->photons + data->n_lookup;
+		LOCAL close_photon_t *begin = data->photons;
+		LOCAL close_photon_t *end = data->photons + data->n_lookup;
 		c_pop_heap(close_photon_t,begin, end,close_photon_less_than);
 		close_photon_init(&data->photons[data->n_lookup-1] ,photon, dist2);
 		c_push_heap(close_photon_t,begin, end,close_photon_less_than);
@@ -146,9 +146,9 @@ INLINE float photon_map_kernel(GLOBAL photon_t *photon, const point3f_t *p,
 	return 3.f / (md2 * FLOAT_PI) * s * s;
 }
 
-#define MAX_CLOSE_PHOTON_LOOKUP 100
+#define MAX_CLOSE_PHOTON_LOOKUP 10
 
-INLINE float photon_map_get_radius(photon_map_t* photon_map,float reference_radius_squared)
+INLINE float photon_map_get_radius(const photon_map_t* photon_map,float reference_radius_squared)
 {
 	int n = photon_map->progressive_iteration;
 	float radius_squared = reference_radius_squared;
@@ -159,8 +159,8 @@ INLINE float photon_map_get_radius(photon_map_t* photon_map,float reference_radi
 	radius_squared *= pown((float)((float)(n + photon_map->alpha)/(n+1)), n);
 	return max(1.f,radius_squared);
 }
-INLINE void photon_map_lphoton(photon_map_t* photon_map,
-							   photon_kd_tree_t *map,
+INLINE void photon_map_lphoton(const photon_map_t* photon_map,
+							   const photon_kd_tree_t *map,
 							   int n_paths,
 							   int n_lookup,
 							   bsdf_t *bsdf,
@@ -169,7 +169,9 @@ INLINE void photon_map_lphoton(photon_map_t* photon_map,
 							   float max_dist_sqr,
 							   cl_scene_info_t scene_info,
 							   Seed *seed,
-							   spectrum_t *f)
+							   spectrum_t *f,
+							   LOCAL close_photon_t *close_photon_data_store
+							   )
 {
 	vclr(*f);
 	if(map->n_nodes == 0) return;
@@ -180,11 +182,10 @@ INLINE void photon_map_lphoton(photon_map_t* photon_map,
 	}
 	photon_process_data_t photon_map_data;
 	photon_process_data_init(&photon_map_data,photon_map->n_lookup);
-	close_photon_t close_photon_data_store[MAX_CLOSE_PHOTON_LOOKUP];
 	photon_map_data.photons = close_photon_data_store;
 	kd_tree_lookup(*map,isect->dg.p,&photon_map_data,photon_process,max_dist_sqr);
 	//estimate reflected light from photons
-	close_photon_t *photons = photon_map_data.photons;
+	LOCAL close_photon_t *photons = photon_map_data.photons;
 	unsigned int n_found = photon_map_data.found_photons;
 	normal3f_t n_f;
 	if(vdot(*wo,bsdf->dg_shading.nn) < 0)
@@ -246,25 +247,27 @@ INLINE void photon_map_lphoton(photon_map_t* photon_map,
 		vadd(*f,*f,Lt);
 	}
 }
-#define MAX_RAY_DEPTH 16
+#define MAX_RAY_DEPTH 4
 //todo optimization
-INLINE void photon_map_final_gather(photon_map_t* photon_map,cl_scene_info_t scene_info,
+INLINE void photon_map_final_gather(const photon_map_t* photon_map,cl_scene_info_t scene_info,
 									Seed* seed,
 									const point3f_t p,
 									const normal3f_t n,
 									const vector3f_t wo,
 									bsdf_t bsdf,
-									spectrum_t *l)
+									spectrum_t *l,
+									LOCAL close_photon_t *photon_buffer,
+									LOCAL vector3f_t *photon_dirs
+									)
 {
 	int non_specular = BSDF_REFLECTION|BSDF_TRANSMISSION|BSDF_DIFFUSE|BSDF_GLOSSY;
 	if (bsdf_num_components(&bsdf,non_specular)>0)
 	{
 #define n_indir_sample_photons 50
 
-		photon_process_data_t proc_data;
+		 photon_process_data_t proc_data;
 		photon_process_data_init(&proc_data,
 			n_indir_sample_photons);
-		close_photon_t photon_buffer[n_indir_sample_photons];
 		proc_data.photons = photon_buffer;
 		float search_dist2 = photon_map->max_dist_squared;
 		while (proc_data.found_photons < n_indir_sample_photons)
@@ -275,7 +278,6 @@ INLINE void photon_map_final_gather(photon_map_t* photon_map,cl_scene_info_t sce
 				p,&proc_data,photon_process,md2);
 			search_dist2 *= 2.f;
 		}
-		vector3f_t photon_dirs [n_indir_sample_photons];
 		for (unsigned i = 0;i < n_indir_sample_photons; ++i)
 		{
 			vassign(photon_dirs[i],proc_data.photons[i].photon->wi);
@@ -342,11 +344,12 @@ INLINE void photon_map_final_gather(photon_map_t* photon_map,cl_scene_info_t sce
 				min((int)n_indir_sample_photons -1,
 				(int)(u1 * n_indir_sample_photons));
 			vector3f_t vx,vy;
-			coordinate_system(&photon_dirs[photon_num],&vx,&vy);
+			vector3f_t photon_dir = photon_dirs[photon_num];
+			coordinate_system(&photon_dir,&vx,&vy);
 			vector3f_t wi;
 			uniform_sample_cone(u2,u3,
 				photon_map->cos_gather_angle,
-				&vx,&vy,photon_dirs+photon_num,
+				&vx,&vy,&photon_dir,
 				&wi);
 			spectrum_t fr;
 			bsdf_f(&bsdf,&wo,&wi,BSDF_ALL,&fr);
@@ -400,97 +403,78 @@ INLINE void photon_map_final_gather(photon_map_t* photon_map,cl_scene_info_t sce
 		vadd(*l,*l,Li);
 	}
 }
-INLINE void photon_map_li(photon_map_t* photon_map,
-						  const ray_differential_t *ray,
-						  cl_scene_info_t scene_info,
-						  Seed *seed,
-						  spectrum_t* color
-						  )
+/*
+INLINE void direct_lighting(spectrum_t *li,cl_scene_info_t scene_info, const ray_differential_t *cur_ray,Seed* seed,const intersection_t *isect)
 {
-	photon_map->n_lookup = min((unsigned)photon_map->n_lookup,(unsigned)MAX_CLOSE_PHOTON_LOOKUP);
-	photon_map->max_specular_depth = min(photon_map->max_specular_depth,MAX_RAY_DEPTH);
+	vector3f_t wo;
+	vneg(wo,cur_ray->d);
+	//compute emitted light if ray hit an area light
+	spectrum_t l;
+	spectrum_t li_val;
+	bsdf_t bsdf;
+	vclr(li_val);
+	vclr(l);
+	intersection_le(&isect,scene_info,&wo,&l);
+	vadd(li_val,li_val,l);
+	intersection_get_bsdf(&isect,scene_info,
+		cur_ray,&bsdf);
+	point3f_t p = bsdf.dg_shading.p;
+	normal3f_t n = bsdf.dg_shading.nn;
+	uniform_sample_all_lights(scene_info,
+		seed,&p,&n,&wo,&bsdf,&l);
+	vadd(li_val,li_val,l);
+	*li = li_val;
+}
+INLINE void photon_map_lphoton_lookup(photon_map_t *photon_map,const photon_kd_tree_t* map,unsigned int n_paths,  
+const intersection_t* isect,const ray_differential_t *cur_ray, cl_scene_info_t scene_info,Seed *seed,spectrum_t *l)
+{
+	vector3f_t wo;
+	spectrum_t l_tmp;
+	vneg(wo,cur_ray->d);
+	bsdf_t bsdf;
+	intersection_get_bsdf(&isect,scene_info,
+		cur_ray,&bsdf);
+
+	photon_map_lphoton(photon_map,
+		map,n_paths,
+		photon_map->n_lookup,&bsdf,isect,&wo,photon_map->max_dist_squared
+		,scene_info,seed,&l_tmp);
+	vadd(*l,l_tmp,*l);
+}
+typedef struct{
 	ray_t ray_stack[MAX_RAY_DEPTH];
     spectrum_t passthrough[MAX_RAY_DEPTH];
-	bsdf_t bsdf_stack[MAX_RAY_DEPTH];
-	bool left_stack[MAX_RAY_DEPTH];//todo: change to bit 
-	int ray_stack_top = 0;
-	rassign(ray_stack[ray_stack_top],*ray);
-    vinit(passthrough[ray_stack_top],1,1,1);
-	left_stack[ray_stack_top] = true;
-	ray_stack_top++;
-	typedef enum _VisitType {pre,in,post} VisitType;
-    VisitType visit=pre;
-	vclr(*color);
-	
+	bool left_stack[MAX_RAY_DEPTH];
+typedef enum _VisitType {pre,in,post} VisitType;
+	VisitType visit;
+	int ray_stack_top;
+}intersect_ray_stack_t;
+
+typedef struct{
 	intersection_t isect;
-	while ( ray_stack_top > 0)
+	spectrum_t passthrough;
+}
+intersect_ray_output_t
+;
+INLINE void ray_buffer_intersect(intersect_ray_output_t *ray_out,const intersect_ray_stack_t *ray_stack,
+	cl_scene_info_t scene_info)
+{
+	ray_t cur_ray;
+	intersection_t isect;
+	while(ray_stack->ray_stack_top > 0)
 	{
-		ray_t cur_ray;rassign(cur_ray,ray_stack[ray_stack_top-1]);
-
-		if (visit != post && intersect(scene_info.accelerator_data,scene_info.shape_data,scene_info.primitives,
-			scene_info.primitive_count,&cur_ray,&isect))
+		rassign(cur_ray,ray_stack->ray_stack[ray_stack->ray_stack_top - 1]);
+		if(ray_stack->visit != post && intersect(scene_info.accelerator_data,scene_info.shape_data,scene_info.primitives,
+			scene_info.primitive_count,&cur_ray,&isect)
+			)
 		{
-			//evaluate bsdf at hit point
-			if(visit == pre)
+			if(ray_stack->visit == pre)
 			{
-				vector3f_t wo;
-				vneg(wo,cur_ray.d);
-				//compute emitted light if ray hit an area light
-				spectrum_t l;
-				spectrum_t li_val;
-				vclr(li_val);
-				vclr(l);
-				intersection_le(&isect,scene_info,&wo,&l);
-				vadd(li_val,li_val,l);
-				intersection_get_bsdf(&isect,scene_info,
-					&cur_ray,bsdf_stack+ray_stack_top-1);
-				point3f_t p = bsdf_stack[ray_stack_top-1].dg_shading.p;
-				normal3f_t n = bsdf_stack[ray_stack_top-1].dg_shading.nn;
-				uniform_sample_all_lights(scene_info,
-					seed,&p,&n,&wo,bsdf_stack+ray_stack_top-1,&l);
-				vadd(li_val,li_val,l);
-				
-//#define DIRECT_LIGHTING
-#ifndef DIRECT_LIGHTING
-				photon_map_lphoton(photon_map,
-					&photon_map->caustic_map,photon_map->n_caustic_paths,
-					photon_map->n_lookup,bsdf_stack + ray_stack_top - 1,&isect,&wo,photon_map->max_dist_squared
-					,scene_info,seed,&l);
-				vadd(li_val,li_val,l);
-				if (photon_map->final_gather)
-				{
-#if 1
-					photon_map_final_gather(photon_map,
-						scene_info,seed,p,n,wo,bsdf_stack [ ray_stack_top - 1],&l);
-#else
-					normal3f_t nn;
-					vassign(nn,n);
-					if(vdot(nn,cur_ray.d) > 0.f) vneg(nn,n);
-					radiance_photon_process_data_t rpd;
-					radiance_photon_process_data_init(&rpd,&p,&nn);
-					float md2 = FLT_MAX;
-					kd_tree_lookup( photon_map->radiance_map,p,&rpd, radiance_photon_process,md2);
-					if(rpd.photon)
-						vadd(li_val,li_val,rpd.photon->lo);
-#endif
-				}
-
-
-				else{
-					photon_map_lphoton(photon_map,
-						&photon_map->indirect_map,photon_map->n_indirect_paths,
-						photon_map->n_lookup,bsdf_stack+ray_stack_top-1,&isect,&wo,photon_map->max_dist_squared
-						,scene_info,seed,&l);
-				}
-#endif
-				vadd(li_val,li_val,l);
-				vmul(li_val,li_val,passthrough[ray_stack_top-1]);
-				vadd(*color,*color,li_val);
+				//todo: store output data
 			}
-
-			if(ray_stack_top < photon_map->max_specular_depth && visit != post)
+			if(ray_stack->ray_stack_top < photon_map->max_specular_depth && ray_stack->visit != post)
 			{
-                if(visit == pre)
+                if(ray_stack->visit == pre)
                 {
                     specular_reflect(&cur_ray,bsdf_stack+ray_stack_top-1,seed,&isect,scene_info,passthrough+ray_stack_top,
                             ray_stack+ray_stack_top);
@@ -531,6 +515,182 @@ INLINE void photon_map_li(photon_map_t* photon_map,
                     else
                     {
 						vmul(*(passthrough+ray_stack_top),*(passthrough+ray_stack_top),*(passthrough+ray_stack_top-1));
+						left_stack[ray_stack_top] = false;
+                        visit = pre;
+                        ray_stack_top++;
+                    }
+                }
+				return;
+		}
+		else
+		{
+			//handle no intersection
+			if(ray_stack->visit == in)ray_stack->visit = post;
+			else if(ray_stack->visit == post && ray_stack->left_stack[ray_stack->ray_stack_top-1])
+				ray_stack->visit = in;
+			else if(ray_stack->visit == pre)
+				if(ray_stack->left_stack[ray_stack->ray_stack_top-1])ray_stack->visit = in;
+				else ray_stack->visit = post;
+
+			ray_stack->ray_stack_top--;
+
+			//ray_stack_top--;
+			//visit = pre;
+		}
+	}
+}
+*/
+INLINE void photon_map_li(const photon_map_t* photon_map,
+						  const ray_differential_t *ray,
+						  cl_scene_info_t scene_info,
+						  Seed *seed,
+						  spectrum_t* color,
+						  LOCAL ray_t* ray_stack,
+						  LOCAL spectrum_t *passthrough_stack,
+						  LOCAL bsdf_t *bsdf_stack,
+						  LOCAL bool *left_stack,
+						  LOCAL close_photon_t *close_photon_data_store,
+						  LOCAL close_photon_t *photon_buffer,
+						  LOCAL vector3f_t *photon_dirs
+						  )
+{
+
+
+	int ray_stack_top = 0;
+
+	bsdf_t bsdf;
+	spectrum_t passthrough;
+
+	rassign(ray_stack[ray_stack_top],*ray);
+    vinit(passthrough_stack[ray_stack_top],1,1,1);
+	left_stack[ray_stack_top] = true;
+	ray_stack_top++;
+	typedef enum _VisitType {pre,in,post} VisitType;
+    VisitType visit=pre;
+	vclr(*color);
+	
+	intersection_t isect;
+	while ( ray_stack_top > 0)
+	{
+		ray_t cur_ray;rassign(cur_ray,ray_stack[ray_stack_top-1]);
+		bsdf = bsdf_stack[ray_stack_top - 1];
+		passthrough = passthrough_stack[ray_stack_top - 1];
+
+		if (visit != post && intersect(scene_info.accelerator_data,scene_info.shape_data,scene_info.primitives,
+			scene_info.primitive_count,&cur_ray,&isect))
+		{
+			//evaluate bsdf at hit point
+			if(visit == pre)
+			{
+				vector3f_t wo;
+				vneg(wo,cur_ray.d);
+				//compute emitted light if ray hit an area light
+				spectrum_t l;
+				spectrum_t li_val;
+				vclr(li_val);
+				vclr(l);
+				intersection_le(&isect,scene_info,&wo,&l);
+				vadd(li_val,li_val,l);
+				intersection_get_bsdf(&isect,scene_info,
+					&cur_ray,&bsdf);
+				bsdf_stack[ray_stack_top-1] = bsdf;
+				point3f_t p = bsdf.dg_shading.p;
+				normal3f_t n = bsdf.dg_shading.nn;
+				uniform_sample_all_lights(scene_info,
+					seed,&p,&n,&wo,&bsdf,&l);
+				vadd(li_val,li_val,l);
+				
+//#define DIRECT_LIGHTING
+//#define FINAL_GATHER
+#ifndef DIRECT_LIGHTING
+				photon_map_lphoton(photon_map,
+					&photon_map->caustic_map,photon_map->n_caustic_paths,
+					photon_map->n_lookup,&bsdf,&isect,&wo,photon_map->max_dist_squared
+					,scene_info,seed,&l,close_photon_data_store);
+				vadd(li_val,li_val,l);
+#ifdef FINAL_GATHER
+				if (photon_map->final_gather)
+				{
+#if 0
+					photon_map_final_gather(photon_map,
+						scene_info,seed,p,n,wo,&bsdf,&l,
+						photon_buffers,
+						photon_dirs);
+#else
+					normal3f_t nn;
+					vassign(nn,n);
+					if(vdot(nn,cur_ray.d) > 0.f) vneg(nn,n);
+					radiance_photon_process_data_t rpd;
+					radiance_photon_process_data_init(&rpd,&p,&nn);
+					float md2 = FLT_MAX;
+					kd_tree_lookup( photon_map->radiance_map,p,&rpd, radiance_photon_process,md2);
+					if(rpd.photon)
+						vadd(li_val,li_val,rpd.photon->lo);
+#endif
+				}
+				else
+#endif
+					photon_map_lphoton(photon_map,
+						&photon_map->indirect_map,photon_map->n_indirect_paths,
+						photon_map->n_lookup,&bsdf,&isect,&wo,photon_map->max_dist_squared
+						,scene_info,seed,&l,close_photon_data_store);
+#endif
+				vadd(li_val,li_val,l);
+				vmul(li_val,li_val,passthrough);
+				vadd(*color,*color,li_val);
+			}
+
+			if(ray_stack_top < photon_map->max_specular_depth && visit != post)
+			{
+                if(visit == pre)
+                {
+                    specular_reflect(&cur_ray,&bsdf,seed,&isect,scene_info,&passthrough,
+                            &cur_ray);
+					passthrough_stack[ray_stack_top] = passthrough;
+					ray_stack[ray_stack_top] = cur_ray;
+                    if(color_is_black(passthrough))
+                    {
+                        //go on try transmission rays
+                        specular_transmit(&cur_ray,&bsdf,seed,&isect,scene_info,&passthrough,
+                                &cur_ray);
+						passthrough_stack[ray_stack_top] = passthrough;
+						ray_stack[ray_stack_top] = cur_ray;
+                        if(color_is_black(passthrough))
+                        {
+                            visit = post;
+                        }
+                        else
+                        {
+							vmul((passthrough),(passthrough),(passthrough_stack[ray_stack_top-1]));
+							passthrough_stack[ray_stack_top] = passthrough;
+							left_stack[ray_stack_top] = false;
+                            visit = pre;
+                            ray_stack_top++;
+                        }
+                    }
+                    else{
+                        //multiply passthrough
+						vmul(passthrough,passthrough,(passthrough_stack[ray_stack_top-1]));
+						left_stack[ray_stack_top] = true;
+                        visit = pre;
+                        ray_stack_top++;
+                    }
+                }
+                else if(visit == in)
+                {
+                    //go on try transmission rays
+                    specular_transmit(&cur_ray,&bsdf,seed,&isect,scene_info,&passthrough,
+                            &cur_ray);
+					passthrough_stack[ray_stack_top] = passthrough;
+					ray_stack[ray_stack_top] = cur_ray;
+                    if(color_is_black(passthrough))
+                    {
+                        visit = post;
+                    }
+                    else
+                    {
+						vmul((passthrough),(passthrough),(passthrough_stack[ray_stack_top-1]));
+						passthrough_stack[ray_stack_top] = passthrough;
 						left_stack[ray_stack_top] = false;
                         visit = pre;
                         ray_stack_top++;
