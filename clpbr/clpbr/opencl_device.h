@@ -26,7 +26,12 @@ public:
 	template<typename T>
 	void SetReadWriteArg(size_t arg_idx,const T* arg, size_t arg_size){SetArg(arg_idx,arg,arg_size,CL_MEM_READ_WRITE);}
 
+	cl_mem GetMemoryObject(size_t arg_idx){return kernel_args_[arg_idx];}
+
+	void SetArgFromMemoryObject(size_t arg_idx, cl_mem mem);
+
 	void Run(size_t total_threads);
+	void Wait();
 
 	template<typename T>
 	void ReadBuffer(unsigned arg_idx,T* output,unsigned count);
@@ -70,6 +75,11 @@ void OpenCLDevice::SetArg(cl_uint arg_idx,const T& arg)
 	{
 		exit(-1);
 	}
+}
+
+inline void OpenCLDevice::SetArgFromMemoryObject(size_t arg_idx, cl_mem mem)
+{
+	kernel_args_[arg_idx] = mem;
 }
 template<typename T>
 void OpenCLDevice::SetArg(size_t arg_idx,const T* arg, size_t arg_size,cl_mem_flags flags)

@@ -3,7 +3,7 @@
 
 #ifdef CL_KERNEL
 #define GLOBAL __global 
-#define CONSTANT __constant 
+#define CONSTANT __global //__constant 
 #define LOCAL __local 
 
 #define INLINE 

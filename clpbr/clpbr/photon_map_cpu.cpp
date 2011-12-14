@@ -42,11 +42,15 @@ INLINE bool unsuccessful(int needed, int found, int shot) {
 		(found == 0 || found < shot / 1024));
 }
 
-void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_info,RandomNumberGeneratorMT19937& rng, OpenCLDevice *device);
+void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_info,RandomNumberGeneratorMT19937& rng, 
+	cl_photon_init_device_info_t& device_info
+	);
 
-void photon_map_init(photon_map_t* photon_map,scene_info_memory_t& scene_info,RandomNumberGeneratorMT19937 &rng, OpenCLDevice *device)
+void photon_map_init(photon_map_t* photon_map,scene_info_memory_t& scene_info,RandomNumberGeneratorMT19937 &rng, 
+	cl_photon_init_device_info_t& device_info
+	)
 {
-	photon_map_preprocess(photon_map,scene_info,rng, device);
+	photon_map_preprocess(photon_map,scene_info,rng, device_info);
 }
 
 void photon_map_destroy(photon_map_t* photon_map)//free up kd-tree memory
@@ -55,163 +59,14 @@ void photon_map_destroy(photon_map_t* photon_map)//free up kd-tree memory
 	kd_tree_destroy<photon_t>(&photon_map->indirect_map);
 	kd_tree_destroy<radiance_photon_t>(&photon_map->radiance_map);
 }
-
-void photon_map_preprocess_cl(GLOBAL photon_intersection_data_t *intersections,
-GLOBAL ray_t *photon_rays,
-GLOBAL float* light_data,GLOBAL float* material_data,GLOBAL float* shape_data,
-GLOBAL float* texture_data,GLOBAL float* integrator_data,GLOBAL float* accelerator_data,
-GLOBAL primitive_info_t* primitives,
-GLOBAL light_info_t* lghts, float *lights_power, float *light_cdf,permuted_halton16_t *halton, 
-const float light_total_power,const unsigned int primitive_count, const unsigned int lght_count,unsigned int total_shot,const unsigned int number_work_items
-,RandomNumberGeneratorMT19937 &rng
-	)
-{
-	for(unsigned int i = 0;i < number_work_items; ++i)
-	{
-		cl_scene_info_t scene_info;
-		scene_info.light_data = light_data;
-		scene_info.material_data = material_data;
-		scene_info.shape_data = shape_data;
-		scene_info.texture_data = texture_data;
-		scene_info.accelerator_data = accelerator_data;
-		scene_info.primitives = primitives;
-		scene_info.primitive_count = primitive_count;
-		scene_info.lghts = lghts;
-		scene_info.lght_count = lght_count;
-		float u[16];
-		ray_t photon_ray = photon_rays[i];
-		photon_intersection_data_t other_data = intersections[i];
-		spectrum_t alpha = other_data.alpha;
-
-		intersection_t isect;
-		spectrum_t ltranmittance;
-		int try_count = 0;
-		const int max_try_count = 4;
-
-		if(other_data.continue_trace == 1)
-		{
-			if(!intersect(accelerator_data, shape_data, primitives, primitive_count,&photon_ray,&isect)) 
-			{
-				other_data.continue_trace = 0;
-				other_data.n_intersections = 0;
-			}
-			else
-				halton16_sample(halton,total_shot + i + 1, u, 9);
-		}
-		if(other_data.continue_trace == 0)
-		{
-			while( try_count ++ < max_try_count)
-			{
-				int local_shot = total_shot + i + try_count;
-				halton16_sample(halton,local_shot, u, 9);
-				//choose light of shoot photon from
-				float lpdf;
-
-				int lnum = (int)floor(sample_step_1d(lights_power,light_cdf,
-					light_total_power,lght_count,u[0],&lpdf));
-				lnum = min(lnum, (int)lght_count - 1);
-
-				GLOBAL light_info_t* light = lghts+lnum;
-				float pdf;
-
-				normal3f_t nl;
-				light_ray_sample_l(light,scene_info,u[1],u[2],u[3],u[4],
-					&photon_ray,&nl,&pdf,&alpha);
-				if (pdf == 0.f || color_is_black(alpha))continue;
-				vsmul(alpha,(fabs(vdot(nl,photon_ray.d))/(pdf*lpdf)),alpha);
-				other_data.n_intersections = 0;
-				if(intersect(accelerator_data, shape_data, primitives, primitive_count,&photon_ray,&isect)) 
-				{
-					break;
-				}
-			}
-			if(try_count >= max_try_count){
-				intersections[i] = other_data;
-				continue;
-			}
-		}
-		other_data.specular_path = other_data.n_intersections == 0 || other_data.specular_path == 1;
-
-		++other_data.n_intersections ;
-
-		scene_tranmittance(scene_info,&photon_ray,&ltranmittance);
-
-		vector3f_t wo ; 
-		vneg(wo,photon_ray.d);
-		bsdf_t photon_bsdf;
-
-		intersection_get_bsdf(&isect,scene_info,&photon_ray,
-					   &photon_bsdf);
-		BxDFType specular_type = 
-		(BxDFType)(BSDF_REFLECTION|BSDF_TRANSMISSION|BSDF_SPECULAR);
-		other_data.has_non_specular = (
-							   photon_bsdf.n_bxdfs > bsdf_num_components(&photon_bsdf,specular_type)
-							   );
-		if (other_data.has_non_specular)
-		{
-			//deposit photon at surface
-			photon_init(&other_data.photon,&isect.dg.p,&alpha,&wo);
-
-			//store data for radiance photon
-			normal3f_t n = isect.dg.nn;
-			if(vdot(n,photon_ray.d) > 0.f)vneg(n,n);
-			radiance_photon_init(&other_data.radiance_photon,&(isect.dg.p),(&n));
-			bsdf_rho_hh(&photon_bsdf,&other_data.seed,BSDF_ALL_REFLECTION,&other_data.rho_r);
-			bsdf_rho_hh(&photon_bsdf,&other_data.seed,BSDF_ALL_TRANSMISSION,&other_data.rho_t);
-		}
-		//sample new photon ray direction
-		vector3f_t wi;
-		float pdf;
-		BxDFType flags;
-		float u1,u2,u3;
-		{
-			u1 = u[5];//random_float(&seed);
-			u2 = u[6];//random_float(&seed);
-			u3 = u[7];//random_float(&seed);
-			//printf("%.3f,%.3f,%.3f\t",u1,u2,u3);
-		}
-		//compute new photon weight and possibly terminate with rr
-		spectrum_t fr;
-		bsdf_sample_f(&photon_bsdf,&wo,&wi,u1,u2,u3,&pdf,BSDF_ALL,&flags,&fr);
-		if(color_is_black(fr) || pdf == 0.f)
-		{
-			other_data.continue_trace = 0;
-			intersections[i] = other_data;
-			continue;
-		}
-		spectrum_t anew;
-		vmul(anew,alpha,fr);
-		vsmul(anew,fabs(vdot(wi,photon_bsdf.dg_shading.nn))/pdf,anew);
-		float continue_prob = min(1.f,spectrum_y(&anew)/spectrum_y(&alpha));
-		if (u[8] > continue_prob  )
-		{
-			other_data.continue_trace = 0;
-			intersections[i] = other_data;
-			continue;
-		}
-		vsmul(alpha,1.f/continue_prob,anew);
-		other_data.specular_path = (other_data.specular_path)
-			&& ((flags & BSDF_SPECULAR) != 0);
-		rinit(photon_ray,isect.dg.p,wi);
-		photon_ray.mint = isect.ray_epsilon;
-
-		if(other_data.n_intersections > 4)
-		{
-			other_data.continue_trace = 0;
-		}
-		else
-			other_data.continue_trace = 1;
-
-		photon_rays[i] = photon_ray;
-		other_data.alpha = alpha;
-		intersections[i] = other_data;
-	}
-}
-void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_info_memory,RandomNumberGeneratorMT19937 &rng,OpenCLDevice *device)
+void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_info_memory,RandomNumberGeneratorMT19937 &rng,
+			cl_photon_init_device_info_t& device_info
+		)
 {
 	photon_map->n_lookup = min(photon_map->n_lookup,MAX_CLOSE_PHOTON_LOOKUP);
 	photon_map->max_specular_depth = min(photon_map->max_specular_depth,MAX_RAY_DEPTH);
 	if (scene_info_memory.lghts.empty() ) return ;
+
 	cl_scene_info_t scene_info = as_cl_scene_info(scene_info_memory);
 	//
 	using namespace std;
@@ -251,9 +106,11 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 	//static const int buffer_size = 1 * 16 * 128;
 	printf("start shooting photons\n");
 	clock_t t0 = clock();
-	static const unsigned int buffer_size =  1024 * 128;
+	static const unsigned int buffer_size =  1024 * 1024;
 	std::vector<photon_intersection_data_t> other_datas;
+	std::vector<generated_photon_t> generated_photons;
 	std::vector<ray_t> photon_rays;
+	generated_photons.resize(buffer_size);
 	other_datas.resize(buffer_size);
 	::memset(&other_datas[0],0,sizeof(other_datas[0]) * buffer_size);
 	for(size_t i = 0;i < other_datas.size(); ++i)
@@ -262,20 +119,45 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 	}
 	photon_rays.resize(buffer_size);
 
+	cl::Buffer lights_power_buffer = cl::Buffer(device_info.photon_intersect_context,CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR,n_lights * sizeof(float),lights_power);
+	cl::Buffer light_cdf_buffer = cl::Buffer(device_info.photon_intersect_context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, (n_lights + 1) * sizeof(float),light_cdf);
+	cl::Buffer photon_rays_buffer = cl::Buffer(device_info.photon_intersect_context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
+		photon_rays.size() * sizeof(photon_rays[0]),&photon_rays[0]);
+	cl::Buffer photon_intersect_data_buffer = cl::Buffer(device_info.photon_intersect_context,CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR,
+		other_datas.size() * sizeof(other_datas[0]),&other_datas[0]);
 
-	device->SetReadOnlyArg(9,lights_power,n_lights);
-	device->SetReadOnlyArg(10,light_cdf,n_lights+1);
-	device->SetReadOnlyArg(12,total_power);
-	device->SetReadOnlyArg(16,buffer_size);
-	device->SetReadOnlyArg(1,photon_rays);
-	device->SetReadWriteArg(0,other_datas);
+	device_info.photon_intersect_kernel.setArg(9,lights_power_buffer);
+	device_info.photon_intersect_kernel.setArg(10,light_cdf_buffer);
+	device_info.photon_intersect_kernel.setArg(12,total_power);
+	device_info.photon_intersect_kernel.setArg(16,buffer_size);
+	device_info.photon_intersect_kernel.setArg(1,photon_rays_buffer);
+	device_info.photon_intersect_kernel.setArg(0,photon_intersect_data_buffer);
+
+	device_info.photon_generate_kernel.setArg(0, photon_intersect_data_buffer);
+	device_info.photon_generate_kernel.setArg(1,photon_rays_buffer);
+
+	cl::Buffer generated_photons_buffer = cl::Buffer(device_info.photon_generate_context,CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR,
+		generated_photons.size() * sizeof(generated_photons[0]),&generated_photons[0]);
+	device_info.photon_generate_kernel.setArg(9,generated_photons_buffer);
+	device_info.photon_generate_kernel.setArg(10,(unsigned int)scene_info_memory.primitives.size());
+	device_info.photon_generate_kernel.setArg(11,(unsigned int)scene_info_memory.lghts.size());
+	device_info.photon_generate_kernel.setArg(12,buffer_size);
 	bool is_first_pass = true;
 	while (!caustic_done || !indirect_done )//todo: add not photon_rays.empty
 	{
 		permuted_halton16_initialize(&halton[0],rng);
-		device->SetReadOnlyArg(11,halton);
-		device->SetReadOnlyArg(15,unsigned int(photon_map->total_photons + n_shot));
-		device->Run(buffer_size);
+		cl::Buffer halton_buffer = cl::Buffer(device_info.photon_intersect_context,CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR,
+			halton.size() * sizeof(halton[0]),&halton[0]);
+		device_info.photon_intersect_kernel.setArg(11,halton_buffer);
+		device_info.photon_intersect_kernel.setArg(15,unsigned int(photon_map->total_photons + n_shot));
+
+		device_info.photon_intersect_command_queue.enqueueNDRangeKernel(device_info.photon_intersect_kernel,cl::NullRange,
+			cl::NDRange(buffer_size),cl::NDRange(128));
+		device_info.photon_intersect_command_queue.finish();
+		device_info.photon_generate_command_queue.enqueueNDRangeKernel(device_info.photon_generate_kernel,cl::NullRange,
+			cl::NDRange(buffer_size),cl::NDRange(128));
+		device_info.photon_generate_command_queue.enqueueReadBuffer(photon_intersect_data_buffer,CL_TRUE,0,other_datas.size()*sizeof(other_datas[0]),&other_datas[0]);
+		device_info.photon_generate_command_queue.enqueueReadBuffer(generated_photons_buffer,CL_TRUE,0,generated_photons.size() * sizeof(generated_photons[0]),&generated_photons[0]);
 		/*
 		photon_map_preprocess_cl(&other_datas[0],&photon_rays[0],scene_info.light_data,scene_info.material_data,scene_info.shape_data,scene_info.texture_data,
 			scene_info.integrator_data,scene_info.accelerator_data,scene_info.primitives,scene_info.lghts,lights_power,light_cdf,&halton[0],total_power,scene_info.primitive_count
@@ -286,18 +168,18 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 		{
 			for(size_t i = 0;i < other_datas.size();++i)
 			{
-				n_shot += (other_datas[i].n_intersections <= 1); //1 or 0
-				if(other_datas[i].n_intersections == 0)
+				n_shot += (photon_intersection_data_n_intersections(&other_datas[i]) <= 1); //1 or 0
+				if(photon_intersection_data_n_intersections(&other_datas[i]) == 0)
 				{
 				}
 				else
 				{
-					if (other_datas[i].has_non_specular)
+					if (photon_intersection_data_has_non_specular(&other_datas[i]))
 					{
 						//deposit photon at surface
-						photon_t &photon = other_datas[i].photon;
+						photon_t &photon = generated_photons[i].photon;
 						bool deposited = false;
-						if(other_datas[i].n_intersections == 1)
+						if(photon_intersection_data_n_intersections(&other_datas[i]) == 1)
 						{
 							if(!indirect_done && photon_map->final_gather)
 							{
@@ -307,7 +189,7 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 						}
 						else
 						{
-							if(other_datas[i].specular_path)
+							if(photon_intersection_data_is_specular_path(&other_datas[i]))
 							{
 								if (!caustic_done)
 								{
@@ -327,9 +209,9 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 						if(deposited && photon_map->final_gather && rng.RandomFloat() < photon_map->rr_threshold)
 						{
 							//store data for radiance photon
-							radiance_photons.push_back(other_datas[i].radiance_photon);
-							rp_reflectances.push_back(other_datas[i].rho_r);
-							rp_transmittances.push_back(other_datas[i].rho_t);
+							radiance_photons.push_back(generated_photons[i].radiance_photon);
+							rp_reflectances.push_back(generated_photons[i].rho_r);
+							rp_transmittances.push_back(generated_photons[i].rho_t);
 						}
 					}
 				}
@@ -364,11 +246,11 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 				break;
 			}
 		}
-		device->ReadBuffer(0,&other_datas[0],other_datas.size());
 		is_first_pass = false;
+		printf("\r%d/%d photon shooted. time: %d, indirect_photons: %d",n_shot,photon_map->total_photons,clock()-t0,indirect_photons.size());
 	}
+	printf("\n");
 	photon_map->total_photons += n_shot;
-	printf("%d/%d photon shooted. time: %d, indirect_photons: %d\n",n_shot,photon_map->total_photons,clock()-t0,indirect_photons.size());
 	if (photon_map->final_gather)
 	{
 		//precompute radiance at a subset of the photons

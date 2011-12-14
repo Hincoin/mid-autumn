@@ -11,7 +11,6 @@ class Sampler;
 class Camera;
 class Film;
 
-class OpenCLDevice;
 struct scene_info_memory_t;
 
 class PPMRenderer:public Renderer
@@ -31,8 +30,6 @@ private:
 	photon_map_t* photon_map_;
 
 	//
-	OpenCLDevice* device_;
-	OpenCLDevice* photon_intersect_device_;
 
 };
 

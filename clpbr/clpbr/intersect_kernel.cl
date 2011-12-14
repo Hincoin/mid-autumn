@@ -10,8 +10,9 @@
 #include "photon_intersection_data.h"
 #include "permuted_halton.h"
 
-__kernel void photon_intersect(__global photon_intersection_data_t *intersections,
-		GLOBAL ray_t *photon_rays,
+__kernel void photon_intersect(
+		GLOBAL photon_intersection_data_t *intersections,
+		GLOBAL ray_t *photon_rays, 
 		GLOBAL float* light_data,
 		GLOBAL float* material_data,
 		GLOBAL float* shape_data,
@@ -32,6 +33,7 @@ __kernel void photon_intersect(__global photon_intersection_data_t *intersection
 	const int i = get_global_id(0);
 	if(i < number_work_items)
 	{
+
 		cl_scene_info_t scene_info;
 		scene_info.light_data = light_data;
 		scene_info.material_data = material_data;
@@ -42,33 +44,35 @@ __kernel void photon_intersect(__global photon_intersection_data_t *intersection
 		scene_info.primitive_count = primitive_count;
 		scene_info.lghts = lghts;
 		scene_info.lght_count = lght_count;
-		float u[12];
+		float u[5];
+		photon_intersection_data_t other_data;
 		ray_t photon_ray = photon_rays[i];
-		photon_intersection_data_t other_data = intersections[i];
-		spectrum_t alpha = other_data.alpha;
+		other_data = intersections[i];
 
-		intersection_t isect;
-		spectrum_t ltranmittance;
-		int try_count = 0;
-		const int max_try_count = 2;
+		//spectrum_t ltranmittance;
+		int try_count ;
+		
+		try_count = 0;
 
-		if(other_data.continue_trace == 1)
+		if(photon_intersection_data_continue_trace(&other_data))
 		{
-			if(!intersect(accelerator_data, shape_data, primitives, primitive_count,&photon_ray,&isect)) 
+			if(!intersect(accelerator_data, shape_data, primitives, primitive_count,&photon_ray,&other_data.isect)) 
 			{
-				other_data.continue_trace = 0;
-				other_data.n_intersections = 0;
+				photon_intersection_data_set_continue_trace(&other_data,0);
+				photon_intersection_data_set_n_intersections(&other_data,0);
 			}
-			else
-				halton16_sample(halton,total_shot + i + 1, u, 9);
+			//else
+			//{
+			//	halton16_sample(halton,total_shot + i + 1, u , 5);
+			//}
 		}
 
-		if(other_data.continue_trace == 0)
+		if(!photon_intersection_data_continue_trace(&other_data))
 		{
-			while( try_count ++ < max_try_count)
+			while( try_count ++ < 4)
 			{
 				int local_shot = total_shot + i + try_count;
-				halton16_sample(halton,local_shot, u, 9);
+				halton16_sample(halton,local_shot, u , 5);
 				//choose light of shoot photon from
 				float lpdf;
 
@@ -80,96 +84,34 @@ __kernel void photon_intersect(__global photon_intersection_data_t *intersection
 				float pdf;
 
 				normal3f_t nl;
-				light_ray_sample_l(light,scene_info,u[1],u[2],u[3],u[4],
-					&photon_ray,&nl,&pdf,&alpha);
-				if (pdf == 0.f || color_is_black(alpha))continue;
-				vsmul(alpha,(fabs(vdot(nl,photon_ray.d))/(pdf*lpdf)),alpha);
-				other_data.n_intersections = 0;
-				if(intersect(accelerator_data, shape_data, primitives, primitive_count,&photon_ray,&isect)) 
+				light_ray_sample_l(light,scene_info,u[1 ],u[2 ],u[3],u[4],
+					&photon_ray,&nl,&pdf,&other_data.alpha);
+				if (pdf == 0.f || color_is_black(other_data.alpha))continue;
+				vsmul(other_data.alpha,(fabs(vdot(nl,photon_ray.d))/(pdf*lpdf)),other_data.alpha);
+				photon_intersection_data_set_n_intersections(&other_data,0);
+				if(intersect(accelerator_data, shape_data, primitives, primitive_count,&photon_ray,&other_data.isect)) 
 				{
 					break;
 				}
 			}
-			if(try_count >= max_try_count){
+			if(try_count >= 4){
 				intersections[i] = other_data;
 				return;
 			}
 		}
 
-		other_data.specular_path = other_data.n_intersections == 0 || other_data.specular_path == 1;
-
-		++other_data.n_intersections ;
-
-		scene_tranmittance(scene_info,&photon_ray,&ltranmittance);
-
-		vector3f_t wo ; 
-		vneg(wo,photon_ray.d);
-		bsdf_t photon_bsdf;
-
-		intersection_get_bsdf(&isect,scene_info,&photon_ray,
-					   &photon_bsdf);
-		BxDFType specular_type = 
-		(BxDFType)(BSDF_REFLECTION|BSDF_TRANSMISSION|BSDF_SPECULAR);
-		other_data.has_non_specular = (
-							   photon_bsdf.n_bxdfs > bsdf_num_components(&photon_bsdf,specular_type)
-							   );
-	
-
-		if (other_data.has_non_specular)
-		{
-			//deposit photon at surface
-			photon_init(&other_data.photon,&isect.dg.p,&alpha,&wo);
-
-			//store data for radiance photon
-			normal3f_t n = isect.dg.nn;
-			if(vdot(n,photon_ray.d) > 0.f)vneg(n,n);
-			radiance_photon_init(&other_data.radiance_photon,&(isect.dg.p),(&n));
-			bsdf_rho_hh(&photon_bsdf,&other_data.seed,BSDF_ALL_REFLECTION,&other_data.rho_r);
-			bsdf_rho_hh(&photon_bsdf,&other_data.seed,BSDF_ALL_TRANSMISSION,&other_data.rho_t);
-		}
-
-		//sample new photon ray direction
-		vector3f_t wi;
-		float pdf;
-		BxDFType flags;
-
-		//compute new photon weight and possibly terminate with rr
-		spectrum_t fr;
-		bsdf_sample_f(&photon_bsdf,&wo,&wi,u[5],u[6],u[7],&pdf,BSDF_ALL,&flags,&fr);
-		if(color_is_black(fr) || pdf == 0.f)
-		{
-			other_data.continue_trace = 0;
-			intersections[i] = other_data;
-			return;
-		}
-		spectrum_t anew;
-		vmul(anew,alpha,fr);
-		vsmul(anew,fabs(vdot(wi,photon_bsdf.dg_shading.nn))/pdf,anew);
-		float continue_prob = min(1.f,spectrum_y(&anew)/spectrum_y(&alpha));
-		if (u[8] > continue_prob  )
-		{
-			other_data.continue_trace = 0;
-			intersections[i] = other_data;
-			return;
-		}
-		vsmul(alpha,1.f/continue_prob,anew);
-		other_data.alpha = alpha;
-		other_data.specular_path = (other_data.specular_path)
-			&& ((flags & BSDF_SPECULAR) != 0);
-
-		if(other_data.n_intersections > 4)
-		{
-			other_data.continue_trace = 0;
-		}
-		else
-			other_data.continue_trace = 1;
+		photon_intersection_data_set_specular_path(&other_data, 
+				photon_intersection_data_n_intersections(&other_data) == 0 ||
+				photon_intersection_data_is_specular_path(&other_data) == true);
+		//if(i == 1)
+		//printf("before ++n_intersections %d\t",photon_intersection_data_n_intersections(&other_data));
+		photon_intersection_data_set_continue_trace(&other_data,1);
+		photon_intersection_data_set_n_intersections(&other_data, 1 + photon_intersection_data_n_intersections(&other_data));
+		//other_data.n_intersections = 1 + other_data.n_intersections ;
+		//scene_tranmittance(scene_info,&photon_ray,&ltranmittance);
 		intersections[i] = other_data;
-		
-		rinit(photon_ray,isect.dg.p,wi);
-		photon_ray.mint = isect.ray_epsilon;
+		//if(i == 1)
+		//printf("after ++n_intersections %d\t",photon_intersection_data_n_intersections(&other_data));
 		photon_rays[i] = photon_ray;
-		/*
-	////////////////////////////////////////////////
-		*/
 	}
 }

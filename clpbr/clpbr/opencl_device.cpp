@@ -193,6 +193,10 @@ void OpenCLDevice::Run(size_t total_threads)
 	}
 	clFlush(command_queue_);
 }
+void OpenCLDevice::Wait()
+{
+	clFinish(command_queue_);
+}
 void OpenCLDevice::SetKernelFile(const char* file, const char *kernel_name)
 {
 	/* Create the kernel program */

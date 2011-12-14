@@ -1,6 +1,8 @@
 #include <cmath>
 #include <iterator>
 #include <omp.h>
+#include <CL/cl.hpp>
+#include <fstream>
 #include "config.h"
 #include "progressive_photon_map_renderer.h"
 #include "ray_buffer.h"
@@ -9,49 +11,199 @@
 #include "film.h"
 #include "camera.h"
 #include "random_number_generator_mt19937.h"
-#include "opencl_device.h"
 #include "scene_data.h"
 
 #include <ctime> 
 
+static cl::Context ray_tracing_context_;
+static cl::Program ray_tracing_program_;
+static std::vector<cl::Device>  ray_tracing_devices_;
+static cl::CommandQueue ray_tracing_command_queue_;
+static cl::Kernel ray_tracing_kernel_;
+
+static cl::Buffer ray_tracing_light_data;
+static cl::Buffer ray_tracing_material_data;
+static cl::Buffer ray_tracing_shape_data;
+static cl::Buffer ray_tracing_texture_data;
+static cl::Buffer ray_tracing_accelerator_data;
+static cl::Buffer ray_tracing_primitives;
+static cl::Buffer ray_tracing_lghts;
+static cl::Buffer ray_tracing_colors;
+static cl::Buffer ray_tracing_seeds;
+static cl::Buffer ray_tracing_rays;
+
+
+static cl::Context photon_intersect_context_;
+static cl::Program photon_intersect_program_;
+static std::vector<cl::Device>  photon_intersect_devices_;
+static cl::CommandQueue photon_intersect_command_queue_;
+static cl::Kernel photon_intersect_kernel_;
+
+static cl::Buffer photon_intersect_light_data;
+static cl::Buffer photon_intersect_material_data;
+static cl::Buffer photon_intersect_shape_data;
+static cl::Buffer photon_intersect_texture_data;
+static cl::Buffer photon_intersect_accelerator_data;
+static cl::Buffer photon_intersect_primitives;
+static cl::Buffer photon_intersect_lghts;
+static cl::Buffer photon_intersect_lights_power;
+static cl::Buffer photon_intersect_light_cdf;
+static cl::Buffer photon_intersect_halton;
+
+static cl::Context photon_generate_context_;
+static cl::Program photon_generate_program_;
+static std::vector<cl::Device>  photon_generate_devices_;
+static cl::CommandQueue photon_generate_command_queue_;
+static cl::Kernel photon_generate_kernel_;
+
+static cl::Buffer photon_generate_light_data;
+static cl::Buffer photon_generate_material_data;
+static cl::Buffer photon_generate_shape_data;
+static cl::Buffer photon_generate_texture_data;
+static cl::Buffer photon_generate_accelerator_data;
+static cl::Buffer photon_generate_primitives;
+static cl::Buffer photon_generate_lghts;
+static cl::Buffer photon_generate_photons;
+
+
+void ReadSource(const char *filename, std::string *source_string)
+{
+	size_t size;
+	char*  str;
+
+	std::fstream f(filename, (std::fstream::in | std::fstream::binary));
+
+	if(f.is_open())
+	{
+		std::streamsize fileSize;
+		f.seekg(0, std::fstream::end);
+		size = fileSize = f.tellg();
+		f.seekg(0, std::fstream::beg);
+
+		str = new char[size+1];
+		if(!str)
+		{
+			f.close();
+			return ;
+		}
+
+		f.read(str, fileSize);
+		f.close();
+		str[size] = '\0';
+	
+		*source_string = str;
+		delete[] str;
+	}
+	else
+	{
+		//std::cout << "\nFile containg the kernel code(\".cl\") not found. Please copy the required file in the folder containg the executable.\n";
+	}
+}
 
 PPMRenderer::PPMRenderer(Camera* c,Film* im,Sampler* s,photon_map_t* photon_map)
 :camera_(c),image_(im),sampler_(s),photon_map_(photon_map)
 {
-	device_ = new OpenCLDevice(CL_DEVICE_TYPE_CPU);
-	device_->SetKernelFile("rendering_kernel.cl", "render");
-	photon_intersect_device_ = new OpenCLDevice(CL_DEVICE_TYPE_CPU);
-	photon_intersect_device_->SetKernelFile("intersect_kernel.cl","photon_intersect");
+	std::vector<cl::Platform> platforms;
+	cl::Platform::get(&platforms);
+	cl_context_properties cprops[]={
+		CL_CONTEXT_PLATFORM,
+		(cl_context_properties)(platforms[0])(),
+		0
+	};
+	photon_intersect_context_ = cl::Context(CL_DEVICE_TYPE_GPU, cprops);
+	photon_intersect_devices_ = photon_intersect_context_.getInfo<CL_CONTEXT_DEVICES>();
+	photon_intersect_command_queue_ = cl::CommandQueue(photon_intersect_context_,photon_intersect_devices_[0],0);
+
+	ray_tracing_context_ = cl::Context(CL_DEVICE_TYPE_CPU,cprops);
+	ray_tracing_devices_ = ray_tracing_context_.getInfo<CL_CONTEXT_DEVICES>();
+	ray_tracing_command_queue_ = cl::CommandQueue(ray_tracing_context_,ray_tracing_devices_[0],0);
+
+	photon_generate_context_ = photon_intersect_context_;//cl::Context(CL_DEVICE_TYPE_GPU, cprops);
+	photon_generate_devices_ = photon_generate_context_.getInfo<CL_CONTEXT_DEVICES>();
+	photon_generate_command_queue_ = cl::CommandQueue(photon_generate_context_,photon_generate_devices_[0],0);
+
+	std::string source_string;
+	ReadSource("intersect_kernel.cl",&source_string);
+	cl::Program::Sources photon_intersect_sources(1,std::make_pair(source_string.c_str(),0));
+	photon_intersect_program_ = cl::Program(photon_intersect_context_,photon_intersect_sources);
+	photon_intersect_program_.build(photon_intersect_devices_,"-I. ");
+	photon_intersect_kernel_ = cl::Kernel(photon_intersect_program_,"photon_intersect");
+
+	source_string.clear();
+	ReadSource("rendering_kernel.cl",&source_string);
+	cl::Program::Sources ray_tracing_sources(1,std::make_pair(source_string.c_str(),0));
+	ray_tracing_program_ = cl::Program(ray_tracing_context_,ray_tracing_sources);
+	ray_tracing_program_.build(ray_tracing_devices_,"-I. ");
+	ray_tracing_kernel_ = cl::Kernel(ray_tracing_program_,"render");
+
+	source_string.clear();
+	ReadSource("photon_generation.cl",&source_string);
+	cl::Program::Sources photon_generate_sources(1,std::make_pair(source_string.c_str(),0));
+	photon_generate_program_ = cl::Program(photon_generate_context_,photon_generate_sources);
+	photon_generate_program_.build(photon_generate_devices_,"-I. ");
+	photon_generate_kernel_ = cl::Kernel(photon_generate_program_,"photon_generation");
+	
 }
 PPMRenderer::~PPMRenderer()
 {
 	delete camera_;
 	delete sampler_;
 	delete image_;
-	delete device_;
-	delete photon_intersect_device_;
+}
+template<typename T>
+cl::Buffer CreateBuffer(cl::Context context, cl_mem_flags flag, const std::vector<T>& data)
+{
+	return cl::Buffer(context,flag | CL_MEM_COPY_HOST_PTR,sizeof(T) * data.size(),(void*)&data[0]);
 }
 void PPMRenderer::InitializeDeviceData(const scene_info_memory_t& scene_info)
 {
-	device_->SetReadOnlyArg(2,scene_info.light_data);
-	device_->SetReadOnlyArg(3,scene_info.material_data);
-	device_->SetReadOnlyArg(4,scene_info.shape_data);
-	device_->SetReadOnlyArg(5,scene_info.texture_data);//to be texture data
-	device_->SetReadOnlyArg(7,scene_info.accelerator_data);
-	device_->SetReadOnlyArg(8,scene_info.primitives);
-	device_->SetReadOnlyArg(9,scene_info.lghts);
-	device_->SetReadOnlyArg(11,(unsigned int)scene_info.primitives.size());
-	device_->SetReadOnlyArg(12,(unsigned int)scene_info.lghts.size());
+	ray_tracing_light_data = CreateBuffer(ray_tracing_context_, CL_MEM_READ_ONLY,scene_info.light_data);
+	ray_tracing_material_data = CreateBuffer(ray_tracing_context_, CL_MEM_READ_ONLY, scene_info.material_data);
+	ray_tracing_shape_data = CreateBuffer(ray_tracing_context_, CL_MEM_READ_ONLY, scene_info.shape_data);
+	ray_tracing_texture_data= CreateBuffer(ray_tracing_context_, CL_MEM_READ_ONLY, scene_info.texture_data);
+	ray_tracing_accelerator_data = CreateBuffer(ray_tracing_context_, CL_MEM_READ_ONLY, scene_info.accelerator_data);
+	ray_tracing_primitives = CreateBuffer(ray_tracing_context_, CL_MEM_READ_ONLY, scene_info.primitives);
+	ray_tracing_lghts = CreateBuffer(ray_tracing_context_, CL_MEM_READ_ONLY, scene_info.lghts);
 
-	photon_intersect_device_->SetReadOnlyArg(2,scene_info.light_data);
-	photon_intersect_device_->SetReadOnlyArg(3,scene_info.material_data);
-	photon_intersect_device_->SetReadOnlyArg(4,scene_info.shape_data);
-	photon_intersect_device_->SetReadOnlyArg(5,scene_info.texture_data);//to be texture data
-	photon_intersect_device_->SetReadOnlyArg(6,scene_info.accelerator_data);
-	photon_intersect_device_->SetReadOnlyArg(7,scene_info.primitives);
-	photon_intersect_device_->SetReadOnlyArg(8,scene_info.lghts);
-	photon_intersect_device_->SetReadOnlyArg(13,(unsigned int)scene_info.primitives.size());
-	photon_intersect_device_->SetReadOnlyArg(14,(unsigned int)scene_info.lghts.size());
+	ray_tracing_kernel_.setArg(2,ray_tracing_light_data);
+	ray_tracing_kernel_.setArg(3,ray_tracing_material_data);
+	ray_tracing_kernel_.setArg(4,ray_tracing_shape_data);
+	ray_tracing_kernel_.setArg(5,ray_tracing_texture_data);
+	//ray_tracing_kernel_.setArg(6,ray_tracing_integrator_data);
+	ray_tracing_kernel_.setArg(7,ray_tracing_accelerator_data);
+	ray_tracing_kernel_.setArg(8,ray_tracing_primitives);
+	ray_tracing_kernel_.setArg(9,ray_tracing_lghts);
+	ray_tracing_kernel_.setArg(11,(unsigned int)scene_info.primitives.size());
+	ray_tracing_kernel_.setArg(12,(unsigned int)scene_info.lghts.size());
+	
+
+	photon_generate_light_data = photon_intersect_light_data = CreateBuffer(photon_intersect_context_, CL_MEM_READ_ONLY,scene_info.light_data);
+	photon_generate_material_data = photon_intersect_material_data = CreateBuffer(photon_intersect_context_, CL_MEM_READ_ONLY, scene_info.material_data);
+	photon_generate_shape_data = photon_intersect_shape_data = CreateBuffer(photon_intersect_context_, CL_MEM_READ_ONLY, scene_info.shape_data);
+	photon_generate_texture_data = photon_intersect_texture_data= CreateBuffer(photon_intersect_context_, CL_MEM_READ_ONLY, scene_info.texture_data);
+	photon_generate_accelerator_data = photon_intersect_accelerator_data = CreateBuffer(photon_intersect_context_, CL_MEM_READ_ONLY, scene_info.accelerator_data);
+	photon_generate_primitives = photon_intersect_primitives = CreateBuffer(photon_intersect_context_, CL_MEM_READ_ONLY, scene_info.primitives);
+	photon_generate_lghts = photon_intersect_lghts = CreateBuffer(photon_intersect_context_, CL_MEM_READ_ONLY, scene_info.lghts);
+
+	photon_intersect_kernel_.setArg(2,photon_intersect_light_data);
+	photon_intersect_kernel_.setArg(3,photon_intersect_material_data);
+	photon_intersect_kernel_.setArg(4,photon_intersect_shape_data);
+	photon_intersect_kernel_.setArg(5,photon_intersect_texture_data);
+	photon_intersect_kernel_.setArg(6,photon_intersect_accelerator_data);
+	photon_intersect_kernel_.setArg(7,photon_intersect_primitives);
+	photon_intersect_kernel_.setArg(8,photon_intersect_lghts);
+	photon_intersect_kernel_.setArg(13,(unsigned int)scene_info.primitives.size());
+	photon_intersect_kernel_.setArg(14,(unsigned int)scene_info.lghts.size());
+
+	photon_generate_kernel_.setArg(2,photon_generate_light_data);
+	photon_generate_kernel_.setArg(3,photon_generate_material_data);
+	photon_generate_kernel_.setArg(4,photon_generate_shape_data);
+	photon_generate_kernel_.setArg(5,photon_generate_texture_data);
+	photon_generate_kernel_.setArg(6,photon_generate_accelerator_data);
+	photon_generate_kernel_.setArg(7,photon_generate_primitives);
+	photon_generate_kernel_.setArg(8,photon_generate_lghts);
+	photon_generate_kernel_.setArg(10,(unsigned int)scene_info.primitives.size());
+	photon_generate_kernel_.setArg(11,(unsigned int)scene_info.lghts.size());
 }
 static std::vector<float> as_float_array(const photon_kd_tree_t& photon_kd_tree)
 {
@@ -150,7 +302,8 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 		init_rng(rng->RandomUnsignedInt(),&seed);
 		seeds.push_back(seed);
 	}
-	device_->SetReadWriteArg(1,seeds);
+	ray_tracing_seeds = CreateBuffer(ray_tracing_context_,CL_MEM_READ_WRITE,seeds);
+	ray_tracing_kernel_.setArg(1,ray_tracing_seeds);
 
 	int iteration = 0;
 	while(true)
@@ -159,11 +312,19 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 		t0 = clock();
 
 		sampler_->ResetSamplePosition();
-		photon_map_init(photon_map_,scene_info,*rng, photon_intersect_device_);
+		cl_photon_init_device_info_t device_info;
+		device_info.photon_generate_command_queue = photon_generate_command_queue_;
+		device_info.photon_generate_context = photon_generate_context_;
+		device_info.photon_generate_kernel = photon_generate_kernel_;
+		device_info.photon_intersect_command_queue = photon_intersect_command_queue_;
+		device_info.photon_intersect_context = photon_intersect_context_;
+		device_info.photon_intersect_kernel = photon_intersect_kernel_;
+		photon_map_init(photon_map_,scene_info,*rng, device_info);
 		
 		scene_info.integrator_data = as_float_array(*photon_map_);
-		device_->SetReadOnlyArg(6,scene_info.integrator_data);//to be texture data
-		
+		cl::Buffer ray_tracing_integrator_data = 
+			CreateBuffer(ray_tracing_context_,CL_MEM_READ_ONLY,scene_info.integrator_data);
+		ray_tracing_kernel_.setArg(6,ray_tracing_integrator_data);
 		
 		bool has_more_sample = true;
 
@@ -213,11 +374,15 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 #else
 			if(!ray_buffer.empty())
 			{
-				device_->SetReadWriteArg(0,local_color_buffer);
-				device_->SetReadOnlyArg(10,ray_buffer);
-				device_->SetReadOnlyArg(13,(unsigned int)local_color_buffer.size());
-				device_->Run(local_color_buffer.size());
-				device_->ReadBuffer(0,&local_color_buffer[0],(unsigned)local_color_buffer.size());
+				cl::Buffer ray_tracing_color_buffer = CreateBuffer(ray_tracing_context_,CL_MEM_READ_WRITE,local_color_buffer);
+				ray_tracing_kernel_.setArg(0,ray_tracing_color_buffer);
+				cl::Buffer ray_tracing_ray_buffer = CreateBuffer(ray_tracing_context_,CL_MEM_READ_ONLY,ray_buffer);
+				ray_tracing_kernel_.setArg(10,ray_tracing_ray_buffer);
+				ray_tracing_kernel_.setArg(13,(unsigned int) local_color_buffer.size());
+				ray_tracing_command_queue_.enqueueNDRangeKernel(ray_tracing_kernel_,cl::NullRange,cl::NDRange(ray_buffer.size()),cl::NullRange);
+				ray_tracing_command_queue_.enqueueReadBuffer(ray_tracing_color_buffer,CL_TRUE,0,
+					local_color_buffer.size() * sizeof(local_color_buffer[0])
+					,&local_color_buffer[0]);
 				//////////////////////////////////////////////////////////////////////////
 
 				for(size_t i = 0;i < local_samples.size(); ++i)
