@@ -17,10 +17,14 @@
 
 __kernel void render(
 __global spectrum_t *colors , __global Seed *seeds,
+
 GLOBAL float* light_data,GLOBAL float* material_data,GLOBAL float* shape_data,
 GLOBAL float* texture_data,GLOBAL float* integrator_data,GLOBAL float* accelerator_data,
 GLOBAL primitive_info_t* primitives,
-GLOBAL light_info_t* lghts,GLOBAL ray_differential_t *ray,const unsigned int primitive_count, const unsigned int lght_count,const unsigned int number_work_items
+GLOBAL light_info_t* lghts,
+
+GLOBAL ray_differential_t *ray,
+const unsigned int primitive_count, const unsigned int lght_count,const unsigned int number_work_items
 )
 {
     const int gid = get_global_id(0);
