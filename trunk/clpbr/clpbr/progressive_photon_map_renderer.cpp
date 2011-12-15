@@ -114,7 +114,12 @@ PPMRenderer::PPMRenderer(Camera* c,Film* im,Sampler* s,photon_map_t* photon_map)
 	photon_intersect_devices_ = photon_intersect_context_.getInfo<CL_CONTEXT_DEVICES>();
 	photon_intersect_command_queue_ = cl::CommandQueue(photon_intersect_context_,photon_intersect_devices_[0],0);
 
-	ray_tracing_context_ = cl::Context(CL_DEVICE_TYPE_CPU,cprops);
+	cl_context_properties cpu_cprops[]={
+		CL_CONTEXT_PLATFORM,
+		(cl_context_properties)(platforms[1])(),
+		0
+	};
+	ray_tracing_context_ = cl::Context(CL_DEVICE_TYPE_CPU,cpu_cprops);
 	ray_tracing_devices_ = ray_tracing_context_.getInfo<CL_CONTEXT_DEVICES>();
 	ray_tracing_command_queue_ = cl::CommandQueue(ray_tracing_context_,ray_tracing_devices_[0],0);
 
@@ -368,7 +373,19 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 				{
 					int xxxxx= 0;
 				}
-				photon_map_li(&loaded_photon_map,&ray_buffer[i],as_cl_scene_info(scene_info),&seeds[i],&local_color_buffer[i]);
+
+				LOCAL ray_t ray_stack[MAX_RAY_DEPTH];
+				LOCAL spectrum_t passthrough[MAX_RAY_DEPTH];
+				LOCAL bsdf_t bsdf_stack[MAX_RAY_DEPTH];
+				LOCAL bool left_stack[MAX_RAY_DEPTH];//todo: change to bit 
+				//lphoton data
+				LOCAL close_photon_t close_photon_data_store[MAX_CLOSE_PHOTON_LOOKUP];
+				//final gather data
+				LOCAL close_photon_t photon_buffer[n_indir_sample_photons];
+				LOCAL vector3f_t photon_dirs [n_indir_sample_photons];
+				photon_map_li(&loaded_photon_map,&ray_buffer[i],as_cl_scene_info(scene_info),&seeds[i],&local_color_buffer[i],
+					ray_stack,passthrough,bsdf_stack,left_stack,close_photon_data_store,photon_buffer,photon_dirs
+					);
 				image_->AddSample(local_samples[i],local_color_buffer[i]);
 			}
 #else
