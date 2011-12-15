@@ -106,7 +106,8 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 	//static const int buffer_size = 1 * 16 * 128;
 	printf("start shooting photons\n");
 	clock_t t0 = clock();
-	static const unsigned int buffer_size =  1024 * 1024;
+	static const unsigned int buffer_size =  1024 * 256;
+	static const unsigned int local_buffer_size =  buffer_size;
 	std::vector<photon_intersection_data_t> other_datas;
 	std::vector<generated_photon_t> generated_photons;
 	std::vector<ray_t> photon_rays;
@@ -129,7 +130,7 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 	device_info.photon_intersect_kernel.setArg(9,lights_power_buffer);
 	device_info.photon_intersect_kernel.setArg(10,light_cdf_buffer);
 	device_info.photon_intersect_kernel.setArg(12,total_power);
-	device_info.photon_intersect_kernel.setArg(16,buffer_size);
+	device_info.photon_intersect_kernel.setArg(16,local_buffer_size);
 	device_info.photon_intersect_kernel.setArg(1,photon_rays_buffer);
 	device_info.photon_intersect_kernel.setArg(0,photon_intersect_data_buffer);
 
@@ -141,7 +142,7 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 	device_info.photon_generate_kernel.setArg(9,generated_photons_buffer);
 	device_info.photon_generate_kernel.setArg(10,(unsigned int)scene_info_memory.primitives.size());
 	device_info.photon_generate_kernel.setArg(11,(unsigned int)scene_info_memory.lghts.size());
-	device_info.photon_generate_kernel.setArg(12,buffer_size);
+	device_info.photon_generate_kernel.setArg(12,local_buffer_size);
 	bool is_first_pass = true;
 	while (!caustic_done || !indirect_done )//todo: add not photon_rays.empty
 	{
@@ -156,8 +157,7 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 		device_info.photon_intersect_command_queue.finish();
 		device_info.photon_generate_command_queue.enqueueNDRangeKernel(device_info.photon_generate_kernel,cl::NullRange,
 			cl::NDRange(buffer_size),cl::NDRange(128));
-		device_info.photon_generate_command_queue.enqueueReadBuffer(photon_intersect_data_buffer,CL_TRUE,0,other_datas.size()*sizeof(other_datas[0]),&other_datas[0]);
-		device_info.photon_generate_command_queue.enqueueReadBuffer(generated_photons_buffer,CL_TRUE,0,generated_photons.size() * sizeof(generated_photons[0]),&generated_photons[0]);
+		device_info.photon_generate_command_queue.flush();
 		/*
 		photon_map_preprocess_cl(&other_datas[0],&photon_rays[0],scene_info.light_data,scene_info.material_data,scene_info.shape_data,scene_info.texture_data,
 			scene_info.integrator_data,scene_info.accelerator_data,scene_info.primitives,scene_info.lghts,lights_power,light_cdf,&halton[0],total_power,scene_info.primitive_count
@@ -217,6 +217,7 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 				}
 			}
 
+
 			if (caustic_photons.size() >= photon_map->n_caustic_photons && !caustic_done)
 			{
 				caustic_done = true;
@@ -245,6 +246,12 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 				printf("Warning: No photon found!\n");
 				break;
 			}
+		}
+
+		if(!caustic_done || !indirect_done)
+		{
+			device_info.photon_generate_command_queue.enqueueReadBuffer(photon_intersect_data_buffer,CL_TRUE,0,other_datas.size()*sizeof(other_datas[0]),&other_datas[0]);
+			device_info.photon_generate_command_queue.enqueueReadBuffer(generated_photons_buffer,CL_TRUE,0,generated_photons.size() * sizeof(generated_photons[0]),&generated_photons[0]);
 		}
 		is_first_pass = false;
 		printf("\r%d/%d photon shooted. time: %d, indirect_photons: %d",n_shot,photon_map->total_photons,clock()-t0,indirect_photons.size());

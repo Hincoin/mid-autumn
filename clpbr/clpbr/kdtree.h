@@ -59,7 +59,7 @@ INLINE void kd_node_init_leaf(kd_node_t* kd_node)
 	}\
 
 //todo
-#define KD_TREE_MAX_DEPTH 64
+#define KD_TREE_MAX_DEPTH 32 
 
 INLINE float distance_squared(point3f_t v0,point3f_t v1)
 {

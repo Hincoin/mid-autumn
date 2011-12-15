@@ -370,7 +370,7 @@ void triangle_test()
 	w=h = 768;
 	Film* film = new ImageFilm(w,h,1024*1024);
 	PerspectiveCamera* camera = new PerspectiveCamera(camera_to_world,screen_window_t(1.f),degree_to_radian(degree_t(40)),film);
-	RandomSampler* sampler = new RandomSampler(0,w,0,h,4,4);
+	RandomSampler* sampler = new RandomSampler(0,w,0,h,1,1);
 	
 	photon_map_t* photon_map = new photon_map_t();
 	photon_map->final_gather = false;
@@ -382,7 +382,7 @@ void triangle_test()
 	photon_map->n_caustic_paths = 0;
 	photon_map->n_caustic_photons = 0;
 	photon_map->n_indirect_paths = 0;
-	photon_map->n_indirect_photons = 5000000;
+	photon_map->n_indirect_photons = 1000000;
 	photon_map->n_lookup = 20;
 	photon_map->total_photons = 0;
 	photon_map->rr_threshold = 0.125f;

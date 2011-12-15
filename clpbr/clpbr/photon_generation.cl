@@ -25,9 +25,10 @@ __kernel void photon_generation(
 		const unsigned int number_work_items
 		)
 {
-	const int i = get_global_id(0);
-	if( i < number_work_items)
+	//if( i < number_work_items)
+	//for(int k = 0; k < number_work_items; ++k)
 	{
+		const int i = get_global_id(0);//*number_work_items + k;
 		cl_scene_info_t scene_info;
 		scene_info.light_data = light_data;
 		scene_info.material_data = material_data;
@@ -45,6 +46,9 @@ __kernel void photon_generation(
 		spectrum_t alpha = other_data.alpha;
 		if (photon_intersection_data_n_intersections(&other_data) < 1)
 			return;
+		//if(other_data.alpha.x < 0.000001f)
+		//	printf("load errrrrrrrrrrrr");
+
 	//	if(i == 1)
 	//		printf("photon_generation %d",photon_intersection_data_n_intersections(&other_data));
 
@@ -63,9 +67,11 @@ __kernel void photon_generation(
 
 		if (photon_intersection_data_has_non_specular(&other_data))
 		{
+		//	if(other_data.alpha.x < 0.000001f)
+		//		printf("small red component when store photon\t");
 			//deposit photon at surface
 			photon_t photon;
-			photon_init(&photon,&isect.dg.p,&alpha,&wo);
+			photon_init(&photon,&isect.dg.p,& alpha,&wo);
 			generated_photons[i].photon = photon;
 
 			//store data for radiance photon
@@ -88,7 +94,10 @@ __kernel void photon_generation(
 
 		//compute new photon weight and possibly terminate with rr
 		spectrum_t fr;
-		bsdf_sample_f(&photon_bsdf,&wo,&wi,random_float(&seed),random_float(&seed),random_float(&seed),&pdf,BSDF_ALL,&flags,&fr);
+		float u1 = random_float(&seed);
+		float u2 = random_float(&seed);
+		float u3 = random_float(&seed);
+		bsdf_sample_f(&photon_bsdf,&wo,&wi,u1,u2,u3,&pdf,BSDF_ALL,&flags,&fr);
 		if(color_is_black(fr) || pdf == 0.f)
 		{
 			photon_intersection_data_set_continue_trace(&other_data,0);
@@ -96,10 +105,16 @@ __kernel void photon_generation(
 			intersections[i] = other_data;
 			return;
 		}
+		//if(fr.x < 0.000001f)
+			//printf("00000000bsdf_sample_f small red component:%f,%f,%d,%f,%f,%f,pdf:%f\t",fr.x,other_data.alpha.x,photon_intersection_data_n_intersections(&other_data),u1,u2,u3,pdf);
+
 		spectrum_t anew;
-		vmul(anew,other_data.alpha,fr);
+		vmul(anew, alpha,fr);
 		vsmul(anew,fabs(vdot(wi,photon_bsdf.dg_shading.nn))/pdf,anew);
-		float continue_prob = min(1.f,spectrum_y(&anew)/spectrum_y(&alpha));
+		//if(anew.x < 0.000001f)
+			//printf("11111111bsdf_sample_f small red component:%f,%f,%d,%f,%f,%f,pdf:%f\t",anew.x,other_data.alpha.x,photon_intersection_data_n_intersections(&other_data),u1,u2,u3,pdf);
+
+		float continue_prob = min(1.f,spectrum_y(&anew)/spectrum_y(& alpha));
 		if (random_float(&seed) > continue_prob  )
 		{
 			photon_intersection_data_set_continue_trace(&other_data,0);
@@ -108,6 +123,9 @@ __kernel void photon_generation(
 			return;
 		}
 		vsmul(other_data.alpha,1.f/continue_prob,anew);
+		//if(other_data.alpha.x < 0.000001f)
+			//printf("2222222222bsdf_sample_f small red component:%f,%f,%d,%f,%f,%f,pdf:%f,continue:%f\t",anew.x,other_data.alpha.x,photon_intersection_data_n_intersections(&other_data),u1,u2,u3,pdf,continue_prob);
+
 		//other_data[local_thread_id].alpha = alpha;
 		photon_intersection_data_set_specular_path(&other_data, 
 				photon_intersection_data_is_specular_path(&other_data) && ((flags & BSDF_SPECULAR) != 0));

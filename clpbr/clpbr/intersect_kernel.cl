@@ -30,10 +30,10 @@ __kernel void photon_intersect(
 		const unsigned int number_work_items
 )		
 {
-	const int i = get_global_id(0);
-	if(i < number_work_items)
+	//if(i < number_work_items)
+	//for(int k = 0; k < number_work_items; ++k)
 	{
-
+		const int i = get_global_id(0);// * number_work_items + k;
 		cl_scene_info_t scene_info;
 		scene_info.light_data = light_data;
 		scene_info.material_data = material_data;
@@ -49,6 +49,8 @@ __kernel void photon_intersect(
 		ray_t photon_ray = photon_rays[i];
 		other_data = intersections[i];
 
+		spectrum_t alpha = other_data.alpha;
+		//mem_fence(CLK_GLOBAL_MEM_FENCE);
 		//spectrum_t ltranmittance;
 		int try_count ;
 		
@@ -85,9 +87,9 @@ __kernel void photon_intersect(
 
 				normal3f_t nl;
 				light_ray_sample_l(light,scene_info,u[1 ],u[2 ],u[3],u[4],
-					&photon_ray,&nl,&pdf,&other_data.alpha);
-				if (pdf == 0.f || color_is_black(other_data.alpha))continue;
-				vsmul(other_data.alpha,(fabs(vdot(nl,photon_ray.d))/(pdf*lpdf)),other_data.alpha);
+					&photon_ray,&nl,&pdf,& alpha);
+				if (pdf == 0.f || color_is_black(alpha))continue;
+				vsmul(other_data.alpha,(fabs(vdot(nl,photon_ray.d))/(pdf*lpdf)),alpha);
 				photon_intersection_data_set_n_intersections(&other_data,0);
 				if(intersect(accelerator_data, shape_data, primitives, primitive_count,&photon_ray,&other_data.isect)) 
 				{
@@ -103,15 +105,22 @@ __kernel void photon_intersect(
 		photon_intersection_data_set_specular_path(&other_data, 
 				photon_intersection_data_n_intersections(&other_data) == 0 ||
 				photon_intersection_data_is_specular_path(&other_data) == true);
+		//if(photon_intersection_data_n_intersections(&other_data) == 1 && other_data.alpha.x < 0.000001f)
+		{
+		//	printf("intersect_kernel %d,%d\t",i,photon_intersection_data_continue_trace(&other_data));
+		}
 		//if(i == 1)
 		//printf("before ++n_intersections %d\t",photon_intersection_data_n_intersections(&other_data));
 		photon_intersection_data_set_continue_trace(&other_data,1);
 		photon_intersection_data_set_n_intersections(&other_data, 1 + photon_intersection_data_n_intersections(&other_data));
 		//other_data.n_intersections = 1 + other_data.n_intersections ;
+
 		//scene_tranmittance(scene_info,&photon_ray,&ltranmittance);
 		intersections[i] = other_data;
 		//if(i == 1)
-		//printf("after ++n_intersections %d\t",photon_intersection_data_n_intersections(&other_data));
+		//	printf("after ++n_intersections %d\t",photon_intersection_data_n_intersections(&other_data));
 		photon_rays[i] = photon_ray;
+
+		//mem_fence(CLK_GLOBAL_MEM_FENCE);
 	}
 }
