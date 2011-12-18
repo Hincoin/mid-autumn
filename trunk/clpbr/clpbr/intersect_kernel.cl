@@ -33,7 +33,7 @@ __kernel void photon_intersect(
 	//if(i < number_work_items)
 	//for(int k = 0; k < number_work_items; ++k)
 	{
-		const int i = get_global_id(0);// * number_work_items + k;
+		const int i = get_global_id(0);
 		cl_scene_info_t scene_info;
 		scene_info.light_data = light_data;
 		scene_info.material_data = material_data;
@@ -46,8 +46,12 @@ __kernel void photon_intersect(
 		scene_info.lght_count = lght_count;
 		float u[5];
 		photon_intersection_data_t other_data;
+
+
 		ray_t photon_ray = photon_rays[i];
 		other_data = intersections[i];
+
+
 
 		spectrum_t alpha = other_data.alpha;
 		//mem_fence(CLK_GLOBAL_MEM_FENCE);
@@ -97,7 +101,7 @@ __kernel void photon_intersect(
 				}
 			}
 			if(try_count >= 4){
-				intersections[i] = other_data;
+				 intersections[i] = other_data;
 				return;
 			}
 		}
@@ -115,11 +119,15 @@ __kernel void photon_intersect(
 		photon_intersection_data_set_n_intersections(&other_data, 1 + photon_intersection_data_n_intersections(&other_data));
 		//other_data.n_intersections = 1 + other_data.n_intersections ;
 
+	//	printf("other_data n_intersections : %d\n",photon_intersection_data_n_intersections(&other_data));
 		//scene_tranmittance(scene_info,&photon_ray,&ltranmittance);
-		intersections[i] = other_data;
+
+		mem_fence(CLK_GLOBAL_MEM_FENCE);
+
+		 intersections[i] = other_data;
 		//if(i == 1)
 		//	printf("after ++n_intersections %d\t",photon_intersection_data_n_intersections(&other_data));
-		photon_rays[i] = photon_ray;
+		 photon_rays[i] = photon_ray;
 
 		//mem_fence(CLK_GLOBAL_MEM_FENCE);
 	}

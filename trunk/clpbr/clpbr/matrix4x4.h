@@ -254,10 +254,12 @@ bool Transform::SwapsHandedness() const {
 			matrix_element(m,2,3) = ez;
 			matrix_element(m,3,3) = 1;
 			// Initialize first three columns of viewing matrix
-			vector3f_t dir = {lx-ex,ly-ey,lz-ez};
+			vector3f_t dir ;
+			vinit(dir,lx-ex,ly-ey,lz-ez);
 			vnorm(dir);
 			//left or right
-			vector3f_t right = {ux,uy,uz};
+			vector3f_t right ;
+			vinit(right,ux,uy,uz);
 			vector3f_t normalized_right = right;
 			vnorm(normalized_right);
 			vxcross(right,dir,normalized_right);

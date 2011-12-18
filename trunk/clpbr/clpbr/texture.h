@@ -43,9 +43,9 @@ INLINE void color_texture_evaluate(color_texture_info_t* tex,cl_scene_info_t* sc
 	case COLOR_CONSTANT:
 		{
 			GLOBAL float* mem = scene_data->texture_data + tex->memory_start;
-			c->x = mem[0];
-			c->y = mem[1];
-			c->z = mem[2];
+			(*c).x = mem[0];
+			(*c).y = mem[1];
+			(*c).z = mem[2];
 		}
 		break;
 	default:

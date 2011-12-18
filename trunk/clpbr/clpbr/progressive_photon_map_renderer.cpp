@@ -110,7 +110,7 @@ PPMRenderer::PPMRenderer(Camera* c,Film* im,Sampler* s,photon_map_t* photon_map)
 		(cl_context_properties)(platforms[0])(),
 		0
 	};
-	photon_intersect_context_ = cl::Context(CL_DEVICE_TYPE_GPU, cprops);
+	photon_intersect_context_ = cl::Context(CL_DEVICE_TYPE_CPU, cprops);
 	photon_intersect_devices_ = photon_intersect_context_.getInfo<CL_CONTEXT_DEVICES>();
 	photon_intersect_command_queue_ = cl::CommandQueue(photon_intersect_context_,photon_intersect_devices_[0],0);
 
@@ -212,29 +212,38 @@ void PPMRenderer::InitializeDeviceData(const scene_info_memory_t& scene_info)
 }
 static std::vector<float> as_float_array(const photon_kd_tree_t& photon_kd_tree)
 {
+	float pad = 0.f;
 	std::vector<float> v;
 	v.push_back(as_float(photon_kd_tree.n_nodes));
+	v.push_back(as_float(photon_kd_tree.next_free_node));
+	v.push_back(pad);
+	v.push_back(pad);
 	for (unsigned int i = 0;i < photon_kd_tree.n_nodes; ++i)
 	{
 		v.push_back((photon_kd_tree.nodes[i].split_pos));
 		v.push_back(as_float(photon_kd_tree.nodes[i].data));
 	}
+	size_t n = v.size();
+	if (n%4)
+	{
+		for(unsigned int i = 0;i < (4-(n % 4));++i)
+		{
+			v.push_back(pad);//pad
+		}
+	}
 	for(unsigned int i = 0;i < photon_kd_tree.n_nodes; ++i)
 	{
-
-		v.push_back((photon_kd_tree.node_data[i].p.x));
-		v.push_back((photon_kd_tree.node_data[i].p.y));
-		v.push_back((photon_kd_tree.node_data[i].p.z));
-
-		v.push_back((photon_kd_tree.node_data[i].alpha.x));
-		v.push_back((photon_kd_tree.node_data[i].alpha.y));
-		v.push_back((photon_kd_tree.node_data[i].alpha.z));
-
-		v.push_back((photon_kd_tree.node_data[i].wi.x));
-		v.push_back((photon_kd_tree.node_data[i].wi.y));
-		v.push_back((photon_kd_tree.node_data[i].wi.z));
+		save_float3(v,photon_kd_tree.node_data[i].p);
+		save_float3(v,photon_kd_tree.node_data[i].alpha);
+		save_float3(v,photon_kd_tree.node_data[i].wi);
 	}
-	v.push_back(as_float(photon_kd_tree.next_free_node));
+
+	n = v.size();
+	if (n%4)
+		for(unsigned int i = 0;i < (4-(n % 4));++i)
+		{
+			v.push_back(pad);//pad
+		}
 	return v;
 }
 static std::vector<float> as_float_array(const radiance_photon_kd_tree_t& photon_kd_tree)
@@ -242,27 +251,36 @@ static std::vector<float> as_float_array(const radiance_photon_kd_tree_t& photon
 	//
 	std::vector<float> v;
 	v.push_back(as_float(photon_kd_tree.n_nodes));
+	v.push_back(as_float(photon_kd_tree.next_free_node));
+	float pad = 0.f;
+	v.push_back(pad);
+	v.push_back(pad);
 	for (unsigned int i = 0;i < photon_kd_tree.n_nodes; ++i)
 	{
 		v.push_back((photon_kd_tree.nodes[i].split_pos));
 		v.push_back(as_float(photon_kd_tree.nodes[i].data));
 	}
+
+	size_t n = v.size();
+	if(n%4)
+	for(unsigned int i = 0;i < (4-(n % 4));++i)
+	{
+		v.push_back(pad);//pad
+	}
+
 	for(unsigned int i = 0;i < photon_kd_tree.n_nodes; ++i)
 	{
-
-		v.push_back((photon_kd_tree.node_data[i].p.x));
-		v.push_back((photon_kd_tree.node_data[i].p.y));
-		v.push_back((photon_kd_tree.node_data[i].p.z));
-
-		v.push_back((photon_kd_tree.node_data[i].n.x));
-		v.push_back((photon_kd_tree.node_data[i].n.y));
-		v.push_back((photon_kd_tree.node_data[i].n.z));
-
-		v.push_back((photon_kd_tree.node_data[i].lo.x));
-		v.push_back((photon_kd_tree.node_data[i].lo.y));
-		v.push_back((photon_kd_tree.node_data[i].lo.z));
+		save_float3(v,photon_kd_tree.node_data[i].p);
+		save_float3(v,photon_kd_tree.node_data[i].n);
+		save_float3(v,photon_kd_tree.node_data[i].lo);
 	}
-	v.push_back(as_float(photon_kd_tree.next_free_node));
+	n = v.size();
+
+	if(n%4)
+	for(unsigned int i = 0;i < (4-(n % 4));++i)
+	{
+		v.push_back(pad);//pad
+	}
 	return v;
 }
 static std::vector<float> as_float_array(const photon_map_t& photon_map)
@@ -272,6 +290,7 @@ static std::vector<float> as_float_array(const photon_map_t& photon_map)
 	v.push_back(as_float(photon_map.n_indirect_photons));
 	v.push_back(as_float(photon_map.n_lookup));
 	v.push_back(as_float(photon_map.max_specular_depth));
+
 	v.push_back(as_float(photon_map.max_dist_squared));
 	v.push_back(as_float(photon_map.rr_threshold));
 	v.push_back(as_float(photon_map.n_caustic_paths));
@@ -354,7 +373,6 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 					camera_->GenerateRay(sample, &ray, &ray_weight);
 
 					ray_buffer.push_back(ray);
-					ray_buffer.back().ray_id = unsigned(local_samples.size());
 					local_samples.push_back(sample);
 				}
 				else
@@ -396,6 +414,9 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 				cl::Buffer ray_tracing_ray_buffer = CreateBuffer(ray_tracing_context_,CL_MEM_READ_ONLY,ray_buffer);
 				ray_tracing_kernel_.setArg(10,ray_tracing_ray_buffer);
 				ray_tracing_kernel_.setArg(13,(unsigned int) local_color_buffer.size());
+				printf("sizeof spectrum_t,Seed,ray_diffrential:%d,%d,%d,%d,%d,kd_node:%d \n",
+					sizeof(spectrum_t),sizeof(Seed),sizeof(ray_differential_t),sizeof(photon_t),sizeof(radiance_photon_t),
+					sizeof(kd_node_t));
 				ray_tracing_command_queue_.enqueueNDRangeKernel(ray_tracing_kernel_,cl::NullRange,cl::NDRange(ray_buffer.size()),cl::NullRange);
 				ray_tracing_command_queue_.enqueueReadBuffer(ray_tracing_color_buffer,CL_TRUE,0,
 					local_color_buffer.size() * sizeof(local_color_buffer[0])

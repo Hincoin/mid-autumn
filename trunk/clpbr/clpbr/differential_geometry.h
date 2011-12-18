@@ -11,13 +11,13 @@ typedef struct {
 	
 	point3f_t p;
 	normal3f_t nn;
-	float u, v;
-	unsigned shape_idx;
 	vector3f_t dpdu, dpdv;
 	vector3f_t dndu, dndv;
 
 	vector3f_t dpdx, dpdy;
 	float dudx, dvdx, dudy, dvdy;
+	float u, v;
+	unsigned shape_idx;
 }differential_geometry_t;
 
 #define differential_geometry_init(_dg,_p,_dpdu,_dpdv,_dndu,_dndv,_uu,_vv,shape)\

@@ -9,7 +9,14 @@ typedef struct
 	unsigned primitive_idx;
 	//todo
 	float ray_epsilon;
-}intersection_t;
+}_intersection_t;
+
+#ifndef CL_KERNEL
+#include "make_aligned_type.h"
+typedef make_aligned_type<_intersection_t,sizeof(float)*4>::type intersection_t;
+#else
+typedef _intersection_t intersection_t;
+#endif
 
 typedef struct  
 {

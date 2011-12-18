@@ -36,9 +36,7 @@ class ConstantTextureData:public TextureData<T>{
 
 	void AppendDataTo(std::vector<float>* data,const spectrum_t& c)
 	{
-		data->push_back(c.x);
-		data->push_back(c.y);
-		data->push_back(c.z);
+		save_float3(*data,c);
 	}
 public:
 	ConstantTextureData(const T& value):value_(value){}
@@ -137,21 +135,27 @@ void TriangleMeshShapeData<IndexType>::AppendRefinedDataTo(std::vector<float>* s
 		shape_data->push_back(mesh_data_->object_to_world.m[i]);
 	for(size_t i = 0;i < mesh_data_->number_vertex;++i)
 	{
-		shape_data->push_back(mesh_data_->point_buffer[3*i]);
-		shape_data->push_back(mesh_data_->point_buffer[3*i+1]);
-		shape_data->push_back(mesh_data_->point_buffer[3*i+2]);
+		point3f_t p;
+		p.x = mesh_data_->point_buffer[3*i];
+		p.y = mesh_data_->point_buffer[3*i+1];
+		p.z = mesh_data_->point_buffer[3*i+2];
+		save_float3(*shape_data,p,FLOAT3_96BIT);
 	}
 	for(size_t i = 0;i < mesh_data_->number_vertex;++i)
 	{
-		shape_data->push_back(mesh_data_->normal_buffer[3*i]);
-		shape_data->push_back(mesh_data_->normal_buffer[3*i+1]);
-		shape_data->push_back(mesh_data_->normal_buffer[3*i+2]);
+		normal3f_t n;
+		n.x = mesh_data_->normal_buffer[3*i];
+		n.y = mesh_data_->normal_buffer[3*i+1];
+		n.z = mesh_data_->normal_buffer[3*i+2];
+		save_float3(*shape_data,n,FLOAT3_96BIT);
 	}
 	for(size_t i = 0;i < mesh_data_->number_vertex;++i)
 	{
-		shape_data->push_back(mesh_data_->tangent_buffer[3*i]);
-		shape_data->push_back(mesh_data_->tangent_buffer[3*i + 1]);
-		shape_data->push_back(mesh_data_->tangent_buffer[3*i + 2]);
+		vector3f_t v;
+		v.x = mesh_data_->tangent_buffer[3*i];
+		v.y = mesh_data_->tangent_buffer[3*i+1];
+		v.z = mesh_data_->tangent_buffer[3*i+2];
+		save_float3(*shape_data,v,FLOAT3_96BIT);
 	}
 
 	for(size_t i = 0;i < mesh_data_->number_vertex;++i)

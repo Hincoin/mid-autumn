@@ -6,18 +6,46 @@
 
 #include "photon_map.h"
 typedef struct 
+#ifdef CL_KERNEL
+	__attribute__ ((aligned (16)))
+#endif
 {
 	//follow photon path through scene and record intersections
 	//int specular_path;
 	//int has_non_specular;
 	//int n_intersections;
 	//int continue_trace;
-	int packed_data;//specular_path:1bit,has_non_specular:1bit,continue_trace:1bit,n_intersections:29 bit
 	intersection_t isect;
 	spectrum_t alpha;
 	Seed seed;
+	int packed_data;//specular_path:1bit,has_non_specular:1bit,continue_trace:1bit,n_intersections:29 bit
 }
-photon_intersection_data_t;
+_photon_intersection_data_t;
+
+typedef struct
+#ifdef CL_KERNEL
+	__attribute__ ((aligned (16)))
+#endif
+{
+	photon_t photon;
+	//final gather
+	radiance_photon_t radiance_photon;
+	spectrum_t rho_r,rho_t;
+}_generated_photon_t;
+
+#ifndef CL_KERNEL
+#include "make_aligned_type.h"
+typedef make_aligned_type<_photon_intersection_data_t,sizeof(float)*4>::type photon_intersection_data_t;
+static_assert(sizeof(photon_intersection_data_t)%(4*sizeof(float))==0,"photon_intersectoin_data_t's size not aligned!");
+
+typedef make_aligned_type<_generated_photon_t,sizeof(float)*4>::type generated_photon_t;
+static_assert(sizeof(generated_photon_t)%(4*sizeof(float))==0,"generated_photon_t 's size not aligned!");
+
+#else
+typedef _photon_intersection_data_t photon_intersection_data_t;
+typedef _generated_photon_t generated_photon_t;
+#endif
+
 
 INLINE bool photon_intersection_data_is_specular_path(const photon_intersection_data_t* data)
 {
@@ -53,12 +81,4 @@ INLINE void photon_intersection_data_set_n_intersections(photon_intersection_dat
 {
 	data->packed_data = n_intersections | (data->packed_data & 0xffff0000);
 }
-
-typedef struct{
-	photon_t photon;
-	//final gather
-	radiance_photon_t radiance_photon;
-	spectrum_t rho_r,rho_t;
-}generated_photon_t;
-
 #endif

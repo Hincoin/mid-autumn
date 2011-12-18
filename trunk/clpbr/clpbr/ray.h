@@ -4,32 +4,43 @@
 #include "geometry.h"
 
 typedef struct  
+#ifdef CL_KERNEL
+	__attribute__ ((aligned (16)))
+#endif
 {
 	point3f_t o;
 	vector3f_t d;
 	float mint,maxt;
-} ray_t;
+} _ray_t;
 
-#ifndef CL_KERNEL 
-struct ray_differential_t: public ray_t
+
+#ifndef CL_KERNEL
+#include "make_aligned_type.h"
+typedef make_aligned_type<_ray_t,sizeof(float)*4>::type ray_t; 
 #else
-typedef 
-struct 
+typedef _ray_t ray_t;
+#endif
+
+typedef struct 
+#ifdef CL_KERNEL 
+	__attribute__ ((aligned (16)))
 #endif
 {
-#ifdef CL_KERNEL
 	point3f_t o;
 	vector3f_t d;
-	float mint,maxt;
-#endif
-	char has_differential;
 	ray_t rx,ry;
-	unsigned ray_id;
+
+	float mint,maxt;
+	int has_differential;
 }
-#ifdef CL_KERNEL
-ray_differential_t
-#endif
+_ray_differential_t
 ;
+
+#ifndef CL_KERNEL
+typedef make_aligned_type<_ray_differential_t,sizeof(float)*4>::type ray_differential_t; 
+#else
+typedef _ray_differential_t ray_differential_t;
+#endif
 
 #define rinit(r, a, b) { vassign((r).o, a); vassign((r).d, b);(r).mint = EPSILON;(r).maxt = FLT_MAX; }
 #define rassign(a, b) { vassign((a).o, (b).o); vassign((a).d, (b).d);(a).mint = (b).mint;(a).maxt = (b).maxt; }

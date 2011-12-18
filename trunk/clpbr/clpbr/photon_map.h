@@ -254,14 +254,14 @@ INLINE void photon_map_final_gather(const photon_map_t* photon_map,cl_scene_info
 									const point3f_t p,
 									const normal3f_t n,
 									const vector3f_t wo,
-									bsdf_t bsdf,
+									bsdf_t *bsdf,
 									spectrum_t *l,
 									LOCAL close_photon_t *photon_buffer,
 									LOCAL vector3f_t *photon_dirs
 									)
 {
 	int non_specular = BSDF_REFLECTION|BSDF_TRANSMISSION|BSDF_DIFFUSE|BSDF_GLOSSY;
-	if (bsdf_num_components(&bsdf,non_specular)>0)
+	if (bsdf_num_components(bsdf,non_specular)>0)
 	{
 #define n_indir_sample_photons 50
 
@@ -291,7 +291,7 @@ INLINE void photon_map_final_gather(const photon_map_t* photon_map,cl_scene_info
 			float u2 = random_float(seed);
 			float u3 = random_float(seed);
 			BxDFType sampled_type;
-			bsdf_sample_f(&bsdf,&wo,&wi,u1,u2,u3,&pdf,(BxDFType)(BSDF_ALL&~BSDF_SPECULAR),&sampled_type,&fr);
+			bsdf_sample_f(bsdf,&wo,&wi,u1,u2,u3,&pdf,(BxDFType)(BSDF_ALL&~BSDF_SPECULAR),&sampled_type,&fr);
 			if (pdf == 0.f || color_is_black(fr))
 			{
 				continue;
@@ -352,7 +352,7 @@ INLINE void photon_map_final_gather(const photon_map_t* photon_map,cl_scene_info
 				&vx,&vy,&photon_dir,
 				&wi);
 			spectrum_t fr;
-			bsdf_f(&bsdf,&wo,&wi,BSDF_ALL,&fr);
+			bsdf_f(bsdf,&wo,&wi,BSDF_ALL,&fr);
 			if (color_is_black(fr))
 				continue;
 			ray_t bounce_ray;
@@ -389,7 +389,7 @@ INLINE void photon_map_final_gather(const photon_map_t* photon_map,cl_scene_info
 				}
 				photon_pdf /= n_indir_sample_photons;
 
-				float bsdfPdf = bsdf_pdf(&bsdf,&wo,&wi,BSDF_ALL);
+				float bsdfPdf = bsdf_pdf(bsdf,&wo,&wi,BSDF_ALL);
 				float wt = power_heuristic(photon_map->gather_samples,
 					photon_pdf,
 					photon_map->gather_samples,
@@ -601,7 +601,7 @@ INLINE void photon_map_li(const photon_map_t* photon_map,
 				vadd(li_val,li_val,l);
 				
 //#define DIRECT_LIGHTING
-//#define FINAL_GATHER
+#define FINAL_GATHER
 #ifndef DIRECT_LIGHTING
 				photon_map_lphoton(photon_map,
 					&photon_map->caustic_map,photon_map->n_caustic_paths,
@@ -611,10 +611,10 @@ INLINE void photon_map_li(const photon_map_t* photon_map,
 #ifdef FINAL_GATHER
 				if (photon_map->final_gather)
 				{
-#if 0
+#if 1
 					photon_map_final_gather(photon_map,
 						scene_info,seed,p,n,wo,&bsdf,&l,
-						photon_buffers,
+						photon_buffer,
 						photon_dirs);
 #else
 					normal3f_t nn;
@@ -729,19 +729,26 @@ INLINE void photon_map_li(const photon_map_t* photon_map,
 
 INLINE GLOBAL float* load_photon_kd_tree(photon_kd_tree_t* photon_kd_tree,GLOBAL float* data)
 {
-	photon_kd_tree->n_nodes = as_uint(data[0]);
-	photon_kd_tree->nodes = (GLOBAL kd_node_t*)(data + 1);
-	photon_kd_tree->node_data = (GLOBAL photon_t*)(data + 1 + photon_kd_tree->n_nodes * sizeof(kd_node_t)/sizeof(float) );
-	photon_kd_tree->next_free_node = as_uint(*(data + 1 +photon_kd_tree->n_nodes * sizeof(kd_node_t)/sizeof(float) +photon_kd_tree->n_nodes * 9) );
-	return data +  1 +photon_kd_tree->n_nodes * sizeof(kd_node_t)/sizeof(float) +photon_kd_tree->n_nodes * 9 + 1;
+	photon_kd_tree->n_nodes = as_uint(data[0]);//1,2,3
+	photon_kd_tree->next_free_node = as_uint(data[1]);
+	photon_kd_tree->nodes = (GLOBAL kd_node_t*)(data + 4);
+	int remain = (photon_kd_tree->n_nodes * sizeof(kd_node_t)/sizeof(float))%4;
+	int num_pad_float = remain > 0 ? 4-remain:0;
+
+	photon_kd_tree->node_data = (GLOBAL photon_t*)(data + 4 + photon_kd_tree->n_nodes * sizeof(kd_node_t)/sizeof(float) + num_pad_float );
+	return data + 4 +photon_kd_tree->n_nodes * sizeof(kd_node_t)/sizeof(float) + num_pad_float +photon_kd_tree->n_nodes * sizeof(photon_t)/sizeof(float);
 }
 INLINE GLOBAL float* load_radiance_photon_kd_tree(radiance_photon_kd_tree_t* photon_kd_tree, GLOBAL float* data)
 {
-	photon_kd_tree->n_nodes = as_uint(data[0]);
-	photon_kd_tree->nodes = (GLOBAL kd_node_t*)(data + 1);
-	photon_kd_tree->node_data = (GLOBAL radiance_photon_t*)(data + 1+photon_kd_tree->n_nodes * sizeof(kd_node_t)/sizeof(float) );
-	photon_kd_tree->next_free_node = as_uint(*(data + 1 +photon_kd_tree->n_nodes * sizeof(kd_node_t)/sizeof(float) +photon_kd_tree->n_nodes * 9) );
-	return data +  1 +photon_kd_tree->n_nodes * sizeof(kd_node_t)/sizeof(float) +photon_kd_tree->n_nodes * 9 + 1;
+
+	photon_kd_tree->n_nodes = as_uint(data[0]);//1,2,3
+	photon_kd_tree->next_free_node = as_uint(data[1]);
+	photon_kd_tree->nodes = (GLOBAL kd_node_t*)(data + 4);
+	int remain = (photon_kd_tree->n_nodes * sizeof(kd_node_t)/sizeof(float))%4;
+	int num_pad_float = remain > 0 ? 4-remain:0;
+	photon_kd_tree->node_data = (GLOBAL radiance_photon_t*)(data + 4 + photon_kd_tree->n_nodes * sizeof(kd_node_t)/sizeof(float) + num_pad_float );
+
+	return data + 4 +photon_kd_tree->n_nodes * sizeof(kd_node_t)/sizeof(float) + num_pad_float +photon_kd_tree->n_nodes * sizeof(radiance_photon_t)/sizeof(float);
 }
 INLINE void load_photon_map(photon_map_t* photon_map,GLOBAL float* data)
 {

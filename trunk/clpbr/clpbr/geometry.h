@@ -9,17 +9,15 @@
 
 #ifndef CL_KERNEL 
 #include <cassert>
-#endif
 
 typedef struct 
 {
-	float x,y,z;
+	float x,y,z,w;
 }vector3f_t;
 
 typedef struct 
 {
-	float x,y,z;
-#ifndef CL_KERNEL
+	float x,y,z,w;
 	float& operator[](int i)
 	{
 		assert(i>=0 && i <=3);
@@ -34,12 +32,11 @@ typedef struct
 		else if(i == 1)return y;
 		else return z;
 	}
-#endif
 }point3f_t;
 
 typedef struct 
 {
-	float x,y,z;
+	float x,y,z,w;
 }normal3f_t;
 
 
@@ -61,11 +58,37 @@ typedef struct
 #define vdiv(v,a,b) {(v).x = (a).x / (b).x;(v).y = (a).y/(b).y;(v).z = (a).z/(b).z;}
 #define vneg(v0,v) {(v0).x = -(v).x;(v0).y = -(v).y;(v0).z = -(v).z;}
 
-#ifndef CL_KERNEL
 #define clamp(x, a, b) ((x) < (a) ? (a) : ((x) > (b) ? (b) : (x)))
 #define max(x, y) ( (x) > (y) ? (x) : (y))
 #define min(x, y) ( (x) < (y) ? (x) : (y))
 #define sign(x) ((x) > 0 ? 1 : -1)
+#else
+
+//typedef float4 vector3f_t;
+//typedef float4 normal3f_t;
+//typedef float4 point3f_t;
+#define vector3f_t float4
+#define normal3f_t float4
+#define point3f_t float4
+
+
+#define vinit(v, a, b, c) { (v).x = a; (v).y = b; (v).z = c; }
+#define vassign(a, b) vinit(a, (b).x, (b).y, (b).z)
+#define vclr(v) vinit(v, 0.f, 0.f, 0.f)
+#define vadd(v, a, b) {v = a+b;}
+#define vsub(v, a, b) {v = a-b;}
+#define vsadd(v, a, b) { v = a+b; }
+#define vmul(v, a, b) { v = a*b;}
+#define vsmul(v, a, b) { (v)= ( a ) * (b); }
+#define vdot(a, b) (dot(a,b))
+
+#define vnorm(v) { v = normalize(v); }
+#define vxcross(v, a, b) {v = cross(a,b);}
+#define vfilter(v) ((v).x > (v).y && (v).x > (v).z ? (v).x : (v).y > (v).z ? (v).y : (v).z)
+#define viszero(v) (((v).x == 0.f) && ((v).x == 0.f) && ((v).z == 0.f))
+#define vdiv(v,a,b) {v=a/b;}
+#define vneg(v0,v) {v0=-v;}
+
 #endif
 
 #define to_int(x) ((int)(pow(clamp(x, 0.f, 1.f), 1.f / 2.2f) * 255.f + .5f))
@@ -104,12 +127,12 @@ INLINE void bbox_init(bbox_t* bbox)
 }
 INLINE void bbox_union_with_point(bbox_t* bbox,const point3f_t* p)
 {
-	bbox->pmin.x = min(bbox->pmin.x, p->x);
-    bbox->pmin.y = min(bbox->pmin.y, p->y);
-    bbox->pmin.z = min(bbox->pmin.z, p->z);
-    bbox->pmax.x = max(bbox->pmax.x, p->x);
-    bbox->pmax.y = max(bbox->pmax.y, p->y);
-    bbox->pmax.z = max(bbox->pmax.z, p->z);
+	bbox->pmin.x = min(bbox->pmin.x, (*p).x);
+    bbox->pmin.y = min(bbox->pmin.y, (*p).y);
+    bbox->pmin.z = min(bbox->pmin.z, (*p).z);
+    bbox->pmax.x = max(bbox->pmax.x, (*p).x);
+    bbox->pmax.y = max(bbox->pmax.y, (*p).y);
+    bbox->pmax.z = max(bbox->pmax.z, (*p).z);
 }
 //return which axis is has max distance
 INLINE unsigned int bbox_max_extent(const bbox_t* bbox)
@@ -124,14 +147,14 @@ INLINE unsigned int bbox_max_extent(const bbox_t* bbox)
 		return 2;
 }
 
-INLINE void coordinate_system(const vector3f_t *v1, vector3f_t *v2, vector3f_t *v3) {
-	if (fabs(v1->x) > fabs(v1->y)) {
-		float invLen = 1.f / sqrt(v1->x*v1->x + v1->z*v1->z);
-		vinit(*v2,-v1->z * invLen,0.f,v1->x * invLen);
+INLINE void coordinate_system(const vector3f_t *v1,  vector3f_t *v2, vector3f_t *v3) {
+	if (fabs((*v1).x) > fabs((*v1).y)) {
+		float invLen = 1.f / sqrt((*v1).x*(*v1).x + (*v1).z*(*v1).z);
+		vinit(*v2,-(*v1).z * invLen,0.f,(*v1).x * invLen);
 	}
 	else {
-		float invLen = 1.f / sqrt(v1->y*v1->y + v1->z*v1->z);
-		vinit(*v2,0.f,v1->z * invLen, -v1->y * invLen);
+		float invLen = 1.f / sqrt((*v1).y*(*v1).y + (*v1).z*(*v1).z);
+		vinit(*v2,0.f,(*v1).z * invLen, -(*v1).y * invLen);
 	}
 	vxcross(*v3,*v1, *v2);
 }
@@ -140,5 +163,45 @@ INLINE void spherical_direction(float sin_theta,
 								 float cos_theta, float phi, vector3f_t *v) {
 									 vinit(*v,(sin_theta*cos(phi)),(sin_theta*sin(phi)),(cos_theta));
 }
+#ifndef CL_KERNEL
+#include <vector>
+typedef enum {FLOAT3_96BIT,FLOAT3_128BIT}float3_component_size_t;
+template<typename F3>
+void save_float3(std::vector<float>& v,const F3& f3,float3_component_size_t is_4component = FLOAT3_128BIT)
+{
+	v.push_back(f3.x);
+	v.push_back(f3.y);
+	v.push_back(f3.z);
+	if(is_4component == FLOAT3_128BIT)
+		v.push_back(f3.w);
+}
+#endif
 
+ INLINE float* load_point3f(float* addr, point3f_t *point)
+{
+	(*point).x = addr[0];
+	(*point).y = addr[1];
+	(*point).z = addr[2];
+	(*point).w = addr[3];
+	return addr + 4;
+}
+ /*
+ INLINE float* load_vector3f(float* addr,vector3f_t *v)
+{
+	(*v).x = addr[0];
+	(*v).y = addr[1];
+	(*v).z = addr[2];
+	(*v).w = addr[3];
+	return addr + 4;
+}
+
+ INLINE float* load_normal3f(float* addr,normal3f_t *v)
+{
+	(*v).x = addr[0];
+	(*v).y = addr[1];
+	(*v).z = addr[2];
+	(*v).w = addr[3];
+	return addr+4;
+}
+*/
 #endif

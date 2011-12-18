@@ -13,9 +13,9 @@ INLINE void light_l(cl_scene_info_t scene_info, material_info_t light_material,c
 		unsigned texture_type = as_uint(*(scene_info.material_data+light_material.memory_start));
 		unsigned memory_start = as_uint(*(scene_info.material_data+light_material.memory_start+1));
 		GLOBAL float* mem = scene_info.texture_data + memory_start;
-		c->x = mem[0];
-		c->y = mem[1];
-		c->z = mem[2];
+		(*c).x = mem[0];
+		(*c).y = mem[1];
+		(*c).z = mem[2];
 	}
 	else
 		vclr((*c));
