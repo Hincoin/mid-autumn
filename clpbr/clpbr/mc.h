@@ -40,9 +40,12 @@ INLINE void concentric_sample_disk(float u1, float u2,
 
 
 INLINE void cosine_sample_hemisphere(float u1, float u2,vector3f_t *ret) {
-	concentric_sample_disk(u1, u2, &ret->x, &ret->y);
-	ret->z = sqrt(max(0.f,
-	                  (1.f - ret->x*ret->x - ret->y*ret->y)));
+	float x,y;
+	concentric_sample_disk(u1, u2, &x, &y);
+	(*ret).x = x;
+	(*ret).y = y;
+	(*ret).z = sqrt(max(0.f,
+	                  (1.f - (*ret).x*(*ret).x - (*ret).y*(*ret).y)));
 }
 INLINE void uniform_sample_cone(float u1, float u2, float cos_theta_max,
 						 const vector3f_t *x, const vector3f_t *y, const vector3f_t *z,vector3f_t* ret) {

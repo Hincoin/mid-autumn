@@ -59,6 +59,270 @@ void photon_map_destroy(photon_map_t* photon_map)//free up kd-tree memory
 	kd_tree_destroy<photon_t>(&photon_map->indirect_map);
 	kd_tree_destroy<radiance_photon_t>(&photon_map->radiance_map);
 }
+
+
+void photon_intersect(
+		GLOBAL photon_intersection_data_t *intersections,
+		GLOBAL ray_t *photon_rays, 
+		GLOBAL float* light_data,
+		GLOBAL float* material_data,
+		GLOBAL float* shape_data,
+		GLOBAL float* texture_data,
+		GLOBAL float* accelerator_data,
+		GLOBAL primitive_info_t* primitives,
+		GLOBAL light_info_t* lghts, 
+		CONSTANT float *lights_power,  //constant
+		CONSTANT float *light_cdf, //constatt
+		CONSTANT permuted_halton16_t *halton, //constant
+		const float light_total_power,
+		const unsigned int primitive_count, 
+		const unsigned int lght_count,
+		const unsigned int total_shot,
+		const unsigned int number_work_items
+)		
+{
+	//if(i < number_work_items)
+	for(int k = 0; k < number_work_items; ++k)
+	{
+		const int i = k;
+		if(i > 215399- 64)
+		{printf("debug index : %d\n",i);}
+
+		cl_scene_info_t scene_info;
+		scene_info.light_data = light_data;
+		scene_info.material_data = material_data;
+		scene_info.shape_data = shape_data;
+		scene_info.texture_data = texture_data;
+		scene_info.accelerator_data = accelerator_data;
+		scene_info.primitives = primitives;
+		scene_info.primitive_count = primitive_count;
+		scene_info.lghts = lghts;
+		scene_info.lght_count = lght_count;
+		float u[5];
+		photon_intersection_data_t other_data;
+		ray_t photon_ray = photon_rays[i];
+		other_data = intersections[i];
+
+		if(i == 203622)
+		{printf("crash 11111111\n");}
+
+
+		spectrum_t alpha = other_data.alpha;
+		//mem_fence(CLK_GLOBAL_MEM_FENCE);
+		//spectrum_t ltranmittance;
+		int try_count ;
+		
+		try_count = 0;
+
+		if(photon_intersection_data_continue_trace(&other_data))
+		{
+			if(!intersect(accelerator_data, shape_data, primitives, primitive_count,&photon_ray,&other_data.isect)) 
+			{
+				photon_intersection_data_set_continue_trace(&other_data,0);
+				photon_intersection_data_set_n_intersections(&other_data,0);
+			}
+			//else
+			//{
+			//	halton16_sample(halton,total_shot + i + 1, u , 5);
+			//}
+		}
+
+		if(i == 203622)
+		{printf("crash 11111111\n");}
+		if(!photon_intersection_data_continue_trace(&other_data))
+		{
+			while( try_count ++ < 4)
+			{
+				int local_shot = total_shot + i + try_count;
+				halton16_sample(halton,local_shot, u , 5);
+				//choose light of shoot photon from
+				float lpdf;
+
+				int lnum = (int)floor(sample_step_1d(lights_power,light_cdf,
+					light_total_power,lght_count,u[0],&lpdf));
+				lnum = min(lnum, (int)lght_count - 1);
+
+				GLOBAL light_info_t* light = lghts+lnum;
+				float pdf;
+
+				normal3f_t nl;
+				light_ray_sample_l(light,scene_info,u[1 ],u[2 ],u[3],u[4],
+					&photon_ray,&nl,&pdf,& alpha);
+				if (pdf == 0.f || color_is_black(alpha))continue;
+				vsmul(other_data.alpha,(fabs(vdot(nl,photon_ray.d))/(pdf*lpdf)),alpha);
+				photon_intersection_data_set_n_intersections(&other_data,0);
+				if(intersect(accelerator_data, shape_data, primitives, primitive_count,&photon_ray,&other_data.isect)) 
+				{
+					break;
+				}
+			}
+			if(try_count >= 4){
+				intersections[i] = other_data;
+				return;
+			}
+		}
+
+		photon_intersection_data_set_specular_path(&other_data, 
+				photon_intersection_data_n_intersections(&other_data) == 0 ||
+				photon_intersection_data_is_specular_path(&other_data) == true);
+		//if(photon_intersection_data_n_intersections(&other_data) == 1 && other_data.alpha.x < 0.000001f)
+		{
+		//	printf("intersect_kernel %d,%d\t",i,photon_intersection_data_continue_trace(&other_data));
+		}
+		//if(i == 1)
+		//printf("before ++n_intersections %d\t",photon_intersection_data_n_intersections(&other_data));
+		photon_intersection_data_set_continue_trace(&other_data,1);
+		photon_intersection_data_set_n_intersections(&other_data, 1 + photon_intersection_data_n_intersections(&other_data));
+		//other_data.n_intersections = 1 + other_data.n_intersections ;
+
+		//scene_tranmittance(scene_info,&photon_ray,&ltranmittance);
+		intersections[i] = other_data;
+		//if(i == 1)
+		//	printf("after ++n_intersections %d\t",photon_intersection_data_n_intersections(&other_data));
+		photon_rays[i] = photon_ray;
+
+		//mem_fence(CLK_GLOBAL_MEM_FENCE);
+	}
+}
+
+
+void photon_generation(
+		GLOBAL photon_intersection_data_t *intersections,
+		GLOBAL ray_t *photon_rays,
+		GLOBAL float* light_data,
+		GLOBAL float* material_data,
+		GLOBAL float* shape_data,
+		GLOBAL float* texture_data,
+		GLOBAL float* accelerator_data,
+		GLOBAL primitive_info_t* primitives,
+		GLOBAL light_info_t* lghts, 
+		GLOBAL generated_photon_t* generated_photons,
+		const unsigned int primitive_count, 
+		const unsigned int lght_count,
+		const unsigned int number_work_items
+		)
+{
+	for(int i = 0; i < number_work_items; ++i)
+	{
+		printf("photon_generation id: %d\t",i);
+		cl_scene_info_t scene_info;
+		scene_info.light_data = light_data;
+		scene_info.material_data = material_data;
+		scene_info.shape_data = shape_data;
+		scene_info.texture_data = texture_data;
+		scene_info.accelerator_data = accelerator_data;
+		scene_info.primitives = primitives;
+		scene_info.primitive_count = primitive_count;
+		scene_info.lghts = lghts;
+		scene_info.lght_count = lght_count;
+
+		ray_t photon_ray = photon_rays[i];
+		intersection_t isect = intersections[i].isect;
+		photon_intersection_data_t other_data = intersections[i]	;
+		spectrum_t alpha = other_data.alpha;
+		if (photon_intersection_data_n_intersections(&other_data) < 1)
+			return;
+		//if(other_data.alpha.x < 0.000001f)
+		//	printf("load errrrrrrrrrrrr");
+
+	//	if(i == 1)
+	//		printf("photon_generation %d",photon_intersection_data_n_intersections(&other_data));
+
+		vector3f_t wo ; 
+		vneg(wo,photon_ray.d);
+		bsdf_t photon_bsdf;
+
+		intersection_get_bsdf(&isect,scene_info,&photon_ray,
+					   &photon_bsdf);
+		BxDFType specular_type = 
+		(BxDFType)(BSDF_REFLECTION|BSDF_TRANSMISSION|BSDF_SPECULAR);
+		photon_intersection_data_set_non_specular(&other_data, (
+							   photon_bsdf.n_bxdfs > bsdf_num_components(&photon_bsdf,specular_type)
+							   ));
+		Seed seed = other_data.seed;
+
+		if (photon_intersection_data_has_non_specular(&other_data))
+		{
+		//	if(other_data.alpha.x < 0.000001f)
+		//		printf("small red component when store photon\t");
+			//deposit photon at surface
+			photon_t photon;
+			photon_init(&photon,&isect.dg.p,& alpha,&wo);
+			generated_photons[i].photon = photon;
+
+			//store data for radiance photon
+			normal3f_t n = isect.dg.nn;
+			radiance_photon_t radiance_photon;
+			spectrum_t rho_r,rho_t;
+			if(vdot(n,photon_ray.d) > 0.f)vneg(n,n);
+			radiance_photon_init(&radiance_photon,&(isect.dg.p),(&n));
+			bsdf_rho_hh(&photon_bsdf,&seed,BSDF_ALL_REFLECTION,&rho_r);
+			bsdf_rho_hh(&photon_bsdf,&seed,BSDF_ALL_TRANSMISSION,&rho_t);
+			generated_photons[i].radiance_photon = radiance_photon;
+			generated_photons[i].rho_r = rho_r;
+			generated_photons[i].rho_t = rho_t;
+		}
+
+		//sample new photon ray direction
+		vector3f_t wi;
+		float pdf;
+		BxDFType flags;
+
+		//compute new photon weight and possibly terminate with rr
+		spectrum_t fr;
+		float u1 = random_float(&seed);
+		float u2 = random_float(&seed);
+		float u3 = random_float(&seed);
+		bsdf_sample_f(&photon_bsdf,&wo,&wi,u1,u2,u3,&pdf,BSDF_ALL,&flags,&fr);
+		if(color_is_black(fr) || pdf == 0.f)
+		{
+			photon_intersection_data_set_continue_trace(&other_data,0);
+			other_data.seed = seed;
+			intersections[i] = other_data;
+			return;
+		}
+		//if(fr.x < 0.000001f)
+			//printf("00000000bsdf_sample_f small red component:%f,%f,%d,%f,%f,%f,pdf:%f\t",fr.x,other_data.alpha.x,photon_intersection_data_n_intersections(&other_data),u1,u2,u3,pdf);
+
+		spectrum_t anew;
+		vmul(anew, alpha,fr);
+		vsmul(anew,fabs(vdot(wi,photon_bsdf.dg_shading.nn))/pdf,anew);
+		//if(anew.x < 0.000001f)
+			//printf("11111111bsdf_sample_f small red component:%f,%f,%d,%f,%f,%f,pdf:%f\t",anew.x,other_data.alpha.x,photon_intersection_data_n_intersections(&other_data),u1,u2,u3,pdf);
+
+		float continue_prob = min(1.f,spectrum_y(&anew)/spectrum_y(& alpha));
+		if (random_float(&seed) > continue_prob  )
+		{
+			photon_intersection_data_set_continue_trace(&other_data,0);
+			other_data.seed = seed;
+			intersections[i] = other_data;
+			return;
+		}
+		vsmul(other_data.alpha,1.f/continue_prob,anew);
+		//if(other_data.alpha.x < 0.000001f)
+			//printf("2222222222bsdf_sample_f small red component:%f,%f,%d,%f,%f,%f,pdf:%f,continue:%f\t",anew.x,other_data.alpha.x,photon_intersection_data_n_intersections(&other_data),u1,u2,u3,pdf,continue_prob);
+
+		//other_data[local_thread_id].alpha = alpha;
+		photon_intersection_data_set_specular_path(&other_data, 
+				photon_intersection_data_is_specular_path(&other_data) && ((flags & BSDF_SPECULAR) != 0));
+
+		if(photon_intersection_data_n_intersections(&other_data) > 4)
+		{
+			photon_intersection_data_set_continue_trace(&other_data,0);
+		}
+		else
+			photon_intersection_data_set_continue_trace(&other_data,1);
+		
+		other_data.seed = seed;
+		intersections[i] = other_data;
+		//if(i == 1)
+		//	printf("photon_generation %d",photon_intersection_data_n_intersections(&other_data));
+
+		rinit(photon_ray,isect.dg.p,wi);
+		photon_ray.mint = isect.ray_epsilon;
+		photon_rays[i] = photon_ray;
+	}
+}
 void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_info_memory,RandomNumberGeneratorMT19937 &rng,
 			cl_photon_init_device_info_t& device_info
 		)
@@ -106,7 +370,7 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 	//static const int buffer_size = 1 * 16 * 128;
 	printf("start shooting photons\n");
 	clock_t t0 = clock();
-	static const unsigned int buffer_size =  1024 * 256;
+	static const unsigned int buffer_size =  1024 * 512;
 	static const unsigned int local_buffer_size =  buffer_size;
 	std::vector<photon_intersection_data_t> other_datas;
 	std::vector<generated_photon_t> generated_photons;
@@ -137,7 +401,7 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 	device_info.photon_generate_kernel.setArg(0, photon_intersect_data_buffer);
 	device_info.photon_generate_kernel.setArg(1,photon_rays_buffer);
 
-	cl::Buffer generated_photons_buffer = cl::Buffer(device_info.photon_generate_context,CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR,
+	cl::Buffer generated_photons_buffer = cl::Buffer(device_info.photon_generate_context,CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR,
 		generated_photons.size() * sizeof(generated_photons[0]),&generated_photons[0]);
 	device_info.photon_generate_kernel.setArg(9,generated_photons_buffer);
 	device_info.photon_generate_kernel.setArg(10,(unsigned int)scene_info_memory.primitives.size());
@@ -147,11 +411,11 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 	while (!caustic_done || !indirect_done )//todo: add not photon_rays.empty
 	{
 		permuted_halton16_initialize(&halton[0],rng);
-		cl::Buffer halton_buffer = cl::Buffer(device_info.photon_intersect_context,CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR,
+		cl::Buffer halton_buffer = cl::Buffer(device_info.photon_intersect_context,CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR,
 			halton.size() * sizeof(halton[0]),&halton[0]);
 		device_info.photon_intersect_kernel.setArg(11,halton_buffer);
 		device_info.photon_intersect_kernel.setArg(15,unsigned int(photon_map->total_photons + n_shot));
-
+		
 		device_info.photon_intersect_command_queue.enqueueNDRangeKernel(device_info.photon_intersect_kernel,cl::NullRange,
 			cl::NDRange(buffer_size),cl::NDRange(128));
 		device_info.photon_intersect_command_queue.finish();
@@ -159,10 +423,13 @@ void photon_map_preprocess(photon_map_t* photon_map,scene_info_memory_t& scene_i
 			cl::NDRange(buffer_size),cl::NDRange(128));
 		device_info.photon_generate_command_queue.flush();
 		/*
+		photon_intersect(&other_datas[0],&photon_rays[0],scene_info.light_data,scene_info.material_data,scene_info.shape_data,scene_info.texture_data,
+			scene_info.accelerator_data,scene_info.primitives,scene_info.lghts,lights_power,light_cdf,&halton[0],total_power,scene_info.primitive_count
+			,scene_info.lght_count,photon_map->total_photons + n_shot,buffer_size);
 		photon_map_preprocess_cl(&other_datas[0],&photon_rays[0],scene_info.light_data,scene_info.material_data,scene_info.shape_data,scene_info.texture_data,
 			scene_info.integrator_data,scene_info.accelerator_data,scene_info.primitives,scene_info.lghts,lights_power,light_cdf,&halton[0],total_power,scene_info.primitive_count
 			,scene_info.lght_count,photon_map->total_photons + n_shot,buffer_size,rng);
-			*/
+		*/
 		//
 		if(!is_first_pass)
 		{

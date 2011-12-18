@@ -17,7 +17,6 @@
 
 __kernel void render(
 __global spectrum_t *colors , __global Seed *seeds,
-
 GLOBAL float* light_data,GLOBAL float* material_data,GLOBAL float* shape_data,
 GLOBAL float* texture_data,GLOBAL float* integrator_data,GLOBAL float* accelerator_data,
 GLOBAL primitive_info_t* primitives,
@@ -60,6 +59,7 @@ const unsigned int primitive_count, const unsigned int lght_count,const unsigned
 		load_photon_map(&photon_map,integrator_data);
 		photon_map_li(&photon_map,&per_ray,scene_info,&seed,&color,
 				ray_stack,passthrough,bsdf_stack,left_stack,close_photon_data_store,photon_buffer,photon_dirs);
+
 		colors[gid] = color;
 		seeds[gid] = seed;
 		//photon_map_li(photon_map,per_ray,scene_info,seed,&color[gid]);

@@ -25,7 +25,10 @@ void screen_window_t::set_window(float xmin,float xmax,float ymin,float ymax)
 }
 void Camera::GenerateRay(const camera_sample_t &camera_sample, ray_differential_t *ray, float *weight)
 {
-	GenerateRay(camera_sample, static_cast<ray_t*>(ray), weight);
+	ray_t parent_ray ;
+	GenerateRay(camera_sample, &parent_ray, weight);
+	rinit(*ray,parent_ray.o,parent_ray.d);
+
 	ray->has_differential = 0;
 	//todo
 	//shift x and y direction

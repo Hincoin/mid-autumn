@@ -367,7 +367,7 @@ void triangle_test()
 	transform_inverse(camera_to_world,world_to_camera);
 
 	int w,h;
-	w=h = 768;
+	w=h = 256 * 3;
 	Film* film = new ImageFilm(w,h,1024*1024);
 	PerspectiveCamera* camera = new PerspectiveCamera(camera_to_world,screen_window_t(1.f),degree_to_radian(degree_t(40)),film);
 	RandomSampler* sampler = new RandomSampler(0,w,0,h,1,1);

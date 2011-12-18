@@ -432,7 +432,7 @@ INLINE void bxdf_sample_f(bxdf_t *self, vector3f_t wo,vector3f_t* wi,
 	default:
 		// Cosine-sample the hemisphere, flipping the direction if necessary
 		cosine_sample_hemisphere(u1, u2,wi);
-		if (wo.z < 0.f) wi->z *= -1.f;
+		if (wo.z < 0.f) (*wi).z *= -1.f;
 		*pdf = bxdf_pdf(self,wo, *wi);
 		bxdf_f(self,wo, *wi,f);
 	}
@@ -478,15 +478,15 @@ INLINE void bsdf_add(bsdf_t* bsdf,bxdf_t* bxdf)
 }
 INLINE void bsdf_world_to_local(const bsdf_t *bsdf,const vector3f_t *v,vector3f_t *vo)
 {
-	vo->x = vdot(*v,bsdf->sn);
-	vo->y = vdot(*v,bsdf->tn);
-	vo->z = vdot(*v,bsdf->nn);
+	(*vo).x = vdot(*v,bsdf->sn);
+	(*vo).y = vdot(*v,bsdf->tn);
+	(*vo).z = vdot(*v,bsdf->nn);
 }
 INLINE void bsdf_local_to_world(const bsdf_t *bsdf,const vector3f_t *v,vector3f_t* vo) 
 {
-	vinit(*vo, (bsdf->sn.x * v->x + bsdf->tn.x * v->y + bsdf->nn.x * v->z),
-		(bsdf->sn.y * v->x + bsdf->tn.y * v->y + bsdf->nn.y * v->z),
-		(bsdf->sn.z * v->x + bsdf->tn.z * v->y + bsdf->nn.z * v->z));
+	vinit(*vo, (bsdf->sn.x * (*v).x + bsdf->tn.x * (*v).y + bsdf->nn.x * (*v).z),
+		(bsdf->sn.y * (*v).x + bsdf->tn.y * (*v).y + bsdf->nn.y * (*v).z),
+		(bsdf->sn.z * (*v).x + bsdf->tn.z * (*v).y + bsdf->nn.z * (*v).z));
 }
 INLINE void bsdf_f(const bsdf_t* bsdf,
 				   const vector3f_t* woW,const vector3f_t* wiW,BxDFType flags,

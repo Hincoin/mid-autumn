@@ -46,6 +46,7 @@ __kernel void photon_generation(
 		spectrum_t alpha = other_data.alpha;
 		if (photon_intersection_data_n_intersections(&other_data) < 1)
 			return;
+		//printf("n_intersections %d\t",photon_intersection_data_n_intersections(&other_data));
 		//if(other_data.alpha.x < 0.000001f)
 		//	printf("load errrrrrrrrrrrr");
 
@@ -102,6 +103,8 @@ __kernel void photon_generation(
 		{
 			photon_intersection_data_set_continue_trace(&other_data,0);
 			other_data.seed = seed;
+
+			mem_fence(CLK_GLOBAL_MEM_FENCE);
 			intersections[i] = other_data;
 			return;
 		}
@@ -119,6 +122,8 @@ __kernel void photon_generation(
 		{
 			photon_intersection_data_set_continue_trace(&other_data,0);
 			other_data.seed = seed;
+
+			mem_fence(CLK_GLOBAL_MEM_FENCE);
 			intersections[i] = other_data;
 			return;
 		}
@@ -136,14 +141,17 @@ __kernel void photon_generation(
 		}
 		else
 			photon_intersection_data_set_continue_trace(&other_data,1);
-		
+	
+		rinit(photon_ray,isect.dg.p,wi);
+		photon_ray.mint = isect.ray_epsilon;
+	
 		other_data.seed = seed;
+
+		mem_fence(CLK_GLOBAL_MEM_FENCE);
 		intersections[i] = other_data;
 		//if(i == 1)
 		//	printf("photon_generation %d",photon_intersection_data_n_intersections(&other_data));
 
-		rinit(photon_ray,isect.dg.p,wi);
-		photon_ray.mint = isect.ray_epsilon;
 		photon_rays[i] = photon_ray;
 	}
 }

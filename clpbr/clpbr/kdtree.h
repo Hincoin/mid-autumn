@@ -63,12 +63,17 @@ INLINE void kd_node_init_leaf(kd_node_t* kd_node)
 
 INLINE float distance_squared(point3f_t v0,point3f_t v1)
 {
+#ifndef CL_KERNEL
 	vector3f_t v;
 	vsub(v,v0,v1);
 	return vdot(v,v);
+#else
+	return fast_distance(v0,v1);
+#endif
 }
 //stack
-#ifdef CL_KERNEL
+#define USE_CL_KERNEL_KDTREE
+#ifdef USE_CL_KERNEL_KDTREE
 #define kd_tree_lookup(_kd_tree,_p,_proc_data,_proc,_max_dist_sqr)\
 {\
 	unsigned node_stack[KD_TREE_MAX_DEPTH];\
@@ -92,7 +97,8 @@ INLINE float distance_squared(point3f_t v0,point3f_t v1)
 			}\
 			else if(visit_stack[stack_top] == in)\
 			{\
-				float dist2 = distance_squared((_kd_tree).node_data[node_num].p, (_p));\
+				point3f_t _p_tmp = (_kd_tree).node_data[node_num].p;\
+				float dist2 = distance_squared(_p_tmp, (_p));\
 				if (dist2 < (_max_dist_sqr))\
 					(_proc)((_proc_data), &((_kd_tree).node_data[node_num]), dist2, &(_max_dist_sqr));\
 				visit_stack[stack_top] = post;\

@@ -11,14 +11,11 @@ typedef
 #ifndef CL_KERNEL
 struct spectrum_t
 {
-	spectrum_t(float xx=0,float yy=0, float zz=0):x(xx),y(yy),z(zz){}
-	float x,y,z;
+	spectrum_t(float xx=0,float yy=0, float zz=0,float aa=0):x(xx),y(yy),z(zz),w(aa){}
+	float x,y,z,w;
 };
 #else 
-typedef struct 
-{
-	float x,y,z;
-}spectrum_t;
+#define spectrum_t float4
 
 #endif
 
@@ -57,12 +54,9 @@ INLINE int convert_to_rgb(const spectrum_t* spectrum)
 	//r = xyz[0]*rWeight[0] + xyz[1]*rWeight[1]+ xyz[2] * rWeight[2];
 	//g = xyz[0]*gWeight[0] + xyz[1]*gWeight[1]+ xyz[2] * gWeight[2];
 	//b = xyz[0]*bWeight[0] + xyz[1]*bWeight[1]+ xyz[2] * bWeight[2];
-	float r = spectrum->x;
-	float g = spectrum->y;
-	float b = spectrum->z;
-	return to_int(r) |
-		(to_int(g) << 8) |
-		(to_int(b) << 16)	;
+	return to_int((*spectrum).x) |
+		(to_int((*spectrum).y) << 8) |
+		(to_int((*spectrum).z) << 16)	;
 }
 INLINE float spectrum_y(spectrum_t* color)
 {
@@ -70,14 +64,18 @@ INLINE float spectrum_y(spectrum_t* color)
 	float YWeight[] = {
 		0.212671f, 0.715160f, 0.072169f
 	};
-	y+= YWeight[0] * color->x;
-	y+= YWeight[1] * color->y;
-	y+= YWeight[2] * color->z;
+	y+= YWeight[0] * (*color).x;
+	y+= YWeight[1] * (*color).y;
+	y+= YWeight[2] * (*color).z;
 	return y;	
 }
-INLINE unsigned load_color(GLOBAL float *mem,spectrum_t *ret)
+
+INLINE float* load_spectrum(float* addr,spectrum_t *spectrum)
 {
-	vinit(*ret,mem[0],mem[1],mem[2]);
-	return 3;
+	(*spectrum).x = addr[0];
+	(*spectrum).y = addr[1];
+	(*spectrum).z = addr[2];
+	(*spectrum).w = addr[3];
+	return addr+4;
 }
 #endif
