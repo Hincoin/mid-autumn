@@ -107,7 +107,7 @@ PPMRenderer::PPMRenderer(Camera* c,Film* im,Sampler* s,photon_map_t* photon_map)
 	cl::Platform::get(&platforms);
 	cl_context_properties cprops[]={
 		CL_CONTEXT_PLATFORM,
-		(cl_context_properties)(platforms[0])(),
+		(cl_context_properties)(platforms[1])(),
 		0
 	};
 	photon_intersect_context_ = cl::Context(CL_DEVICE_TYPE_CPU, cprops);
@@ -116,7 +116,7 @@ PPMRenderer::PPMRenderer(Camera* c,Film* im,Sampler* s,photon_map_t* photon_map)
 
 	cl_context_properties cpu_cprops[]={
 		CL_CONTEXT_PLATFORM,
-		(cl_context_properties)(platforms[1])(),
+		(cl_context_properties)(platforms[0])(),
 		0
 	};
 	ray_tracing_context_ = cl::Context(CL_DEVICE_TYPE_CPU,cpu_cprops);
@@ -329,6 +329,9 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 	ray_tracing_seeds = CreateBuffer(ray_tracing_context_,CL_MEM_READ_WRITE,seeds);
 	ray_tracing_kernel_.setArg(1,ray_tracing_seeds);
 
+
+	size_t ray_tracing_work_group_size;
+	ray_tracing_kernel_.getWorkGroupInfo(ray_tracing_devices_[0],CL_KERNEL_WORK_GROUP_SIZE,&ray_tracing_work_group_size);
 	int iteration = 0;
 	while(true)
 	{
@@ -380,7 +383,7 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 			}
 
 			local_color_buffer.resize(ray_buffer.size(),spectrum_t());
-#define USE_OPENCL
+//#define USE_OPENCL
 #ifndef USE_OPENCL
 			photon_map_t loaded_photon_map;
 			load_photon_map(&loaded_photon_map,&scene_info.integrator_data[0]);
@@ -417,7 +420,12 @@ void PPMRenderer::Render(const scene_info_memory_t& scene_info_mem)
 				printf("sizeof spectrum_t,Seed,ray_diffrential:%d,%d,%d,%d,%d,kd_node:%d \n",
 					sizeof(spectrum_t),sizeof(Seed),sizeof(ray_differential_t),sizeof(photon_t),sizeof(radiance_photon_t),
 					sizeof(kd_node_t));
-				ray_tracing_command_queue_.enqueueNDRangeKernel(ray_tracing_kernel_,cl::NullRange,cl::NDRange(ray_buffer.size()),cl::NullRange);
+
+				size_t global_threads = ray_buffer.size();
+				if (global_threads % ray_tracing_work_group_size!= 0)
+					global_threads = (global_threads / ray_tracing_work_group_size + 1) * ray_tracing_work_group_size;
+				size_t local_threads = ray_tracing_work_group_size;
+				ray_tracing_command_queue_.enqueueNDRangeKernel(ray_tracing_kernel_,cl::NullRange,cl::NDRange(global_threads),cl::NDRange(local_threads));
 				ray_tracing_command_queue_.enqueueReadBuffer(ray_tracing_color_buffer,CL_TRUE,0,
 					local_color_buffer.size() * sizeof(local_color_buffer[0])
 					,&local_color_buffer[0]);
